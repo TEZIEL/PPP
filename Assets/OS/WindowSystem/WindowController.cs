@@ -25,19 +25,31 @@ public class WindowController : MonoBehaviour, IPointerDownHandler, IBeginDragHa
     [Header("Drag")]
     [SerializeField] private float minVisibleTitleBarHeight = 20f;
 
+    // WindowController 내부
+    [SerializeField] private CanvasGroup cg;
+
+    public bool IsMinimized { get; private set; }
+
+    public void SetMinimized(bool minimized)
+    {
+        IsMinimized = minimized;
+
+        if (cg == null) cg = GetComponent<CanvasGroup>();
+        if (cg != null)
+        {
+            cg.alpha = minimized ? 0f : 1f;
+            cg.interactable = !minimized;
+            cg.blocksRaycasts = !minimized;
+        }
+    }
+
+
     private WindowManager owner;
     private RectTransform canvasRect;
     private bool isPinned;
 
     public string AppId => appId;
-    public bool IsMinimized { get; private set; }
     public RectTransform WindowRoot => windowRoot;
-
-    public void SetMinimized(bool minimized)
-    {
-        if (IsMinimized == minimized) return;
-        IsMinimized = minimized;
-    }
 
 
     private void Awake()

@@ -1,4 +1,4 @@
-using System.Collections.Generic;
+ï»¿using System.Collections.Generic;
 using UnityEngine;
 
 public class WindowManager : MonoBehaviour
@@ -78,13 +78,12 @@ public class WindowManager : MonoBehaviour
 
         activeAppId = appId;
 
-        if (!target.gameObject.activeSelf)
+        if (target.IsMinimized)
         {
-            target.gameObject.SetActive(true);
-            target.SetMinimized(false);          // Æ÷Ä¿½º ½Ã ÃÖ¼ÒÈ­ »óÅÂ ÇØÁ¦(¾ÈÀü)
+            target.SetMinimized(false);
             taskbarManager?.SetMinimized(appId, false);
-
         }
+
 
         target.transform.SetAsLastSibling();
 
@@ -116,7 +115,6 @@ public class WindowManager : MonoBehaviour
             SaveSystem.SetWindowPositionHook(appId, target.WindowRoot.anchoredPosition);
 
         target.SetMinimized(true);
-        target.gameObject.SetActive(false);
         taskbarManager?.SetMinimized(appId, true);
 
         if (wasActive && !suppressAutoFocus)
@@ -133,16 +131,11 @@ public class WindowManager : MonoBehaviour
         }
 
         target.SetMinimized(false);
-        target.gameObject.SetActive(true);
         taskbarManager?.SetMinimized(appId, false);
         Focus(appId);
 
     }
 
-    public bool IsMinimized(string appId)
-    {
-        return openWindows.TryGetValue(appId, out WindowController target) && target != null && !target.gameObject.activeSelf;
-    }
 
     public void OnWindowMoved(string appId, Vector2 anchoredPosition)
     {
@@ -158,26 +151,27 @@ public class WindowManager : MonoBehaviour
     {
         var root = windowsRoot != null ? windowsRoot : (RectTransform)transform;
 
-
         WindowController best = null;
         int bestSibling = -1;
 
-        // windowsRoot ÀÚ½Ä ¼ø¼­°¡ °ð Z-order (µÚ¿¡ ÀÖÀ»¼ö·Ï À§)
-        for (int i = 0; i < windowsRoot.childCount; i++)
+        // root ìžì‹ ìˆœì„œê°€ ê³§ Z-order (ë’¤ì— ìžˆì„ìˆ˜ë¡ ìœ„)
+        for (int i = 0; i < root.childCount; i++)
         {
-            Transform child = windowsRoot.GetChild(i);
+            Transform child = root.GetChild(i);
             if (child == null) continue;
 
             var wc = child.GetComponent<WindowController>();
             if (wc == null) continue;
 
-            // Á¦¿Ü(¹æ±Ý ´Ý°Å³ª ÃÖ¼ÒÈ­ÇÑ Ã¢)
+            // ì œì™¸(ë°©ê¸ˆ ë‹«ê±°ë‚˜ ìµœì†Œí™”í•œ ì°½)
             if (!string.IsNullOrEmpty(excludedAppId) && wc.AppId == excludedAppId) continue;
 
-            // ÃÖ¼ÒÈ­/ºñÈ°¼º Ã¢Àº ÈÄº¸¿¡¼­ Á¦¿Ü
-            if (!wc.gameObject.activeSelf) continue;
+            // ìµœì†Œí™”/ë¹„í™œì„± ì°½ì€ í›„ë³´ì—ì„œ ì œì™¸
+            if (wc.IsMinimized) continue;   // âœ… ì´ì œ SetActive(false) ì•ˆ ì“°ëŠ” êµ¬ì¡°ë©´ ì´ê²Œ ì •ë‹µ
+                                            // ë§Œì•½ ì•„ì§ SetActive(false) ì“°ëŠ” ì¤‘ì´ë©´ ì•„ëž˜ë¡œ:
+                                            // if (!wc.gameObject.activeSelf) continue;
 
-            // °¡Àå À§(°¡Àå Å« sibling index)
+            // ê°€ìž¥ ìœ„(ê°€ìž¥ í° sibling index)
             if (i > bestSibling)
             {
                 bestSibling = i;
@@ -191,39 +185,42 @@ public class WindowManager : MonoBehaviour
         }
         else
         {
-            // ³²Àº Ã¢ÀÌ ¾øÀ¸¸é È°¼ºÃ¢ ¾øÀ½ Ã³¸®
-            // (¼±ÅÃ) activeAppId°¡ ÀÖ´Ù¸é ¿©±â¼­ null·Î
             activeAppId = null;
-
-            // (¼±ÅÃ) ÅÂ½ºÅ©¹Ù È°¼º Ç¥½Ãµµ ½Ï ²ô°í ½ÍÀ¸¸é:
             foreach (var pair in openWindows)
                 taskbarManager?.SetActive(pair.Key, false);
         }
     }
-    public void RestoreNoFocus(string appId)
+
+
+
+    public bool IsMinimized(string appId)
     {
-        if (!openWindows.TryGetValue(appId, out WindowController target) || target == null)
-            return;
-
-        target.SetMinimized(false);
-        target.gameObject.SetActive(true);
-        taskbarManager?.SetMinimized(appId, false);
-
-        // ¡Ú ¿©±â¼­ Focus(appId) Àý´ë È£ÃâÇÏÁö ¾ÊÀ½
-        // ½Ã°¢»ö(È°¼º/ºñÈ°¼º)Àº ³ªÁß¿¡ ÃÖÁ¾ Focus ÇÑ ¹øÀ¸·Î Á¤¸®
+        return openWindows.TryGetValue(appId, out var target) && target != null && target.IsMinimized;
     }
+
 
     public void MinimizeNoFocus(string appId)
     {
-        if (!openWindows.TryGetValue(appId, out WindowController target) || target == null)
+        if (!openWindows.TryGetValue(appId, out var target) || target == null)
             return;
 
         if (target.WindowRoot != null)
             SaveSystem.SetWindowPositionHook(appId, target.WindowRoot.anchoredPosition);
 
         target.SetMinimized(true);
-        target.gameObject.SetActive(false);
         taskbarManager?.SetMinimized(appId, true);
     }
+
+
+    public void RestoreNoFocus(string appId)
+    {
+        if (!openWindows.TryGetValue(appId, out var target) || target == null)
+            return;
+
+        target.SetMinimized(false);
+        taskbarManager?.SetMinimized(appId, false);
+    }
+
+
 
 }
