@@ -2,7 +2,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 
-public class ShowDesktopController_A : MonoBehaviour
+public class ShowDesktopController : MonoBehaviour
 {
     [SerializeField] private WindowManager windowManager;
     [SerializeField] private Button showDesktopButton;
