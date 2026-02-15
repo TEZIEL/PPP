@@ -80,18 +80,28 @@ public class TaskbarButtonController : MonoBehaviour
     private void OnClick()
     {
         if (windowManager == null) return;
-
-        // 창이 이미 닫혀서 참조가 끊긴 경우: 안전하게 무시
         if (targetWindow == null) return;
 
-        // 단일 진실은 targetWindow.AppId (문자열 오타/불일치 방지)
         string id = string.IsNullOrEmpty(targetWindow.AppId) ? appId : targetWindow.AppId;
         if (string.IsNullOrEmpty(id)) return;
 
-        // 토글: 최소화면 복원, 아니면 최소화
+        // 1) 최소화 상태면: 복원 + 포커스
         if (targetWindow.IsMinimized)
-            windowManager.Restore(id);
-        else
+        {
+            windowManager.Restore(id);     // 내부에서 Focus까지 하면 OK
+                                           // 만약 Restore가 Focus를 안 부르는 구조로 바꿨다면 여기서 windowManager.Focus(id); 호출
+            return;
+        }
+
+        // 2) 현재 포커스 창이면: 최소화 (윈도우식)
+        if (windowManager.ActiveAppId == id)
+        {
             windowManager.Minimize(id);
+            return;
+        }
+
+        // 3) 포커스가 아니면: 포커스만
+        windowManager.Focus(id);
     }
+
 }

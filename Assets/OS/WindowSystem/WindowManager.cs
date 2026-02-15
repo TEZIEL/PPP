@@ -8,6 +8,8 @@ public class WindowManager : MonoBehaviour
     [SerializeField] private TaskbarManager taskbarManager;
 
     private readonly Dictionary<string, WindowController> openWindows = new();
+    private string activeAppId;
+    public string ActiveAppId => activeAppId;
 
     public void Open(string appId, WindowController windowPrefab)
     {
@@ -58,6 +60,10 @@ public class WindowManager : MonoBehaviour
         taskbarManager?.Remove(appId);
         openWindows.Remove(appId);
 
+        if (activeAppId == appId)
+            activeAppId = null;
+
+
         if (window != null)
         {
             Destroy(window.gameObject);
@@ -70,6 +76,8 @@ public class WindowManager : MonoBehaviour
         {
             return;
         }
+
+        activeAppId = appId;
 
         if (!target.gameObject.activeSelf)
         {
