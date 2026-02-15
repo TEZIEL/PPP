@@ -21,6 +21,12 @@ public class WindowManager : MonoBehaviour
         Open(appId, windowPrefab, Vector2.zero);
     }
 
+    public bool IsOpen(string appId)
+    {
+        return openWindows.ContainsKey(appId);
+    }
+
+
     public void Open(string appId, WindowController windowPrefab, Vector2 defaultPos)
     {
         if (string.IsNullOrWhiteSpace(appId) || windowPrefab == null) return;

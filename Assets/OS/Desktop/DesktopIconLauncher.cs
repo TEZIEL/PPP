@@ -1,4 +1,4 @@
-using UnityEngine;
+﻿using UnityEngine;
 using UnityEngine.UI;
 
 public class DesktopIconLauncher : MonoBehaviour
@@ -14,6 +14,7 @@ public class DesktopIconLauncher : MonoBehaviour
     [Header("Optional")]
     [SerializeField] private Button iconButton;
     [SerializeField] private float clickCooldownSeconds = 0.15f;
+    [SerializeField] private ShowDesktopController showDesktop; // 인스펙터에 연결
 
     private float _nextAllowedTime;
 
@@ -23,15 +24,19 @@ public class DesktopIconLauncher : MonoBehaviour
             iconButton.onClick.AddListener(HandleClick);
     }
 
-    // Button OnClick���� ���� �����ص� ��
+    // Button OnClick에서 직접 연결해도 됨
     public void HandleClick()
     {
         if (Time.unscaledTime < _nextAllowedTime) return;
         _nextAllowedTime = Time.unscaledTime + clickCooldownSeconds;
+
+        if (showDesktop != null && showDesktop.IsDesktopShown)
+            return; // ✅ 전체최소화 중이면 아이콘 클릭 무시
 
         if (windowManager == null || windowPrefab == null || string.IsNullOrEmpty(appId))
             return;
 
         windowManager.Open(appId, windowPrefab, defaultPos);
     }
+
 }
