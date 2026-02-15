@@ -17,6 +17,12 @@ public class WindowController : MonoBehaviour, IPointerDownHandler, IBeginDragHa
     [SerializeField] private Button minimizeButton;
     [SerializeField] private Button pinToggleButton;
 
+    [Header("Skin")]
+    [SerializeField] private UISkin skin;
+    [SerializeField] private Image titleBarImage;   // 타이틀바 배경 Image
+    [SerializeField] private Image frameImage;      // 창 프레임/바탕 Image (선택)
+
+
     [Header("Drag")]
     [SerializeField] private float minVisibleTitleBarHeight = 20f;
 
@@ -76,8 +82,24 @@ public class WindowController : MonoBehaviour, IPointerDownHandler, IBeginDragHa
 
     public void SetActiveVisual(bool isActive)
     {
-        skinApplier?.Apply(isActive);
+        if (skin == null) return;
+
+        if (titleBarImage != null)
+        {
+            titleBarImage.color =
+                isActive ? skin.titleActiveColor
+                         : skin.titleInactiveColor;
+        }
+
+        if (frameImage != null)
+        {
+            frameImage.color =
+                isActive ? skin.frameActiveColor
+                         : skin.frameInactiveColor;
+        }
     }
+
+
 
     public void SetWindowPosition(Vector2 anchoredPosition)
     {

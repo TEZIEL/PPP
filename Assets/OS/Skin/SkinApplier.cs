@@ -4,15 +4,19 @@ using UnityEngine.UI;
 public class SkinApplier : MonoBehaviour
 {
     [SerializeField] private UISkin skin;
-    [SerializeField] private Graphic targetGraphic;
+
+    [Header("Targets")]
+    [SerializeField] private Graphic titleBarGraphic; // TitleBar Image µî
+    [SerializeField] private Graphic frameGraphic;    // WindowFrame Image µî
 
     public void Apply(bool isActive)
     {
-        if (targetGraphic == null || skin == null)
-        {
-            return;
-        }
+        if (skin == null) return;
 
-        targetGraphic.color = isActive ? skin.activeColor : skin.inactiveColor;
+        if (titleBarGraphic != null)
+            titleBarGraphic.color = isActive ? skin.titleActiveColor : skin.titleInactiveColor;
+
+        if (frameGraphic != null)
+            frameGraphic.color = isActive ? skin.frameActiveColor : skin.frameInactiveColor;
     }
 }

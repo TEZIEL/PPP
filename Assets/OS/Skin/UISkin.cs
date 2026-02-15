@@ -1,9 +1,13 @@
 using UnityEngine;
 
-[CreateAssetMenu(fileName = "UISkin", menuName = "OS/UI Skin")]
+[CreateAssetMenu(menuName = "OS/UISkin")]
 public class UISkin : ScriptableObject
 {
-    [Header("Window Tint")]
-    public Color activeColor = new Color(0.92f, 0.92f, 0.98f, 1f);
-    public Color inactiveColor = new Color(0.6f, 0.6f, 0.67f, 1f);
+    [Header("TitleBar Tint")]
+    public Color titleActiveColor = Color.white;
+    public Color titleInactiveColor = Color.gray;
+
+    [Header("Frame Tint")]
+    public Color frameActiveColor = Color.white;
+    public Color frameInactiveColor = Color.gray;
 }
