@@ -1,6 +1,3 @@
-using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
 using System.IO;
 using UnityEngine;
 
@@ -33,5 +30,29 @@ public static class SaveSystem
         var json = File.ReadAllText(path);
         var loaded = JsonUtility.FromJson<SaveData>(json);
         return loaded ?? new SaveData();
+    }
+
+    // Hook only: caller can decide when to flush Save(Bootstrap.Data).
+    public static void SetWindowPositionHook(string appId, Vector2 anchoredPosition)
+    {
+        if (Bootstrap.Data == null)
+        {
+            return;
+        }
+
+        Bootstrap.Data.os.SetWindowPosition(appId, anchoredPosition);
+    }
+
+    // Hook only: runtime reads from loaded SaveData.
+    public static bool TryGetWindowPosition(string appId, out Vector2 anchoredPosition)
+    {
+        anchoredPosition = default;
+
+        if (Bootstrap.Data == null)
+        {
+            return false;
+        }
+
+        return Bootstrap.Data.os.TryGetWindowPosition(appId, out anchoredPosition);
     }
 }

@@ -1,7 +1,4 @@
-using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
-using System;
+癤퓎sing System;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -11,10 +8,30 @@ public class OSState
     // windowId -> position
     public Dictionary<string, Vector2> windowPositions = new();
 
-    // 간단 스킨 값 (나중에 확장)
+    // current skin id (expand later)
     public string skinId = "default";
 
     // desktop iconId -> position
     public Dictionary<string, Vector2> desktopIconPositions = new();
+
+public void SetWindowPosition(string appId, Vector2 position)
+{
+    if (string.IsNullOrWhiteSpace(appId))
+    {
+        return;
+    }
+
+    windowPositions[appId] = position;
 }
 
+public bool TryGetWindowPosition(string appId, out Vector2 position)
+{
+    if (string.IsNullOrWhiteSpace(appId))
+    {
+        position = default;
+        return false;
+    }
+
+    return windowPositions.TryGetValue(appId, out position);
+}
+}
