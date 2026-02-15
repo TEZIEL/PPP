@@ -1,53 +1,37 @@
-using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 
 public class DesktopIconLauncher : MonoBehaviour
 {
+    [Header("Wiring")]
     [SerializeField] private WindowManager windowManager;
-    [SerializeField] private Button showDesktopButton;
 
-    private readonly List<string> previouslyVisibleApps = new();
-    private bool isDesktopShown;
+    [Header("App")]
+    [SerializeField] private string appId = "VN";
+    [SerializeField] private WindowController windowPrefab;
+    [SerializeField] private Vector2 defaultPos = new Vector2(200, -120);
+
+    [Header("Optional")]
+    [SerializeField] private Button iconButton;
+    [SerializeField] private float clickCooldownSeconds = 0.15f;
+
+    private float _nextAllowedTime;
 
     private void Awake()
     {
-        if (showDesktopButton != null)
-        {
-            showDesktopButton.onClick.AddListener(ToggleShowDesktop);
-        }
+        if (iconButton != null)
+            iconButton.onClick.AddListener(HandleClick);
     }
 
-    public void ToggleShowDesktop()
+    // Button OnClick에서 직접 연결해도 됨
+    public void HandleClick()
     {
-        if (windowManager == null)
-        {
+        if (Time.unscaledTime < _nextAllowedTime) return;
+        _nextAllowedTime = Time.unscaledTime + clickCooldownSeconds;
+
+        if (windowManager == null || windowPrefab == null || string.IsNullOrEmpty(appId))
             return;
-        }
 
-        if (!isDesktopShown)
-        {
-            previouslyVisibleApps.Clear();
-
-            foreach (KeyValuePair<string, WindowController> pair in windowManager.GetOpenWindows())
-            {
-                if (pair.Value != null && pair.Value.gameObject.activeSelf)
-                {
-                    previouslyVisibleApps.Add(pair.Key);
-                    windowManager.Minimize(pair.Key);
-                }
-            }
-
-            isDesktopShown = true;
-            return;
-        }
-
-        for (int i = 0; i < previouslyVisibleApps.Count; i++)
-        {
-            windowManager.Restore(previouslyVisibleApps[i]);
-        }
-
-        previouslyVisibleApps.Clear();
-        isDesktopShown = false;
+        windowManager.Open(appId, windowPrefab, defaultPos);
     }
 }
