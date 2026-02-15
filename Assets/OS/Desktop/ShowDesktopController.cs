@@ -36,7 +36,7 @@ public class ShowDesktopController : MonoBehaviour
             focusCo = null;
         }
 
-        // --- ON: "현재 보이는 창(= active && not minimized)"만 저장하고 전부 최소화 ---
+        // --- ON ---
         if (!isDesktopShown)
         {
             previouslyVisibleApps.Clear();
@@ -49,12 +49,13 @@ public class ShowDesktopController : MonoBehaviour
                 var wc = pair.Value;
                 if (wc == null) continue;
 
-                // ✅ 보이는 창만 저장 (이미 최소화된 건 제외)
-                if (wc.gameObject.activeSelf && !wc.IsMinimized)
+                // ✅ 현재 화면에 떠 있는 창만 = "최소화 아님"
+                if (!wc.IsMinimized)
                     previouslyVisibleApps.Add(pair.Key);
             }
 
-            // ✅ NoFocus로만 최소화 (포커스 튐 방지)
+            Debug.Log($"Will minimize count: {previouslyVisibleApps.Count}");
+
             for (int i = 0; i < previouslyVisibleApps.Count; i++)
                 windowManager.MinimizeNoFocus(previouslyVisibleApps[i]);
 
@@ -63,6 +64,7 @@ public class ShowDesktopController : MonoBehaviour
             isDesktopShown = true;
             return;
         }
+
 
         // --- OFF: 저장했던 애들만 복원 ---
         windowManager.BeginBatch();
@@ -96,6 +98,9 @@ public class ShowDesktopController : MonoBehaviour
             isDesktopShown = false;
             focusCo = null;
             yield break;
+
+           
+
         }
 
         // 1) 원래 활성창이 아직 열려있고(닫히지 않았고), 복원 대상에 있었으면 그걸 포커스
@@ -122,5 +127,6 @@ public class ShowDesktopController : MonoBehaviour
         previouslyVisibleApps.Clear();
         isDesktopShown = false;
         focusCo = null;
+        
     }
 }
