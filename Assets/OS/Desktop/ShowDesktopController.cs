@@ -10,26 +10,30 @@ public class ShowDesktopController : MonoBehaviour
     private readonly List<string> previouslyVisibleApps = new();
     private bool isDesktopShown;
 
+    private float lastToggleTime;
+    private const float cooldown = 0.2f;
+
     private void Awake()
     {
         if (showDesktopButton != null)
-        {
             showDesktopButton.onClick.AddListener(ToggleShowDesktop);
-        }
     }
 
     public void ToggleShowDesktop()
     {
-        if (windowManager == null)
-        {
-            return;
-        }
+        if (windowManager == null) return;
 
+        if (Time.time - lastToggleTime < cooldown)
+            return;
+
+        lastToggleTime = Time.time;
+
+        // ▼ 최소화
         if (!isDesktopShown)
         {
             previouslyVisibleApps.Clear();
 
-            foreach (KeyValuePair<string, WindowController> pair in windowManager.GetOpenWindows())
+            foreach (var pair in windowManager.GetOpenWindows())
             {
                 if (pair.Value != null && pair.Value.gameObject.activeSelf)
                 {
@@ -42,9 +46,10 @@ public class ShowDesktopController : MonoBehaviour
             return;
         }
 
-        for (int i = 0; i < previouslyVisibleApps.Count; i++)
+        // ▼ 복원
+        foreach (string id in previouslyVisibleApps)
         {
-            windowManager.Restore(previouslyVisibleApps[i]);
+            windowManager.Restore(id);
         }
 
         previouslyVisibleApps.Clear();

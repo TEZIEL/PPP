@@ -47,18 +47,12 @@ public class TaskbarManager : MonoBehaviour
         SetState(appId, isActive, minimizedApps.Contains(appId));
     }
 
-    public void SetMinimized(string appId, bool isMinimized)
+    public void SetMinimized(string appId, bool minimized)
     {
-        if (isMinimized)
-        {
-            minimizedApps.Add(appId);
-        }
-        else
-        {
-            minimizedApps.Remove(appId);
-        }
+        if (!buttons.TryGetValue(appId, out TaskbarButtonController btn) || btn == null)
+            return;
 
-        SetState(appId, false, isMinimized);
+        btn.SetMinimizedVisual(minimized);
     }
 
     public void OnTaskbarButtonClicked(string appId)

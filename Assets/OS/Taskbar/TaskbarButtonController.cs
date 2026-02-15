@@ -8,35 +8,26 @@ public class TaskbarButtonController : MonoBehaviour
     [SerializeField] private WindowController targetWindow;
     [SerializeField] private Button button;
 
+    [Header("Visual")]
+    [SerializeField] private Image background;
+    [SerializeField] private Sprite recessedSprite; // 오목(보이는 상태)
+    [SerializeField] private Sprite raisedSprite;   // 볼록(최소화)
+
     [Header("Debug/Identity (optional)")]
-    [SerializeField] private string appId; // 디버그/표시용. source of truth는 targetWindow.AppId 권장
+    [SerializeField] private string appId;
 
     private bool _listenerHooked;
 
     private void Awake()
     {
-        // 버튼 슬롯을 깜빡해도 자동으로 잡아줌
-        if (button == null)
-            button = GetComponent<Button>();
-
+        if (button == null) button = GetComponent<Button>();
+        if (background == null) background = GetComponent<Image>();
         HookListener();
     }
 
-    private void OnEnable()
-    {
-        // 비활성/활성 토글될 때 중복 등록 방지
-        HookListener();
-    }
-
-    private void OnDisable()
-    {
-        UnhookListener();
-    }
-
-    private void OnDestroy()
-    {
-        UnhookListener();
-    }
+    private void OnEnable() => HookListener();
+    private void OnDisable() => UnhookListener();
+    private void OnDestroy() => UnhookListener();
 
     private void HookListener()
     {
@@ -56,25 +47,24 @@ public class TaskbarButtonController : MonoBehaviour
         _listenerHooked = false;
     }
 
-    // TaskbarManager에서 버튼 생성 직후 호출
     public void Initialize(string id, WindowManager manager, WindowController window)
     {
-        appId = id;               // 디버그/호환용
+        appId = id;
         windowManager = manager;
         targetWindow = window;
     }
 
-    // (선택) TaskbarManager가 상태 표시용으로 호출하는 훅
     public void SetMinimizedVisual(bool minimized)
     {
-        // 지금은 비워둬도 됨.
-        // 나중에: Image 색/스프라이트(볼록/오목) 바꾸기
+        if (background == null) return;
+        if (recessedSprite == null || raisedSprite == null) return;
+
+        background.sprite = minimized ? raisedSprite : recessedSprite;
     }
 
     public void SetActiveVisual(bool active)
     {
-        // 지금은 비워둬도 됨.
-        // 나중에: Image 색/스프라이트 바꾸기
+        // 너 요구사항에선 포커스/백그라운드 동일 처리라 비워둬도 됨
     }
 
     private void OnClick()
@@ -82,26 +72,20 @@ public class TaskbarButtonController : MonoBehaviour
         if (windowManager == null) return;
         if (targetWindow == null) return;
 
-        string id = string.IsNullOrEmpty(targetWindow.AppId) ? appId : targetWindow.AppId;
+        string id = !string.IsNullOrEmpty(targetWindow.AppId) ? targetWindow.AppId : appId;
         if (string.IsNullOrEmpty(id)) return;
 
-        // 1) 최소화 상태면: 복원 + 포커스
+        // 1) 최소화면 복원
         if (targetWindow.IsMinimized)
         {
-            windowManager.Restore(id);     // 내부에서 Focus까지 하면 OK
-                                           // 만약 Restore가 Focus를 안 부르는 구조로 바꿨다면 여기서 windowManager.Focus(id); 호출
+            windowManager.Restore(id); // Restore 내부에서 Focus까지 하면 베스트
             return;
         }
 
-        // 2) 현재 포커스 창이면: 최소화 (윈도우식)
+        // 2) 보이는 상태: 포커스면 최소화, 포커스 아니면 포커스
         if (windowManager.ActiveAppId == id)
-        {
             windowManager.Minimize(id);
-            return;
-        }
-
-        // 3) 포커스가 아니면: 포커스만
-        windowManager.Focus(id);
+        else
+            windowManager.Focus(id);
     }
-
 }
