@@ -207,5 +207,18 @@ public class WindowManager : MonoBehaviour
                 taskbarManager?.SetActive(pair.Key, false);
         }
     }
+    public void RestoreNoFocus(string appId)
+    {
+        if (!openWindows.TryGetValue(appId, out WindowController target) || target == null)
+            return;
+
+        target.SetMinimized(false);
+        target.gameObject.SetActive(true);
+        taskbarManager?.SetMinimized(appId, false);
+
+        // ★ 여기서 Focus(appId) 절대 호출하지 않음
+        // 시각색(활성/비활성)은 나중에 최종 Focus 한 번으로 정리
+    }
+
 
 }
