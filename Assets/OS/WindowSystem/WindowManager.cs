@@ -10,6 +10,9 @@ public class WindowManager : MonoBehaviour
     private readonly Dictionary<string, WindowController> openWindows = new();
     private string activeAppId;
     public string ActiveAppId => activeAppId;
+    private bool suppressAutoFocus;
+    public void BeginBatch() => suppressAutoFocus = true;
+    public void EndBatch() => suppressAutoFocus = false;
 
     public void Open(string appId, WindowController windowPrefab)
     {
@@ -48,32 +51,23 @@ public class WindowManager : MonoBehaviour
     public void Close(string appId)
     {
         if (!openWindows.TryGetValue(appId, out WindowController window))
-        {
             return;
-        }
 
-
-        bool wasActive = (ActiveAppId == appId);   // ★ 추가
+        bool wasActive = (activeAppId == appId);
 
         if (window != null && window.WindowRoot != null)
-        {
             SaveSystem.SetWindowPositionHook(appId, window.WindowRoot.anchoredPosition);
-        }
 
         taskbarManager?.Remove(appId);
         openWindows.Remove(appId);
 
-        if (wasActive)                             // ★ 추가
-            FocusNextTopWindow(appId);             // ★ 추가
-     
-
-
+        if (wasActive && !suppressAutoFocus)
+            FocusNextTopWindow(appId);
 
         if (window != null)
-        {
             Destroy(window.gameObject);
-        }
     }
+
 
     public void Focus(string appId)
     {
@@ -116,7 +110,7 @@ public class WindowManager : MonoBehaviour
         if (!openWindows.TryGetValue(appId, out WindowController target) || target == null)
             return;
 
-        bool wasActive = (activeAppId == appId);   // ★ 이 줄 추가
+        bool wasActive = (activeAppId == appId);
 
         if (target.WindowRoot != null)
             SaveSystem.SetWindowPositionHook(appId, target.WindowRoot.anchoredPosition);
@@ -125,11 +119,10 @@ public class WindowManager : MonoBehaviour
         target.gameObject.SetActive(false);
         taskbarManager?.SetMinimized(appId, true);
 
-        if (wasActive)
+        if (wasActive && !suppressAutoFocus)
             FocusNextTopWindow(appId);
-     
-
     }
+
 
 
     public void Restore(string appId)
@@ -220,5 +213,17 @@ public class WindowManager : MonoBehaviour
         // 시각색(활성/비활성)은 나중에 최종 Focus 한 번으로 정리
     }
 
+    public void MinimizeNoFocus(string appId)
+    {
+        if (!openWindows.TryGetValue(appId, out WindowController target) || target == null)
+            return;
+
+        if (target.WindowRoot != null)
+            SaveSystem.SetWindowPositionHook(appId, target.WindowRoot.anchoredPosition);
+
+        target.SetMinimized(true);
+        target.gameObject.SetActive(false);
+        taskbarManager?.SetMinimized(appId, true);
+    }
 
 }

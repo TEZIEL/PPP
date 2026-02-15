@@ -1,3 +1,4 @@
+ï»¿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
@@ -14,6 +15,8 @@ public class ShowDesktopController : MonoBehaviour
     private float lastToggleTime;
     private const float cooldown = 0.2f;
 
+    private Coroutine focusCo;
+
     private void Awake()
     {
         if (showDesktopButton != null)
@@ -26,49 +29,98 @@ public class ShowDesktopController : MonoBehaviour
         if (Time.time - lastToggleTime < cooldown) return;
         lastToggleTime = Time.time;
 
-        // 1) ON: º¸ÀÌ´Â Ã¢¸¸ ÃÖ¼ÒÈ­ + È°¼ºÃ¢ ±â¾ï
+        // ì´ì „ ì½”ë£¨í‹´ì´ ë‚¨ì•„ìžˆìœ¼ë©´ ì •ë¦¬
+        if (focusCo != null)
+        {
+            StopCoroutine(focusCo);
+            focusCo = null;
+        }
+
+        // --- ON: "í˜„ìž¬ ë³´ì´ëŠ” ì°½(= active && not minimized)"ë§Œ ì €ìž¥í•˜ê³  ì „ë¶€ ìµœì†Œí™” ---
         if (!isDesktopShown)
         {
             previouslyVisibleApps.Clear();
             previouslyActiveAppId = windowManager.ActiveAppId;
 
+            windowManager.BeginBatch();
+
             foreach (var pair in windowManager.GetOpenWindows())
             {
-                if (pair.Value == null) continue;
+                var wc = pair.Value;
+                if (wc == null) continue;
 
-                // "º¸ÀÌ´Â Ã¢" ±âÁØ: activeSelf·Î ÆÇ´Ü(³Ê ±¸Á¶°¡ ÀÌ ¹æ½Ä)
-                if (pair.Value.gameObject.activeSelf)
-                {
+                // âœ… ë³´ì´ëŠ” ì°½ë§Œ ì €ìž¥ (ì´ë¯¸ ìµœì†Œí™”ëœ ê±´ ì œì™¸)
+                if (wc.gameObject.activeSelf && !wc.IsMinimized)
                     previouslyVisibleApps.Add(pair.Key);
-                }
             }
 
-            // ¸®½ºÆ® ±â¹ÝÀ¸·Î ÃÖ¼ÒÈ­ (¼øÈ¸ Áß Dictionary º¯°æ ¹æÁö)
+            // âœ… NoFocusë¡œë§Œ ìµœì†Œí™” (í¬ì»¤ìŠ¤ íŠ ë°©ì§€)
             for (int i = 0; i < previouslyVisibleApps.Count; i++)
-                windowManager.Minimize(previouslyVisibleApps[i]);
+                windowManager.MinimizeNoFocus(previouslyVisibleApps[i]);
+
+            windowManager.EndBatch();
 
             isDesktopShown = true;
             return;
         }
 
-        // 2) OFF: ±×¶§ º¸ÀÌ´ø Ã¢¸¸ º¹¿ø(Æ÷Ä¿½º´Â ¸¶Áö¸·¿¡ ÇÑ ¹ø¸¸)
-        for (int i = 0; i < previouslyVisibleApps.Count; i++)
-            windowManager.RestoreNoFocus(previouslyVisibleApps[i]);
+        // --- OFF: ì €ìž¥í–ˆë˜ ì• ë“¤ë§Œ ë³µì› ---
+        windowManager.BeginBatch();
 
-        // ¿ø·¡ È°¼ºÃ¢ÀÌ »ì¾ÆÀÖ°í º¹¿ø ´ë»óÀÌ¸é ±×°É Æ÷Ä¿½º
+        for (int i = 0; i < previouslyVisibleApps.Count; i++)
+        {
+            string id = previouslyVisibleApps[i];
+
+            // ë‹«ížŒ ì°½ì€ ë¬´ì‹œ
+            if (!windowManager.GetOpenWindows().TryGetValue(id, out var wc) || wc == null)
+                continue;
+
+            // ì§€ê¸ˆë„ ìµœì†Œí™” ìƒíƒœì¸ ì• ë§Œ ë³µì›(ê¼¬ìž„ ë°©ì§€)
+            if (wc.IsMinimized)
+                windowManager.RestoreNoFocus(id);
+        }
+
+        windowManager.EndBatch();
+
+        // âœ… í¬ì»¤ìŠ¤ëŠ” 1í”„ë ˆìž„ ë’¤ì— ì ìš©(ëžœë¤ í¬ì»¤ìŠ¤ íŠ ë°©ì§€)
+        focusCo = StartCoroutine(FocusAfterRestore());
+    }
+
+    private IEnumerator FocusAfterRestore()
+    {
+        yield return null; // âœ… 1í”„ë ˆìž„ ëŒ€ê¸°
+
+        if (windowManager == null)
+        {
+            previouslyVisibleApps.Clear();
+            isDesktopShown = false;
+            focusCo = null;
+            yield break;
+        }
+
+        // 1) ì›ëž˜ í™œì„±ì°½ì´ ì•„ì§ ì—´ë ¤ìžˆê³ (ë‹«ížˆì§€ ì•Šì•˜ê³ ), ë³µì› ëŒ€ìƒì— ìžˆì—ˆìœ¼ë©´ ê·¸ê±¸ í¬ì»¤ìŠ¤
         if (!string.IsNullOrEmpty(previouslyActiveAppId) &&
-            previouslyVisibleApps.Contains(previouslyActiveAppId))
+            previouslyVisibleApps.Contains(previouslyActiveAppId) &&
+            windowManager.GetOpenWindows().ContainsKey(previouslyActiveAppId))
         {
             windowManager.Focus(previouslyActiveAppId);
         }
-        else if (previouslyVisibleApps.Count > 0)
+        else
         {
-            // ¾øÀ¸¸é ±×³É ¸¶Áö¸·À¸·Î º¹¿øµÈ Ã¢ Æ÷Ä¿½º
-            windowManager.Focus(previouslyVisibleApps[previouslyVisibleApps.Count - 1]);
+            // 2) ì•„ë‹ˆë©´ ë³µì› ëŒ€ìƒ ì¤‘ "ì•„ì§ ì¡´ìž¬í•˜ëŠ” ê²ƒ" í•˜ë‚˜ë¥¼ í¬ì»¤ìŠ¤
+            for (int i = previouslyVisibleApps.Count - 1; i >= 0; i--)
+            {
+                string id = previouslyVisibleApps[i];
+                if (windowManager.GetOpenWindows().TryGetValue(id, out var wc) && wc != null && wc.gameObject.activeSelf)
+                {
+                    windowManager.Focus(id);
+                    break;
+                }
+            }
         }
 
         previouslyVisibleApps.Clear();
-        previouslyActiveAppId = null;
         isDesktopShown = false;
+        focusCo = null;
     }
 }

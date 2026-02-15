@@ -1,4 +1,4 @@
-using UnityEngine;
+ï»¿using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
 
@@ -10,7 +10,6 @@ public class WindowController : MonoBehaviour, IPointerDownHandler, IBeginDragHa
     [Header("Window Parts")]
     [SerializeField] private RectTransform windowRoot;
     [SerializeField] private RectTransform titleBar;
-    [SerializeField] private SkinApplier skinApplier;
 
     [Header("Buttons")]
     [SerializeField] private Button closeButton;
@@ -19,8 +18,8 @@ public class WindowController : MonoBehaviour, IPointerDownHandler, IBeginDragHa
 
     [Header("Skin")]
     [SerializeField] private UISkin skin;
-    [SerializeField] private Image titleBarImage;   // Å¸ÀÌÆ²¹Ù ¹è°æ Image
-    [SerializeField] private Image frameImage;      // Ã¢ ÇÁ·¹ÀÓ/¹ÙÅÁ Image (¼±ÅÃ)
+    [SerializeField] private Image titleBarImage;   // íƒ€ì´í‹€ë°” ë°°ê²½ Image
+    [SerializeField] private Image frameImage;      // ì°½ í”„ë ˆìž„/ë°”íƒ• Image (ì„ íƒ)
 
 
     [Header("Drag")]
@@ -36,6 +35,7 @@ public class WindowController : MonoBehaviour, IPointerDownHandler, IBeginDragHa
 
     public void SetMinimized(bool minimized)
     {
+        if (IsMinimized == minimized) return;
         IsMinimized = minimized;
     }
 
@@ -55,6 +55,8 @@ public class WindowController : MonoBehaviour, IPointerDownHandler, IBeginDragHa
         owner = windowManager;
         appId = id;
         canvasRect = rootCanvas;
+
+        HookButtons(); // âœ… ownerê°€ í™•ì‹¤ížˆ ì„¸íŒ…ëœ ë’¤ í•œ ë²ˆ ë” ë³´ìž¥
     }
 
     public void OnPointerDown(PointerEventData eventData)
@@ -112,22 +114,21 @@ public class WindowController : MonoBehaviour, IPointerDownHandler, IBeginDragHa
         ClampToCanvas();
     }
 
+    private bool buttonsHooked;
+
     private void HookButtons()
     {
+        if (buttonsHooked) return;
+        buttonsHooked = true;
+
         if (closeButton != null)
-        {
             closeButton.onClick.AddListener(() => owner?.Close(appId));
-        }
 
         if (minimizeButton != null)
-        {
             minimizeButton.onClick.AddListener(() => owner?.Minimize(appId));
-        }
 
         if (pinToggleButton != null)
-        {
             pinToggleButton.onClick.AddListener(TogglePin);
-        }
     }
 
     private void TogglePin()
