@@ -33,7 +33,6 @@ public class WindowManager : MonoBehaviour
 
         if (openWindows.ContainsKey(appId))
         {
-            Restore(appId);
             return;
         }
 
