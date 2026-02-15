@@ -40,6 +40,14 @@ public class WindowController : MonoBehaviour,
     }
 
 
+    public void TogglePinFromShortcut()
+    {
+        isPinned = !isPinned;
+
+        // 버튼 색/아이콘 바꾸고 싶으면 여기
+    }
+
+
     private void Awake()
     {
         if (windowRoot == null)

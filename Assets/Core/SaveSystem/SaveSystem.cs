@@ -33,26 +33,30 @@ public static class SaveSystem
     }
 
     // Hook only: caller can decide when to flush Save(Bootstrap.Data).
-    public static void SetWindowPositionHook(string appId, Vector2 anchoredPosition)
+    public static void SetWindowPositionHook(string appId, Vector2 pos)
     {
-        if (Bootstrap.Data == null)
-        {
-            return;
-        }
+        int x = Mathf.RoundToInt(pos.x);
+        int y = Mathf.RoundToInt(pos.y);
 
-        Bootstrap.Data.os.SetWindowPosition(appId, anchoredPosition);
+        PlayerPrefs.SetInt(appId + "_x", x);
+        PlayerPrefs.SetInt(appId + "_y", y);
     }
 
-    // Hook only: runtime reads from loaded SaveData.
-    public static bool TryGetWindowPosition(string appId, out Vector2 anchoredPosition)
-    {
-        anchoredPosition = default;
 
-        if (Bootstrap.Data == null)
+    // Hook only: runtime reads from loaded SaveData.
+    public static bool TryGetWindowPosition(string appId, out Vector2 pos)
+    {
+        if (!PlayerPrefs.HasKey(appId + "_x"))
         {
+            pos = Vector2.zero;
             return false;
         }
 
-        return Bootstrap.Data.os.TryGetWindowPosition(appId, out anchoredPosition);
+        int x = PlayerPrefs.GetInt(appId + "_x");
+        int y = PlayerPrefs.GetInt(appId + "_y");
+
+        pos = new Vector2(x, y);
+        return true;
     }
+
 }
