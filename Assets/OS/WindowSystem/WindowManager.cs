@@ -14,6 +14,8 @@ public class WindowManager : MonoBehaviour
         Open(appId, windowPrefab, Vector2.zero);
     }
 
+
+
     public void Open(string appId, WindowController windowPrefab, Vector2 defaultPos)
     {
         if (string.IsNullOrWhiteSpace(appId) || windowPrefab == null)
@@ -24,9 +26,9 @@ public class WindowManager : MonoBehaviour
         if (openWindows.ContainsKey(appId))
         {
             Restore(appId);
-            Focus(appId);
             return;
         }
+
 
         Transform parent = windowsRoot != null ? windowsRoot : transform;
         WindowController spawned = Instantiate(windowPrefab, parent);
@@ -72,7 +74,9 @@ public class WindowManager : MonoBehaviour
         if (!target.gameObject.activeSelf)
         {
             target.gameObject.SetActive(true);
+            target.SetMinimized(false);          // 포커스 시 최소화 상태 해제(안전)
             taskbarManager?.SetMinimized(appId, false);
+
         }
 
         target.transform.SetAsLastSibling();
@@ -106,8 +110,10 @@ public class WindowManager : MonoBehaviour
             SaveSystem.SetWindowPositionHook(appId, target.WindowRoot.anchoredPosition);
         }
 
+        target.SetMinimized(true);
         target.gameObject.SetActive(false);
         taskbarManager?.SetMinimized(appId, true);
+
     }
 
     public void Restore(string appId)
@@ -117,9 +123,11 @@ public class WindowManager : MonoBehaviour
             return;
         }
 
+        target.SetMinimized(false);
         target.gameObject.SetActive(true);
         taskbarManager?.SetMinimized(appId, false);
         Focus(appId);
+
     }
 
     public bool IsMinimized(string appId)

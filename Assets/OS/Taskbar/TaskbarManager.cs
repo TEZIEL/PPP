@@ -19,7 +19,7 @@ public class TaskbarManager : MonoBehaviour
 
         Transform root = buttonRoot != null ? buttonRoot : transform;
         TaskbarButtonController button = Instantiate(buttonPrefab, root);
-        button.Initialize(this, appId);
+        button.Initialize(appId, windowManager, window);
         buttons.Add(appId, button);
 
         SetState(appId, false, false);
@@ -85,6 +85,5 @@ public class TaskbarManager : MonoBehaviour
             return;
         }
 
-        button.SetState(isActive, isMinimized);
     }
 }

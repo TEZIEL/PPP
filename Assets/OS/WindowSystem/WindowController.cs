@@ -25,7 +25,14 @@ public class WindowController : MonoBehaviour, IPointerDownHandler, IBeginDragHa
     private bool isPinned;
 
     public string AppId => appId;
+    public bool IsMinimized { get; private set; }
     public RectTransform WindowRoot => windowRoot;
+
+    public void SetMinimized(bool minimized)
+    {
+        IsMinimized = minimized;
+    }
+
 
     private void Awake()
     {

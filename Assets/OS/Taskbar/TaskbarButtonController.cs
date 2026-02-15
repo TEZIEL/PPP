@@ -3,40 +3,43 @@ using UnityEngine.UI;
 
 public class TaskbarButtonController : MonoBehaviour
 {
+    [SerializeField] private string appId;
+    [SerializeField] private WindowManager windowManager;
+    [SerializeField] private WindowController targetWindow;
+
     [SerializeField] private Button button;
-    [SerializeField] private Image stateImage;
-    [SerializeField] private Color normalColor = Color.white;
-    [SerializeField] private Color activeColor = new Color(0.75f, 0.9f, 1f, 1f);
-    [SerializeField] private Color minimizedColor = new Color(0.55f, 0.55f, 0.55f, 1f);
 
-    private string appId;
-    private TaskbarManager owner;
-
-    public void Initialize(TaskbarManager taskbarManager, string id)
+    private void Awake()
     {
-        owner = taskbarManager;
-        appId = id;
-
         if (button != null)
-        {
             button.onClick.AddListener(OnClick);
-        }
-
-        SetState(false, false);
     }
 
-    public void SetState(bool isActive, bool isMinimized)
+    public void SetMinimizedVisual(bool minimized)
     {
-        if (stateImage == null)
-        {
-            return;
-        }
+        // 지금은 아무 것도 안 해도 됨(컴파일용)
+    }
+    public void SetActiveVisual(bool active)
+    {
+        // 지금은 아무 것도 안 해도 됨(컴파일용)
+    }
 
-        stateImage.color = isMinimized ? minimizedColor : (isActive ? activeColor : normalColor);
+
+    public void Initialize(string id, WindowManager manager, WindowController window)
+    {
+        appId = id;
+        windowManager = manager;
+        targetWindow = window;
     }
 
     private void OnClick()
     {
-        owner?.OnTaskbarButtonClicked(appId);
+        if (targetWindow == null || windowManager == null)
+            return;
+
+        if (targetWindow.IsMinimized)
+            windowManager.Restore(appId);
+        else
+            windowManager.Minimize(appId);
     }
 }
