@@ -2,7 +2,8 @@
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
 
-public class WindowController : MonoBehaviour, IPointerDownHandler, IBeginDragHandler, IDragHandler
+public class WindowController : MonoBehaviour,
+    IPointerDownHandler, IBeginDragHandler, IDragHandler
 {
     [Header("Identity")]
     [SerializeField] private string appId;
@@ -22,36 +23,43 @@ public class WindowController : MonoBehaviour, IPointerDownHandler, IBeginDragHa
     [SerializeField] private Image titleBarImage;
     [SerializeField] private Image frameImage;
 
-    [Header("Drag")]
-    [SerializeField] private float minVisibleTitleBarHeight = 20f;
-
     private WindowManager owner;
     private RectTransform canvasRect;
     private bool isPinned;
-    private bool buttonsHooked;
 
     public string AppId => appId;
+    public bool IsMinimized { get; private set; }
     public RectTransform WindowRoot => windowRoot;
 
-    public bool IsMinimized { get; private set; }
+    public void SetWindowPosition(Vector2 anchoredPosition)
+    {
+        if (windowRoot == null)
+            return;
+
+        windowRoot.anchoredPosition = anchoredPosition;
+    }
+
 
     private void Awake()
     {
+        if (windowRoot == null)
+            windowRoot = transform as RectTransform;
+
         if (canvasGroup == null)
         {
-            var go = (windowRoot != null ? windowRoot.gameObject : gameObject);
-            canvasGroup = go.GetComponent<CanvasGroup>();
-            if (canvasGroup == null) canvasGroup = go.AddComponent<CanvasGroup>();
+            canvasGroup = windowRoot.GetComponent<CanvasGroup>();
+            if (canvasGroup == null)
+                canvasGroup = windowRoot.gameObject.AddComponent<CanvasGroup>();
         }
+
+        HookButtons();
     }
 
-    public void Initialize(WindowManager wm, string newAppId, RectTransform newCanvasRect)
+    public void Initialize(WindowManager wm, string id, RectTransform rootCanvas)
     {
         owner = wm;
-        appId = newAppId;
-        canvasRect = newCanvasRect;
-
-        HookButtons(); // 프리팹에서 Awake 전에 세팅될 수도 있어서 안전하게 한 번 더
+        appId = id;
+        canvasRect = rootCanvas;
     }
 
     public void SetMinimized(bool minimized)
@@ -63,53 +71,38 @@ public class WindowController : MonoBehaviour, IPointerDownHandler, IBeginDragHa
         canvasGroup.blocksRaycasts = !minimized;
     }
 
-    public void OnPointerDown(PointerEventData eventData)
+    public void OnPointerDown(PointerEventData e)
     {
-        if (!IsMinimized)
-            owner?.Focus(appId);
+        owner?.Focus(appId);
     }
 
-    public void OnBeginDrag(PointerEventData eventData)
+    public void OnBeginDrag(PointerEventData e)
     {
-        if (!IsMinimized)
-            owner?.Focus(appId);
+        owner?.Focus(appId);
     }
 
-    public void OnDrag(PointerEventData eventData)
+    public void OnDrag(PointerEventData e)
     {
-        if (IsMinimized) return;
-        if (isPinned || windowRoot == null || canvasRect == null) return;
+        if (isPinned) return;
 
-        windowRoot.anchoredPosition += eventData.delta;
-        ClampToCanvas();
-
-        owner?.OnWindowMoved(appId, windowRoot.anchoredPosition);
+        windowRoot.anchoredPosition += e.delta;
     }
 
-    public void SetActiveVisual(bool isActive)
+    public void SetActiveVisual(bool active)
     {
         if (skin == null) return;
 
         if (titleBarImage != null)
-            titleBarImage.color = isActive ? skin.titleActiveColor : skin.titleInactiveColor;
+            titleBarImage.color =
+                active ? skin.titleActiveColor : skin.titleInactiveColor;
 
         if (frameImage != null)
-            frameImage.color = isActive ? skin.frameActiveColor : skin.frameInactiveColor;
-    }
-
-    public void SetWindowPosition(Vector2 anchoredPosition)
-    {
-        if (windowRoot == null) return;
-
-        windowRoot.anchoredPosition = anchoredPosition;
-        ClampToCanvas();
+            frameImage.color =
+                active ? skin.frameActiveColor : skin.frameInactiveColor;
     }
 
     private void HookButtons()
     {
-        if (buttonsHooked) return;
-        buttonsHooked = true;
-
         if (closeButton != null)
             closeButton.onClick.AddListener(() => owner?.Close(appId));
 
@@ -117,38 +110,6 @@ public class WindowController : MonoBehaviour, IPointerDownHandler, IBeginDragHa
             minimizeButton.onClick.AddListener(() => owner?.Minimize(appId));
 
         if (pinToggleButton != null)
-            pinToggleButton.onClick.AddListener(TogglePin);
-    }
-
-    private void TogglePin()
-    {
-        isPinned = !isPinned;
-    }
-
-    private void ClampToCanvas()
-    {
-        if (windowRoot == null || canvasRect == null) return;
-
-        Vector2 windowSize = windowRoot.rect.size;
-        Vector2 canvasSize = canvasRect.rect.size;
-
-        float halfWidth = windowSize.x * 0.5f;
-        float halfHeight = windowSize.y * 0.5f;
-
-        float minX = -canvasSize.x * 0.5f + halfWidth;
-        float maxX = canvasSize.x * 0.5f - halfWidth;
-
-        float visibleTitle = Mathf.Max(
-            minVisibleTitleBarHeight,
-            titleBar != null ? titleBar.rect.height : minVisibleTitleBarHeight
-        );
-
-        float minY = -canvasSize.y * 0.5f + halfHeight;
-        float maxY = canvasSize.y * 0.5f - visibleTitle;
-
-        Vector2 pos = windowRoot.anchoredPosition;
-        pos.x = Mathf.Clamp(pos.x, minX, maxX);
-        pos.y = Mathf.Clamp(pos.y, minY, maxY);
-        windowRoot.anchoredPosition = pos;
+            pinToggleButton.onClick.AddListener(() => isPinned = !isPinned);
     }
 }

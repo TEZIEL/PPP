@@ -245,12 +245,12 @@ MonoBehaviour:
   windowRoot: {fileID: 674040382740864952}
   titleBar: {fileID: 5770267493144395910}
   canvasGroup: {fileID: 6495900692413345600}
-  closeButton: {fileID: 2009703376236324870}
-  minimizeButton: {fileID: 9211494625619615585}
-  pinToggleButton: {fileID: 8831697815078611024}
   skin: {fileID: 11400000, guid: 2b77afb104f643d46afbe86c7a120b76, type: 2}
   titleBarImage: {fileID: 8648425489691152799}
   frameImage: {fileID: 4080227881334005079}
+  closeButton: {fileID: 2009703376236324870}
+  minimizeButton: {fileID: 9211494625619615585}
+  pinToggleButton: {fileID: 8831697815078611024}
   minVisibleTitleBarHeight: 20
 --- !u!114 &7723948963746395881
 MonoBehaviour:
