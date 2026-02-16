@@ -199,6 +199,9 @@ public class WindowManager : MonoBehaviour
         if (wasActive && !suppressAutoFocus)
             FocusNextTopWindow(appId);
 
+        openWindows.Remove(appId);
+        taskbarManager?.Remove(appId);
+
         Destroy(window.gameObject);
     }
 
