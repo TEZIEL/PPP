@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Collections;   
 using UnityEngine;
 using PPP.OS.Save;
 
@@ -33,6 +34,14 @@ public class WindowManager : MonoBehaviour
     public void Open(string appId, WindowController windowPrefab)
     {
         Open(appId, windowPrefab, Vector2.zero);
+    }
+
+
+    private IEnumerator CoFinalizeSpawn(WindowController w)
+    {
+        yield return null; // ✅ 1프레임 대기 (레이아웃/컨텐츠 반영)
+        w.ForceClampNow(overflow: 0f);
+        RequestAutoSave(); // 선택
     }
 
 
@@ -83,6 +92,8 @@ public class WindowManager : MonoBehaviour
 
         Focus(appId);
         spawned.PlayOpen();
+        StartCoroutine(CoFinalizeSpawn(spawned));
+
     }
 
 
@@ -136,6 +147,13 @@ public class WindowManager : MonoBehaviour
         InjectAllIcons();     // ✅ 추가
         LoadOS();
         
+    }
+
+    // 공용 헬퍼 하나
+    private void EnsureFocused(string appId)
+    {
+        if (activeAppId == appId) return;
+        Focus(appId);
     }
 
 
@@ -342,39 +360,21 @@ public class WindowManager : MonoBehaviour
         if (!openWindows.TryGetValue(appId, out var w) || w == null) return;
         if (w.IsMinimized) return;
 
-        bool wasActive = (activeAppId == appId);
+        EnsureFocused(appId); // ✅ 추가 (버튼 누른 창이 먼저 포커스)
 
-        // 복원 위치 캐시
+        // (이하 기존 코드)
         w.CacheRestorePos(w.GetWindowRoot().anchoredPosition);
 
-        // 태스크바 위치
         var btnRect = taskbarManager?.GetButtonRect(appId);
-
-        Vector2 target;
-
-        if (btnRect != null)
-        {
-            Vector3 world = btnRect.TransformPoint(btnRect.rect.center);
-
-            RectTransformUtility.ScreenPointToLocalPointInRectangle(
-                canvasRect,
-                RectTransformUtility.WorldToScreenPoint(null, world),
-                null,
-                out target
-            );
-        }
-        else
-        {
-            target = new Vector2(0, -500);
-        }
+        Vector2 target = btnRect != null ? btnRect.anchoredPosition : new Vector2(0, -500);
 
         w.PlayMinimize(target, () =>
         {
             w.SetMinimized(true);
             taskbarManager?.SetMinimized(appId, true);
 
-            // 🔥 핵심
-            if (wasActive && !suppressAutoFocus)
+            // ✅ 최소화 완료 후, 다음 창으로 포커스 넘기기
+            if (!suppressAutoFocus)
                 FocusNextTopWindow(excludedAppId: appId);
 
             RequestAutoSave();
@@ -382,40 +382,34 @@ public class WindowManager : MonoBehaviour
     }
 
 
+
     public void Restore(string appId)
     {
         if (!openWindows.TryGetValue(appId, out var w) || w == null) return;
+
+        // 이미 열려있고 최소화가 아니면 그냥 포커스만
         if (!w.IsMinimized) { Focus(appId); return; }
 
-        // 시작점(태스크바 버튼 위치)에서 튀어나오기
+        // 태스크바 버튼 위치를 from으로
         var btnRect = taskbarManager?.GetButtonRect(appId);
+        Vector2 from = btnRect != null ? btnRect.anchoredPosition : w.GetWindowRoot().anchoredPosition;
 
-        Vector2 from;
+        // ✅ 먼저 보이게
+        w.SetMinimized(false);
+        taskbarManager?.SetMinimized(appId, false);
 
-        if (btnRect != null)
-        {
-            Vector3 world = btnRect.TransformPoint(btnRect.rect.center);
+        // ✅ "복원 애니 시작 전에" 최상단으로
+        w.transform.SetAsLastSibling();
+        activeAppId = appId; // (선택) Focus 호출 전에 active 지정해도 됨
 
-            RectTransformUtility.ScreenPointToLocalPointInRectangle(
-                canvasRect,
-                RectTransformUtility.WorldToScreenPoint(null, world),
-                null,
-                out from
-            );
-        }
-        else
-        {
-            from = w.GetWindowRoot().anchoredPosition;
-        }
-
-        w.SetMinimized(false); // 먼저 켜서 보이게
         w.PlayRestore(from, () =>
         {
-            taskbarManager?.SetMinimized(appId, false);
+            // ✅ 복원 끝나고 확실히 Focus (비주얼/태스크바 Active 갱신)
             Focus(appId);
             RequestAutoSave();
         });
     }
+
 
 
     public void ResetWindowsToDefaults()
@@ -488,17 +482,19 @@ public class WindowManager : MonoBehaviour
         if (!openWindows.TryGetValue(appId, out var window) || window == null)
             return;
 
-        bool wasActive = (activeAppId == appId);
+        EnsureFocused(appId); // ✅ 추가
 
-        taskbarManager?.Remove(appId);
-        openWindows.Remove(appId);
+        window.PlayClose(() =>
+        {
+            taskbarManager?.Remove(appId);
+            openWindows.Remove(appId);
 
-        if (wasActive && !suppressAutoFocus)
-            FocusNextTopWindow(excludedAppId: appId);
+            if (!suppressAutoFocus)
+                FocusNextTopWindow(excludedAppId: null);
 
-        window.PlayClose(() => Destroy(window.gameObject));
-
-        RequestAutoSave();
+            Destroy(window.gameObject);
+            RequestAutoSave();
+        });
     }
 
 

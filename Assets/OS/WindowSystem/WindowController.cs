@@ -58,6 +58,14 @@ public class WindowController : MonoBehaviour,
     private Vector2 restorePos;
     private Coroutine moveScaleRoutine;
 
+    public void ForceClampNow(float overflow = 0f)
+    {
+        if (windowRoot == null) return;
+        var clamped = ClampWindowAnchoredPosition(windowRoot.anchoredPosition, overflow);
+        windowRoot.anchoredPosition = clamped;
+    }
+
+
     private void Awake()
     {
         if (windowRoot == null)
@@ -286,6 +294,8 @@ public class WindowController : MonoBehaviour,
 
     public void PlayRestore(Vector2 fromAnchoredPos, Action onDone, float duration = 0.12f)
     {
+        transform.SetAsLastSibling(); // ✅ 복원 애니 중에도 최상단 유지
+
         Vector2 toPos = (restorePos == Vector2.zero) ? windowRoot.anchoredPosition : restorePos;
 
         // 시작점 세팅
