@@ -17,6 +17,7 @@ public class TaskbarButtonController : MonoBehaviour
     [SerializeField] private string appId;
 
     private bool _listenerHooked;
+    public RectTransform Rect => (RectTransform)transform;
 
     private void Awake()
     {

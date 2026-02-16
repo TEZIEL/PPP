@@ -80,4 +80,10 @@ public class TaskbarManager : MonoBehaviour
         }
 
     }
+
+    public RectTransform GetButtonRect(string appId)
+    {
+        if (buttons.TryGetValue(appId, out var b) && b != null) return b.Rect;
+        return null;
+    }
 }

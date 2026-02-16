@@ -54,7 +54,8 @@ public class WindowManager : MonoBehaviour
         spawned.InjectManager(this);
 
         // cachedSave가 비어있을 수 있으니 "필요 시 로드"
-        var data = cachedSave ?? PPP.OS.Save.OSSaveSystem.Load();
+        EnsureSaveCacheLoaded();
+        var data = cachedSave;
 
         bool appliedSaved = false;
         if (data != null)
@@ -81,6 +82,7 @@ public class WindowManager : MonoBehaviour
         windowDefaults[appId] = new WindowDefault { pos = defaultPos, size = defaultSize };
 
         Focus(appId);
+        spawned.PlayOpen();
     }
 
 
@@ -335,6 +337,85 @@ public class WindowManager : MonoBehaviour
         }
     }
 
+    public void Minimize(string appId)
+    {
+        if (!openWindows.TryGetValue(appId, out var w) || w == null) return;
+        if (w.IsMinimized) return;
+
+        bool wasActive = (activeAppId == appId);
+
+        // 복원 위치 캐시
+        w.CacheRestorePos(w.GetWindowRoot().anchoredPosition);
+
+        // 태스크바 위치
+        var btnRect = taskbarManager?.GetButtonRect(appId);
+
+        Vector2 target;
+
+        if (btnRect != null)
+        {
+            Vector3 world = btnRect.TransformPoint(btnRect.rect.center);
+
+            RectTransformUtility.ScreenPointToLocalPointInRectangle(
+                canvasRect,
+                RectTransformUtility.WorldToScreenPoint(null, world),
+                null,
+                out target
+            );
+        }
+        else
+        {
+            target = new Vector2(0, -500);
+        }
+
+        w.PlayMinimize(target, () =>
+        {
+            w.SetMinimized(true);
+            taskbarManager?.SetMinimized(appId, true);
+
+            // 🔥 핵심
+            if (wasActive && !suppressAutoFocus)
+                FocusNextTopWindow(excludedAppId: appId);
+
+            RequestAutoSave();
+        });
+    }
+
+
+    public void Restore(string appId)
+    {
+        if (!openWindows.TryGetValue(appId, out var w) || w == null) return;
+        if (!w.IsMinimized) { Focus(appId); return; }
+
+        // 시작점(태스크바 버튼 위치)에서 튀어나오기
+        var btnRect = taskbarManager?.GetButtonRect(appId);
+
+        Vector2 from;
+
+        if (btnRect != null)
+        {
+            Vector3 world = btnRect.TransformPoint(btnRect.rect.center);
+
+            RectTransformUtility.ScreenPointToLocalPointInRectangle(
+                canvasRect,
+                RectTransformUtility.WorldToScreenPoint(null, world),
+                null,
+                out from
+            );
+        }
+        else
+        {
+            from = w.GetWindowRoot().anchoredPosition;
+        }
+
+        w.SetMinimized(false); // 먼저 켜서 보이게
+        w.PlayRestore(from, () =>
+        {
+            taskbarManager?.SetMinimized(appId, false);
+            Focus(appId);
+            RequestAutoSave();
+        });
+    }
 
 
     public void ResetWindowsToDefaults()
@@ -398,6 +479,7 @@ public class WindowManager : MonoBehaviour
 
         Focus(appId);
         spawned.InjectManager(this); // ✅ 굳이 InjectAllWindows 말고 얘만 주입해도 됨
+        spawned.PlayOpen();
     }
 
 
@@ -408,22 +490,18 @@ public class WindowManager : MonoBehaviour
 
         bool wasActive = (activeAppId == appId);
 
-        // ✅ 1) 포커스 이동 먼저 (닫히는 창은 후보에서 제외)
+        taskbarManager?.Remove(appId);
+        openWindows.Remove(appId);
+
         if (wasActive && !suppressAutoFocus)
             FocusNextTopWindow(excludedAppId: appId);
 
-        // ✅ 2) taskbar 제거
-        taskbarManager?.Remove(appId);
+        window.PlayClose(() => Destroy(window.gameObject));
 
-        // ✅ 3) 딕셔너리 제거
-        openWindows.Remove(appId);
-
-        // ✅ 4) 파괴
-        Destroy(window.gameObject);
-
-        // ✅ 5) 저장(선택)
         RequestAutoSave();
     }
+
+
 
 
     public void Focus(string appId)
@@ -456,33 +534,9 @@ public class WindowManager : MonoBehaviour
         }
     }
 
-    public void Minimize(string appId)
-    {
-        if (!openWindows.TryGetValue(appId, out WindowController target) || target == null)
-            return;
+    
 
-        bool wasActive = (activeAppId == appId);
-
-        if (target.WindowRoot != null)
-            SaveSystem.SetWindowPositionHook(appId, target.WindowRoot.anchoredPosition);
-
-        target.SetMinimized(true);
-        taskbarManager?.SetMinimized(appId, true);
-
-        if (wasActive && !suppressAutoFocus)
-            FocusNextTopWindow(appId);
-    }
-
-    public void Restore(string appId)
-    {
-        if (!openWindows.TryGetValue(appId, out WindowController target) || target == null)
-            return;
-
-        target.SetMinimized(false);
-        taskbarManager?.SetMinimized(appId, false);
-
-        Focus(appId);
-    }
+   
 
     public bool IsMinimized(string appId)
     {
@@ -522,28 +576,22 @@ public class WindowManager : MonoBehaviour
 
     private void FocusNextTopWindow(string excludedAppId = null)
     {
-        var root = windowsRoot != null ? windowsRoot : (RectTransform)transform;
-
         WindowController best = null;
         int bestSibling = -1;
 
-        for (int i = 0; i < root.childCount; i++)
+        foreach (var kv in openWindows)
         {
-            Transform child = root.GetChild(i);
-            if (child == null) continue;
-
-            var wc = child.GetComponent<WindowController>();
+            string id = kv.Key;
+            var wc = kv.Value;
             if (wc == null) continue;
-            if (!wc.gameObject.activeInHierarchy) continue; // 선택
 
-            if (!string.IsNullOrEmpty(excludedAppId) && wc.AppId == excludedAppId) continue;
-
-            // ✅ 너는 이제 "SetActive(false)" 안 쓰는 구조로 가고 있으니 IsMinimized 기준이 맞음
+            if (!string.IsNullOrEmpty(excludedAppId) && id == excludedAppId) continue;
             if (wc.IsMinimized) continue;
 
-            if (i > bestSibling)
+            int sib = wc.transform.GetSiblingIndex();
+            if (sib > bestSibling)
             {
-                bestSibling = i;
+                bestSibling = sib;
                 best = wc;
             }
         }
@@ -559,4 +607,27 @@ public class WindowManager : MonoBehaviour
                 taskbarManager?.SetActive(pair.Key, false);
         }
     }
+
+
+
+    public void MinimizeAll()
+    {
+        foreach (var kv in openWindows)
+        {
+            var w = kv.Value;
+            if (w == null) continue;
+            if (!w.IsMinimized) Minimize(kv.Key);
+        }
+    }
+
+    public void RestoreAll()
+    {
+        foreach (var kv in openWindows)
+        {
+            var w = kv.Value;
+            if (w == null) continue;
+            if (w.IsMinimized) Restore(kv.Key);
+        }
+    }
+
 }
