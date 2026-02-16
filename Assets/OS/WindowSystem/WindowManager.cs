@@ -50,13 +50,7 @@ public class WindowManager : MonoBehaviour
         Open(appId, prefab, null, Vector2.zero, new Vector2(600, 400));
     }
 
-    private IEnumerator CoFinalizeSpawn(WindowController w)
-    {
-        yield return null; // 레이아웃 반영 1프레임 대기
-
-        if (w != null)
-            w.ForceClampNow(0f);
-    }
+    
 
 
 
@@ -512,6 +506,8 @@ public class WindowManager : MonoBehaviour
 
         EnsureFocused(appId); // ✅ 추가
 
+
+
         window.PlayClose(() =>
         {
             taskbarManager?.Remove(appId);
@@ -931,7 +927,37 @@ public class WindowManager : MonoBehaviour
         return local;
     }
 
+    private IEnumerator CoFinalizeSpawn(WindowController w)
+    {
+        yield return null; // 1프레임 대기 (Canvas/Layout 안정화)
 
+        if (w == null) yield break;
+
+        var rect = w.GetWindowRoot();
+        if (rect == null) yield break;
+
+        rect.anchoredPosition =
+            ClampToCanvas(rect.anchoredPosition, rect);
+    }
+
+    private Vector2 ClampToCanvas(Vector2 pos, RectTransform rect)
+    {
+        if (canvasRect == null) return pos;
+
+        Rect c = canvasRect.rect;
+        Vector2 size = rect.rect.size;
+        Vector2 pivot = rect.pivot;
+
+        float minX = c.xMin + size.x * pivot.x;
+        float maxX = c.xMax - size.x * (1f - pivot.x);
+        float minY = c.yMin + size.y * pivot.y;
+        float maxY = c.yMax - size.y * (1f - pivot.y);
+
+        pos.x = Mathf.Clamp(pos.x, minX, maxX);
+        pos.y = Mathf.Clamp(pos.y, minY, maxY);
+
+        return pos;
+    }
 
 
 }

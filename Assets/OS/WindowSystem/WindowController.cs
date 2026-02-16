@@ -59,11 +59,11 @@ public class WindowController : MonoBehaviour,
     private Coroutine moveScaleRoutine;
 
     public void ForceClampNow(float overflow = 0f)
-    {
-        if (windowRoot == null) return;
-        var clamped = ClampWindowAnchoredPosition(windowRoot.anchoredPosition, overflow);
-        windowRoot.anchoredPosition = clamped;
-    }
+{
+    if (windowRoot == null) return;
+    var clamped = ClampWindowAnchoredPosition(windowRoot.anchoredPosition, overflow);
+    windowRoot.anchoredPosition = clamped;
+}
 
 
     private void Awake()
@@ -301,6 +301,7 @@ public class WindowController : MonoBehaviour,
         // 시작점 세팅
         windowRoot.anchoredPosition = fromAnchoredPos;
         transform.localScale = new Vector3(0.85f, 0.85f, 1f);
+        transform.SetAsLastSibling();
 
         if (moveScaleRoutine != null) StopCoroutine(moveScaleRoutine);
         moveScaleRoutine = StartCoroutine(CoMoveAndScale(
