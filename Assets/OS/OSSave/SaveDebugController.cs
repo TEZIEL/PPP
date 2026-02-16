@@ -3,9 +3,13 @@ using PPP.OS.Save;
 
 public class SaveDebugController : MonoBehaviour
 {
+    [Header("Wiring")]
     [SerializeField] private WindowManager windowManager;
 
-    public void DebugSaveWindows()
+    /* =========================
+     * DEBUG SAVE
+     * ========================= */
+    public void DebugSaveOS()
     {
         if (windowManager == null)
         {
@@ -14,9 +18,13 @@ public class SaveDebugController : MonoBehaviour
         }
 
         windowManager.SaveOS();
+        Debug.Log("[SaveDebug] SaveOS executed.");
     }
 
-    public void DebugLoadWindows()
+    /* =========================
+     * DEBUG LOAD
+     * ========================= */
+    public void DebugLoadOS()
     {
         if (windowManager == null)
         {
@@ -24,6 +32,7 @@ public class SaveDebugController : MonoBehaviour
             return;
         }
 
-        windowManager.LoadOS(); // 아래에서 구현할 함수
+        windowManager.LoadOS();
+        Debug.Log("[SaveDebug] LoadOS executed.");
     }
 }
