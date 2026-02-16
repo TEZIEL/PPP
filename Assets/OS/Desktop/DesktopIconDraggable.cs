@@ -4,20 +4,18 @@ using UnityEngine.EventSystems;
 public class DesktopIconDraggable : MonoBehaviour,
     IBeginDragHandler, IDragHandler, IEndDragHandler
 {
-    [SerializeField] private string iconId;           // 저장 키 (appId랑 동일하게 써도 됨)
-    [SerializeField] private RectTransform rect;      // 없으면 자동 할당
+    [SerializeField] private string iconId;      // 저장 키
+    [SerializeField] private RectTransform rect; // 비어있으면 자동 할당
 
-    private RectTransform canvasRect;                 // WindowManager가 주입
+    private RectTransform desktopRect;           // iconsRoot(DesktopIconBG) 주입
     private Vector2 dragOffset;
-    private WindowManager windowManager;             // 저장 트리거용
-    private RectTransform desktopRect;
-    public bool IsDragging { get; private set; }
+    private WindowManager windowManager;
 
+    public bool IsDragging { get; private set; }
+    public float LastDragEndTime { get; private set; } = -999f;
 
     public string GetId() => iconId;
     public RectTransform GetRect() => rect;
-    public float LastDragEndTime { get; private set; }
-
 
     private void Awake()
     {
@@ -25,11 +23,19 @@ public class DesktopIconDraggable : MonoBehaviour,
             rect = (RectTransform)transform;
     }
 
+    private void OnDisable()
+    {
+        // 드래그 중 비활성화/씬 전환 대비
+        IsDragging = false;
+    }
+
     public void Initialize(WindowManager wm, RectTransform desktopRoot)
     {
         windowManager = wm;
         desktopRect = desktopRoot;
-        if (rect == null) rect = (RectTransform)transform;
+
+        if (rect == null)
+            rect = (RectTransform)transform;
     }
 
     private bool TryPointerLocal(PointerEventData e, out Vector2 local)
@@ -44,12 +50,12 @@ public class DesktopIconDraggable : MonoBehaviour,
             desktopRect, e.position, e.pressEventCamera, out local);
     }
 
-
     public void OnBeginDrag(PointerEventData eventData)
     {
         if (!TryPointerLocal(eventData, out var p)) return;
-        dragOffset = rect.anchoredPosition - p;
+
         IsDragging = true;
+        dragOffset = rect.anchoredPosition - p;
     }
 
     public void OnDrag(PointerEventData eventData)
@@ -58,25 +64,25 @@ public class DesktopIconDraggable : MonoBehaviour,
 
         Vector2 target = p + dragOffset;
 
-        // ✅ iconsRoot 좌표계에서 clamp
         Rect allowed = DesktopBounds.GetAllowedRect(desktopRect);
         rect.anchoredPosition = DesktopBounds.ClampAnchoredPosition(target, rect, allowed);
     }
 
-
     public void OnEndDrag(PointerEventData eventData)
     {
-        if (canvasRect != null)
-        {
-            Rect allowed = DesktopBounds.GetAllowedRect(canvasRect);
-            rect.anchoredPosition = DesktopBounds.ClampAnchoredPosition(rect.anchoredPosition, rect, allowed);
-            LastDragEndTime = Time.unscaledTime;
-            IsDragging = false;
-            windowManager?.RequestAutoSave();
+        // ✅ 무조건 드래그 상태 종료 + 시간 갱신
+        IsDragging = false;
+        LastDragEndTime = Time.unscaledTime;
 
+        // ✅ 놓을 때도 한번 더 clamp (desktopRect 기준 통일)
+        if (desktopRect != null)
+        {
+            Rect allowed = DesktopBounds.GetAllowedRect(desktopRect);
+            rect.anchoredPosition = DesktopBounds.ClampAnchoredPosition(rect.anchoredPosition, rect, allowed);
         }
 
+        // ✅ autosave는 딱 1번
         windowManager?.RequestAutoSave();
     }
-
 }
+

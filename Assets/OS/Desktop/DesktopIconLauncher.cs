@@ -21,7 +21,7 @@ public class DesktopIconLauncher : MonoBehaviour, IPointerClickHandler
     [SerializeField] private float clickCooldownSeconds = 0.15f;
     [SerializeField] private ShowDesktopController showDesktop; // 인스펙터에 연결
 
-    private float _nextAllowedTime;  // Button OnClick에서 직접 연결해도 됨
+    private float _nextAllowedTime;  
     public void HandleClick()
     {
         if (Time.unscaledTime < _nextAllowedTime) return;
@@ -47,7 +47,11 @@ public class DesktopIconLauncher : MonoBehaviour, IPointerClickHandler
         if (drag != null)
         {
             if (drag.IsDragging) return;
-            if (Time.unscaledTime - drag.LastDragEndTime < 0.15f) return; // ✅ 드래그 직후 클릭 무시
+            if (Time.unscaledTime - drag.LastDragEndTime < 0.15f)
+            {
+                lastClickTime = -999f; // ✅ 더블클릭 상태 초기화
+                return; // ✅ 드래그 직후 클릭 무시
+            }
         }
 
         // 더블클릭 판정
