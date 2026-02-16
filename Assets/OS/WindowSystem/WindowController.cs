@@ -14,6 +14,11 @@ public class WindowController : MonoBehaviour,
     [SerializeField] private CanvasGroup canvasGroup;
     [SerializeField] private WindowManager windowManager;
 
+    [Header("Drag Bounds")]
+    [SerializeField] private float dragOverflow = 250f;     // 드래그 중 허용 바깥
+    [SerializeField] private float returnDuration = 0.18f;  // 복귀 애니 시간
+    [SerializeField] private float returnSnapEpsilon = 0.5f;
+
     [Header("Buttons")]
     [SerializeField] private Button closeButton;
     [SerializeField] private Button minimizeButton;
@@ -31,6 +36,20 @@ public class WindowController : MonoBehaviour,
     public string AppId => appId;
     public bool IsMinimized { get; private set; }
     public RectTransform WindowRoot => windowRoot;
+
+    private Vector2 dragOffset;              // 창 위치 - 마우스(local) 위치
+    private Coroutine returnRoutine;
+    
+    private bool TryGetPointerLocal(PointerEventData eventData, out Vector2 localPoint)
+    {
+        return RectTransformUtility.ScreenPointToLocalPointInRectangle(
+            canvasRect,
+            eventData.position,
+            eventData.pressEventCamera,
+            out localPoint
+        );
+    }
+
 
     public void SetWindowPosition(Vector2 anchoredPosition)
     {
@@ -95,27 +114,104 @@ public class WindowController : MonoBehaviour,
         owner?.Focus(appId);
     }
 
-    public void OnBeginDrag(PointerEventData e)
+    public void OnBeginDrag(PointerEventData eventData)
     {
-        owner?.Focus(appId);
+        if (canvasRect == null || windowRoot == null) return;
+
+        if (returnRoutine != null)
+        {
+            StopCoroutine(returnRoutine);
+            returnRoutine = null;
+        }
+
+        if (!TryGetPointerLocal(eventData, out var pointerLocal)) return;
+
+        // 창의 현재 anchoredPosition은 canvasRect 로컬 좌표와 같은 체계라고 가정 (보통 동일)
+        dragOffset = windowRoot.anchoredPosition - pointerLocal;
     }
 
-    public void OnDrag(PointerEventData e)
+    public void OnDrag(PointerEventData eventData)
     {
-        if (isPinned) return;
+        if (canvasRect == null || windowRoot == null) return;
+        if (!TryGetPointerLocal(eventData, out var pointerLocal)) return;
 
-        windowRoot.anchoredPosition += e.delta;
+        Vector2 target = pointerLocal + dragOffset;
+
+        // 드래그 중에는 overflow 허용
+        target = ClampWindowAnchoredPosition(target, allowOverflow: dragOverflow);
+
+        windowRoot.anchoredPosition = target;
     }
 
     public void OnEndDrag(PointerEventData eventData)
     {
-        if (windowManager == null)
+        if (canvasRect == null || windowRoot == null) return;
+
+        Vector2 target = ClampWindowAnchoredPosition(windowRoot.anchoredPosition, allowOverflow: 0f);
+
+        if ((target - windowRoot.anchoredPosition).sqrMagnitude < returnSnapEpsilon * returnSnapEpsilon)
         {
-            Debug.LogError("[WindowController] WindowManager not injected.");
+            windowRoot.anchoredPosition = target;
+            windowManager?.RequestAutoSave();
             return;
         }
-        windowManager.RequestAutoSave();
+
+        if (returnRoutine != null) StopCoroutine(returnRoutine);
+        returnRoutine = StartCoroutine(ReturnToBounds(target));
     }
+
+    private System.Collections.IEnumerator ReturnToBounds(Vector2 target)
+    {
+        Vector2 start = windowRoot.anchoredPosition;
+        float t = 0f;
+
+        while (t < 1f)
+        {
+            t += Time.unscaledDeltaTime / Mathf.Max(0.01f, returnDuration);
+            float smooth = Mathf.SmoothStep(0f, 1f, t);
+            windowRoot.anchoredPosition = Vector2.LerpUnclamped(start, target, smooth);
+            yield return null;
+        }
+
+        windowRoot.anchoredPosition = target;
+        returnRoutine = null;
+
+        windowManager?.RequestAutoSave();
+    }
+
+    private Vector2 ClampWindowAnchoredPosition(Vector2 desired, float allowOverflow)
+    {
+        // canvasRect 기준 영역(로컬 좌표)
+        Rect c = canvasRect.rect;
+
+        // 창의 크기/피벗
+        Vector2 size = windowRoot.rect.size;
+        Vector2 pivot = windowRoot.pivot;
+
+        // 창의 각 변이 desired anchoredPosition에서 어디까지 뻗는지 계산
+        float left = desired.x - size.x * pivot.x;
+        float right = desired.x + size.x * (1f - pivot.x);
+        float bottom = desired.y - size.y * pivot.y;
+        float top = desired.y + size.y * (1f - pivot.y);
+
+        // canvasRect 안쪽 경계(overflow 허용)
+        float minX = c.xMin - allowOverflow;
+        float maxX = c.xMax + allowOverflow;
+        float minY = c.yMin - allowOverflow;
+        float maxY = c.yMax + allowOverflow;
+
+        // desired를 이동시켜 창이 허용 경계 안에 들어오게 만든다
+        float dx = 0f;
+        if (left < minX) dx = minX - left;
+        else if (right > maxX) dx = maxX - right;
+
+        float dy = 0f;
+        if (bottom < minY) dy = minY - bottom;
+        else if (top > maxY) dy = maxY - top;
+
+        return new Vector2(desired.x + dx, desired.y + dy);
+    }
+
 
     public void SetActiveVisual(bool active)
     {

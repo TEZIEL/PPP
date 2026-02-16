@@ -152,13 +152,7 @@ public class WindowManager : MonoBehaviour
             return;
 
         bool wasActive = (activeAppId == appId);
-
-        if (window.WindowRoot != null)
-            SaveSystem.SetWindowPositionHook(appId, window.WindowRoot.anchoredPosition);
-
-        taskbarManager?.Remove(appId);
-        openWindows.Remove(appId);
-
+                
         if (wasActive && !suppressAutoFocus)
             FocusNextTopWindow(appId);
 
