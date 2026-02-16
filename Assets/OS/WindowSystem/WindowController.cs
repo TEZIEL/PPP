@@ -3,7 +3,7 @@ using UnityEngine.EventSystems;
 using UnityEngine.UI;
 
 public class WindowController : MonoBehaviour,
-    IPointerDownHandler, IBeginDragHandler, IDragHandler
+    IPointerDownHandler, IBeginDragHandler, IDragHandler , IEndDragHandler
 {
     [Header("Identity")]
     [SerializeField] private string appId;
@@ -12,6 +12,7 @@ public class WindowController : MonoBehaviour,
     [SerializeField] private RectTransform windowRoot;
     [SerializeField] private RectTransform titleBar;
     [SerializeField] private CanvasGroup canvasGroup;
+    [SerializeField] private WindowManager windowManager;
 
     [Header("Buttons")]
     [SerializeField] private Button closeButton;
@@ -37,6 +38,11 @@ public class WindowController : MonoBehaviour,
             return;
 
         windowRoot.anchoredPosition = anchoredPosition;
+    }
+
+    public void InjectManager(WindowManager manager)
+    {
+        windowManager = manager;
     }
 
 
@@ -101,6 +107,16 @@ public class WindowController : MonoBehaviour,
         windowRoot.anchoredPosition += e.delta;
     }
 
+    public void OnEndDrag(PointerEventData eventData)
+    {
+        if (windowManager == null)
+        {
+            Debug.LogError("[WindowController] WindowManager not injected.");
+            return;
+        }
+        windowManager.RequestAutoSave();
+    }
+
     public void SetActiveVisual(bool active)
     {
         if (skin == null) return;
@@ -124,5 +140,10 @@ public class WindowController : MonoBehaviour,
 
         if (pinToggleButton != null)
             pinToggleButton.onClick.AddListener(() => isPinned = !isPinned);
+    }
+
+    public void SetWindowSize(Vector2 size)
+    {
+        windowRoot.sizeDelta = size;
     }
 }

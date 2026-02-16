@@ -13,6 +13,7 @@ public class WindowManager : MonoBehaviour
 
     private string activeAppId;
     public string ActiveAppId => activeAppId;
+    private OSSaveData cachedSave;
 
     private bool suppressAutoFocus;
     public void BeginBatch() => suppressAutoFocus = true;
@@ -30,8 +31,39 @@ public class WindowManager : MonoBehaviour
 
     private void Start()
     {
-        LoadWindows();
+        InjectAllWindows();
+        cachedSave = OSSaveSystem.Load(); // 캐시 로드
     }
+
+
+    private bool TryGetSavedWindow(string appId, out OSWindowData wd)
+    {
+        wd = null;
+        if (cachedSave == null) return false;
+
+        wd = cachedSave.windows.Find(x => x.appId == appId);
+        return wd != null;
+    }
+
+
+    private void InjectAllWindows()
+    {
+        var windows = windowsRoot.GetComponentsInChildren<WindowController>(true);
+        foreach (var w in windows)
+            w.InjectManager(this);
+    }
+
+
+    private float nextAutoSaveTime;
+    private const float autoSaveCooldown = 0.3f;
+
+    public void RequestAutoSave()
+    {
+        if (Time.unscaledTime < nextAutoSaveTime) return;
+        nextAutoSaveTime = Time.unscaledTime + autoSaveCooldown;
+        SaveWindows();
+    }
+
 
     public void SaveWindows()
     {
@@ -86,24 +118,31 @@ public class WindowManager : MonoBehaviour
     public void Open(string appId, WindowController windowPrefab, Vector2 defaultPos)
     {
         if (string.IsNullOrWhiteSpace(appId) || windowPrefab == null) return;
-
-        if (openWindows.ContainsKey(appId))
-        {
-            return;
-        }
+        if (openWindows.ContainsKey(appId)) return;
 
         Transform parent = windowsRoot != null ? windowsRoot : transform;
         WindowController spawned = Instantiate(windowPrefab, parent);
         spawned.Initialize(this, appId, canvasRect);
 
-        Vector2 spawnPos = SaveSystem.TryGetWindowPosition(appId, out Vector2 savedPos) ? savedPos : defaultPos;
-        spawned.SetWindowPosition(spawnPos);
+        // ✅ OS 저장에서 위치/사이즈/최소화 불러오기
+        if (TryGetSavedWindow(appId, out var wd))
+        {
+            spawned.SetWindowPosition(wd.position);
+            spawned.SetWindowSize(wd.size);          // 이 메서드 없으면 size 적용은 나중에
+            spawned.SetMinimized(wd.isMinimized);    // 네 기존 SetMinimized 사용
+        }
+        else
+        {
+            spawned.SetWindowPosition(defaultPos);
+        }
 
         openWindows.Add(appId, spawned);
         taskbarManager?.Add(appId, spawned);
 
         Focus(appId);
+        spawned.InjectManager(this); // ✅ 굳이 InjectAllWindows 말고 얘만 주입해도 됨
     }
+
 
     public void Close(string appId)
     {
