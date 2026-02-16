@@ -30,6 +30,14 @@ public class DesktopGridManager : MonoBehaviour
         return BuildSlots(iconsRoot, cellSize, spacing, fillTopToBottom);
     }
 
+    public void SnapAllIfGridMode()
+    {
+        if (LayoutMode != DesktopLayoutMode.Grid) return;
+
+        // 아이콘들 전부 스냅
+        AlignIconsToGrid();
+    }
+
     public int GetNearestSlotIndex(Vector2 pos)
     {
         var slots = GetSlots();

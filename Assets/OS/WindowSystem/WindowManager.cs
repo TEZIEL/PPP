@@ -185,13 +185,39 @@ public class WindowManager : MonoBehaviour
 
         ApplyWindows(data);
         ApplyIcons(data);
-
         cachedSave = data;
+
+        PostApplyLayoutSanity(); // ✅ 추가
 
         Debug.Log("[OS] LoadOS applied.");
     }
 
+    private void PostApplyLayoutSanity()
+    {
+        // 1) 아이콘: allowed rect 기준 clamp + (Grid면 슬롯 스냅)
+        if (iconsRoot != null)
+        {
+            var allowed = DesktopBounds.GetAllowedRect(iconsRoot);
+            var icons = iconsRoot.GetComponentsInChildren<DesktopIconDraggable>(true);
 
+            foreach (var ic in icons)
+            {
+                var rt = ic.GetRect();
+                rt.anchoredPosition = DesktopBounds.ClampAnchoredPosition(rt.anchoredPosition, rt, allowed);
+            }
+
+            // Grid 모드면 “현재 모드” 기준으로 한번 더 정렬(선택)
+            desktopGridManager?.SnapAllIfGridMode();
+        }
+
+        // 2) 창: canvas 기준 clamp(네 WindowController에 clamp가 있으면 여기선 생략 가능)
+        // 정말 완전하게 하려면 WindowController에 "ForceClampNow()" 같은 메서드 하나 만들어서 호출하면 베스트.
+    }
+
+    public void OnDesktopResized()
+    {
+        PostApplyLayoutSanity();
+    }
 
     private void CollectIcons(OSSaveData data)
     {
@@ -337,19 +363,28 @@ public class WindowManager : MonoBehaviour
 
     public void Close(string appId)
     {
-        if (!openWindows.TryGetValue(appId, out WindowController window) || window == null)
+        if (!openWindows.TryGetValue(appId, out var window) || window == null)
             return;
 
         bool wasActive = (activeAppId == appId);
-                
-        if (wasActive && !suppressAutoFocus)
-            FocusNextTopWindow(appId);
 
-        openWindows.Remove(appId);
+        // 1) taskbar 버튼 제거 먼저 (UI 잔존 방지)
         taskbarManager?.Remove(appId);
 
+        // 2) 딕셔너리에서 제거 (이제부터 시스템은 '닫힌 상태'로 인식)
+        openWindows.Remove(appId);
+
+        // 3) 포커스 이동 (이때는 excludedAppId 없어도 됨)
+        if (wasActive && !suppressAutoFocus)
+            FocusNextTopWindow(excludedAppId: null);
+
+        // 4) 파괴
         Destroy(window.gameObject);
+
+        // 5) 저장(원하면)
+        RequestAutoSave();
     }
+
 
     public void Focus(string appId)
     {
@@ -445,7 +480,7 @@ public class WindowManager : MonoBehaviour
         return openWindows;
     }
 
-    private void FocusNextTopWindow(string excludedAppId)
+    private void FocusNextTopWindow(string excludedAppId = null)
     {
         var root = windowsRoot != null ? windowsRoot : (RectTransform)transform;
 
