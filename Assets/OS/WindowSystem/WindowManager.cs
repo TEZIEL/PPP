@@ -1,5 +1,7 @@
 ﻿using System.Collections.Generic;
 using UnityEngine;
+using PPP.OS.Save;
+
 
 public class WindowManager : MonoBehaviour
 {
@@ -26,6 +28,60 @@ public class WindowManager : MonoBehaviour
         return openWindows.ContainsKey(appId);
     }
 
+    private void Start()
+    {
+        LoadWindows();
+    }
+
+    public void SaveWindows()
+    {
+        var data = new OSSaveData();
+
+        var windows = windowsRoot.GetComponentsInChildren<WindowController>(true);
+
+        foreach (var w in windows)
+        {
+            RectTransform rect = w.GetWindowRoot(); // 네 프로젝트에 맞게
+
+            data.windows.Add(new OSWindowData
+            {
+                appId = w.GetAppId(),
+                position = Vector2Int.RoundToInt(rect.anchoredPosition),
+                size = Vector2Int.RoundToInt(rect.sizeDelta),
+                isMinimized = w.IsMinimized   // ✅ 프로퍼티
+            });
+        }
+
+        OSSaveSystem.Save(data);
+    }
+
+
+    public void LoadWindows()
+    {
+        var data = OSSaveSystem.Load();
+        if (data == null) return;
+
+        // 현재 씬에 존재하는 창들 가져오기
+        var windows = windowsRoot.GetComponentsInChildren<WindowController>(true);
+
+        foreach (var w in windows)
+        {
+            string id = w.GetAppId();
+
+            // 저장 데이터에서 해당 appId 찾기
+            var saved = data.windows.Find(x => x.appId == id);
+            if (saved == null) continue;
+
+            RectTransform rect = w.GetWindowRoot();
+            rect.anchoredPosition = saved.position;
+            rect.sizeDelta = saved.size;
+
+            // 최소화 상태 복원(선택)
+            w.SetMinimized(saved.isMinimized);
+        }
+
+        Debug.Log("[OS] LoadWindows applied.");
+    }
 
     public void Open(string appId, WindowController windowPrefab, Vector2 defaultPos)
     {

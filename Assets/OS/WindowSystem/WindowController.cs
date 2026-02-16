@@ -47,6 +47,11 @@ public class WindowController : MonoBehaviour,
         // 버튼 색/아이콘 바꾸고 싶으면 여기
     }
 
+    public string GetAppId() => appId;
+
+    public RectTransform GetWindowRoot() => windowRoot;
+
+
 
     private void Awake()
     {
