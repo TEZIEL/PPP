@@ -1361,7 +1361,7 @@ MonoBehaviour:
   windowManager: {fileID: 1107218560}
   appId: VN
   windowPrefab: {fileID: 7342045915086621803, guid: 93109acf87296bf4cade05dd86f28f2b, type: 3}
-  defaultPos: {x: 0, y: 30}
+  defaultPos: {x: 50, y: 30}
   defaultSize: {x: 1440, y: 945}
   doubleClickThreshold: 0.28
   dragClickIgnoreSeconds: 0.15
@@ -2773,7 +2773,7 @@ MonoBehaviour:
   windowManager: {fileID: 1107218560}
   appId: Music
   windowPrefab: {fileID: 7342045915086621803, guid: 93109acf87296bf4cade05dd86f28f2b, type: 3}
-  defaultPos: {x: -500, y: 240}
+  defaultPos: {x: -480, y: 180}
   defaultSize: {x: 640, y: 540}
   doubleClickThreshold: 0.28
   dragClickIgnoreSeconds: 0.15

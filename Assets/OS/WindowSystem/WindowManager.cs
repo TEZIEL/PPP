@@ -36,6 +36,7 @@ public class WindowManager : MonoBehaviour
         // ✅ 이미 열려있으면 아무것도 안 함(standalone 유지)
         if (openWindows.ContainsKey(appId))
             return;
+        EnsureSaveCacheLoaded();
 
         Transform parent = windowsRoot != null ? windowsRoot : transform;
         WindowController spawned = Instantiate(windowPrefab, parent);
@@ -70,6 +71,14 @@ public class WindowManager : MonoBehaviour
 
         Focus(appId);
     }
+
+    private void EnsureSaveCacheLoaded()
+    {
+        if (cachedSave != null) return;
+        cachedSave = PPP.OS.Save.OSSaveSystem.Load(); // 없으면 null일 수 있음
+    }
+
+
 
     // ✅ 사이즈 적용 헬퍼(메서드 유무/구현 차이에 안전하게)
     private void TryApplyWindowSize(WindowController wc, Vector2Int size)
