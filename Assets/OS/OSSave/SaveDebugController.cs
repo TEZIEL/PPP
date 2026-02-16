@@ -13,7 +13,7 @@ public class SaveDebugController : MonoBehaviour
             return;
         }
 
-        windowManager.SaveWindows();
+        windowManager.SaveOS();
     }
 
     public void DebugLoadWindows()
@@ -24,6 +24,6 @@ public class SaveDebugController : MonoBehaviour
             return;
         }
 
-        windowManager.LoadWindows(); // 아래에서 구현할 함수
+        windowManager.LoadOS(); // 아래에서 구현할 함수
     }
 }

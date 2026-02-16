@@ -36,8 +36,8 @@ public class WindowManager : MonoBehaviour
     {
         InjectAllWindows();
         InjectAllIcons();     // ✅ 추가
-        LoadWindows();
-        cachedSave = OSSaveSystem.Load(); // 캐시 로드
+        LoadOS();
+        
     }
 
 
@@ -76,18 +76,113 @@ public class WindowManager : MonoBehaviour
     {
         if (Time.unscaledTime < nextAutoSaveTime) return;
         nextAutoSaveTime = Time.unscaledTime + autoSaveCooldown;
-        SaveWindows();
+        SaveOS();
     }
 
 
-   
-  
-
-    public void SaveWindows()
+    public void SaveOS()
     {
         var data = new OSSaveData();
+        CollectWindows(data);
+        CollectIcons(data);
 
-        // 1) windows 저장
+        OSSaveSystem.Save(data);
+        cachedSave = data;
+
+        Debug.Log("[OS] SaveOS completed.");
+    }
+
+    public void LoadOS()
+    {
+        var data = OSSaveSystem.Load();
+        if (data == null) return;
+
+        ApplyWindows(data);
+        ApplyIcons(data);
+
+        cachedSave = data;
+
+        Debug.Log("[OS] LoadOS applied.");
+    }
+
+
+
+    private void CollectIcons(OSSaveData data)
+    {
+        if (iconsRoot == null) return;
+
+        Rect allowed = DesktopBounds.GetAllowedRect(iconsRoot);
+
+        var icons = iconsRoot.GetComponentsInChildren<DesktopIconDraggable>(true);
+        foreach (var ic in icons)
+        {
+            Vector2 pos = ic.GetRect().anchoredPosition;
+
+            DesktopLayoutMode mode =
+                (desktopGridManager != null && desktopGridManager.LayoutMode == DesktopGridManager.DesktopLayoutMode.Grid)
+                    ? DesktopLayoutMode.Grid
+                    : DesktopLayoutMode.Free;
+
+            var entry = new OSIconData
+            {
+                id = ic.GetId(),
+                layoutMode = mode,
+                slotIndex = -1,
+                normalized = Vector2.zero
+            };
+
+            if (mode == DesktopLayoutMode.Grid && desktopGridManager != null)
+            {
+                entry.slotIndex = desktopGridManager.GetNearestSlotIndex(pos);
+            }
+            else
+            {
+                float nx = Mathf.InverseLerp(allowed.xMin, allowed.xMax, pos.x);
+                float ny = Mathf.InverseLerp(allowed.yMin, allowed.yMax, pos.y);
+                entry.normalized = new Vector2(nx, ny);
+            }
+
+            data.icons.Add(entry);
+        }
+    }
+
+
+
+
+    private void ApplyIcons(OSSaveData data)
+    {
+        if (iconsRoot == null || data.icons == null) return;
+
+        Rect allowed = DesktopBounds.GetAllowedRect(iconsRoot);
+
+        var icons = iconsRoot.GetComponentsInChildren<DesktopIconDraggable>(true);
+        foreach (var ic in icons)
+        {
+            var saved = data.icons.Find(x => x.id == ic.GetId());
+            if (saved == null) continue;
+
+            Vector2 target;
+
+            if (saved.layoutMode == DesktopLayoutMode.Grid && desktopGridManager != null)
+            {
+                target = desktopGridManager.GetSlotPos(saved.slotIndex, ic.GetRect().anchoredPosition);
+            }
+            else
+            {
+                float x = Mathf.Lerp(allowed.xMin, allowed.xMax, saved.normalized.x);
+                float y = Mathf.Lerp(allowed.yMin, allowed.yMax, saved.normalized.y);
+                target = new Vector2(x, y);
+            }
+
+            ic.GetRect().anchoredPosition =
+                DesktopBounds.ClampAnchoredPosition(target, ic.GetRect(), allowed);
+        }
+    }
+
+
+
+    private void CollectWindows(OSSaveData data)
+    {
         var windows = windowsRoot.GetComponentsInChildren<WindowController>(true);
         foreach (var w in windows)
         {
@@ -101,61 +196,25 @@ public class WindowManager : MonoBehaviour
                 isMinimized = false
             });
         }
-
-        // 2) icons 저장
-        if (iconsRoot != null)
-        {
-            var icons = iconsRoot.GetComponentsInChildren<DesktopIconDraggable>(true);
-            foreach (var ic in icons)
-            {
-                data.icons.Add(new OSIconData
-                {
-                    id = ic.GetId(),
-                    position = Vector2Int.RoundToInt(ic.GetRect().anchoredPosition)
-                });
-            }
-        }
-
-        // ✅ 파일 저장은 마지막에 1번만
-        OSSaveSystem.Save(data);
-        cachedSave = data; // 캐시도 갱신(선택)
-        Debug.Log("[OS] SaveWindows completed.");
     }
 
-    public void LoadWindows()
-    {
-        var data = OSSaveSystem.Load();
-        if (data == null) return;
 
-        // 1) windows 복원
+    private void ApplyWindows(OSSaveData data)
+    {
         var windows = windowsRoot.GetComponentsInChildren<WindowController>(true);
         foreach (var w in windows)
         {
-            string id = w.GetAppId();
-            var saved = data.windows.Find(x => x.appId == id);
+            var saved = data.windows.Find(x => x.appId == w.GetAppId());
             if (saved == null) continue;
 
             RectTransform rect = w.GetWindowRoot();
             rect.anchoredPosition = saved.position;
             rect.sizeDelta = saved.size;
         }
-
-        // 2) icons 복원
-        if (iconsRoot != null && data.icons != null)
-        {
-            var icons = iconsRoot.GetComponentsInChildren<DesktopIconDraggable>(true);
-            foreach (var ic in icons)
-            {
-                var saved = data.icons.Find(x => x.id == ic.GetId());
-                if (saved == null) continue;
-
-                ic.GetRect().anchoredPosition = saved.position;
-            }
-        }
-
-        cachedSave = data; // 캐시도 갱신(선택)
-        Debug.Log("[OS] LoadWindows applied.");
     }
+
+
+
 
 
 

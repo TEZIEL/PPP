@@ -25,6 +25,34 @@ public class DesktopGridManager : MonoBehaviour
         Debug.Log($"[Desktop] LayoutMode = {layoutMode}");
     }
 
+    public List<Vector2> GetSlots()
+    {
+        return BuildSlots(iconsRoot, cellSize, spacing, fillTopToBottom);
+    }
+
+    public int GetNearestSlotIndex(Vector2 pos)
+    {
+        var slots = GetSlots();
+        if (slots.Count == 0) return -1;
+
+        int best = 0;
+        float bestDist = (slots[0] - pos).sqrMagnitude;
+        for (int i = 1; i < slots.Count; i++)
+        {
+            float d = (slots[i] - pos).sqrMagnitude;
+            if (d < bestDist) { bestDist = d; best = i; }
+        }
+        return best;
+    }
+
+    public Vector2 GetSlotPos(int index, Vector2 fallback)
+    {
+        var slots = GetSlots();
+        if (index < 0 || index >= slots.Count) return fallback;
+        return slots[index];
+    }
+
+
     public Vector2 GetNearestSlotPosition(Vector2 currentAnchoredPos)
     {
         if (iconsRoot == null) return currentAnchoredPos;
@@ -71,7 +99,7 @@ public class DesktopGridManager : MonoBehaviour
         }
 
         // 정렬 결과 저장 덮어쓰기
-        if (windowManager != null) windowManager.SaveWindows();
+        if (windowManager != null) windowManager.SaveOS();
     }
 
     private static List<Vector2> BuildSlots(RectTransform desktopRect, Vector2 cell, Vector2 gap, bool topToBottom)

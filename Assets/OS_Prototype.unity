@@ -1461,7 +1461,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   iconId: 0
-  rect: {fileID: 0}
+  rect: {fileID: 671535956}
 --- !u!1 &703916909
 GameObject:
   m_ObjectHideFlags: 0
@@ -1817,7 +1817,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   iconId: 2
-  rect: {fileID: 0}
+  rect: {fileID: 745577885}
 --- !u!1 &757716231
 GameObject:
   m_ObjectHideFlags: 0
@@ -2871,7 +2871,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   iconId: 1
-  rect: {fileID: 0}
+  rect: {fileID: 1419800262}
 --- !u!1 &1509589866
 GameObject:
   m_ObjectHideFlags: 0

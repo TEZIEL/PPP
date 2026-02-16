@@ -20,9 +20,15 @@ public class DesktopIconDraggable : MonoBehaviour,
 
     private void Awake()
     {
-        if (rect == null)
-            rect = (RectTransform)transform;
+        if (rect == null) rect = (RectTransform)transform;
+
+        if (string.IsNullOrWhiteSpace(iconId))
+        {
+            iconId = System.Guid.NewGuid().ToString("N");
+            Debug.LogWarning($"[Icon] iconId was empty. Generated GUID: {iconId}", this);
+        }
     }
+
 
     private void OnDisable()
     {

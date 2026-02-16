@@ -7,8 +7,9 @@ namespace PPP.OS.Save
     [Serializable]
     public class OSSaveData
     {
-        public List<OSWindowData> windows = new List<OSWindowData>();
-        public List<OSIconData> icons = new List<OSIconData>();
+        public int version = 2;
+        public List<OSWindowData> windows = new();
+        public List<OSIconData> icons = new();
     }
 
     [Serializable]
@@ -24,6 +25,14 @@ namespace PPP.OS.Save
     public class OSIconData
     {
         public string id;
-        public Vector2Int position;
+        public Vector2 normalized;
+        public int slotIndex = -1;
+        public DesktopLayoutMode layoutMode;
+    }
+
+    public enum DesktopLayoutMode
+    {
+        Free,
+        Grid
     }
 }
