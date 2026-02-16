@@ -27,6 +27,58 @@ public class WindowManager : MonoBehaviour
         Open(appId, windowPrefab, Vector2.zero);
     }
 
+
+    // ✅ 새로 추가: 위치+사이즈까지 받는 버전(아이콘에서 이걸 쓸 것)
+    public void Open(string appId, WindowController windowPrefab, Vector2 defaultPos, Vector2 defaultSize)
+    {
+        if (string.IsNullOrWhiteSpace(appId) || windowPrefab == null) return;
+
+        // ✅ 이미 열려있으면 아무것도 안 함(standalone 유지)
+        if (openWindows.ContainsKey(appId))
+            return;
+
+        Transform parent = windowsRoot != null ? windowsRoot : transform;
+        WindowController spawned = Instantiate(windowPrefab, parent);
+
+        // 주입(너 프로젝트 방식)
+        spawned.Initialize(this, appId, canvasRect);
+        spawned.InjectManager(this);
+
+        // ✅ 저장 데이터 우선 적용
+        bool appliedSaved = false;
+        if (cachedSave != null)
+        {
+            var wd = cachedSave.windows.Find(x => x.appId == appId);
+            if (wd != null)
+            {
+                spawned.SetWindowPosition(wd.position);
+                // size 적용은 SetWindowSize가 있으면 적용, 없으면 rect로 직접
+                TryApplyWindowSize(spawned, wd.size);
+                appliedSaved = true;
+            }
+        }
+
+        // ✅ 저장이 없으면 기본값 적용
+        if (!appliedSaved)
+        {
+            spawned.SetWindowPosition(defaultPos);
+            TryApplyWindowSize(spawned, Vector2Int.RoundToInt(defaultSize));
+        }
+
+        openWindows.Add(appId, spawned);
+        taskbarManager?.Add(appId, spawned);
+
+        Focus(appId);
+    }
+
+    // ✅ 사이즈 적용 헬퍼(메서드 유무/구현 차이에 안전하게)
+    private void TryApplyWindowSize(WindowController wc, Vector2Int size)
+    {
+        var r = wc.GetWindowRoot();
+        if (r == null) return;
+        r.sizeDelta = size;
+    }
+
     public bool IsOpen(string appId)
     {
         return openWindows.ContainsKey(appId);

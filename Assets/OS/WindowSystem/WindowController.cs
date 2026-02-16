@@ -203,8 +203,12 @@ public class WindowController : MonoBehaviour,
 
     private Vector2 ClampWindowAnchoredPosition(Vector2 desired, float allowOverflow)
     {
+
+        if (windowRoot == null || windowRoot.parent == null)
+            return desired;
+
         // canvasRect 기준 영역(로컬 좌표)
-        Rect c = canvasRect.rect;
+        Rect c = ((RectTransform)windowRoot.parent).rect;
 
         // 창의 크기/피벗
         Vector2 size = windowRoot.rect.size;
