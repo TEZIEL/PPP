@@ -44,11 +44,11 @@ public class WindowManager : MonoBehaviour
     }
 
 
-    public void Open(string appId, WindowController windowPrefab)
-    {
-        Open(appId, windowPrefab, Vector2.zero);
-    }
 
+    public void OpenSimple(string appId, WindowController prefab)
+    {
+        Open(appId, prefab, null, Vector2.zero, new Vector2(600, 400));
+    }
 
     private IEnumerator CoFinalizeSpawn(WindowController w)
     {
@@ -503,35 +503,7 @@ public class WindowManager : MonoBehaviour
 
 
 
-    public void Open(string appId, WindowController windowPrefab, Vector2 defaultPos)
-    {
-        if (string.IsNullOrWhiteSpace(appId) || windowPrefab == null) return;
-        if (openWindows.ContainsKey(appId)) return;
-
-        Transform parent = windowsRoot != null ? windowsRoot : transform;
-        WindowController spawned = Instantiate(windowPrefab, parent);
-        spawned.Initialize(this, appId, canvasRect);
-
-        // ✅ OS 저장에서 위치/사이즈/최소화 불러오기
-        if (TryGetSavedWindow(appId, out var wd))
-        {
-            spawned.SetWindowPosition(wd.position);
-            spawned.SetWindowSize(wd.size);          // 이 메서드 없으면 size 적용은 나중에
-            
-        }
-        else
-        {
-            spawned.SetWindowPosition(defaultPos);
-        }
-
-        openWindows.Add(appId, spawned);
-        taskbarManager?.Add(appId, spawned);
-
-        Focus(appId);
-        spawned.InjectManager(this); // ✅ 굳이 InjectAllWindows 말고 얘만 주입해도 됨
-        spawned.PlayOpen();
-    }
-
+  
 
     public void Close(string appId)
     {
