@@ -29,48 +29,73 @@ public class WindowManager : MonoBehaviour
 
 
     // ✅ 새로 추가: 위치+사이즈까지 받는 버전(아이콘에서 이걸 쓸 것)
-    public void Open(string appId, WindowController windowPrefab, Vector2 defaultPos, Vector2 defaultSize)
+    public void Open(
+    string appId,
+    WindowController windowPrefab,
+    GameObject contentPrefab,
+    Vector2 defaultPos,
+    Vector2 defaultSize)
     {
         if (string.IsNullOrWhiteSpace(appId) || windowPrefab == null) return;
-
-        // ✅ 이미 열려있으면 아무것도 안 함(standalone 유지)
-        if (openWindows.ContainsKey(appId))
-            return;
-        EnsureSaveCacheLoaded();
+        if (openWindows.ContainsKey(appId)) return;
 
         Transform parent = windowsRoot != null ? windowsRoot : transform;
-        WindowController spawned = Instantiate(windowPrefab, parent);
+        var spawned = Instantiate(windowPrefab, parent);
 
-        // 주입(너 프로젝트 방식)
         spawned.Initialize(this, appId, canvasRect);
         spawned.InjectManager(this);
 
-        // ✅ 저장 데이터 우선 적용
+        // cachedSave가 비어있을 수 있으니 "필요 시 로드"
+        var data = cachedSave ?? PPP.OS.Save.OSSaveSystem.Load();
+
         bool appliedSaved = false;
-        if (cachedSave != null)
+        if (data != null)
         {
-            var wd = cachedSave.windows.Find(x => x.appId == appId);
+            var wd = data.windows.Find(x => x.appId == appId);
             if (wd != null)
             {
                 spawned.SetWindowPosition(wd.position);
-                // size 적용은 SetWindowSize가 있으면 적용, 없으면 rect로 직접
                 TryApplyWindowSize(spawned, wd.size);
                 appliedSaved = true;
             }
         }
 
-        // ✅ 저장이 없으면 기본값 적용
         if (!appliedSaved)
         {
             spawned.SetWindowPosition(defaultPos);
             TryApplyWindowSize(spawned, Vector2Int.RoundToInt(defaultSize));
         }
 
+        AttachContent(spawned, contentPrefab);
+
         openWindows.Add(appId, spawned);
         taskbarManager?.Add(appId, spawned);
-
         Focus(appId);
     }
+
+
+    private void AttachContent(WindowController spawned, GameObject contentPrefab)
+    {
+        if (spawned == null) return;
+        if (contentPrefab == null) return;
+        if (spawned.ContentRoot == null) return;
+
+        var content = Instantiate(contentPrefab, spawned.ContentRoot);
+
+        if (content.transform is RectTransform rt)
+        {
+            rt.anchorMin = Vector2.zero;
+            rt.anchorMax = Vector2.one;
+            rt.offsetMin = Vector2.zero;
+            rt.offsetMax = Vector2.zero;
+            rt.localScale = Vector3.one;
+            rt.localRotation = Quaternion.identity;
+        }
+    }
+
+
+
+
 
     private void EnsureSaveCacheLoaded()
     {

@@ -35,6 +35,10 @@ public class WindowController : MonoBehaviour,
     [SerializeField] private Image titleBarImage;
     [SerializeField] private Image frameImage;
 
+    [Header("Content")]
+    [SerializeField] private RectTransform contentRoot;
+    public RectTransform ContentRoot => contentRoot;
+
     private WindowManager owner;
     private RectTransform canvasRect;
     private bool isPinned;

@@ -12,6 +12,7 @@ public class DesktopIconLauncher : MonoBehaviour, IPointerClickHandler
     [SerializeField] private WindowController windowPrefab;
     [SerializeField] private Vector2 defaultPos = new Vector2(200, -120);
     [SerializeField] private Vector2 defaultSize = new Vector2(640, 480);
+    [SerializeField] private GameObject contentPrefab;
 
     [Header("Double Click")]
     [SerializeField] private float doubleClickThreshold = 0.28f;
@@ -66,7 +67,7 @@ public class DesktopIconLauncher : MonoBehaviour, IPointerClickHandler
         if (windowManager.IsOpen(appId))
             return;
 
-        windowManager.Open(appId, windowPrefab, defaultPos, defaultSize);
+        windowManager.Open(appId, windowPrefab, contentPrefab, defaultPos, defaultSize);
     }
 
     public void OnPointerClick(PointerEventData eventData)
