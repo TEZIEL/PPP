@@ -11,9 +11,19 @@ public class DesktopIconDraggable : MonoBehaviour,
     private Vector2 dragOffset;
     private WindowManager windowManager;             // 저장 트리거용
     private RectTransform desktopRect;
+    public bool IsDragging { get; private set; }
+
 
     public string GetId() => iconId;
     public RectTransform GetRect() => rect;
+    public float LastDragEndTime { get; private set; }
+
+
+    private void Awake()
+    {
+        if (rect == null)
+            rect = (RectTransform)transform;
+    }
 
     public void Initialize(WindowManager wm, RectTransform desktopRoot)
     {
@@ -39,6 +49,7 @@ public class DesktopIconDraggable : MonoBehaviour,
     {
         if (!TryPointerLocal(eventData, out var p)) return;
         dragOffset = rect.anchoredPosition - p;
+        IsDragging = true;
     }
 
     public void OnDrag(PointerEventData eventData)
@@ -59,6 +70,10 @@ public class DesktopIconDraggable : MonoBehaviour,
         {
             Rect allowed = DesktopBounds.GetAllowedRect(canvasRect);
             rect.anchoredPosition = DesktopBounds.ClampAnchoredPosition(rect.anchoredPosition, rect, allowed);
+            LastDragEndTime = Time.unscaledTime;
+            IsDragging = false;
+            windowManager?.RequestAutoSave();
+
         }
 
         windowManager?.RequestAutoSave();

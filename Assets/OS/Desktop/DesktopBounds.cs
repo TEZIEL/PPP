@@ -2,20 +2,19 @@ using UnityEngine;
 
 public static class DesktopBounds
 {
-    public const float Margin = 48f;
+    public const float MarginX = 48f;   // 좌우
+    public const float MarginY = 54f;   // 상하
     public const float TaskbarHeight = 54f;
 
-    // desktopRect(=DesktopIconBG) 기준 로컬 rect
     public static Rect GetAllowedRect(RectTransform desktopRect)
     {
         Rect r = desktopRect.rect;
 
-        float left = r.xMin + Margin;
-        float right = r.xMax - Margin;
-        float top = r.yMax - Margin;
+        float left = r.xMin + MarginX;
+        float right = r.xMax - MarginX;
 
-        // 하단: margin + taskbar
-        float bottom = r.yMin + Margin + TaskbarHeight;
+        float top = r.yMax - MarginY;
+        float bottom = r.yMin + MarginY + TaskbarHeight;
 
         return Rect.MinMaxRect(left, bottom, right, top);
     }
