@@ -62,8 +62,9 @@ public class WindowManager : MonoBehaviour
 
         var icons = iconsRoot.GetComponentsInChildren<DesktopIconDraggable>(true);
         foreach (var ic in icons)
-            ic.Initialize(this, canvasRect);
+            ic.Initialize(this, iconsRoot); // ✅ canvasRect 말고 iconsRoot
     }
+
 
 
 

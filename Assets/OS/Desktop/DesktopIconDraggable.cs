@@ -1,37 +1,39 @@
-using UnityEngine;
+Ôªøusing UnityEngine;
 using UnityEngine.EventSystems;
 
 public class DesktopIconDraggable : MonoBehaviour,
     IBeginDragHandler, IDragHandler, IEndDragHandler
 {
-    [SerializeField] private string iconId;           // ¿˙¿Â ≈∞ (appId∂˚ µø¿œ«œ∞‘ Ω·µµ µ )
-    [SerializeField] private RectTransform rect;      // æ¯¿∏∏È ¿⁄µø «“¥Á
+    [SerializeField] private string iconId;           // Ï†ÄÏû• ÌÇ§ (appIdÎûë ÎèôÏùºÌïòÍ≤å Ïç®ÎèÑ Îê®)
+    [SerializeField] private RectTransform rect;      // ÏóÜÏúºÎ©¥ ÏûêÎèô Ìï†Îãπ
 
-    private RectTransform canvasRect;                 // WindowManager∞° ¡÷¿‘
+    private RectTransform canvasRect;                 // WindowManagerÍ∞Ä Ï£ºÏûÖ
     private Vector2 dragOffset;
-    private WindowManager windowManager;             // ¿˙¿Â ∆Æ∏Æ∞≈øÎ
+    private WindowManager windowManager;             // Ï†ÄÏû• Ìä∏Î¶¨Í±∞Ïö©
+    private RectTransform desktopRect;
 
     public string GetId() => iconId;
     public RectTransform GetRect() => rect;
 
-    public void Initialize(WindowManager wm, RectTransform rootCanvas)
+    public void Initialize(WindowManager wm, RectTransform desktopRoot)
     {
         windowManager = wm;
-        canvasRect = rootCanvas;
+        desktopRect = desktopRoot;
         if (rect == null) rect = (RectTransform)transform;
     }
 
     private bool TryPointerLocal(PointerEventData e, out Vector2 local)
     {
-        if (canvasRect == null)
+        if (desktopRect == null)
         {
             local = default;
             return false;
         }
 
         return RectTransformUtility.ScreenPointToLocalPointInRectangle(
-            canvasRect, e.position, e.pressEventCamera, out local);
+            desktopRect, e.position, e.pressEventCamera, out local);
     }
+
 
     public void OnBeginDrag(PointerEventData eventData)
     {
@@ -42,12 +44,24 @@ public class DesktopIconDraggable : MonoBehaviour,
     public void OnDrag(PointerEventData eventData)
     {
         if (!TryPointerLocal(eventData, out var p)) return;
-        rect.anchoredPosition = p + dragOffset;
+
+        Vector2 target = p + dragOffset;
+
+        // ‚úÖ iconsRoot Ï¢åÌëúÍ≥ÑÏóêÏÑú clamp
+        Rect allowed = DesktopBounds.GetAllowedRect(desktopRect);
+        rect.anchoredPosition = DesktopBounds.ClampAnchoredPosition(target, rect, allowed);
     }
+
 
     public void OnEndDrag(PointerEventData eventData)
     {
-        // µÂ∑°±◊ ¡æ∑· Ω√ ¿⁄µø ¿˙¿Â ∆Æ∏Æ∞≈
+        if (canvasRect != null)
+        {
+            Rect allowed = DesktopBounds.GetAllowedRect(canvasRect);
+            rect.anchoredPosition = DesktopBounds.ClampAnchoredPosition(rect.anchoredPosition, rect, allowed);
+        }
+
         windowManager?.RequestAutoSave();
     }
+
 }
