@@ -80,11 +80,14 @@ public class WindowManager : MonoBehaviour
                 appId = w.GetAppId(),
                 position = Vector2Int.RoundToInt(rect.anchoredPosition),
                 size = Vector2Int.RoundToInt(rect.sizeDelta),
-                isMinimized = w.IsMinimized   // ✅ 프로퍼티
+                isMinimized = false
             });
+
+            OSSaveSystem.Save(data);
+            Debug.Log("[OS] SaveWindows completed.");
         }
 
-        OSSaveSystem.Save(data);
+
     }
 
 
@@ -108,8 +111,7 @@ public class WindowManager : MonoBehaviour
             rect.anchoredPosition = saved.position;
             rect.sizeDelta = saved.size;
 
-            // 최소화 상태 복원(선택)
-            w.SetMinimized(saved.isMinimized);
+        
         }
 
         Debug.Log("[OS] LoadWindows applied.");
@@ -129,7 +131,7 @@ public class WindowManager : MonoBehaviour
         {
             spawned.SetWindowPosition(wd.position);
             spawned.SetWindowSize(wd.size);          // 이 메서드 없으면 size 적용은 나중에
-            spawned.SetMinimized(wd.isMinimized);    // 네 기존 SetMinimized 사용
+            
         }
         else
         {
