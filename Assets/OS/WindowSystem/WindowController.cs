@@ -29,6 +29,7 @@ public class WindowController : MonoBehaviour,
     [SerializeField] private Button minimizeButton;
     [SerializeField] private Button pinToggleButton;
 
+
     [Header("Skin")]
     [SerializeField] private UISkin skin;
     [SerializeField] private Image titleBarImage;
@@ -37,6 +38,7 @@ public class WindowController : MonoBehaviour,
     private WindowManager owner;
     private RectTransform canvasRect;
     private bool isPinned;
+    public bool IsPinned => isPinned;
 
     public string AppId => appId;
     public bool IsMinimized { get; private set; }
@@ -121,6 +123,8 @@ public class WindowController : MonoBehaviour,
 
     public void OnBeginDrag(PointerEventData eventData)
     {
+        if (isPinned) return; // ✅ 핀 상태면 드래그 시작 자체를 막음
+        
         if (canvasRect == null || windowRoot == null) return;
 
         if (returnRoutine != null)
@@ -137,6 +141,7 @@ public class WindowController : MonoBehaviour,
 
     public void OnDrag(PointerEventData eventData)
     {
+        if (isPinned) return; // ✅ 혹시 BeginDrag가 뚫려도 여기서 막음
         if (canvasRect == null || windowRoot == null) return;
         if (!TryGetPointerLocal(eventData, out var pointerLocal)) return;
 
@@ -150,6 +155,7 @@ public class WindowController : MonoBehaviour,
 
     public void OnEndDrag(PointerEventData eventData)
     {
+        if (isPinned) return; // ✅ 핀 상태에서 EndDrag 처리로 위치 튐/세이브 방지
         if (canvasRect == null || windowRoot == null) return;
 
         // 놓았을 때도 250px까지는 유지
