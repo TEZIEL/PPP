@@ -8,6 +8,7 @@ public class WindowManager : MonoBehaviour
     [SerializeField] private RectTransform windowsRoot;
     [SerializeField] private RectTransform canvasRect;
     [SerializeField] private TaskbarManager taskbarManager;
+    [SerializeField] private RectTransform iconsRoot; // DesktopIconBG 같은 부모
 
     private readonly Dictionary<string, WindowController> openWindows = new();
 
@@ -32,6 +33,8 @@ public class WindowManager : MonoBehaviour
     private void Start()
     {
         InjectAllWindows();
+        InjectAllIcons();     // ✅ 추가
+        LoadWindows();
         cachedSave = OSSaveSystem.Load(); // 캐시 로드
     }
 
@@ -53,6 +56,16 @@ public class WindowManager : MonoBehaviour
             w.InjectManager(this);
     }
 
+    private void InjectAllIcons()
+    {
+        if (iconsRoot == null) return;
+
+        var icons = iconsRoot.GetComponentsInChildren<DesktopIconDraggable>(true);
+        foreach (var ic in icons)
+            ic.Initialize(this, canvasRect);
+    }
+
+
 
     private float nextAutoSaveTime;
     private const float autoSaveCooldown = 0.3f;
@@ -65,15 +78,18 @@ public class WindowManager : MonoBehaviour
     }
 
 
+   
+  
+
     public void SaveWindows()
     {
         var data = new OSSaveData();
 
+        // 1) windows 저장
         var windows = windowsRoot.GetComponentsInChildren<WindowController>(true);
-
         foreach (var w in windows)
         {
-            RectTransform rect = w.GetWindowRoot(); // 네 프로젝트에 맞게
+            RectTransform rect = w.GetWindowRoot();
 
             data.windows.Add(new OSWindowData
             {
@@ -82,40 +98,66 @@ public class WindowManager : MonoBehaviour
                 size = Vector2Int.RoundToInt(rect.sizeDelta),
                 isMinimized = false
             });
-
-            OSSaveSystem.Save(data);
-            Debug.Log("[OS] SaveWindows completed.");
         }
 
+        // 2) icons 저장
+        if (iconsRoot != null)
+        {
+            var icons = iconsRoot.GetComponentsInChildren<DesktopIconDraggable>(true);
+            foreach (var ic in icons)
+            {
+                data.icons.Add(new OSIconData
+                {
+                    id = ic.GetId(),
+                    position = Vector2Int.RoundToInt(ic.GetRect().anchoredPosition)
+                });
+            }
+        }
 
+        // ✅ 파일 저장은 마지막에 1번만
+        OSSaveSystem.Save(data);
+        cachedSave = data; // 캐시도 갱신(선택)
+        Debug.Log("[OS] SaveWindows completed.");
     }
-
 
     public void LoadWindows()
     {
         var data = OSSaveSystem.Load();
         if (data == null) return;
 
-        // 현재 씬에 존재하는 창들 가져오기
+        // 1) windows 복원
         var windows = windowsRoot.GetComponentsInChildren<WindowController>(true);
-
         foreach (var w in windows)
         {
             string id = w.GetAppId();
-
-            // 저장 데이터에서 해당 appId 찾기
             var saved = data.windows.Find(x => x.appId == id);
             if (saved == null) continue;
 
             RectTransform rect = w.GetWindowRoot();
             rect.anchoredPosition = saved.position;
             rect.sizeDelta = saved.size;
-
-        
         }
 
+        // 2) icons 복원
+        if (iconsRoot != null && data.icons != null)
+        {
+            var icons = iconsRoot.GetComponentsInChildren<DesktopIconDraggable>(true);
+            foreach (var ic in icons)
+            {
+                var saved = data.icons.Find(x => x.id == ic.GetId());
+                if (saved == null) continue;
+
+                ic.GetRect().anchoredPosition = saved.position;
+            }
+        }
+
+        cachedSave = data; // 캐시도 갱신(선택)
         Debug.Log("[OS] LoadWindows applied.");
     }
+
+
+
+
 
     public void Open(string appId, WindowController windowPrefab, Vector2 defaultPos)
     {

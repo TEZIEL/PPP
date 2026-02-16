@@ -1183,6 +1183,7 @@ GameObject:
   - component: {fileID: 671535959}
   - component: {fileID: 671535958}
   - component: {fileID: 671535957}
+  - component: {fileID: 671535961}
   m_Layer: 5
   m_Name: DesktopIcon_TestVN
   m_TagString: Untagged
@@ -1311,6 +1312,20 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 671535955}
   m_CullTransparentMesh: 1
+--- !u!114 &671535961
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 671535955}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a9dc46ed6bc754642980d5e638f66de8, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  iconId: 0
+  rect: {fileID: 0}
 --- !u!1 &703916909
 GameObject:
   m_ObjectHideFlags: 0
@@ -1523,6 +1538,7 @@ GameObject:
   - component: {fileID: 745577888}
   - component: {fileID: 745577887}
   - component: {fileID: 745577886}
+  - component: {fileID: 745577890}
   m_Layer: 5
   m_Name: DesktopIcon_TestVN (2)
   m_TagString: Untagged
@@ -1651,6 +1667,20 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 745577884}
   m_CullTransparentMesh: 1
+--- !u!114 &745577890
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 745577884}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a9dc46ed6bc754642980d5e638f66de8, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  iconId: 2
+  rect: {fileID: 0}
 --- !u!1 &757716231
 GameObject:
   m_ObjectHideFlags: 0
@@ -1975,6 +2005,7 @@ MonoBehaviour:
   windowsRoot: {fileID: 2137456822}
   canvasRect: {fileID: 426576152}
   taskbarManager: {fileID: 501036345}
+  iconsRoot: {fileID: 291154894}
 --- !u!1 &1273186897
 GameObject:
   m_ObjectHideFlags: 0
@@ -2272,6 +2303,7 @@ GameObject:
   - component: {fileID: 1419800265}
   - component: {fileID: 1419800264}
   - component: {fileID: 1419800263}
+  - component: {fileID: 1419800267}
   m_Layer: 5
   m_Name: DesktopIcon_TestVN (1)
   m_TagString: Untagged
@@ -2400,6 +2432,20 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1419800261}
   m_CullTransparentMesh: 1
+--- !u!114 &1419800267
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1419800261}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a9dc46ed6bc754642980d5e638f66de8, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  iconId: 1
+  rect: {fileID: 0}
 --- !u!1 &1509589866
 GameObject:
   m_ObjectHideFlags: 0
