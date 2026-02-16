@@ -11,6 +11,14 @@ public class WindowManager : MonoBehaviour
     [SerializeField] private RectTransform iconsRoot; // DesktopIconBG 같은 부모
     [SerializeField] private DesktopGridManager desktopGridManager;
 
+    [System.Serializable]
+    public struct WindowDefault
+    {
+        public Vector2 pos;
+        public Vector2 size;
+    }
+
+    private readonly Dictionary<string, WindowDefault> windowDefaults = new();
 
     private readonly Dictionary<string, WindowController> openWindows = new();
 
@@ -70,6 +78,8 @@ public class WindowManager : MonoBehaviour
 
         openWindows.Add(appId, spawned);
         taskbarManager?.Add(appId, spawned);
+        windowDefaults[appId] = new WindowDefault { pos = defaultPos, size = defaultSize };
+
         Focus(appId);
     }
 
@@ -327,6 +337,36 @@ public class WindowManager : MonoBehaviour
 
 
 
+    public void ResetWindowsToDefaults()
+    {
+        // 1) 저장 데이터에서 windows 전부 제거 (다음 실행/다음 오픈부터 기본값 적용)
+        var data = PPP.OS.Save.OSSaveSystem.Load();
+        if (data != null && data.windows != null)
+        {
+            data.windows.Clear();
+            PPP.OS.Save.OSSaveSystem.Save(data);
+            cachedSave = data;
+        }
+
+        // 2) 현재 열려있는 창들은 즉시 기본값으로 이동/리사이즈
+        foreach (var kv in openWindows)
+        {
+            string id = kv.Key;
+            var wc = kv.Value;
+            if (wc == null) continue;
+
+            if (windowDefaults.TryGetValue(id, out var d))
+            {
+                wc.SetWindowPosition(d.pos);
+                wc.SetWindowSize(d.size);
+            }
+        }
+
+        // 3) 덮어쓰기 저장
+        SaveOS();
+
+        Debug.Log("[Desktop] ResetWindowsToDefaults applied.");
+    }
 
 
 
@@ -368,20 +408,20 @@ public class WindowManager : MonoBehaviour
 
         bool wasActive = (activeAppId == appId);
 
-        // 1) taskbar 버튼 제거 먼저 (UI 잔존 방지)
+        // ✅ 1) 포커스 이동 먼저 (닫히는 창은 후보에서 제외)
+        if (wasActive && !suppressAutoFocus)
+            FocusNextTopWindow(excludedAppId: appId);
+
+        // ✅ 2) taskbar 제거
         taskbarManager?.Remove(appId);
 
-        // 2) 딕셔너리에서 제거 (이제부터 시스템은 '닫힌 상태'로 인식)
+        // ✅ 3) 딕셔너리 제거
         openWindows.Remove(appId);
 
-        // 3) 포커스 이동 (이때는 excludedAppId 없어도 됨)
-        if (wasActive && !suppressAutoFocus)
-            FocusNextTopWindow(excludedAppId: null);
-
-        // 4) 파괴
+        // ✅ 4) 파괴
         Destroy(window.gameObject);
 
-        // 5) 저장(원하면)
+        // ✅ 5) 저장(선택)
         RequestAutoSave();
     }
 
@@ -494,6 +534,7 @@ public class WindowManager : MonoBehaviour
 
             var wc = child.GetComponent<WindowController>();
             if (wc == null) continue;
+            if (!wc.gameObject.activeInHierarchy) continue; // 선택
 
             if (!string.IsNullOrEmpty(excludedAppId) && wc.AppId == excludedAppId) continue;
 
