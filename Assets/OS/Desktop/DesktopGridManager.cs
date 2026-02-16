@@ -14,6 +14,41 @@ public class DesktopGridManager : MonoBehaviour
     // 좌상단부터 정렬할지(윈도우 감성), 아니면 좌하단부터 할지 선택
     [SerializeField] private bool fillTopToBottom = true;
 
+    public enum DesktopLayoutMode { Free, Grid }
+
+    [SerializeField] private DesktopLayoutMode layoutMode = DesktopLayoutMode.Free;
+    public DesktopLayoutMode LayoutMode => layoutMode;
+
+    public void ToggleLayoutMode()
+    {
+        layoutMode = (layoutMode == DesktopLayoutMode.Free) ? DesktopLayoutMode.Grid : DesktopLayoutMode.Free;
+        Debug.Log($"[Desktop] LayoutMode = {layoutMode}");
+    }
+
+    public Vector2 GetNearestSlotPosition(Vector2 currentAnchoredPos)
+    {
+        if (iconsRoot == null) return currentAnchoredPos;
+
+        var slots = BuildSlots(iconsRoot, cellSize, spacing, fillTopToBottom);
+        if (slots.Count == 0) return currentAnchoredPos;
+
+        Vector2 best = slots[0];
+        float bestDist = (best - currentAnchoredPos).sqrMagnitude;
+
+        for (int i = 1; i < slots.Count; i++)
+        {
+            float d = (slots[i] - currentAnchoredPos).sqrMagnitude;
+            if (d < bestDist)
+            {
+                bestDist = d;
+                best = slots[i];
+            }
+        }
+
+        return best;
+    }
+
+
     public void AlignIconsToGrid()
     {
         if (iconsRoot == null) return;

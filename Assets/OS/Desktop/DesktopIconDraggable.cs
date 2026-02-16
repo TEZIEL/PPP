@@ -10,6 +10,7 @@ public class DesktopIconDraggable : MonoBehaviour,
     private RectTransform desktopRect;           // iconsRoot(DesktopIconBG) 주입
     private Vector2 dragOffset;
     private WindowManager windowManager;
+    private DesktopGridManager gridManager;
 
     public bool IsDragging { get; private set; }
     public float LastDragEndTime { get; private set; } = -999f;
@@ -29,10 +30,11 @@ public class DesktopIconDraggable : MonoBehaviour,
         IsDragging = false;
     }
 
-    public void Initialize(WindowManager wm, RectTransform desktopRoot)
+    public void Initialize(WindowManager wm, RectTransform desktopRoot, DesktopGridManager grid)
     {
         windowManager = wm;
         desktopRect = desktopRoot;
+        gridManager = grid;
 
         if (rect == null)
             rect = (RectTransform)transform;
@@ -79,6 +81,15 @@ public class DesktopIconDraggable : MonoBehaviour,
         {
             Rect allowed = DesktopBounds.GetAllowedRect(desktopRect);
             rect.anchoredPosition = DesktopBounds.ClampAnchoredPosition(rect.anchoredPosition, rect, allowed);
+        }
+
+        // ✅ Grid 모드면 슬롯 스냅
+        if (gridManager != null && gridManager.LayoutMode == DesktopGridManager.DesktopLayoutMode.Grid)
+        {
+            Vector2 snapped = gridManager.GetNearestSlotPosition(rect.anchoredPosition);
+
+            Rect allowed = DesktopBounds.GetAllowedRect(desktopRect);
+            rect.anchoredPosition = DesktopBounds.ClampAnchoredPosition(snapped, rect, allowed);
         }
 
         // ✅ autosave는 딱 1번

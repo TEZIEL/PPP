@@ -9,6 +9,8 @@ public class WindowManager : MonoBehaviour
     [SerializeField] private RectTransform canvasRect;
     [SerializeField] private TaskbarManager taskbarManager;
     [SerializeField] private RectTransform iconsRoot; // DesktopIconBG 같은 부모
+    [SerializeField] private DesktopGridManager desktopGridManager;
+
 
     private readonly Dictionary<string, WindowController> openWindows = new();
 
@@ -62,9 +64,8 @@ public class WindowManager : MonoBehaviour
 
         var icons = iconsRoot.GetComponentsInChildren<DesktopIconDraggable>(true);
         foreach (var ic in icons)
-            ic.Initialize(this, iconsRoot); // ✅ canvasRect 말고 iconsRoot
+            ic.Initialize(this, iconsRoot, desktopGridManager);
     }
-
 
 
 
