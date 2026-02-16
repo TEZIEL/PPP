@@ -30,13 +30,15 @@ public class DesktopIconLauncher : MonoBehaviour
         if (Time.unscaledTime < _nextAllowedTime) return;
         _nextAllowedTime = Time.unscaledTime + clickCooldownSeconds;
 
-        if (showDesktop != null && showDesktop.IsDesktopShown)
-            return; // ✅ 전체최소화 중이면 아이콘 클릭 무시
-
         if (windowManager == null || windowPrefab == null || string.IsNullOrEmpty(appId))
+            return;
+
+        // ✅ 이미 열려있으면 아무것도 안 함 (포커스/복원 금지)
+        if (windowManager.IsOpen(appId))
             return;
 
         windowManager.Open(appId, windowPrefab, defaultPos);
     }
+
 
 }
