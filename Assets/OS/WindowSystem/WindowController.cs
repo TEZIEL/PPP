@@ -1,6 +1,8 @@
 ﻿using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
+using System.Collections;
+
 
 public class WindowController : MonoBehaviour,
     IPointerDownHandler, IBeginDragHandler, IDragHandler , IEndDragHandler
@@ -18,6 +20,9 @@ public class WindowController : MonoBehaviour,
     [SerializeField] private float dragOverflow = 250f;     // 드래그 중 허용 바깥
     [SerializeField] private float returnDuration = 0.18f;  // 복귀 애니 시간
     [SerializeField] private float returnSnapEpsilon = 0.5f;
+    [SerializeField] private float softSnapDuration = 0.06f; // 아주 짧게
+    [SerializeField] private float softSnapMinDistance = 2f; // 2px 이상일 때만 스무딩
+
 
     [Header("Buttons")]
     [SerializeField] private Button closeButton;
@@ -147,27 +152,43 @@ public class WindowController : MonoBehaviour,
     {
         if (canvasRect == null || windowRoot == null) return;
 
-        Vector2 target = ClampWindowAnchoredPosition(windowRoot.anchoredPosition, allowOverflow: 0f);
+        // 놓았을 때도 250px까지는 유지
+        Vector2 target = ClampWindowAnchoredPosition(windowRoot.anchoredPosition, allowOverflow: dragOverflow);
 
-        if ((target - windowRoot.anchoredPosition).sqrMagnitude < returnSnapEpsilon * returnSnapEpsilon)
+        float dist = (target - windowRoot.anchoredPosition).magnitude;
+
+        // ✅ 허용 범위 안이면: 원래는 즉시 return이었는데,
+        // 2px 이상 차이가 있을 때만 "아주 짧게" 스르륵 정리
+        if (dist < returnSnapEpsilon)
         {
-            windowRoot.anchoredPosition = target;
             windowManager?.RequestAutoSave();
             return;
         }
 
         if (returnRoutine != null) StopCoroutine(returnRoutine);
-        returnRoutine = StartCoroutine(ReturnToBounds(target));
+
+        if (dist <= softSnapMinDistance)
+        {
+            // 미세한 보정만: 매우 짧은 스무딩
+            returnRoutine = StartCoroutine(ReturnToBounds(target, softSnapDuration));
+        }
+        else
+        {
+            // 250 경계를 넘겼거나, 큰 보정이 필요할 때: 기존 복귀 속도
+            returnRoutine = StartCoroutine(ReturnToBounds(target, returnDuration));
+        }
     }
 
-    private System.Collections.IEnumerator ReturnToBounds(Vector2 target)
+
+
+    private IEnumerator ReturnToBounds(Vector2 target, float duration)
     {
         Vector2 start = windowRoot.anchoredPosition;
         float t = 0f;
 
         while (t < 1f)
         {
-            t += Time.unscaledDeltaTime / Mathf.Max(0.01f, returnDuration);
+            t += Time.unscaledDeltaTime / Mathf.Max(0.01f, duration);
             float smooth = Mathf.SmoothStep(0f, 1f, t);
             windowRoot.anchoredPosition = Vector2.LerpUnclamped(start, target, smooth);
             yield return null;
@@ -178,6 +199,7 @@ public class WindowController : MonoBehaviour,
 
         windowManager?.RequestAutoSave();
     }
+
 
     private Vector2 ClampWindowAnchoredPosition(Vector2 desired, float allowOverflow)
     {
