@@ -59,7 +59,8 @@ public class ShowDesktopController : MonoBehaviour
             Debug.Log($"Will minimize count: {previouslyVisibleApps.Count}");
 
             for (int i = 0; i < previouslyVisibleApps.Count; i++)
-                windowManager.MinimizeNoFocus(previouslyVisibleApps[i]);
+                windowManager.MinimizeNoFocusAnimated(previouslyVisibleApps[i]);
+
 
             windowManager.EndBatch();
 
@@ -81,7 +82,7 @@ public class ShowDesktopController : MonoBehaviour
 
             // 지금도 최소화 상태인 애만 복원(꼬임 방지)
             if (wc.IsMinimized)
-                windowManager.RestoreNoFocus(id);
+                windowManager.RestoreNoFocusAnimated(id);
         }
 
         windowManager.EndBatch();
