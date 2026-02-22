@@ -52,18 +52,20 @@ public class TaskbarManager : MonoBehaviour
         // ✅ 1) 제거 직전 "현재 위치" 스냅샷
         var fromPos = CaptureCurrentPositions(except: removed);
 
-        // ✅ 2) 제거(지금처럼 즉시 사라지는 건 그대로)
-        removed.gameObject.SetActive(false);   // ✅ 이게 핵심: 즉시 레이아웃 계산에서 빠짐
-        ForceRebuild();                        // ✅ '목표 위치(to)'를 즉시 계산 가능
+        // ✅ 2) 레이아웃에서 즉시 빠지게(중요!)
+        var le = removed.GetComponent<LayoutElement>();
+        if (le == null) le = removed.gameObject.AddComponent<LayoutElement>();
+        le.ignoreLayout = true;
 
-        // ✅ 3) 목표 위치 캡처 (이미 레이아웃이 당겨진 상태)
+        // ✅ 3) 화면에서는 즉시 사라지게(연출은 지금처럼 즉시 OK)
+        removed.gameObject.SetActive(false);
+
+        // ✅ 4) 레이아웃 강제 갱신 → 목표 위치 계산
+        ForceRebuild();
         var toPos = CaptureCurrentPositions(except: null);
 
-        // ✅ 4) from -> to로 부드럽게 이동
-        StartShiftAnimation(fromPos, toPos);
-
-        // ✅ 5) 진짜 파괴는 마지막에(프레임 끝) 처리
-        Destroy(removed.gameObject);
+        // ✅ 5) from -> to로 부드럽게 이동 (이동 끝나면 Destroy)
+        StartShiftAnimation(fromPos, toPos, removed.gameObject);
     }
 
     // -------------------------
@@ -128,15 +130,15 @@ public class TaskbarManager : MonoBehaviour
 
     private void StartShiftAnimation(
         Dictionary<RectTransform, Vector2> fromPos,
-        Dictionary<RectTransform, Vector2> toPos)
+        Dictionary<RectTransform, Vector2> toPos, GameObject removedGo)
     {
         if (_shiftCo != null) StopCoroutine(_shiftCo);
-        _shiftCo = StartCoroutine(CoShift(fromPos, toPos));
+        _shiftCo = StartCoroutine(CoShift(fromPos, toPos, removedGo));
     }
 
     private IEnumerator CoShift(
         Dictionary<RectTransform, Vector2> fromPos,
-        Dictionary<RectTransform, Vector2> toPos)
+        Dictionary<RectTransform, Vector2> toPos, GameObject removedGo)
     {
         // LayoutGroup이 애니 중에 위치를 계속 덮어쓰는 걸 방지
         if (_layout != null) _layout.enabled = false;
@@ -184,6 +186,8 @@ public class TaskbarManager : MonoBehaviour
         if (_layout != null) _layout.enabled = true;
         ForceRebuild();
 
+
+        if (removedGo != null) Destroy(removedGo);
         _shiftCo = null;
     }
 }
