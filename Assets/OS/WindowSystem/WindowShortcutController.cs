@@ -5,7 +5,7 @@ public class WindowShortcutController : MonoBehaviour
     [SerializeField] private WindowManager windowManager;
 
     [Header("Cooldown")]
-    [SerializeField] private float actionCooldown = 0.15f;
+    [SerializeField] private float actionCooldown = 0.32f;
 
     private float lastActionTime;
 

@@ -10,7 +10,7 @@ public class TaskbarManager : MonoBehaviour
     [SerializeField] private RectTransform buttonRoot;
 
     [Header("UX")]
-    [SerializeField] private float shiftDuration = 0.30f; // ← 여기만 취향대로 조절
+    [SerializeField] private float shiftDuration = 0.28f; // ← 여기만 취향대로 조절
     [SerializeField] private AnimationCurve shiftCurve = AnimationCurve.EaseInOut(0, 0, 1, 1);
 
     private HorizontalLayoutGroup _layout;

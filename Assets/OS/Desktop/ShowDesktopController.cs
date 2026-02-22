@@ -13,7 +13,7 @@ public class ShowDesktopController : MonoBehaviour
     private bool isDesktopShown;
 
     private float lastToggleTime;
-    private const float cooldown = 0.2f;
+    private const float cooldown = 0.35f;
     public bool IsDesktopShown => isDesktopShown;
 
 
