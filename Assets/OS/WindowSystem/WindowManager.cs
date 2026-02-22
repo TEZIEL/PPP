@@ -244,6 +244,12 @@ public class WindowManager : MonoBehaviour
         Debug.Log("[OS] SaveOS completed.");
     }
 
+    private IEnumerator CoPostApplyLayoutSanityNextFrame()
+    {
+        yield return null;              // ✅ 1프레임 대기
+        PostApplyLayoutSanity();        // ✅ 한 번 더
+    }
+
     public void LoadOS()
     {
         var data = OSSaveSystem.Load();
@@ -254,6 +260,7 @@ public class WindowManager : MonoBehaviour
         cachedSave = data;
 
         PostApplyLayoutSanity(); // ✅ 추가
+        StartCoroutine(CoPostApplyLayoutSanityNextFrame()); // ✅ 추가
 
         Debug.Log("[OS] LoadOS applied.");
     }

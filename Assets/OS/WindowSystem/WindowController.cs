@@ -64,14 +64,21 @@ public class WindowController : MonoBehaviour,
     private bool hasRestorePos;
     private Coroutine moveScaleRoutine;
 
-    public void ForceClampNow(float overflow = 0f)
-{
-    if (windowRoot == null) return;
-    var clamped = ClampWindowAnchoredPosition(windowRoot.anchoredPosition, overflow);
-    windowRoot.anchoredPosition = clamped;
-}
+    private bool isAnimating;
+    public bool IsAnimating => isAnimating;
 
-       
+    public void ForceClampNow(float overflow = 0f)
+    {
+        if (windowRoot == null) return;
+        var clamped = ClampWindowAnchoredPosition(windowRoot.anchoredPosition, overflow);
+        windowRoot.anchoredPosition = clamped;
+    }
+
+    private bool CanAcceptCommand()
+    {
+        // 애니 중이면 입력/버튼/드래그/포커스 요청 무시
+        return !isAnimating;
+    }
 
     public void Initialize(WindowManager wm, string id, RectTransform rootCanvas, string displayName)
     {
@@ -85,7 +92,7 @@ public class WindowController : MonoBehaviour,
     }
 
     // (기존 Initialize 시그니처를 쓰는 곳이 많으면 오버로드로 유지)
-   
+
     private void Awake()
     {
         if (windowRoot == null)
@@ -101,7 +108,7 @@ public class WindowController : MonoBehaviour,
         HookButtons();
     }
 
-    
+
 
 
     public void InjectManager(WindowManager manager)
@@ -167,6 +174,7 @@ public class WindowController : MonoBehaviour,
     // =========================
     public void OnPointerDown(PointerEventData e)
     {
+        if (!CanAcceptCommand()) return;
         owner?.Focus(appId);
     }
 
@@ -181,6 +189,7 @@ public class WindowController : MonoBehaviour,
 
     public void OnBeginDrag(PointerEventData eventData)
     {
+        if (!CanAcceptCommand()) return;
         if (isPinned) return; // ✅ 핀 고정: 드래그 금지
         if (canvasRect == null || windowRoot == null) return;
 
@@ -197,6 +206,7 @@ public class WindowController : MonoBehaviour,
 
     public void OnDrag(PointerEventData eventData)
     {
+        if (!CanAcceptCommand()) return;
         if (isPinned) return; // ✅ 핀 고정: 드래그 금지
         if (canvasRect == null || windowRoot == null) return;
         if (!TryGetPointerLocal(eventData, out var pointerLocal)) return;
@@ -209,6 +219,7 @@ public class WindowController : MonoBehaviour,
 
     public void OnEndDrag(PointerEventData eventData)
     {
+        if (!CanAcceptCommand()) return;
         if (isPinned) return; // ✅ 핀 고정: 드래그 금지
         if (canvasRect == null || windowRoot == null) return;
 
@@ -288,31 +299,67 @@ public class WindowController : MonoBehaviour,
 
     public void PlayOpen()
     {
+        if (isAnimating) return;            // ✅ 이미 애니 중이면 거절
+        isAnimating = true;
+
         if (animRoutine != null) StopCoroutine(animRoutine);
-        animRoutine = StartCoroutine(CoScale(openFromScale, Vector3.one, openDuration, null));
+
+        animRoutine = StartCoroutine(CoScale(
+            openFromScale,
+            Vector3.one,
+            openDuration,
+            () =>
+            {
+                isAnimating = false;        // ✅ 종료
+            }
+        ));
     }
 
     public void PlayClose(Action onDone)
     {
+        if (isAnimating) return;            // ✅ 이미 애니 중이면 거절
+        isAnimating = true;
+
         if (animRoutine != null) StopCoroutine(animRoutine);
-        animRoutine = StartCoroutine(CoScale(transform.localScale, openFromScale, closeDuration, onDone));
+
+        animRoutine = StartCoroutine(CoScale(
+            transform.localScale,
+            openFromScale,
+            closeDuration,
+            () =>
+            {
+                isAnimating = false;        // ✅ 종료
+                onDone?.Invoke();
+            }
+        ));
     }
 
     public void PlayMinimize(Vector2 targetAnchoredPos, Action onDone, float duration = 0.12f)
     {
+        if (isAnimating) return;            // ✅ 이미 애니 중이면 거절
+        isAnimating = true;
+
         if (moveScaleRoutine != null) StopCoroutine(moveScaleRoutine);
+
         moveScaleRoutine = StartCoroutine(CoMoveAndScale(
             fromPos: windowRoot.anchoredPosition,
             toPos: targetAnchoredPos,
             fromScale: Vector3.one,
             toScale: new Vector3(0.85f, 0.85f, 1f),
             duration: duration,
-            onDone: onDone
+            onDone: () =>
+            {
+                isAnimating = false;        // ✅ 종료
+                onDone?.Invoke();
+            }
         ));
     }
 
     public void PlayRestore(Vector2 fromAnchoredPos, Action onDone, float duration = 0.12f, bool bringToFront = true)
     {
+        if (isAnimating) return;            // ✅ 이미 애니 중이면 거절
+        isAnimating = true;
+
         if (bringToFront)
             transform.SetAsLastSibling();
 
@@ -322,13 +369,18 @@ public class WindowController : MonoBehaviour,
         transform.localScale = new Vector3(0.85f, 0.85f, 1f);
 
         if (moveScaleRoutine != null) StopCoroutine(moveScaleRoutine);
+
         moveScaleRoutine = StartCoroutine(CoMoveAndScale(
             fromPos: fromAnchoredPos,
             toPos: toPos,
             fromScale: new Vector3(0.85f, 0.85f, 1f),
             toScale: Vector3.one,
             duration: duration,
-            onDone: onDone
+            onDone: () =>
+            {
+                isAnimating = false;        // ✅ 종료
+                onDone?.Invoke();
+            }
         ));
     }
 
@@ -380,15 +432,26 @@ public class WindowController : MonoBehaviour,
     private void HookButtons()
     {
         if (closeButton != null)
-            closeButton.onClick.AddListener(() => owner?.Close(appId));
+            closeButton.onClick.AddListener(() =>
+            {
+                if (!CanAcceptCommand()) return;   // ✅ 추가
+                owner?.Close(appId);
+            });
 
         if (minimizeButton != null)
-            minimizeButton.onClick.AddListener(() => owner?.Minimize(appId));
+            minimizeButton.onClick.AddListener(() =>
+            {
+                if (!CanAcceptCommand()) return;   // ✅ 추가
+                owner?.Minimize(appId);
+            });
 
         if (pinToggleButton != null)
-            pinToggleButton.onClick.AddListener(() => isPinned = !isPinned);
+            pinToggleButton.onClick.AddListener(() =>
+            {
+                if (!CanAcceptCommand()) return;   // ✅ 추가(선택인데 넣는 게 안전)
+                isPinned = !isPinned;
+            });
     }
 }
-
 
    
