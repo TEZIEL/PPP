@@ -1,4 +1,4 @@
-using System.Collections.Generic;
+ï»¿using System.Collections.Generic;
 using UnityEngine;
 
 public class DesktopGridManager : MonoBehaviour
@@ -10,8 +10,6 @@ public class DesktopGridManager : MonoBehaviour
     [Header("Grid Settings")]
     [SerializeField] private Vector2 cellSize = new Vector2(96f, 96f);
     [SerializeField] private Vector2 spacing = new Vector2(48f, 48f);
-
-    // ÁÂ»ó´ÜºÎÅÍ Á¤·ÄÇÒÁö(À©µµ¿ì °¨¼º), ¾Æ´Ï¸é ÁÂÇÏ´ÜºÎÅÍ ÇÒÁö ¼±ÅÃ
     [SerializeField] private bool fillTopToBottom = true;
 
     public enum DesktopLayoutMode { Free, Grid }
@@ -25,17 +23,15 @@ public class DesktopGridManager : MonoBehaviour
         Debug.Log($"[Desktop] LayoutMode = {layoutMode}");
     }
 
-    public List<Vector2> GetSlots()
-    {
-        return BuildSlots(iconsRoot, cellSize, spacing, fillTopToBottom);
-    }
-
     public void SnapAllIfGridMode()
     {
         if (LayoutMode != DesktopLayoutMode.Grid) return;
+        ResolveAllGridOverlaps(); // âœ… â€œì „ì²´ ìŠ¤ëƒ…â€ë„ ê²¹ì¹¨ ë°©ì§€ ë£¨íŠ¸ë¡œ í†µì¼
+    }
 
-        // ¾ÆÀÌÄÜµé ÀüºÎ ½º³À
-        AlignIconsToGrid();
+    public List<Vector2> GetSlots()
+    {
+        return BuildSlots(iconsRoot, cellSize, spacing, fillTopToBottom);
     }
 
     public int GetNearestSlotIndex(Vector2 pos)
@@ -45,6 +41,7 @@ public class DesktopGridManager : MonoBehaviour
 
         int best = 0;
         float bestDist = (slots[0] - pos).sqrMagnitude;
+
         for (int i = 1; i < slots.Count; i++)
         {
             float d = (slots[i] - pos).sqrMagnitude;
@@ -60,31 +57,120 @@ public class DesktopGridManager : MonoBehaviour
         return slots[index];
     }
 
-
+    // âœ… DesktopIconDraggableì´ ìš”êµ¬í•˜ë˜ í•¨ìˆ˜(ì»´íŒŒì¼ ì—ëŸ¬ ë°©ì§€)
     public Vector2 GetNearestSlotPosition(Vector2 currentAnchoredPos)
     {
-        if (iconsRoot == null) return currentAnchoredPos;
+        int idx = GetNearestSlotIndex(currentAnchoredPos);
+        if (idx < 0) return currentAnchoredPos;
 
-        var slots = BuildSlots(iconsRoot, cellSize, spacing, fillTopToBottom);
-        if (slots.Count == 0) return currentAnchoredPos;
-
-        Vector2 best = slots[0];
-        float bestDist = (best - currentAnchoredPos).sqrMagnitude;
-
-        for (int i = 1; i < slots.Count; i++)
-        {
-            float d = (slots[i] - currentAnchoredPos).sqrMagnitude;
-            if (d < bestDist)
-            {
-                bestDist = d;
-                best = slots[i];
-            }
-        }
-
-        return best;
+        var slots = GetSlots();
+        return (idx >= 0 && idx < slots.Count) ? slots[idx] : currentAnchoredPos;
     }
 
+    // =========================
+    // âœ… í•µì‹¬: "ê²¹ì¹¨ ë°©ì§€ ìŠ¤ëƒ…"
+    // =========================
+    public void SnapIconToGridNoOverlap(DesktopIconDraggable icon)
+    {
+        if (LayoutMode != DesktopLayoutMode.Grid) return;
+        if (iconsRoot == null || icon == null) return;
 
+        var slots = GetSlots();
+        if (slots.Count == 0) return;
+
+        var icons = iconsRoot.GetComponentsInChildren<DesktopIconDraggable>(true);
+
+        // 1) í˜„ì¬ ì ìœ ì¤‘ì¸ ìŠ¬ë¡¯ ìˆ˜ì§‘(ìê¸° ìì‹  ì œì™¸)
+        var used = new bool[slots.Count];
+        for (int i = 0; i < icons.Length; i++)
+        {
+            var other = icons[i];
+            if (other == null || other == icon) continue;
+
+            int otherIdx = GetNearestSlotIndex(other.GetRect().anchoredPosition);
+            if (otherIdx >= 0 && otherIdx < used.Length)
+                used[otherIdx] = true;
+        }
+
+        // 2) ë‚´ê°€ ê°€ê³  ì‹¶ì€ ìŠ¬ë¡¯
+        int desired = GetNearestSlotIndex(icon.GetRect().anchoredPosition);
+        int chosen = FindNearestFreeSlotIndex(desired, used);
+
+        if (chosen < 0) return;
+
+        Rect allowed = DesktopBounds.GetAllowedRect(iconsRoot);
+        var r = icon.GetRect();
+        r.anchoredPosition = DesktopBounds.ClampAnchoredPosition(slots[chosen], r, allowed);
+    }
+
+    // âœ… ì €ì¥ ë¡œë“œ/í•´ìƒë„ ë³€ê²½ ë“±ìœ¼ë¡œ "ì´ë¯¸ ê²¹ì³ìˆëŠ” ìƒíƒœ"ë¥¼ ì •ë¦¬
+    public void ResolveAllGridOverlaps()
+    {
+        if (LayoutMode != DesktopLayoutMode.Grid) return;
+        if (iconsRoot == null) return;
+
+        var slots = GetSlots();
+        if (slots.Count == 0) return;
+
+        var icons = iconsRoot.GetComponentsInChildren<DesktopIconDraggable>(true);
+        if (icons == null || icons.Length == 0) return;
+
+        // â€œí˜„ì¬ ìœ„ì¹˜ ê¸°ì¤€â€ìœ¼ë¡œ ì •ë ¬í•´ì„œ, ìœ ì €ê°€ ë°°ì¹˜í•œ ëŠë‚Œì„ ìµœëŒ€í•œ ìœ ì§€
+        System.Array.Sort(icons, (a, b) =>
+        {
+            var pa = a.GetRect().anchoredPosition;
+            var pb = b.GetRect().anchoredPosition;
+
+            // ìœ„â†’ì•„ë˜(=y í° ê²Œ ë¨¼ì €), ì™¼â†’ì˜¤(=x ì‘ì€ ê²Œ ë¨¼ì €)
+            int y = pb.y.CompareTo(pa.y);
+            return (y != 0) ? y : pa.x.CompareTo(pb.x);
+        });
+
+        var used = new bool[slots.Count];
+        Rect allowed = DesktopBounds.GetAllowedRect(iconsRoot);
+
+        foreach (var ic in icons)
+        {
+            if (ic == null) continue;
+
+            int desired = GetNearestSlotIndex(ic.GetRect().anchoredPosition);
+            int chosen = FindNearestFreeSlotIndex(desired, used);
+            if (chosen < 0) break;
+
+            used[chosen] = true;
+
+            var r = ic.GetRect();
+            r.anchoredPosition = DesktopBounds.ClampAnchoredPosition(slots[chosen], r, allowed);
+        }
+
+        windowManager?.SaveOS();
+    }
+
+    private int FindNearestFreeSlotIndex(int desired, bool[] used)
+    {
+        if (used == null || used.Length == 0) return -1;
+
+        desired = Mathf.Clamp(desired, 0, used.Length - 1);
+
+        if (!used[desired]) return desired;
+
+        // ê°€ê¹Œìš´ ë¹ˆ ìŠ¬ë¡¯ì„ ì–‘ë°©í–¥ìœ¼ë¡œ íƒìƒ‰
+        for (int offset = 1; offset < used.Length; offset++)
+        {
+            int right = desired + offset;
+            if (right < used.Length && !used[right]) return right;
+
+            int left = desired - offset;
+            if (left >= 0 && !used[left]) return left;
+        }
+
+        return -1;
+    }
+
+    // =========================
+    // ê¸°ì¡´ â€œì •ë ¬â€ë„ ìœ ì§€ ê°€ëŠ¥
+    // (ì •ë ¬ì€ ì• ì´ˆì— 1ì¹¸ì”© ë°°ì¹˜ë¼ ê²¹ì¹  ì¼ì´ ê±°ì˜ ì—†ìŒ)
+    // =========================
     public void AlignIconsToGrid()
     {
         if (iconsRoot == null) return;
@@ -92,41 +178,39 @@ public class DesktopGridManager : MonoBehaviour
         var icons = iconsRoot.GetComponentsInChildren<DesktopIconDraggable>(true);
         if (icons == null || icons.Length == 0) return;
 
-        // ½½·Ô »ı¼º
-        List<Vector2> slots = BuildSlots(iconsRoot, cellSize, spacing, fillTopToBottom);
+        List<Vector2> slots = GetSlots();
         if (slots.Count == 0) return;
 
-        // ¾ÆÀÌÄÜ Á¤·Ä: ¾ÈÁ¤¼ºÀ» À§ÇØ id ±âÁØ Á¤·Ä(¿øÇÏ¸é À§Ä¡ ±âÁØÀ¸·Î ¹Ù²ãµµ µÊ)
+        // ì•ˆì •ì„±: id ê¸°ì¤€
         System.Array.Sort(icons, (a, b) => string.CompareOrdinal(a.GetId(), b.GetId()));
 
         int count = Mathf.Min(icons.Length, slots.Count);
+        Rect allowed = DesktopBounds.GetAllowedRect(iconsRoot);
+
         for (int i = 0; i < count; i++)
         {
             RectTransform r = icons[i].GetRect();
-            r.anchoredPosition = DesktopBounds.ClampAnchoredPosition(slots[i], r, DesktopBounds.GetAllowedRect(iconsRoot));
+            r.anchoredPosition = DesktopBounds.ClampAnchoredPosition(slots[i], r, allowed);
         }
 
-        // Á¤·Ä °á°ú ÀúÀå µ¤¾î¾²±â
-        if (windowManager != null) windowManager.SaveOS();
+        windowManager?.SaveOS();
     }
 
     private static List<Vector2> BuildSlots(RectTransform desktopRect, Vector2 cell, Vector2 gap, bool topToBottom)
     {
         var slots = new List<Vector2>(128);
+        if (desktopRect == null) return slots;
 
         Rect allowed = DesktopBounds.GetAllowedRect(desktopRect);
 
         float stepX = cell.x + gap.x;
         float stepY = cell.y + gap.y;
 
-        // ½½·Ô °³¼ö °è»ê
         int cols = Mathf.FloorToInt((allowed.width + gap.x) / stepX);
         int rows = Mathf.FloorToInt((allowed.height + gap.y) / stepY);
 
         if (cols <= 0 || rows <= 0) return slots;
 
-        // ÁÂ»ó´Ü ±âÁØ Ã¹ ½½·Ô pivot À§Ä¡ °è»ê(±âº» pivot 0.5,0.5 ±âÁØ)
-        // ¾ÆÀÌÄÜ pivotÀÌ 0.5,0.5¶ó°í °¡Á¤(´ëºÎºĞ ±×·² °Å¶ó ¹®Á¦ ¾øÀ½)
         float startX = allowed.xMin + cell.x * 0.5f;
         float startY = topToBottom
             ? allowed.yMax - cell.y * 0.5f

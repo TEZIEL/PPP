@@ -4,10 +4,10 @@ using UnityEngine.EventSystems;
 public class DesktopIconDraggable : MonoBehaviour,
     IBeginDragHandler, IDragHandler, IEndDragHandler
 {
-    [SerializeField] private string iconId;      // 저장 키
-    [SerializeField] private RectTransform rect; // 비어있으면 자동 할당
+    [SerializeField] private string iconId;
+    [SerializeField] private RectTransform rect;
 
-    private RectTransform desktopRect;           // iconsRoot(DesktopIconBG) 주입
+    private RectTransform desktopRect;   // iconsRoot(DesktopIconBG)
     private Vector2 dragOffset;
     private WindowManager windowManager;
     private DesktopGridManager gridManager;
@@ -29,10 +29,8 @@ public class DesktopIconDraggable : MonoBehaviour,
         }
     }
 
-
     private void OnDisable()
     {
-        // 드래그 중 비활성화/씬 전환 대비
         IsDragging = false;
     }
 
@@ -78,28 +76,21 @@ public class DesktopIconDraggable : MonoBehaviour,
 
     public void OnEndDrag(PointerEventData eventData)
     {
-        // ✅ 무조건 드래그 상태 종료 + 시간 갱신
         IsDragging = false;
         LastDragEndTime = Time.unscaledTime;
 
-        // ✅ 놓을 때도 한번 더 clamp (desktopRect 기준 통일)
         if (desktopRect != null)
         {
             Rect allowed = DesktopBounds.GetAllowedRect(desktopRect);
             rect.anchoredPosition = DesktopBounds.ClampAnchoredPosition(rect.anchoredPosition, rect, allowed);
         }
 
-        // ✅ Grid 모드면 슬롯 스냅
+        // ✅ Grid 모드면 "겹침 방지 포함 스냅"은 GridManager가 책임
         if (gridManager != null && gridManager.LayoutMode == DesktopGridManager.DesktopLayoutMode.Grid)
         {
-            Vector2 snapped = gridManager.GetNearestSlotPosition(rect.anchoredPosition);
-
-            Rect allowed = DesktopBounds.GetAllowedRect(desktopRect);
-            rect.anchoredPosition = DesktopBounds.ClampAnchoredPosition(snapped, rect, allowed);
+            gridManager.SnapIconToGridNoOverlap(this);
         }
 
-        // ✅ autosave는 딱 1번
         windowManager?.RequestAutoSave();
     }
 }
-
