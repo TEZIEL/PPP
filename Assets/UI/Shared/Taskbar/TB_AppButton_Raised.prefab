@@ -148,6 +148,7 @@ GameObject:
   - component: {fileID: 4053410377438273366}
   - component: {fileID: -3328986829695805562}
   - component: {fileID: 5680147353660438697}
+  - component: {fileID: 976518558232057685}
   m_Layer: 5
   m_Name: TB_AppButton_Raised
   m_TagString: Untagged
@@ -272,11 +273,12 @@ MonoBehaviour:
   windowManager: {fileID: 0}
   targetWindow: {fileID: 0}
   button: {fileID: 4053410377438273366}
-  titleText: {fileID: 4002397362067041488}
   background: {fileID: 3130052702940329927}
   recessedSprite: {fileID: 21300000, guid: 10fec3c72923f234e927109045fac721, type: 3}
   raisedSprite: {fileID: 21300000, guid: aaba91060220a5a4ab2789f891ed2286, type: 3}
+  titleText: {fileID: 4002397362067041488}
   appId: 
+  removeDuration: 0.12
 --- !u!114 &5680147353660438697
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -297,3 +299,15 @@ MonoBehaviour:
   m_FlexibleWidth: 1
   m_FlexibleHeight: -1
   m_LayoutPriority: 1
+--- !u!225 &976518558232057685
+CanvasGroup:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8511779915240570447}
+  m_Enabled: 1
+  m_Alpha: 1
+  m_Interactable: 1
+  m_BlocksRaycasts: 1
+  m_IgnoreParentGroups: 0

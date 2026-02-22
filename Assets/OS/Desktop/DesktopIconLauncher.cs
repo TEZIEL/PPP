@@ -8,12 +8,11 @@ public class DesktopIconLauncher : MonoBehaviour, IPointerClickHandler
     [Header("Wiring")]
     [SerializeField] private WindowManager windowManager;
 
-    [Header("App Definition")]
+    [Header("App")]
     [SerializeField] private AppDefinition appDef;
 
-    [Header("Optional UI")]
-    [SerializeField] private TMP_Text iconLabel;     // ✅ 바로가기 이름
-    [SerializeField] private Image iconImage;        // ✅ 바로가기 아이콘 이미지(선택)
+    [Header("Optional Label")]
+    [SerializeField] private TMP_Text iconLabel;
 
     [Header("Double Click")]
     [SerializeField] private float doubleClickThreshold = 0.28f;
@@ -27,21 +26,9 @@ public class DesktopIconLauncher : MonoBehaviour, IPointerClickHandler
 
     private void Awake()
     {
-        ApplyVisualFromDef();
-    }
-
-    private void OnValidate()
-    {
-        // 인스펙터 값 바꿔도 바로 보이게
-        ApplyVisualFromDef();
-    }
-
-    private void ApplyVisualFromDef()
-    {
-        if (appDef == null) return;
-
-        if (iconLabel != null) iconLabel.text = appDef.DisplayName;
-        if (iconImage != null) iconImage.sprite = appDef.IconSprite;
+        // ✅ 아이콘 라벨 자동 주입
+        if (iconLabel != null && appDef != null)
+            iconLabel.text = appDef.DisplayName;
     }
 
     private bool CanExecuteNow()
@@ -65,10 +52,12 @@ public class DesktopIconLauncher : MonoBehaviour, IPointerClickHandler
     private void ExecuteOpen()
     {
         if (!CanExecuteNow()) return;
-        if (windowManager == null || appDef == null) return;
 
-        // 이미 열려있으면 아무것도 안 함(네 정책 유지)
-        if (windowManager.IsOpen(appDef.AppId)) return;
+        if (windowManager == null || appDef == null)
+            return;
+
+        if (windowManager.IsOpen(appDef.AppId))
+            return;
 
         windowManager.Open(appDef);
     }
@@ -84,6 +73,7 @@ public class DesktopIconLauncher : MonoBehaviour, IPointerClickHandler
         }
 
         float now = Time.unscaledTime;
+
         if (now - lastClickTime <= doubleClickThreshold)
         {
             lastClickTime = -999f;

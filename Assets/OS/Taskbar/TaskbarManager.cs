@@ -30,17 +30,17 @@ public class TaskbarManager : MonoBehaviour
     {
         minimizedApps.Remove(appId);
 
-        if (!buttons.TryGetValue(appId, out TaskbarButtonController button))
-        {
+        if (!buttons.TryGetValue(appId, out var button) || button == null)
             return;
-        }
 
         buttons.Remove(appId);
 
-        if (button != null)
+        // ✅ 레이아웃 리플로우 애니 후 제거
+        button.PlayCloseReflow(() =>
         {
-            Destroy(button.gameObject);
-        }
+            if (button != null)
+                Destroy(button.gameObject);
+        });
     }
 
     public void SetActive(string appId, bool isActive)
