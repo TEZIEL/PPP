@@ -10,4 +10,8 @@ public class UISkin : ScriptableObject
     [Header("Frame Tint")]
     public Color frameActiveColor = Color.white;
     public Color frameInactiveColor = Color.gray;
+
+    [Header("UnderBar Tint")]
+    public Color underActiveColor = Color.white;
+    public Color underInactiveColor = Color.gray;
 }
