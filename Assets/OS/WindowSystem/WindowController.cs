@@ -64,8 +64,42 @@ public class WindowController : MonoBehaviour,
     private bool hasRestorePos;
     private Coroutine moveScaleRoutine;
 
-    private bool isAnimating;
-    public bool IsAnimating => isAnimating;
+    public bool IsAnimating { get; private set; }
+
+
+    private bool TryBeginAnim()
+    {
+        if (IsAnimating) return false;
+        IsAnimating = true;
+        return true;
+    }
+
+   
+
+    private void BeginAnim()
+    {
+        IsAnimating = true;
+
+        // ✅ 애니 중 클릭/드래그 입력 차단(원하면)
+        if (canvasGroup != null)
+        {
+            canvasGroup.interactable = false;
+            canvasGroup.blocksRaycasts = false;
+        }
+    }
+
+    private void EndAnim()
+    {
+        IsAnimating = false;
+
+        // 최소화 상태면 계속 차단, 아니면 다시 입력 허용
+        if (canvasGroup != null)
+        {
+            bool blocked = IsMinimized;
+            canvasGroup.interactable = !blocked;
+            canvasGroup.blocksRaycasts = !blocked;
+        }
+    }
 
     public void ForceClampNow(float overflow = 0f)
     {
@@ -77,7 +111,7 @@ public class WindowController : MonoBehaviour,
     private bool CanAcceptCommand()
     {
         // 애니 중이면 입력/버튼/드래그/포커스 요청 무시
-        return !isAnimating;
+        return !IsAnimating;
     }
 
     public void Initialize(WindowManager wm, string id, RectTransform rootCanvas, string displayName)
@@ -174,7 +208,7 @@ public class WindowController : MonoBehaviour,
     // =========================
     public void OnPointerDown(PointerEventData e)
     {
-        if (!CanAcceptCommand()) return;
+        if (IsAnimating) return;  // ✅ 추가
         owner?.Focus(appId);
     }
 
@@ -189,7 +223,7 @@ public class WindowController : MonoBehaviour,
 
     public void OnBeginDrag(PointerEventData eventData)
     {
-        if (!CanAcceptCommand()) return;
+        if (IsAnimating) return;  // ✅ 추가
         if (isPinned) return; // ✅ 핀 고정: 드래그 금지
         if (canvasRect == null || windowRoot == null) return;
 
@@ -206,7 +240,7 @@ public class WindowController : MonoBehaviour,
 
     public void OnDrag(PointerEventData eventData)
     {
-        if (!CanAcceptCommand()) return;
+        if (IsAnimating) return;  // ✅ 추가
         if (isPinned) return; // ✅ 핀 고정: 드래그 금지
         if (canvasRect == null || windowRoot == null) return;
         if (!TryGetPointerLocal(eventData, out var pointerLocal)) return;
@@ -219,7 +253,7 @@ public class WindowController : MonoBehaviour,
 
     public void OnEndDrag(PointerEventData eventData)
     {
-        if (!CanAcceptCommand()) return;
+        if (IsAnimating) return;  // ✅ 추가
         if (isPinned) return; // ✅ 핀 고정: 드래그 금지
         if (canvasRect == null || windowRoot == null) return;
 
@@ -299,48 +333,34 @@ public class WindowController : MonoBehaviour,
 
     public void PlayOpen()
     {
-        if (isAnimating) return;            // ✅ 이미 애니 중이면 거절
-        isAnimating = true;
+        if (!TryBeginAnim()) return;
 
         if (animRoutine != null) StopCoroutine(animRoutine);
-
-        animRoutine = StartCoroutine(CoScale(
-            openFromScale,
-            Vector3.one,
-            openDuration,
-            () =>
-            {
-                isAnimating = false;        // ✅ 종료
-            }
-        ));
+        animRoutine = StartCoroutine(CoScale(openFromScale, Vector3.one, openDuration, () =>
+        {
+            animRoutine = null;
+            EndAnim();
+        }));
     }
 
     public void PlayClose(Action onDone)
     {
-        if (isAnimating) return;            // ✅ 이미 애니 중이면 거절
-        isAnimating = true;
+        if (!TryBeginAnim()) return;
 
         if (animRoutine != null) StopCoroutine(animRoutine);
-
-        animRoutine = StartCoroutine(CoScale(
-            transform.localScale,
-            openFromScale,
-            closeDuration,
-            () =>
-            {
-                isAnimating = false;        // ✅ 종료
-                onDone?.Invoke();
-            }
-        ));
+        animRoutine = StartCoroutine(CoScale(transform.localScale, openFromScale, closeDuration, () =>
+        {
+            animRoutine = null;
+            EndAnim();
+            onDone?.Invoke();
+        }));
     }
 
     public void PlayMinimize(Vector2 targetAnchoredPos, Action onDone, float duration = 0.12f)
     {
-        if (isAnimating) return;            // ✅ 이미 애니 중이면 거절
-        isAnimating = true;
+        if (!TryBeginAnim()) return;
 
         if (moveScaleRoutine != null) StopCoroutine(moveScaleRoutine);
-
         moveScaleRoutine = StartCoroutine(CoMoveAndScale(
             fromPos: windowRoot.anchoredPosition,
             toPos: targetAnchoredPos,
@@ -349,7 +369,8 @@ public class WindowController : MonoBehaviour,
             duration: duration,
             onDone: () =>
             {
-                isAnimating = false;        // ✅ 종료
+                moveScaleRoutine = null;
+                EndAnim();
                 onDone?.Invoke();
             }
         ));
@@ -357,8 +378,7 @@ public class WindowController : MonoBehaviour,
 
     public void PlayRestore(Vector2 fromAnchoredPos, Action onDone, float duration = 0.12f, bool bringToFront = true)
     {
-        if (isAnimating) return;            // ✅ 이미 애니 중이면 거절
-        isAnimating = true;
+        if (!TryBeginAnim()) return;
 
         if (bringToFront)
             transform.SetAsLastSibling();
@@ -369,7 +389,6 @@ public class WindowController : MonoBehaviour,
         transform.localScale = new Vector3(0.85f, 0.85f, 1f);
 
         if (moveScaleRoutine != null) StopCoroutine(moveScaleRoutine);
-
         moveScaleRoutine = StartCoroutine(CoMoveAndScale(
             fromPos: fromAnchoredPos,
             toPos: toPos,
@@ -378,7 +397,8 @@ public class WindowController : MonoBehaviour,
             duration: duration,
             onDone: () =>
             {
-                isAnimating = false;        // ✅ 종료
+                moveScaleRoutine = null;
+                EndAnim();
                 onDone?.Invoke();
             }
         ));
@@ -397,6 +417,7 @@ public class WindowController : MonoBehaviour,
 
         transform.localScale = to;
         animRoutine = null;
+        
         onDone?.Invoke();
     }
 
@@ -422,7 +443,7 @@ public class WindowController : MonoBehaviour,
         if (windowRoot != null) windowRoot.anchoredPosition = toPos;
         transform.localScale = toScale;
 
-        moveScaleRoutine = null;
+
         onDone?.Invoke();
     }
 

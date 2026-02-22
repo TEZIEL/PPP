@@ -30,6 +30,9 @@ public class WindowManager : MonoBehaviour
     private OSSaveData cachedSave;
     private string activeBeforeShowDesktop;
 
+    private bool isAnimating;
+    public bool IsAnimating => isAnimating;
+
     private bool suppressAutoFocus;
     public void BeginBatch() => suppressAutoFocus = true;
     public void EndBatch() => suppressAutoFocus = false;
@@ -422,6 +425,8 @@ public class WindowManager : MonoBehaviour
         if (!openWindows.TryGetValue(appId, out var w) || w == null) return;
         if (w.IsMinimized) return;
 
+        if (w.IsAnimating) return; // ✅ 애니 중이면 최소화 요청 무시(레이스 방지)
+
         EnsureFocused(appId);
 
         w.CacheRestorePos(w.GetWindowRoot().anchoredPosition);
@@ -452,6 +457,8 @@ public class WindowManager : MonoBehaviour
     {
         if (!openWindows.TryGetValue(appId, out var w) || w == null) return;
         if (!w.IsMinimized) { Focus(appId); return; }
+
+        if (w.IsAnimating) return; // ✅ 애니 중이면 최소화 요청 무시(레이스 방지)
 
         var btnRect = taskbarManager?.GetButtonRect(appId);
 
@@ -517,7 +524,7 @@ public class WindowManager : MonoBehaviour
     {
         if (!openWindows.TryGetValue(appId, out var window) || window == null)
             return;
-
+        
         EnsureFocused(appId); // ✅ 추가
 
 
