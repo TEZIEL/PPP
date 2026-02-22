@@ -37,6 +37,7 @@ public class WindowController : MonoBehaviour,
     [SerializeField] private Image frameImage;
     [SerializeField] private Image underImage;
     [SerializeField] private Image sideImage;
+    [SerializeField] private Image shadowImage; // ✅ 포커스 그림자
 
     [Header("Animation")]
     [SerializeField] private float openDuration = 0.12f;
@@ -205,6 +206,9 @@ public class WindowController : MonoBehaviour,
 
         if (sideImage != null)
             sideImage.color = active ? skin.sideActiveColor : skin.sideInactiveColor;
+
+        if (shadowImage != null)
+            shadowImage.gameObject.SetActive(active);
     }
 
     // =========================
