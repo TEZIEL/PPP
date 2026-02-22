@@ -272,6 +272,7 @@ MonoBehaviour:
   windowManager: {fileID: 0}
   targetWindow: {fileID: 0}
   button: {fileID: 4053410377438273366}
+  titleText: {fileID: 4002397362067041488}
   background: {fileID: 3130052702940329927}
   recessedSprite: {fileID: 21300000, guid: 10fec3c72923f234e927109045fac721, type: 3}
   raisedSprite: {fileID: 21300000, guid: aaba91060220a5a4ab2789f891ed2286, type: 3}

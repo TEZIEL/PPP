@@ -453,7 +453,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 7c2cac09b2e4e60438121f0c8eaf0e18, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  appId: vn
+  appId: Visual Novel
+  titleText: {fileID: 210423143418867942}
   windowRoot: {fileID: 674040382740864952}
   titleBar: {fileID: 5770267493144395910}
   canvasGroup: {fileID: 6495900692413345600}
@@ -472,7 +473,7 @@ MonoBehaviour:
   openDuration: 0.12
   closeDuration: 0.1
   openFromScale: {x: 0.92, y: 0.92, z: 1}
-  contentRoot: {fileID: 8952093240234294462}
+  contentRoot: {fileID: 3238316313002331558}
 --- !u!114 &7723948963746395881
 MonoBehaviour:
   m_ObjectHideFlags: 0

@@ -1,5 +1,6 @@
 ﻿using UnityEngine;
 using UnityEngine.UI;
+using TMPro;
 
 public class TaskbarButtonController : MonoBehaviour
 {
@@ -7,6 +8,9 @@ public class TaskbarButtonController : MonoBehaviour
     [SerializeField] private WindowManager windowManager;
     [SerializeField] private WindowController targetWindow;
     [SerializeField] private Button button;
+
+    [Header("Label")]
+    [SerializeField] private TMP_Text titleText; // ✅ 태스크바 버튼 TMP 연결
 
     [Header("Visual")]
     [SerializeField] private Image background;
@@ -18,6 +22,8 @@ public class TaskbarButtonController : MonoBehaviour
 
     private bool _listenerHooked;
     public RectTransform Rect => (RectTransform)transform;
+
+
 
     private void Awake()
     {
@@ -49,11 +55,14 @@ public class TaskbarButtonController : MonoBehaviour
         _listenerHooked = false;
     }
 
-    public void Initialize(string id, WindowManager manager, WindowController window)
+    public void Initialize(string id, string displayName, WindowManager manager, WindowController window)
     {
         appId = id;
         windowManager = manager;
         targetWindow = window;
+
+        if (titleText != null)
+            titleText.text = displayName;
     }
 
     public void SetMinimizedVisual(bool minimized)

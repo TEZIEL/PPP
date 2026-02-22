@@ -10,17 +10,19 @@ public class TaskbarManager : MonoBehaviour
     private readonly Dictionary<string, TaskbarButtonController> buttons = new();
     private readonly HashSet<string> minimizedApps = new();
 
-    public void Add(string appId, WindowController window)
+    public void Add(string appId, string displayName, WindowController window)
     {
-        if (buttons.ContainsKey(appId) || buttonPrefab == null) return;
+        if (buttons.ContainsKey(appId) || buttonPrefab == null)
+            return;
 
-        minimizedApps.Remove(appId); // ✅ 안전장치
+        minimizedApps.Remove(appId);
 
-        var root = buttonRoot != null ? buttonRoot : (RectTransform)transform;
+        Transform root = buttonRoot != null ? buttonRoot : transform;
         var button = Instantiate(buttonPrefab, root);
-        button.Initialize(appId, windowManager, window);
-        buttons.Add(appId, button);
 
+        button.Initialize(appId, displayName, windowManager, window);
+
+        buttons.Add(appId, button);
         SetState(appId, false, false);
     }
 

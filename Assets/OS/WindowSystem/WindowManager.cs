@@ -46,18 +46,28 @@ public class WindowManager : MonoBehaviour
 
 
 
-    public void OpenSimple(string appId, WindowController prefab)
+    public void OpenSimple(string appId, string displayName, WindowController prefab)
     {
-        Open(appId, prefab, null, Vector2.zero, new Vector2(600, 400));
+        Open(appId, displayName, prefab, null, Vector2.zero, new Vector2(600, 400));
     }
 
-    
 
+    // ✅ 기존 호출부 호환용 (displayName = appId로 자동)
+    public void Open(
+        string appId,
+        WindowController windowPrefab,
+        GameObject contentPrefab,
+        Vector2 defaultPos,
+        Vector2 defaultSize)
+    {
+        Open(appId, appId, windowPrefab, contentPrefab, defaultPos, defaultSize);
+    }
 
 
     // ✅ 새로 추가: 위치+사이즈까지 받는 버전(아이콘에서 이걸 쓸 것)
     public void Open(
     string appId,
+    string displayName,
     WindowController windowPrefab,
     GameObject contentPrefab,
     Vector2 defaultPos,
@@ -69,7 +79,7 @@ public class WindowManager : MonoBehaviour
         Transform parent = windowsRoot != null ? windowsRoot : transform;
         var spawned = Instantiate(windowPrefab, parent);
 
-        spawned.Initialize(this, appId, canvasRect);
+        spawned.Initialize(this, appId, canvasRect, displayName);
         spawned.InjectManager(this);
 
         // cachedSave가 비어있을 수 있으니 "필요 시 로드"
@@ -97,7 +107,7 @@ public class WindowManager : MonoBehaviour
         AttachContent(spawned, contentPrefab);
 
         openWindows.Add(appId, spawned);
-        taskbarManager?.Add(appId, spawned);
+        taskbarManager?.Add(appId, displayName, spawned);
         windowDefaults[appId] = new WindowDefault { pos = defaultPos, size = defaultSize };
 
         Focus(appId);

@@ -158,7 +158,7 @@ RectTransform:
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 0, y: 0}
   m_AnchoredPosition: {x: 0, y: 0}
-  m_SizeDelta: {x: 1304, y: 0}
+  m_SizeDelta: {x: 1452, y: 0}
   m_Pivot: {x: 0, y: 0.5}
 --- !u!114 &25613332
 MonoBehaviour:
@@ -510,7 +510,7 @@ RectTransform:
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 1, y: 1}
   m_AnchoredPosition: {x: 0, y: -72}
-  m_SizeDelta: {x: 0, y: -48}
+  m_SizeDelta: {x: 40, y: -48}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &177456836
 MonoBehaviour:
@@ -1185,7 +1185,7 @@ RectTransform:
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 1, y: 1}
   m_AnchoredPosition: {x: 0, y: -72}
-  m_SizeDelta: {x: 0, y: -48}
+  m_SizeDelta: {x: 40, y: -48}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &513344796
 MonoBehaviour:
@@ -1981,10 +1981,12 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   windowManager: {fileID: 1107218560}
   appId: VN
+  displayName: visual novel
   windowPrefab: {fileID: 7342045915086621803, guid: 93109acf87296bf4cade05dd86f28f2b, type: 3}
   defaultPos: {x: 50, y: 30}
   defaultSize: {x: 1440, y: 945}
   contentPrefab: {fileID: 3903954642463811216, guid: 0cddc48c07cafd54c924ee18556de25c, type: 3}
+  iconLabel: {fileID: 177456836}
   doubleClickThreshold: 0.28
   dragClickIgnoreSeconds: 0.15
   clickCooldownSeconds: 0.15
@@ -2464,10 +2466,12 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   windowManager: {fileID: 1107218560}
   appId: Recipe
+  displayName: recipe
   windowPrefab: {fileID: 7342045915086621803, guid: 93109acf87296bf4cade05dd86f28f2b, type: 3}
   defaultPos: {x: -600, y: -90}
   defaultSize: {x: 480, y: 720}
   contentPrefab: {fileID: 747011108842251003, guid: 86457b0af39a4054d8dbf42af2b7a013, type: 3}
+  iconLabel: {fileID: 1404007222}
   doubleClickThreshold: 0.28
   dragClickIgnoreSeconds: 0.15
   clickCooldownSeconds: 0.15
@@ -3033,7 +3037,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 1363874158501986366, guid: 2c28b3129d09f0d4784428d4446e567f, type: 3}
       propertyPath: m_SizeDelta.x
-      value: 240
+      value: 160
       objectReference: {fileID: 0}
     - target: {fileID: 1363874158501986366, guid: 2c28b3129d09f0d4784428d4446e567f, type: 3}
       propertyPath: m_SizeDelta.y
@@ -3709,7 +3713,7 @@ RectTransform:
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 1, y: 1}
   m_AnchoredPosition: {x: 0, y: -72}
-  m_SizeDelta: {x: 0, y: -48}
+  m_SizeDelta: {x: 40, y: -48}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1404007222
 MonoBehaviour:
@@ -3984,10 +3988,12 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   windowManager: {fileID: 1107218560}
   appId: Music
+  displayName: music
   windowPrefab: {fileID: 7342045915086621803, guid: 93109acf87296bf4cade05dd86f28f2b, type: 3}
   defaultPos: {x: -480, y: 180}
   defaultSize: {x: 640, y: 540}
   contentPrefab: {fileID: 8132136970174023561, guid: b5ee4abb10540514ba1677878eee823f, type: 3}
+  iconLabel: {fileID: 513344796}
   doubleClickThreshold: 0.28
   dragClickIgnoreSeconds: 0.15
   clickCooldownSeconds: 0.15
@@ -4430,7 +4436,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 8218057081836632349, guid: 563db4dd12b3a83448f0282859edfe74, type: 3}
       propertyPath: m_SizeDelta.x
-      value: 200
+      value: 140
       objectReference: {fileID: 0}
     - target: {fileID: 8218057081836632349, guid: 563db4dd12b3a83448f0282859edfe74, type: 3}
       propertyPath: m_SizeDelta.y

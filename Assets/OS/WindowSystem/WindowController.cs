@@ -3,12 +3,16 @@ using System.Collections;
 using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
+using TMPro; // ✅ 추가
 
 public class WindowController : MonoBehaviour,
     IPointerDownHandler, IBeginDragHandler, IDragHandler, IEndDragHandler
 {
     [Header("Identity")]
     [SerializeField] private string appId;
+
+    [Header("Title UI")]
+    [SerializeField] private TMP_Text titleText; // ✅ 인스펙터에 타이틀바 TMP 연결
 
     [Header("Window Parts")]
     [SerializeField] private RectTransform windowRoot;
@@ -67,7 +71,21 @@ public class WindowController : MonoBehaviour,
     windowRoot.anchoredPosition = clamped;
 }
 
+       
 
+    public void Initialize(WindowManager wm, string id, RectTransform rootCanvas, string displayName)
+    {
+        owner = wm;
+        appId = id;
+        canvasRect = rootCanvas;
+
+        // ✅ 표시이름 주입
+        if (titleText != null)
+            titleText.text = displayName;
+    }
+
+    // (기존 Initialize 시그니처를 쓰는 곳이 많으면 오버로드로 유지)
+   
     private void Awake()
     {
         if (windowRoot == null)
@@ -83,12 +101,7 @@ public class WindowController : MonoBehaviour,
         HookButtons();
     }
 
-    public void Initialize(WindowManager wm, string id, RectTransform rootCanvas)
-    {
-        owner = wm;
-        appId = id;
-        canvasRect = rootCanvas;
-    }
+    
 
 
     public void InjectManager(WindowManager manager)
