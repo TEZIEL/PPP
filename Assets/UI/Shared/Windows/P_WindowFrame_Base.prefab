@@ -744,6 +744,7 @@ GameObject:
   - component: {fileID: 3238316313002331558}
   - component: {fileID: 5240426883248743284}
   - component: {fileID: 2134928457715746999}
+  - component: {fileID: 4036810444121573994}
   m_Layer: 0
   m_Name: ContentAPP
   m_TagString: Untagged
@@ -808,6 +809,18 @@ MonoBehaviour:
   m_FillOrigin: 0
   m_UseSpriteMesh: 0
   m_PixelsPerUnitMultiplier: 1
+--- !u!114 &4036810444121573994
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7661713550281978098}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 2e7b9a70829c8e948b9c8068057d6f4a, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1001 &4339036371852285968
 PrefabInstance:
   m_ObjectHideFlags: 0
