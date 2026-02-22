@@ -795,8 +795,7 @@ public class WindowManager : MonoBehaviour
             taskbarManager?.SetMinimized(id, false);
 
             // 복원 시 위로 올라오게
-            w.transform.SetAsLastSibling();
-
+           
             w.PlayRestore(from, () =>
             {
                 // 개별 복원 완료 콜백(필요하면)
@@ -855,7 +854,7 @@ public class WindowManager : MonoBehaviour
         w.PlayRestore(from, () =>
         {
             RequestAutoSave();
-        });
+        }, 0.12f, bringToFront: false);
     }
 
 

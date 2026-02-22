@@ -297,11 +297,10 @@ public class WindowController : MonoBehaviour,
     public void PlayRestore(Vector2 fromAnchoredPos, Action onDone, float duration = 0.12f, bool bringToFront = true)
     {
         if (bringToFront)
-            transform.SetAsLastSibling();  // ✅ 선택적으로만 앞으로
+            transform.SetAsLastSibling();
 
         Vector2 toPos = (restorePos == Vector2.zero) ? windowRoot.anchoredPosition : restorePos;
 
-        // 시작점 세팅
         windowRoot.anchoredPosition = fromAnchoredPos;
         transform.localScale = new Vector3(0.85f, 0.85f, 1f);
 
