@@ -28,6 +28,7 @@ public class WindowManager : MonoBehaviour
     private string activeAppId;
     public string ActiveAppId => activeAppId;
     private OSSaveData cachedSave;
+    private string activeBeforeShowDesktop;
 
     private bool suppressAutoFocus;
     public void BeginBatch() => suppressAutoFocus = true;
@@ -721,6 +722,8 @@ public class WindowManager : MonoBehaviour
 
     public void ShowDesktop()
     {
+        activeBeforeShowDesktop = activeAppId;
+
         if (isShowDesktop) return;
 
         isShowDesktop = true;
@@ -771,14 +774,9 @@ public class WindowManager : MonoBehaviour
     public void RestoreDesktop()
     {
         if (!isShowDesktop) return;
-
         isShowDesktop = false;
 
         BeginBatch();
-
-        // 마지막에 활성화되던 창을 기억하고 싶으면 별도 저장해도 됨.
-        // 일단 "마지막 리스트의 끝"을 최종 포커스로 잡는 식이 자연스러움.
-        string focusId = null;
 
         foreach (var id in lastShownDesktop)
         {
@@ -790,24 +788,26 @@ public class WindowManager : MonoBehaviour
                 ? ConvertToWindowsRootLocal(btnRect)
                 : w.GetWindowRoot().anchoredPosition;
 
-            // 보이게 먼저 풀고(알파/레이캐스트)
             w.SetMinimized(false);
             taskbarManager?.SetMinimized(id, false);
 
-            // 복원 시 위로 올라오게
-           
-            w.PlayRestore(from, () =>
-            {
-                // 개별 복원 완료 콜백(필요하면)
-            });
+            // ❌ w.transform.SetAsLastSibling();  <-- 삭제!!
 
-            focusId = id; // 마지막 것을 포커스로
+            w.PlayRestore(from, () => { }, 0.12f, bringToFront: false);
         }
 
         EndBatch();
 
-        if (!string.IsNullOrEmpty(focusId))
-            Focus(focusId);
+        // ✅ 원래 활성창으로 복귀 (이때 Focus가 맨 위로 올림)
+        if (!string.IsNullOrEmpty(activeBeforeShowDesktop) &&
+            openWindows.TryGetValue(activeBeforeShowDesktop, out var aw) && aw != null && !aw.IsMinimized)
+        {
+            Focus(activeBeforeShowDesktop);
+        }
+        else
+        {
+            FocusNextTopWindow(null);
+        }
 
         lastShownDesktop.Clear();
         RequestAutoSave();
