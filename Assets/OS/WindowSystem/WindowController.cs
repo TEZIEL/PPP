@@ -56,6 +56,7 @@ public class WindowController : MonoBehaviour,
 
     // 최소화/복원 애니용 캐시
     private Vector2 restorePos;
+    private bool hasRestorePos;
     private Coroutine moveScaleRoutine;
 
     public void ForceClampNow(float overflow = 0f)
@@ -265,6 +266,7 @@ public class WindowController : MonoBehaviour,
     public void CacheRestorePos(Vector2 anchoredPos)
     {
         restorePos = anchoredPos;
+        hasRestorePos = true;
     }
 
     public void PlayOpen()
@@ -292,16 +294,19 @@ public class WindowController : MonoBehaviour,
         ));
     }
 
-    public void PlayRestore(Vector2 fromAnchoredPos, Action onDone, float duration = 0.12f)
+    public void PlayRestore(Vector2 fromAnchoredPos, Action onDone, float duration = 0.12f, bool bringToFront = true)
     {
-        transform.SetAsLastSibling(); // ✅ 복원 애니 중에도 최상단 유지
+        if (bringToFront)
+            transform.SetAsLastSibling();  // ✅ 선택적으로만 앞으로
 
         Vector2 toPos = (restorePos == Vector2.zero) ? windowRoot.anchoredPosition : restorePos;
 
         // 시작점 세팅
         windowRoot.anchoredPosition = fromAnchoredPos;
         transform.localScale = new Vector3(0.85f, 0.85f, 1f);
-        transform.SetAsLastSibling();
+
+        if (bringToFront)
+            transform.SetAsLastSibling();
 
         if (moveScaleRoutine != null) StopCoroutine(moveScaleRoutine);
         moveScaleRoutine = StartCoroutine(CoMoveAndScale(

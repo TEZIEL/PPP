@@ -450,6 +450,7 @@ public class WindowManager : MonoBehaviour
         w.SetMinimized(false);
         taskbarManager?.SetMinimized(appId, false);
 
+
         w.transform.SetAsLastSibling();
 
         w.PlayRestore(from, () =>
@@ -554,9 +555,15 @@ public class WindowManager : MonoBehaviour
         }
     }
 
-    
 
-   
+    public void OnTaskbarButtonPressed(string appId)
+    {
+        if (!openWindows.TryGetValue(appId, out var w) || w == null) return;
+
+        if (w.IsMinimized) Restore(appId);
+        else Focus(appId); // (윈도우식으로 “이미 활성창이면 최소화”로 바꾸고 싶으면 여기만 수정)
+    }
+
 
     public bool IsMinimized(string appId)
     {
@@ -707,7 +714,7 @@ public class WindowManager : MonoBehaviour
         w.PlayRestore(from, () =>
         {
             RequestAutoSave();
-        });
+        }, 0.12f, bringToFront: false);
     }
 
 

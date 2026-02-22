@@ -28,67 +28,7 @@ public class ShowDesktopController : MonoBehaviour
     public void ToggleShowDesktop()
     {
         if (windowManager == null) return;
-        if (Time.time - lastToggleTime < cooldown) return;
-        lastToggleTime = Time.time;
-
-        // 이전 코루틴이 남아있으면 정리
-        if (focusCo != null)
-        {
-            StopCoroutine(focusCo);
-            focusCo = null;
-        }
-
-        // --- ON ---
-        if (!isDesktopShown)
-        {
-            previouslyVisibleApps.Clear();
-            previouslyActiveAppId = windowManager.ActiveAppId;
-
-            windowManager.BeginBatch();
-
-            foreach (var pair in windowManager.GetOpenWindows())
-            {
-                var wc = pair.Value;
-                if (wc == null) continue;
-
-                // ✅ 현재 화면에 떠 있는 창만 = "최소화 아님"
-                if (!wc.IsMinimized)
-                    previouslyVisibleApps.Add(pair.Key);
-            }
-
-            Debug.Log($"Will minimize count: {previouslyVisibleApps.Count}");
-
-            for (int i = 0; i < previouslyVisibleApps.Count; i++)
-                windowManager.MinimizeNoFocusAnimated(previouslyVisibleApps[i]);
-
-
-            windowManager.EndBatch();
-
-            isDesktopShown = true;
-            return;
-        }
-
-
-        // --- OFF: 저장했던 애들만 복원 ---
-        windowManager.BeginBatch();
-
-        for (int i = 0; i < previouslyVisibleApps.Count; i++)
-        {
-            string id = previouslyVisibleApps[i];
-
-            // 닫힌 창은 무시
-            if (!windowManager.GetOpenWindows().TryGetValue(id, out var wc) || wc == null)
-                continue;
-
-            // 지금도 최소화 상태인 애만 복원(꼬임 방지)
-            if (wc.IsMinimized)
-                windowManager.RestoreNoFocusAnimated(id);
-        }
-
-        windowManager.EndBatch();
-
-        // ✅ 포커스는 1프레임 뒤에 적용(랜덤 포커스 튐 방지)
-        focusCo = StartCoroutine(FocusAfterRestore());
+        windowManager.ToggleShowDesktop();
     }
 
     private IEnumerator FocusAfterRestore()

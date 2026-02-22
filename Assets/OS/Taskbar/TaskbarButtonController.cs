@@ -1,4 +1,4 @@
-using UnityEngine;
+ï»¿using UnityEngine;
 using UnityEngine.UI;
 
 public class TaskbarButtonController : MonoBehaviour
@@ -10,8 +10,8 @@ public class TaskbarButtonController : MonoBehaviour
 
     [Header("Visual")]
     [SerializeField] private Image background;
-    [SerializeField] private Sprite recessedSprite; // ¿À¸ñ(º¸ÀÌ´Â »óÅÂ)
-    [SerializeField] private Sprite raisedSprite;   // º¼·Ï(ÃÖ¼ÒÈ­)
+    [SerializeField] private Sprite recessedSprite; // ì˜¤ëª©(ë³´ì´ëŠ” ìƒíƒœ)
+    [SerializeField] private Sprite raisedSprite;   // ë³¼ë¡(ìµœì†Œí™”)
 
     [Header("Debug/Identity (optional)")]
     [SerializeField] private string appId;
@@ -65,7 +65,7 @@ public class TaskbarButtonController : MonoBehaviour
 
     public void SetActiveVisual(bool active)
     {
-        // ³Ê ¿ä±¸»çÇ×¿¡¼± Æ÷Ä¿½º/¹é±×¶ó¿îµå µ¿ÀÏ Ã³¸®¶ó ºñ¿öµÖµµ µÊ
+        // ë„ˆ ìš”êµ¬ì‚¬í•­ì—ì„  í¬ì»¤ìŠ¤/ë°±ê·¸ë¼ìš´ë“œ ë™ì¼ ì²˜ë¦¬ë¼ ë¹„ì›Œë‘¬ë„ ë¨
     }
 
     private void OnClick()
@@ -76,17 +76,21 @@ public class TaskbarButtonController : MonoBehaviour
         string id = !string.IsNullOrEmpty(targetWindow.AppId) ? targetWindow.AppId : appId;
         if (string.IsNullOrEmpty(id)) return;
 
-        // 1) ÃÖ¼ÒÈ­¸é º¹¿ø
+        // 1) ìµœì†Œí™” ìƒíƒœë©´: ë³µì›(=ë³´ì´ê²Œ + í¬ì»¤ìŠ¤ ê·œì¹™ì€ Restore/Focus ìª½ì— ë§¡ê¹€)
         if (targetWindow.IsMinimized)
         {
-            windowManager.Restore(id); // Restore ³»ºÎ¿¡¼­ Focus±îÁö ÇÏ¸é º£½ºÆ®
+            windowManager.Restore(id);
             return;
         }
 
-        // 2) º¸ÀÌ´Â »óÅÂ: Æ÷Ä¿½º¸é ÃÖ¼ÒÈ­, Æ÷Ä¿½º ¾Æ´Ï¸é Æ÷Ä¿½º
-        if (windowManager.ActiveAppId == id)
-            windowManager.Minimize(id);
-        else
+        // 2) í¬ì»¤ìŠ¤ê°€ ì•„ë‹ˆë©´: í¬ì»¤ìŠ¤ë§Œ í•˜ê³  ë (âœ… 1í´ë¦­ = í¬ì»¤ìŠ¤)
+        if (windowManager.ActiveAppId != id)
+        {
             windowManager.Focus(id);
+            return;
+        }
+
+        // 3) ì´ë¯¸ í¬ì»¤ìŠ¤ë©´: ìµœì†Œí™” (âœ… 2í´ë¦­ = ìµœì†Œí™”)
+        windowManager.Minimize(id);
     }
 }
