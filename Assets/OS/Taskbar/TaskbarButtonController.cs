@@ -17,9 +17,7 @@ public class TaskbarButtonController : MonoBehaviour
     [SerializeField] private Sprite recessedSprite; // 오목(보이는 상태)
     [SerializeField] private Sprite raisedSprite;   // 볼록(최소화)
 
-    [Header("Debug/Identity (optional)")]
-    [SerializeField] private string appId;
-
+    private string appId; // ✅ Initialize로 주입
     private bool _listenerHooked;
     public RectTransform Rect => (RectTransform)transform;
 

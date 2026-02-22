@@ -8,16 +8,12 @@ public class DesktopIconLauncher : MonoBehaviour, IPointerClickHandler
     [Header("Wiring")]
     [SerializeField] private WindowManager windowManager;
 
-    [Header("App")]
-    [SerializeField] private string appId = "app.vn";
-    [SerializeField] private string displayName = "VN"; // ✅ 추가
-    [SerializeField] private WindowController windowPrefab;
-    [SerializeField] private Vector2 defaultPos = new Vector2(200, -120);
-    [SerializeField] private Vector2 defaultSize = new Vector2(640, 480);
-    [SerializeField] private GameObject contentPrefab;
+    [Header("App Definition")]
+    [SerializeField] private AppDefinition appDef;
 
-    [Header("Icon Label (TMP)")]
-    [SerializeField] private TMP_Text iconLabel; // ✅ 아이콘 밑 글씨
+    [Header("Optional UI")]
+    [SerializeField] private TMP_Text iconLabel;     // ✅ 바로가기 이름
+    [SerializeField] private Image iconImage;        // ✅ 바로가기 아이콘 이미지(선택)
 
     [Header("Double Click")]
     [SerializeField] private float doubleClickThreshold = 0.28f;
@@ -26,21 +22,26 @@ public class DesktopIconLauncher : MonoBehaviour, IPointerClickHandler
     [Header("Cooldown")]
     [SerializeField] private float clickCooldownSeconds = 0.15f;
 
-    [Header("Optional (UI Button)")]
-    [SerializeField] private Button iconButton; // 있으면 더블클릭 판정용으로만 사용 권장(실행은 안 함)
-
     private float lastClickTime = -999f;
     private float nextAllowedTime = 0f;
 
     private void Awake()
     {
-        ApplyLabel();
+        ApplyVisualFromDef();
     }
 
-    private void ApplyLabel()
+    private void OnValidate()
     {
-        if (iconLabel != null)
-            iconLabel.text = displayName;
+        // 인스펙터 값 바꿔도 바로 보이게
+        ApplyVisualFromDef();
+    }
+
+    private void ApplyVisualFromDef()
+    {
+        if (appDef == null) return;
+
+        if (iconLabel != null) iconLabel.text = appDef.DisplayName;
+        if (iconImage != null) iconImage.sprite = appDef.IconSprite;
     }
 
     private bool CanExecuteNow()
@@ -49,21 +50,6 @@ public class DesktopIconLauncher : MonoBehaviour, IPointerClickHandler
         nextAllowedTime = Time.unscaledTime + clickCooldownSeconds;
         return true;
     }
-
-    private void ExecuteOpen()
-    {
-        if (!CanExecuteNow()) return;
-
-        if (windowManager == null || windowPrefab == null || string.IsNullOrEmpty(appId))
-            return;
-
-        if (windowManager.IsOpen(appId))
-            return;
-
-        windowManager.Open(appId, displayName, windowPrefab, contentPrefab, defaultPos, defaultSize);
-    }
-
-  
 
     private bool IsDragRecent()
     {
@@ -76,7 +62,16 @@ public class DesktopIconLauncher : MonoBehaviour, IPointerClickHandler
         return false;
     }
 
-    
+    private void ExecuteOpen()
+    {
+        if (!CanExecuteNow()) return;
+        if (windowManager == null || appDef == null) return;
+
+        // 이미 열려있으면 아무것도 안 함(네 정책 유지)
+        if (windowManager.IsOpen(appDef.AppId)) return;
+
+        windowManager.Open(appDef);
+    }
 
     public void OnPointerClick(PointerEventData eventData)
     {
@@ -98,5 +93,4 @@ public class DesktopIconLauncher : MonoBehaviour, IPointerClickHandler
 
         lastClickTime = now;
     }
-
 }

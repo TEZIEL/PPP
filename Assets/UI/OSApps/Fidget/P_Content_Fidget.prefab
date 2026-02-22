@@ -12,7 +12,7 @@ GameObject:
   - component: {fileID: 7998485250597417748}
   - component: {fileID: 6283924406317726397}
   m_Layer: 5
-  m_Name: P_Content_Recipe
+  m_Name: P_Content_Fidget
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0

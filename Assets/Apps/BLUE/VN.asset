@@ -1,0 +1,21 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 29c65b859b9529546a48d49229159c35, type: 3}
+  m_Name: VN
+  m_EditorClassIdentifier: 
+  appId: VN
+  displayName: BLUE
+  windowPrefab: {fileID: 7342045915086621803, guid: 93109acf87296bf4cade05dd86f28f2b, type: 3}
+  contentPrefab: {fileID: 3903954642463811216, guid: 0cddc48c07cafd54c924ee18556de25c, type: 3}
+  defaultPos: {x: 50, y: 30}
+  defaultSize: {x: 1440, y: 945}
+  iconSprite: {fileID: 10905, guid: 0000000000000000f000000000000000, type: 0}

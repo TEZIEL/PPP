@@ -44,26 +44,21 @@ public class WindowManager : MonoBehaviour
             RestoreDesktop();
     }
 
-
-
-    public void OpenSimple(string appId, string displayName, WindowController prefab)
+    public void Open(AppDefinition def)
     {
-        Open(appId, displayName, prefab, null, Vector2.zero, new Vector2(600, 400));
+        if (def == null) return;
+
+        Open(
+            def.AppId,
+            def.DisplayName,
+            def.WindowPrefab,
+            def.ContentPrefab,
+            def.DefaultPos,
+            def.DefaultSize
+        );
     }
 
-
-    // ✅ 기존 호출부 호환용 (displayName = appId로 자동)
-    public void Open(
-        string appId,
-        WindowController windowPrefab,
-        GameObject contentPrefab,
-        Vector2 defaultPos,
-        Vector2 defaultSize)
-    {
-        Open(appId, appId, windowPrefab, contentPrefab, defaultPos, defaultSize);
-    }
-
-
+  
     // ✅ 새로 추가: 위치+사이즈까지 받는 버전(아이콘에서 이걸 쓸 것)
     public void Open(
     string appId,
