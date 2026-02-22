@@ -1,4 +1,4 @@
-using System.Collections.Generic;
+ï»¿using System.Collections.Generic;
 using UnityEngine;
 
 public class TaskbarManager : MonoBehaviour
@@ -12,13 +12,12 @@ public class TaskbarManager : MonoBehaviour
 
     public void Add(string appId, WindowController window)
     {
-        if (buttons.ContainsKey(appId) || buttonPrefab == null)
-        {
-            return;
-        }
+        if (buttons.ContainsKey(appId) || buttonPrefab == null) return;
 
-        Transform root = buttonRoot != null ? buttonRoot : transform;
-        TaskbarButtonController button = Instantiate(buttonPrefab, root);
+        minimizedApps.Remove(appId); // âœ… ì•ˆì „ì¥ì¹˜
+
+        var root = buttonRoot != null ? buttonRoot : (RectTransform)transform;
+        var button = Instantiate(buttonPrefab, root);
         button.Initialize(appId, windowManager, window);
         buttons.Add(appId, button);
 
@@ -56,7 +55,7 @@ public class TaskbarManager : MonoBehaviour
 
         btn.SetMinimizedVisual(minimized);
 
-        // (¼±ÅÃ) minimized¸é active ºñÁÖ¾ó ²ô°í ½ÍÀ¸¸é ¿©±â¼­ Ã³¸® °¡´É
+        // (ì„ íƒ) minimizedë©´ active ë¹„ì£¼ì–¼ ë„ê³  ì‹¶ìœ¼ë©´ ì—¬ê¸°ì„œ ì²˜ë¦¬ ê°€ëŠ¥
         // btn.SetActiveVisual(false);
     }
 
@@ -64,15 +63,16 @@ public class TaskbarManager : MonoBehaviour
     {
         windowManager?.OnTaskbarButtonPressed(appId);
     }
+    
 
     private void SetState(string appId, bool isActive, bool isMinimized)
     {
         if (!buttons.TryGetValue(appId, out var button) || button == null) return;
 
-        // ³ÊÀÇ TaskbarButtonController´Â active ºñÁÖ¾óÀº ºñ¿ö³ùÀ¸´Ï,
-        // Áö±İÀº minimized¸¸ ¹İ¿µÇØµµ OK.
+        // ë„ˆì˜ TaskbarButtonControllerëŠ” active ë¹„ì£¼ì–¼ì€ ë¹„ì›Œë†¨ìœ¼ë‹ˆ,
+        // ì§€ê¸ˆì€ minimizedë§Œ ë°˜ì˜í•´ë„ OK.
         button.SetMinimizedVisual(isMinimized);
-        // button.SetActiveVisual(isActive); // ³ªÁß¿¡ ¾²°í ½ÍÀ» ¶§
+        // button.SetActiveVisual(isActive); // ë‚˜ì¤‘ì— ì“°ê³  ì‹¶ì„ ë•Œ
     }
 
     public RectTransform GetButtonRect(string appId)

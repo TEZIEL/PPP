@@ -32,9 +32,10 @@ public class TaskbarButtonController : MonoBehaviour
 
     private void HookListener()
     {
-        if (_listenerHooked) return;
         if (button == null) return;
 
+        // ✅ 중복 등록 방지 (이미 붙어있을 수 있으니 한번 제거 후 추가)
+        button.onClick.RemoveListener(OnClick);
         button.onClick.AddListener(OnClick);
         _listenerHooked = true;
     }

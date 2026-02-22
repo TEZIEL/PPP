@@ -296,18 +296,13 @@ public class WindowController : MonoBehaviour,
 
     public void PlayRestore(Vector2 fromAnchoredPos, Action onDone, float duration = 0.12f, bool bringToFront = true)
     {
-        // ✅ 필요할 때만 앞으로
         if (bringToFront)
             transform.SetAsLastSibling();
 
-        Vector2 toPos = (restorePos == Vector2.zero) ? windowRoot.anchoredPosition : restorePos;
+        Vector2 toPos = hasRestorePos ? restorePos : windowRoot.anchoredPosition;
 
-        // 시작점 세팅
         windowRoot.anchoredPosition = fromAnchoredPos;
         transform.localScale = new Vector3(0.85f, 0.85f, 1f);
-
-        if (bringToFront)
-            transform.SetAsLastSibling();
 
         if (moveScaleRoutine != null) StopCoroutine(moveScaleRoutine);
         moveScaleRoutine = StartCoroutine(CoMoveAndScale(
