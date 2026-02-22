@@ -14,4 +14,8 @@ public class UISkin : ScriptableObject
     [Header("UnderBar Tint")]
     public Color underActiveColor = Color.white;
     public Color underInactiveColor = Color.gray;
+
+    [Header("SideBar Tint")]
+    public Color sideActiveColor = Color.white;
+    public Color sideInactiveColor = Color.gray;
 }

@@ -9,6 +9,7 @@ public class SkinApplier : MonoBehaviour
     [SerializeField] private Graphic titleBarGraphic; // TitleBar Image µî
     [SerializeField] private Graphic frameGraphic;    // WindowFrame Image µî
     [SerializeField] private Graphic underGraphic;
+    [SerializeField] private Graphic sideGraphic;
 
     public void Apply(bool isActive)
     {
@@ -22,5 +23,8 @@ public class SkinApplier : MonoBehaviour
 
         if (underGraphic != null)
             underGraphic.color = isActive ? skin.underActiveColor : skin.underInactiveColor;
+
+        if (sideGraphic != null)
+            sideGraphic.color = isActive ? skin.sideActiveColor : skin.sideInactiveColor;
     }
 }

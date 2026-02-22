@@ -18,3 +18,5 @@ MonoBehaviour:
   frameInactiveColor: {r: 0.5, g: 0.5, b: 0.5, a: 1}
   underActiveColor: {r: 0.8679245, g: 0.53221786, b: 0.53221786, a: 1}
   underInactiveColor: {r: 0.7688679, g: 0.7688679, b: 0.7688679, a: 1}
+  sideActiveColor: {r: 0.6886792, g: 0.33665, b: 0.33134568, a: 1}
+  sideInactiveColor: {r: 0.5990566, g: 0.5990566, b: 0.5990566, a: 1}

@@ -36,6 +36,7 @@ public class WindowController : MonoBehaviour,
     [SerializeField] private Image titleBarImage;
     [SerializeField] private Image frameImage;
     [SerializeField] private Image underImage;
+    [SerializeField] private Image sideImage;
 
     [Header("Animation")]
     [SerializeField] private float openDuration = 0.12f;
@@ -201,6 +202,9 @@ public class WindowController : MonoBehaviour,
 
         if (underImage != null)
             underImage.color = active ? skin.underActiveColor : skin.underInactiveColor;
+
+        if (sideImage != null)
+            sideImage.color = active ? skin.sideActiveColor : skin.sideInactiveColor;
     }
 
     // =========================
