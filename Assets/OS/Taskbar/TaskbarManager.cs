@@ -53,7 +53,11 @@ public class TaskbarManager : MonoBehaviour
         else minimizedApps.Remove(appId);
 
         if (!buttons.TryGetValue(appId, out var btn) || btn == null) return;
+
         btn.SetMinimizedVisual(minimized);
+
+        // (선택) minimized면 active 비주얼 끄고 싶으면 여기서 처리 가능
+        // btn.SetActiveVisual(false);
     }
 
     public void OnTaskbarButtonClicked(string appId)
@@ -63,11 +67,12 @@ public class TaskbarManager : MonoBehaviour
 
     private void SetState(string appId, bool isActive, bool isMinimized)
     {
-        if (!buttons.TryGetValue(appId, out TaskbarButtonController button) || button == null)
-        {
-            return;
-        }
+        if (!buttons.TryGetValue(appId, out var button) || button == null) return;
 
+        // 너의 TaskbarButtonController는 active 비주얼은 비워놨으니,
+        // 지금은 minimized만 반영해도 OK.
+        button.SetMinimizedVisual(isMinimized);
+        // button.SetActiveVisual(isActive); // 나중에 쓰고 싶을 때
     }
 
     public RectTransform GetButtonRect(string appId)
