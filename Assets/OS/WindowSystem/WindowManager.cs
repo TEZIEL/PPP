@@ -568,9 +568,7 @@ public class WindowManager : MonoBehaviour
         if (!openWindows.TryGetValue(appId, out var target) || target == null)
             return;
 
-        if (target.WindowRoot != null)
-            SaveSystem.SetWindowPositionHook(appId, target.WindowRoot.anchoredPosition);
-
+    
         target.SetMinimized(true);
         taskbarManager?.SetMinimized(appId, true);
     }
@@ -586,7 +584,7 @@ public class WindowManager : MonoBehaviour
 
     public void OnWindowMoved(string appId, Vector2 anchoredPosition)
     {
-        SaveSystem.SetWindowPositionHook(appId, anchoredPosition);
+        RequestAutoSave();
     }
 
     public IReadOnlyDictionary<string, WindowController> GetOpenWindows()
