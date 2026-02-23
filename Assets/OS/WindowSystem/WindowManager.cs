@@ -39,6 +39,12 @@ public class WindowManager : MonoBehaviour
     private bool isShowDesktop;
     private readonly List<string> lastShownDesktop = new(); // 직전에 "전체 최소화"로 내려간 창들
 
+    public bool IsFocused(string appId)
+    {
+        // 네 시스템에서 activeAppId 같은 걸 쓰는 듯
+        return activeAppId == appId;
+    }
+
     public void ToggleShowDesktop()
     {
         if (!isShowDesktop)
@@ -122,6 +128,7 @@ public class WindowManager : MonoBehaviour
         if (spawned.ContentRoot == null) return;
 
         var content = Instantiate(contentPrefab, spawned.ContentRoot);
+        
 
         if (content.transform is RectTransform rt)
         {
@@ -222,10 +229,23 @@ public class WindowManager : MonoBehaviour
             ic.Initialize(this, iconsRoot, desktopGridManager);
     }
 
+    public void ShowConfirmClose(string appId)
+    {
+        // TODO: 네 팝업 시스템 호출
+        Debug.Log($"[OS] Confirm close popup for {appId}");
+    }
 
 
     private float nextAutoSaveTime;
     private const float autoSaveCooldown = 0.3f;
+
+
+    public void InternalRequestAutoSave()
+    {
+        InternalRequestAutoSave(); // 네가 이미 가진 함수라면 이름 충돌 나니까
+        // 만약 동일 이름이면 내부용을 다른 이름으로 바꿔:
+        // InternalRequestAutoSave();
+    }
 
     public void RequestAutoSave()
     {
@@ -520,7 +540,7 @@ public class WindowManager : MonoBehaviour
 
 
 
-    
+
     private VNOSBridge FindBridge(string appId)
     {
         if (!openWindows.TryGetValue(appId, out var wc) || wc == null) return null;
@@ -530,6 +550,7 @@ public class WindowManager : MonoBehaviour
 
     public void Close(string appId)
     {
+        // 0) 대상 창 확인
         if (!openWindows.TryGetValue(appId, out var window) || window == null)
             return;
 
@@ -544,11 +565,30 @@ public class WindowManager : MonoBehaviour
         {
             Debug.Log("[OS] Close blocked by VN.");
             // TODO: 여기서 "종료하시겠습니까?" 팝업 띄우기
+            // 예: ShowConfirmClose(appId, onYes: () => CloseInternal(appId, window));
             return;
         }
 
-        // 3) 실제 닫기 실행
-        PerformClose(window, appId);
+        // 3) 실제 닫기 실행 (검증 통과한 경우만)
+        CloseInternal(appId, window);
+    }
+
+    private void CloseInternal(string appId, WindowController window)
+    {
+        // window가 이미 Destroy 되었을 수도 있으니 가드(안전)
+        if (window == null) return;
+
+        window.PlayClose(() =>
+        {
+            taskbarManager?.Remove(appId);
+            openWindows.Remove(appId);
+
+            if (!suppressAutoFocus)
+                FocusNextTopWindow(excludedAppId: null);
+
+            Destroy(window.gameObject);
+            RequestAutoSave();
+        });
     }
 
     private void PerformClose(WindowController window, string appId)
@@ -612,7 +652,8 @@ public class WindowManager : MonoBehaviour
 
     public bool IsMinimized(string appId)
     {
-        return openWindows.TryGetValue(appId, out var target) && target != null && target.IsMinimized;
+        if (!openWindows.TryGetValue(appId, out var w) || w == null) return true;
+        return w.IsMinimized;
     }
 
     public void MinimizeNoFocus(string appId)

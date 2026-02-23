@@ -1,32 +1,55 @@
-using UnityEngine;
+ï»¿using UnityEngine;
 
 public sealed class VNOSBridge : MonoBehaviour, IVNCloseRequestHandler
 {
     [Header("Identity")]
-    [SerializeField] private string appId = "Visual Novel";
+    [SerializeField] private string appId = "app.vn"; // âœ… AppDefinition.AppIdì™€ ë°˜ë“œì‹œ ë™ì¼í•˜ê²Œ!
 
     [Header("OS Host (adapter)")]
-    [SerializeField] private MonoBehaviour hostBehaviour; // IVNHostOS ±¸ÇöÃ¼
+    [SerializeField] private MonoBehaviour hostBehaviour; // IVNHostOS êµ¬í˜„ì²´
+
     private IVNHostOS Host => hostBehaviour as IVNHostOS;
 
-    // VNÀÌ ¼³Á¤ÇÏ´Â Á¤Ã¥
+    // VNì´ ì„¤ì •í•˜ëŠ” ì •ì±…
     public bool ExitLocked { get; private set; }
     public bool BlockClose { get; private set; }
 
+    private bool registered; // âœ… ì¤‘ë³µ ë“±ë¡ ë°©ì§€
+
+    /// <summary>
+    /// OSê°€ ContentPrefab instantiate ì§í›„ í˜¸ì¶œí•´ì„œ Hostë¥¼ ì£¼ì…í•œë‹¤.
+    /// </summary>
+    public void InjectHost(IVNHostOS host, string injectedAppId = null)
+    {
+        hostBehaviour = host as MonoBehaviour;
+
+        if (!string.IsNullOrEmpty(injectedAppId))
+            appId = injectedAppId;
+
+        TryRegisterCloseHandler();
+    }
+
     private void Awake()
     {
-        if (Host == null)
-        {
-            Debug.Log("[VNOSBridge] Host not set (ok for early stage).");
-            return;
-        }
+        // ì¸ìŠ¤í™í„°ë¡œë„ ê½‚ì„ ìˆ˜ ìˆì§€ë§Œ, ì •ì„ì€ OSê°€ InjectHostë¡œ ì£¼ì…í•˜ëŠ” ê²ƒ.
+        TryRegisterCloseHandler();
+    }
 
-        // ´İ±â ÀÎÅÍ¼ÁÆ® µî·Ï
+    private void TryRegisterCloseHandler()
+    {
+        if (registered) return;
+        if (Host == null) return;
+
         Host.SetCloseHandler(appId, this);
+        registered = true;
+
+        // ì§€ê¸ˆê¹Œì§€ ì¼œë‘” ì •ì±…ë“¤ì´ ìˆë‹¤ë©´ Hostì— ë°˜ì˜(ì•ˆì „)
+        Host.SetExitLocked(appId, ExitLocked);
     }
 
     public VNWindowState GetWindowState()
     {
+        // focused=false, minimized=true (ì…ë ¥ ë§‰ëŠ” ë³´ìˆ˜ì  ê¸°ë³¸ê°’)
         return Host != null ? Host.GetWindowState(appId) : new VNWindowState(false, true);
     }
 
@@ -39,18 +62,15 @@ public sealed class VNOSBridge : MonoBehaviour, IVNCloseRequestHandler
     public void RequestBlockClose(bool on)
     {
         BlockClose = on;
-        // BlockClose´Â Host ÂÊ Close ·ÎÁ÷¿¡¼­ CanCloseNow()¸¦ È£ÃâÇØ¼­ ¹İ¿µµÊ
+        // BlockCloseëŠ” Host ìª½ Close ë¡œì§ì—ì„œ CanCloseNow() í˜¸ì¶œí•´ì„œ ë°˜ì˜
     }
 
-    // OS°¡ ´İ±â ´©¸§ -> VN¿¡°Ô ¹°¾îº½
+    // OSê°€ ë‹«ê¸° ëˆ„ë¦„ -> VNì—ê²Œ ë¬¼ì–´ë´„
     public bool CanCloseNow()
     {
-        // BlockClose°¡ ÄÑÁ® ÀÖÀ¸¸é "¹Ù·Î ´İÁö ¸»°í" Host°¡ È®ÀÎÆË¾÷ ¶ç¿ì°Ô ¸¸µå´Â ¹æ½Ä
-        // ¿©±â¼­ false¸¦ ¹İÈ¯ÇÏ¸é Host´Â Close¸¦ Áß´ÜÇÏ°í, ´ë½Å ÆË¾÷À» ¶ç¿ì¸é µÊ.
         return !BlockClose;
     }
 
-    // Save ¿¬µ¿Àº ´ÙÀ½ ´Ü°è¿¡¼­ VNProgressSave ºÙÀÏ ¶§ »ç¿ë
     public void SaveVN(string key, object data) => Host?.SaveSubBlock(key, data);
     public T LoadVN<T>(string key) where T : class => Host?.LoadSubBlock<T>(key);
 }

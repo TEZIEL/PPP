@@ -11,6 +11,7 @@ namespace PPP.BLUE.VN
 
         [SerializeField] private TMP_Text nameText;
         [SerializeField] private TMP_Text dialogueText;
+        [SerializeField] private VNOSBridge osBridge;
 
         [Header("Typing")]
         [SerializeField] private float charsPerSecond = 40f;
@@ -50,25 +51,21 @@ namespace PPP.BLUE.VN
 
         private void Update()
         {
-            if (inputLockFrames > 0) { inputLockFrames--; return; }
             if (runner == null) return;
             if (!runner.HasScript) return;
 
-            if (!Input.GetKeyDown(KeyCode.Space)) return;
-            Debug.Log($"[INPUT] visibleLen={dialogueText.text.Length} fullLen={currentFullText.Length} isTyping={(typer != null && typer.IsTyping)}");
-            // ✅ “지금 화면에 찍힌 텍스트가 풀텍스트와 다르면” = 아직 타이핑 진행 중(또는 미완료)
-            bool visibleNotComplete =
-                dialogueText != null &&
-                currentFullText != null &&
-                dialogueText.text != currentFullText;
+            
 
-            if (visibleNotComplete)
+            
+
+            if (!Input.GetKeyDown(KeyCode.Space)) return;
+
+            if (!lineCompleted && typer != null && typer.IsTyping)
             {
-                ForceCompleteLine();   // 한 번 누르면 무조건 완성
+                ForceCompleteLine();
                 return;
             }
 
-            // ✅ 이미 완성이면 바로 다음 줄
             runner.Next();
         }
 
