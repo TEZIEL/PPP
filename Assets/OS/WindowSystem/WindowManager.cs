@@ -3,6 +3,7 @@ using System.Collections;
 using UnityEngine;
 using PPP.OS.Save;
 using UnityEngine.EventSystems;
+using PPP.BLUE.VN;
 
 
 
@@ -138,8 +139,8 @@ public class WindowManager : MonoBehaviour
         if (spawned.ContentRoot == null) return;
 
         var content = Instantiate(contentPrefab, spawned.ContentRoot);
-        
 
+        // ✅ (1) RectTransform 풀스트레치
         if (content.transform is RectTransform rt)
         {
             rt.anchorMin = Vector2.zero;
@@ -148,6 +149,16 @@ public class WindowManager : MonoBehaviour
             rt.offsetMax = Vector2.zero;
             rt.localScale = Vector3.one;
             rt.localRotation = Quaternion.identity;
+        }
+
+        // ✅ (2) VNOSBridge가 있으면 Host 주입 (중요)
+        // WindowManager가 IVNHostOS를 구현하고 있다는 전제
+        var bridge = content.GetComponentInChildren<PPP.BLUE.VN.VNOSBridge>(true);
+        if (bridge != null)
+        {
+            // appId는 spawned가 가진 appId를 쓰는 게 가장 안전
+            // spawned.AppId 같은 프로퍼티가 없으면, AttachContent를 호출하는 쪽에서 appId를 인자로 넘겨줘.
+            bridge.InjectHost(this as PPP.BLUE.VN.IVNHostOS, spawned.AppId /* 또는 appId */);
         }
     }
 

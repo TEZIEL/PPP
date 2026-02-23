@@ -31,23 +31,19 @@ namespace PPP.BLUE.VN
         {
             if (root != null) root.SetActive(true);
             policy?.EnterDrinkMode();
+
+            // (선택) 드링크 패널 열릴 때도 선택 해제해두면 안전
+            EventSystem.current?.SetSelectedGameObject(null);
         }
 
         private void Choose(string result)
         {
+            // 0) 입력/닫기 잠금 (버튼 클릭 직후 입력 잔상 방지)
             windowManager?.LockCloseForSeconds(0.15f);
             shortcutController?.LockForSeconds(0.15f);
+
+            // 1) UI 선택 해제 (Space/Enter가 버튼에 다시 먹는 문제 방지)
             EventSystem.current?.SetSelectedGameObject(null);
-
-            // ✅ 0) 전역 단축키 잠깐 잠그기 (버튼 클릭 직후 이상한 키 입력 방지)
-            shortcutController?.LockForSeconds(0.1f);
-
-            // ✅ 0-1) OS 닫기(마우스)도 잠깐 락
-            // (윈도우매니저 참조가 없으면 shortcutController 통해서 전달하거나, 여기서 WindowManager를 직접 물려도 됨)
-            windowManager?.LockCloseForSeconds(0.15f);
-
-            // ✅ 1) UI 선택 해제 (Space/Enter가 버튼에 다시 먹는 문제 방지)
-            UnityEngine.EventSystems.EventSystem.current?.SetSelectedGameObject(null);
 
             // 2) 결과 반영
             runner?.ApplyDrinkResult(result);

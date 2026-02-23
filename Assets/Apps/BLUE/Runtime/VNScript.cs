@@ -27,12 +27,19 @@ namespace PPP.BLUE.VN
                 if (n.type != VNNodeType.Label) continue;
                 if (string.IsNullOrEmpty(n.label)) continue;
 
-                // 같은 라벨이 중복이면 마지막이 덮어쓰게 됨 (초기엔 이걸로 충분)
-                labelToIndex[n.label] = i;
+                var key = n.label.Trim();
+                labelToIndex[key] = i;
             }
         }
 
         public bool TryGetLabelIndex(string label, out int index)
-            => labelToIndex.TryGetValue(label, out index);
+        {
+            if (string.IsNullOrEmpty(label))
+            {
+                index = -1;
+                return false;
+            }
+            return labelToIndex.TryGetValue(label.Trim(), out index);
+        }
     }
 }

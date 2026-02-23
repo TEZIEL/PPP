@@ -8,7 +8,7 @@ namespace PPP.BLUE.VN
     {
         [Header("Refs")]
         [SerializeField] private VNOSBridge bridge;
-        [SerializeField] private VNPolicyController policy; // ✅ 추가
+        [SerializeField] private VNPolicyController policy;
 
         [SerializeField] private GameObject popupRoot;
         [SerializeField] private TMP_Text messageText;
@@ -22,6 +22,10 @@ namespace PPP.BLUE.VN
 
         private void Awake()
         {
+            // ✅ 자동 주입 (인스펙터 누락 방지)
+            if (bridge == null) bridge = GetComponentInChildren<VNOSBridge>(true);
+            if (policy == null) policy = GetComponentInChildren<VNPolicyController>(true);
+
             if (popupRoot != null) popupRoot.SetActive(false);
 
             if (btnCancel != null) btnCancel.onClick.AddListener(Hide);
@@ -39,18 +43,18 @@ namespace PPP.BLUE.VN
 
         public void Show()
         {
+            // ✅ 드링크 모드면 팝업 자체 금지(2중 방어)
+            if (policy != null && policy.IsInDrinkMode) return;
+
             if (popupRoot == null) return;
 
             if (messageText != null) messageText.text = defaultMessage;
             popupRoot.SetActive(true);
 
-            // ✅ 팝업 열림 = 모달 열림
             policy?.SetModalOpen(true);
 
-            // ✅ Space/Enter가 버튼에 먹지 않게(중요)
+            // ✅ Space/Enter 버튼 재클릭 방지
             UnityEngine.EventSystems.EventSystem.current?.SetSelectedGameObject(null);
-
-
         }
 
         public void Hide()
@@ -58,8 +62,6 @@ namespace PPP.BLUE.VN
             if (popupRoot == null) return;
 
             popupRoot.SetActive(false);
-
-            // ✅ 모달 닫힘
             policy?.SetModalOpen(false);
 
             UnityEngine.EventSystems.EventSystem.current?.SetSelectedGameObject(null);

@@ -40,9 +40,9 @@ namespace PPP.BLUE.VN
 
         private void Start()
         {
-            // 테스트 스크립트 에셋이 없다면, 하드코딩 테스트 스크립트 생성
-            SetScript(BuildTestScript());
-            if (bridge != null) bridge.RequestBlockClose(true);
+            if (testScript != null) SetScript(testScript);
+            else SetScript(BuildTestScript());
+            // bridge.RequestBlockClose(true)는 PolicyController가 기본으로 잡는 게 더 깔끔함
         }
 
         private void Update()
@@ -112,8 +112,8 @@ namespace PPP.BLUE.VN
                         continue;
                 }
             }
-
-            Debug.LogError("[VNRunner] MAX_STEPS exceeded. Possible infinite loop in script.");
+            Debug.LogError($"[VNRunner] MAX_STEPS exceeded at pointer={pointer}. Possible infinite loop.");
+            
             Finish();
         }
 
@@ -215,7 +215,7 @@ namespace PPP.BLUE.VN
             {
                 if (r == null) continue;
 
-                if (r.expr == "else" || EvaluateExpr(r.expr))
+                if (string.Equals(r.expr, "else", StringComparison.OrdinalIgnoreCase) || EvaluateExpr(r.expr))
                 {
                     if (!string.IsNullOrEmpty(r.jumpLabel))
                     {
