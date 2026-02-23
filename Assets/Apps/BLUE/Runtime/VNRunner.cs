@@ -1,4 +1,4 @@
-using System;
+ï»¿using System;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -8,35 +8,49 @@ namespace PPP.BLUE.VN
     {
         [Header("Debug")]
         [SerializeField] private bool logToConsole = true;
+        [SerializeField] private VNScript testScript;
 
         public event Action<string, string, string> OnSay; // speakerId, text, lineId
         public event Action OnEnd;
 
+        public bool HasScript => script != null;
         private VNScript script;
         private int pointer = 0;
+        private bool started;
 
-
-        // Å×½ºÆ®¿ë(³ªÁß¿¡ DrinkSave/º¯¼ö dict·Î ±³Ã¼)
+        // í…ŒìŠ¤íŠ¸ìš©(ë‚˜ì¤‘ì— DrinkSave/ë³€ìˆ˜ dictë¡œ êµì²´)
         private int greatCount = 1;
         private int failCount = 0;
         private int successCount = 1;
         private string lastResult = "great"; // "fail"/"success"/"great"
 
-        // 1´Ü°è: ÇÏµåÄÚµù Å×½ºÆ®¿ë
+        // 1ë‹¨ê³„: í•˜ë“œì½”ë”© í…ŒìŠ¤íŠ¸ìš©
+        public void Begin()
+        {
+            if (started) return;
+            if (script == null)
+            {
+                Debug.LogError("[VNRunner] No script loaded.");
+                return;
+            }
+            started = true;
+            Next();
+        }
+
         private void Start()
         {
-            script = BuildTestScript();
-            pointer = 0;
-
-            if (logToConsole)
-                Debug.Log("[VNRunner] Ready. Press Space to Next().");
+            // í…ŒìŠ¤íŠ¸ ìŠ¤í¬ë¦½íŠ¸ ì—ì…‹ì´ ì—†ë‹¤ë©´, í•˜ë“œì½”ë”© í…ŒìŠ¤íŠ¸ ìŠ¤í¬ë¦½íŠ¸ ìƒì„±
+            SetScript(BuildTestScript());
         }
 
         private void Update()
         {
-            if (Input.GetKeyDown(KeyCode.Space))
-                Next();
+
+            if (!HasScript) return;
+
         }
+
+
 
         public void Next()
         {
@@ -46,50 +60,79 @@ namespace PPP.BLUE.VN
                 return;
             }
 
-            // ³¡±îÁö °¬À¸¸é End Ãë±Ş
-            if (pointer < 0 || pointer >= script.nodes.Count)
+            // ë¬´í•œë£¨í”„ ë°©ì§€ìš© ì•ˆì „ì¥ì¹˜
+            const int MAX_STEPS = 1000;
+            int steps = 0;
+
+            while (steps++ < MAX_STEPS)
             {
-                Finish();
-                return;
-            }
-
-            var node = script.nodes[pointer];
-            if (node == null)
-            {
-                pointer++;
-                return;
-            }
-
-            switch (node.type)
-            {
-                case VNNodeType.Say:
-                    EmitSay(node);
-                    pointer++;
-                    break;
-
-                case VNNodeType.Branch:
-                    DoBranch(node);
-                    break;
-
-                case VNNodeType.Label:
-                    // LabelÀº ½ÇÇà È¿°ú ¾øÀ½. ±×³É ´ÙÀ½À¸·Î.
-                    if (logToConsole) Debug.Log($"[VN] Label: {node.label} (idx {pointer})");
-                    pointer++;
-                    break;
-
-                case VNNodeType.Jump:
-                    DoJump(node.label);
-                    break;
-
-                case VNNodeType.End:
+                // ëê¹Œì§€ ê°”ìœ¼ë©´ End ì·¨ê¸‰
+                if (pointer < 0 || pointer >= script.nodes.Count)
+                {
                     Finish();
-                    break;
+                    return;
+                }
 
-                default:
-                    Debug.LogWarning($"[VNRunner] Unknown node type: {node.type}");
+                var node = script.nodes[pointer];
+                if (node == null)
+                {
                     pointer++;
-                    break;
+                    continue;
+                }
+
+                switch (node.type)
+                {
+                    case VNNodeType.Say:
+                        EmitSay(node);
+                        pointer++;
+                        return; // âœ… SayëŠ” "ë©ˆì¶¤" í¬ì¸íŠ¸ (í™”ë©´ì— ë³´ì—¬ì£¼ê³  ê¸°ë‹¤ë¦¼)
+
+                    case VNNodeType.Branch:
+                        DoBranch(node);
+                        continue; // âœ… ì¶œë ¥ ì—†ìŒ â†’ ê³„ì† ì§„í–‰
+
+                    case VNNodeType.Label:
+                        if (logToConsole) Debug.Log($"[VN] Label: {node.label} (idx {pointer})");
+                        pointer++;
+                        continue; // âœ… ì¶œë ¥ ì—†ìŒ â†’ ê³„ì† ì§„í–‰
+
+                    case VNNodeType.Jump:
+                        DoJump(node.label);
+                        continue; // âœ… ì¶œë ¥ ì—†ìŒ â†’ ê³„ì† ì§„í–‰
+
+                    case VNNodeType.End:
+                        Finish();
+                        return;
+
+                    default:
+                        Debug.LogWarning($"[VNRunner] Unknown node type: {node.type}");
+                        pointer++;
+                        continue;
+                }
             }
+
+            Debug.LogError("[VNRunner] MAX_STEPS exceeded. Possible infinite loop in script.");
+            Finish();
+        }
+
+        public void OnAdvance()
+        {
+            
+        }
+
+        public void SetScript(VNScript s)
+        {
+            script = s;
+            pointer = 0;
+            started = false;
+
+            if (script == null)
+            {
+                Debug.LogError("[VNRunner] Script is null.");
+                return;
+            }
+
+            Begin(); // âœ… ìŠ¤í¬ë¦½íŠ¸ê°€ í™•ì‹¤íˆ ìˆì„ ë•Œë§Œ ì‹œì‘
         }
 
         private void EmitSay(VNNode node)
@@ -104,17 +147,17 @@ namespace PPP.BLUE.VN
         {
             if (string.IsNullOrEmpty(expr)) return false;
 
-            // °ø¹é Á¦°Å
+            // ê³µë°± ì œê±°
             expr = expr.Replace(" ", "").ToLowerInvariant();
 
-            // last==great °°Àº ÆĞÅÏ
+            // last==great ê°™ì€ íŒ¨í„´
             if (expr.StartsWith("last=="))
             {
                 var v = expr.Substring("last==".Length);
                 return lastResult == v;
             }
 
-            // great>=2 °°Àº ÆĞÅÏ
+            // great>=2 ê°™ì€ íŒ¨í„´
             if (TryParseCompare(expr, "great", greatCount, out var ok1)) return ok1;
             if (TryParseCompare(expr, "fail", failCount, out var ok2)) return ok2;
             if (TryParseCompare(expr, "success", successCount, out var ok3)) return ok3;
@@ -129,7 +172,7 @@ namespace PPP.BLUE.VN
 
             if (!expr.StartsWith(key)) return false;
 
-            // Áö¿ø ¿¬»êÀÚ: >=, <=, ==, >, <
+            // ì§€ì› ì—°ì‚°ì: >=, <=, ==, >, <
             string op = null;
             if (expr.Contains(">=")) op = ">=";
             else if (expr.Contains("<=")) op = "<=";
@@ -180,7 +223,7 @@ namespace PPP.BLUE.VN
                     }
                 }
             }
-                        // ¾Æ¹« Á¶°Çµµ ¸ø ¸ÂÃß¸é ±×³É ´ÙÀ½
+                        // ì•„ë¬´ ì¡°ê±´ë„ ëª» ë§ì¶”ë©´ ê·¸ëƒ¥ ë‹¤ìŒ
             pointer++;
         }
 
@@ -205,7 +248,7 @@ namespace PPP.BLUE.VN
             if (logToConsole)
                 Debug.Log($"[VN] Jump -> {label} (idx {idx})");
 
-            // º¸Åë ¶óº§ ´ÙÀ½ ÁÙºÎÅÍ ½ÇÇàÇÏ°í ½ÍÀ¸´Ï +1
+            // ë³´í†µ ë¼ë²¨ ë‹¤ìŒ ì¤„ë¶€í„° ì‹¤í–‰í•˜ê³  ì‹¶ìœ¼ë‹ˆ +1
             pointer = idx + 1;
         }
 
@@ -215,17 +258,17 @@ namespace PPP.BLUE.VN
                 Debug.Log("[VN] End");
 
             OnEnd?.Invoke();
-            enabled = false; // 1´Ü°è¿¡¼­´Â ±×³É ¸ØÃã
+            enabled = false; // 1ë‹¨ê³„ì—ì„œëŠ” ê·¸ëƒ¥ ë©ˆì¶¤
         }
 
         private VNScript BuildTestScript()
         {
-            // ³× ¡°ÇÏ·ç ½ÃÀÛ -> ´º½º -> ´ëÈ­ -> À½·á¡± Áß ¡®´ëÈ­¡¯ ÃÖ¼Ò ´À³¦¸¸ Å×½ºÆ®
+            // ë„¤ â€œí•˜ë£¨ ì‹œì‘ -> ë‰´ìŠ¤ -> ëŒ€í™” -> ìŒë£Œâ€ ì¤‘ â€˜ëŒ€í™”â€™ ìµœì†Œ ëŠë‚Œë§Œ í…ŒìŠ¤íŠ¸
             
             
             var nodes = new List<VNNode>
             {
-                new VNNode { id="t.001", type=VNNodeType.Say, speakerId="sys", text="(ºĞ±â Å×½ºÆ®)" },
+                new VNNode { id="t.001", type=VNNodeType.Say, speakerId="sys", text="(ë¶„ê¸° í…ŒìŠ¤íŠ¸)21312313131qweqweqwewqeqweqe3" },
 
                 new VNNode {
                     id="t.002",
@@ -239,15 +282,15 @@ namespace PPP.BLUE.VN
             },
 
                 new VNNode { id="t.r1", type=VNNodeType.Label, label="route1" },
-                new VNNode { id="t.r1s", type=VNNodeType.Say, speakerId="sys", text="·çÆ®1·Î ÁøÀÔ" },
+                new VNNode { id="t.r1s", type=VNNodeType.Say, speakerId="sys", text="ë£¨íŠ¸1ë¡œ ì§„ì…asdasdqweqwdasdsadasdadsdasdasdaddas" },
                 new VNNode { id="t.end1", type=VNNodeType.End },
 
                 new VNNode { id="t.r2", type=VNNodeType.Label, label="route2" },
-                new VNNode { id="t.r2s", type=VNNodeType.Say, speakerId="sys", text="·çÆ®2(´ë¼º°ø 2È¸ ÀÌ»ó) ÁøÀÔ" },
+                new VNNode { id="t.r2s", type=VNNodeType.Say, speakerId="sys", text="ë£¨íŠ¸2(ëŒ€ì„±ê³µ 2íšŒ ì´ìƒ) ì§„ì…" },
                 new VNNode { id="t.end2", type=VNNodeType.End },
 
                 new VNNode { id="t.r3", type=VNNodeType.Label, label="route3" },
-                new VNNode { id="t.r3s", type=VNNodeType.Say, speakerId="sys", text="·çÆ®3(½ÇÆĞ 2È¸ ÀÌ»ó) ÁøÀÔ" },
+                new VNNode { id="t.r3s", type=VNNodeType.Say, speakerId="sys", text="ë£¨íŠ¸3(ì‹¤íŒ¨ 2íšŒ ì´ìƒ) ì§„ì…" },
                 new VNNode { id="t.end3", type=VNNodeType.End },
 
 
