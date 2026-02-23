@@ -11,6 +11,11 @@ namespace PPP.BLUE.VN
         [Header("Debug")]
         [SerializeField] private bool lockCloseOnStart = true; // 테스트용
 
+
+        public bool IsInDrinkMode { get; private set; }
+        public bool IsModalOpen { get; private set; }
+        public void SetModalOpen(bool on) => IsModalOpen = on;
+
         private void Awake()
         {
             if (bridge == null)
@@ -43,14 +48,15 @@ namespace PPP.BLUE.VN
             SetBlockClose(false);
         }
 
-        // Drink 제작 중처럼 "닫기 금지" 구간
         public void EnterDrinkMode()
         {
-            SetBlockClose(true);
+            IsInDrinkMode = true;
+            SetBlockClose(true); // 네 정책대로
         }
 
         public void ExitDrinkMode()
         {
+            IsInDrinkMode = false;
             SetBlockClose(false);
         }
     }

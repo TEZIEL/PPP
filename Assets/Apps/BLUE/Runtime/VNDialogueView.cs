@@ -8,10 +8,12 @@ namespace PPP.BLUE.VN
         [Header("Refs")]
         [SerializeField] private VNRunner runner;
         [SerializeField] private VNTextTyper typer;
+        [SerializeField] private VNPolicyController policy;
 
         [SerializeField] private TMP_Text nameText;
         [SerializeField] private TMP_Text dialogueText;
         [SerializeField] private VNOSBridge osBridge;
+        [SerializeField] private DrinkTestPanel drinkTestPanel;
 
         [Header("Typing")]
         [SerializeField] private float charsPerSecond = 40f;
@@ -24,6 +26,17 @@ namespace PPP.BLUE.VN
         private void Start()
         {
            
+        }
+
+        private bool CanAcceptVNInput()
+        {
+            // 1) 팝업 떠있으면 VN 진행 입력 막기
+            // (너 ClosePopup이 active면)
+            // popupRoot 참조 없으면, 일단 아래 줄은 나중에 연결해도 됨
+            // if (closePopupRoot != null && closePopupRoot.activeSelf) return false;
+
+            // 2) 타이핑 처리/모드 처리는 Update에서 이미 하니까 여기선 최소만
+            return true;
         }
 
         private void Awake()
@@ -49,28 +62,37 @@ namespace PPP.BLUE.VN
             }
         }
 
+
         private void Update()
         {
             if (runner == null) return;
             if (!runner.HasScript) return;
 
-            
+            // ✅ 0) 입력 자체 허용 여부 (포커스/최소화/팝업 등)
+            if (!CanAcceptVNInput()) return;
 
-            
+            // ✅ 1) Drink 모드면 진행 입력 금지 (Space가 뭐든 먹지 않게)
+            if (policy != null && policy.IsInDrinkMode) return;
 
+            // ✅ 2) Next 입력
             if (!Input.GetKeyDown(KeyCode.Space)) return;
 
+            // ✅ 3) 타이핑 중이면 "완성"만 하고 다음 라인으로 넘어가진 않음
             if (!lineCompleted && typer != null && typer.IsTyping)
             {
                 ForceCompleteLine();
                 return;
             }
 
+            // ✅ 4) 그 외에는 다음 라인
             runner.Next();
         }
 
+
         private void HandleSay(string speakerId, string text, string lineId)
         {
+            Debug.Log($"[HandleSay] nameText={(nameText ? "OK" : "NULL")} dialogueText={(dialogueText ? "OK" : "NULL")} typer={(typer ? "OK" : "NULL")} drinkPanel={(drinkTestPanel ? "OK" : "NULL")} lineId={lineId}");
+
             inputLockFrames = 1;
             // 새 라인이 오면, 일단 "진행 금지" 상태로 만들고 타이핑 시작
             lineCompleted = false;
@@ -95,6 +117,15 @@ namespace PPP.BLUE.VN
             {
                 lineCompleted = true;
             });
+
+            // 임시: 특정 라인에서 드링크 패널 열기
+            if (lineId == "t.drink")
+            {
+                if (drinkTestPanel == null)
+                    Debug.LogError("[VNDialogueView] drinkTestPanel is NULL. Assign it in Inspector.");
+                else
+                    drinkTestPanel.Open();
+            }
         }
 
         private void ForceCompleteLine()

@@ -20,9 +20,9 @@ namespace PPP.BLUE.VN
         private bool started;
 
         // 테스트용(나중에 DrinkSave/변수 dict로 교체)
-        private int greatCount = 1;
+        private int greatCount = 0;
         private int failCount = 0;
-        private int successCount = 1;
+        private int successCount = 0;
         private string lastResult = "great"; // "fail"/"success"/"great"
 
         // 1단계: 하드코딩 테스트용
@@ -263,41 +263,69 @@ namespace PPP.BLUE.VN
             enabled = false; // 1단계에서는 그냥 멈춤
         }
 
+
+        public void ApplyDrinkResult(string result) // "fail" / "success" / "great"
+        {
+            lastResult = result;
+
+            if (result == "great")
+            {
+                greatCount++;
+                successCount++; // great는 success 포함 규칙
+            }
+            else if (result == "success")
+            {
+                successCount++;
+            }
+            else
+            {
+                failCount++;
+            }
+
+            if (logToConsole)
+                Debug.Log($"[VN] DrinkResult = {result} (great={greatCount}, success={successCount}, fail={failCount})");
+        }
+
         private VNScript BuildTestScript()
         {
-            // 네 “하루 시작 -> 뉴스 -> 대화 -> 음료” 중 ‘대화’ 최소 느낌만 테스트
-            
-            
             var nodes = new List<VNNode>
-            {
-                new VNNode { id="t.001", type=VNNodeType.Say, speakerId="sys", text="(분기 테스트)21312313131qweqweqwewqeqweqe3" },
+    {
+        new VNNode { id="t.001", type=VNNodeType.Say, speakerId="sys",
+            text="(Test) Dialogue -> Drink -> Branch. Press SPACE to continue." },
 
-                new VNNode {
-                    id="t.002",
-                    type=VNNodeType.Branch,
-                    branches = new[]
-             {
+        // ✅ 이 라인을 만나면 VNDialogueView에서 drinkTestPanel.Open()을 호출하도록 할 것
+        new VNNode { id="t.drink", type=VNNodeType.Say, speakerId="sys",
+            text="(Drink) Please make a drink now." },
+
+        // 결과 버튼을 누르면 runner.ApplyDrinkResult(...)가 호출되고
+        // 그 직후 runner.Next()로 여기 Branch로 진입하게 됨
+        new VNNode {
+            id="t.branch",
+            type=VNNodeType.Branch,
+            branches = new[]
+            {
+                // great는 success 포함 규칙이라 great>=2면 항상 route2로 가게 됨
                 new VNNode.BranchRule{ expr="great>=2", jumpLabel="route2" },
                 new VNNode.BranchRule{ expr="fail>=2",  jumpLabel="route3" },
                 new VNNode.BranchRule{ expr="else",     jumpLabel="route1" },
-                }
-            },
+            }
+        },
 
-                new VNNode { id="t.r1", type=VNNodeType.Label, label="route1" },
-                new VNNode { id="t.r1s", type=VNNodeType.Say, speakerId="sys", text="루트1로 진입asdasdqweqwdasdsadasdadsdasdasdaddas" },
-                new VNNode { id="t.end1", type=VNNodeType.End },
+        new VNNode { id="t.r1", type=VNNodeType.Label, label="route1" },
+        new VNNode { id="t.r1s", type=VNNodeType.Say, speakerId="sys",
+            text="Route 1: Normal result (not enough Great, not enough Fail)." },
+        new VNNode { id="t.end1", type=VNNodeType.End },
 
-                new VNNode { id="t.r2", type=VNNodeType.Label, label="route2" },
-                new VNNode { id="t.r2s", type=VNNodeType.Say, speakerId="sys", text="루트2(대성공 2회 이상) 진입" },
-                new VNNode { id="t.end2", type=VNNodeType.End },
+        new VNNode { id="t.r2", type=VNNodeType.Label, label="route2" },
+        new VNNode { id="t.r2s", type=VNNodeType.Say, speakerId="sys",
+            text="Route 2: Great >= 2 (Excellent performance)." },
+        new VNNode { id="t.end2", type=VNNodeType.End },
 
-                new VNNode { id="t.r3", type=VNNodeType.Label, label="route3" },
-                new VNNode { id="t.r3s", type=VNNodeType.Say, speakerId="sys", text="루트3(실패 2회 이상) 진입" },
-                new VNNode { id="t.end3", type=VNNodeType.End },
-
-
-
-            };
+        new VNNode { id="t.r3", type=VNNodeType.Label, label="route3" },
+        new VNNode { id="t.r3s", type=VNNodeType.Say, speakerId="sys",
+            text="Route 3: Fail >= 2 (Too many mistakes)." },
+        new VNNode { id="t.end3", type=VNNodeType.End },
+    };
 
             return new VNScript("test", nodes);
         }

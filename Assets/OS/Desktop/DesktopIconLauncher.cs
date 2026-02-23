@@ -1,6 +1,5 @@
 ﻿using UnityEngine;
 using UnityEngine.EventSystems;
-using UnityEngine.UI;
 using TMPro;
 
 public class DesktopIconLauncher : MonoBehaviour, IPointerClickHandler
@@ -26,7 +25,7 @@ public class DesktopIconLauncher : MonoBehaviour, IPointerClickHandler
 
     private void Awake()
     {
-        // ✅ 아이콘 라벨 자동 주입
+        // 아이콘 라벨 자동 주입
         if (iconLabel != null && appDef != null)
             iconLabel.text = appDef.DisplayName;
     }
