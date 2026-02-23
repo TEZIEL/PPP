@@ -34,39 +34,52 @@ public class FidgetShortsController : MonoBehaviour, IScrollHandler
     [Range(0.05f, 0.8f)]
     [SerializeField] private float commitThreshold01 = 0.15f;
     [SerializeField] private float swipeAnimDur = 0.12f;
-    [SerializeField] private float wheelStep01 = 0.35f;        // 휠로도 넘기기(감각값)
+
     [SerializeField] private float wheelCooldown = 0.12f;
 
     [Header("Swipe Tuning")]
-    [SerializeField] private float swipeDuration = 0.18f;     // 쑥 이동 애니 시간
+    
     [SerializeField] private float dragSensitivity = 1.6f;    // 드래그가 얼마나 잘 따라오나(증폭)
 
     [SerializeField] private TMP_Text likeCountText;
     [SerializeField] private TMP_Text dislikeCountText;
 
     // “아래로 내릴 때” 다음 이미지 프리뷰/확정을 일치시키기 위한 pending
-    private int _pendingNext = -1;      // 다음으로 확정될 후보 (history에 아직 안 넣음)
-    private bool _hasPendingNext = false;
+    
     private int _pendingNextIndex = -1; // next가 아직 history에 없을 때, “미리보기용”으로 1번만 뽑아두는 캐시
     private float _lastWheelTime;
     private int _likeCount;
     private int _dislikeCount;
 
 
-    private int EnsurePendingNext()
+    private void SetupPageRects()
     {
-        if (!_hasPendingNext)
+        if (!swipeViewport) return;
+
+        float w = swipeViewport.rect.width;
+        float h = swipeViewport.rect.height;
+
+        void Setup(RectTransform rt, float posY)
         {
-            _pendingNext = PickRandomIndex();
-            _hasPendingNext = true;
+            if (!rt) return;
+
+            // Middle Center 고정
+            rt.anchorMin = rt.anchorMax = new Vector2(0.5f, 0.5f);
+            rt.pivot = new Vector2(0.5f, 0.5f);
+
+            rt.sizeDelta = new Vector2(w, h);
+            rt.anchoredPosition = new Vector2(0f, posY);
+            rt.localScale = Vector3.one;
         }
-        return _pendingNext;
+
+        Setup(pagePrevImage ? (RectTransform)pagePrevImage.transform : null, +h);
+        Setup(pageCurrImage ? (RectTransform)pageCurrImage.transform : null, 0f);
+        Setup(pageNextImage ? (RectTransform)pageNextImage.transform : null, -h);
     }
 
-    private void OnEnable()
-    {
-        ResetShorts();
-    }
+    
+
+    
 
     private void ResetShorts()
     {
@@ -76,8 +89,7 @@ public class FidgetShortsController : MonoBehaviour, IScrollHandler
         history.Add(PickRandomIndex());
         cursor = 0;
 
-        _hasPendingNext = false;
-        _pendingNext = -1;
+           _pendingNextIndex = -1;
 
         ApplyImagesInstant();
 
@@ -91,7 +103,7 @@ public class FidgetShortsController : MonoBehaviour, IScrollHandler
     }
 
 
-    private Vector2 _startPos;
+    
     private float viewH;
     private bool isSwiping;
     private Vector2 dragStartLocal;
@@ -101,22 +113,17 @@ public class FidgetShortsController : MonoBehaviour, IScrollHandler
     private readonly List<int> history = new List<int>();
     private int cursor = 0; // history[cursor]가 현재
 
-    // 외부에서 카운트 업데이트용
-    public int LikeCount { get; private set; }
-    public int DislikeCount { get; private set; }
+    
 
-    private void StartSwipe(Vector2 pos)
-    {
-        isSwiping = true;
-        _startPos = pos;
-    }
+ 
+
 
     private void Awake()
     {
         if (swipeViewport == null) swipeViewport = GetComponentInChildren<RectTransform>();
         viewH = swipeViewport.rect.height;
 
-        ResetShorts(); // ✅ 여기서 초기화
+      
 
         SetOverlayVisible(true, instant: true);
         
@@ -125,13 +132,32 @@ public class FidgetShortsController : MonoBehaviour, IScrollHandler
 
         CloseGallery();
         RefreshCounts();
+                
+        
     }
 
-   
+
+    private void OnEnable()
+    {
+        if (swipeViewport == null) return;
+
+        viewH = swipeViewport.rect.height;
+
+        ResetShorts();
+        SetupPageRects();
+
+        // ResetShorts 안에서 ApplyImagesInstant를 이미 호출한다면 여기선 생략 가능
+        // ApplyImagesInstant();
+    }
+
     private void OnRectTransformDimensionsChange()
     {
         if (swipeViewport != null)
+        {
             viewH = swipeViewport.rect.height;
+            
+            SetupPageRects();
+        }
     }
 
     public void AddLike()
@@ -201,13 +227,17 @@ public class FidgetShortsController : MonoBehaviour, IScrollHandler
         if (pool == null || pool.Length == 0) return;
 
         // ✅ 휠 fallback (OnScroll이 안 와도 동작)
+        // ✅ 휠 fallback (OnScroll이 안 와도 동작)
         float wheel = Input.mouseScrollDelta.y;
         if (Mathf.Abs(wheel) > 0.01f)
         {
             if (Time.unscaledTime - _lastWheelTime < wheelCooldown) return;
 
-            if (wheel < 0f) CommitNext();
-            else
+            if (wheel < 0f)         // 아래로 굴림 = 다음
+            {
+                CommitNext();
+            }
+            else                    // 위로 굴림 = 이전 (첫 장이면 막기)
             {
                 if (cursor > 0) CommitPrev();
             }
@@ -243,8 +273,24 @@ public class FidgetShortsController : MonoBehaviour, IScrollHandler
 
         // PagesRoot를 실제로 끌어내리는 연출(선택)
         // y가 -면 아래로 드래그(다음), +면 위로 드래그(이전)로 쓸거면 여기서 부호 바꿔도 됨
+        // Drag() 내부에서
         if (pagesRoot)
-            pagesRoot.anchoredPosition = new Vector2(0f, dragDeltaY * dragSensitivity);
+        {
+            float targetY = dragDeltaY * dragSensitivity;
+
+            // 너무 멀리 끌려나가는 거 방지 (화면 1.1배 정도까지만)
+            float clamp = viewH * 1.1f;
+            targetY = Mathf.Clamp(targetY, -clamp, clamp);
+
+            // ✅ 첫 장에서는 “이전(Prev) 방향” 드래그 자체를 못 하게 막기
+            if (cursor == 0)
+                targetY = Mathf.Max(0f, targetY);
+
+            // ✅ 즉시 대입 대신 부드럽게 따라가게
+            float follow = 25f; // 숫자↑ = 더 빨리 따라감 (손맛). 18~35 추천
+            float newY = Mathf.Lerp(pagesRoot.anchoredPosition.y, targetY, 1f - Mathf.Exp(-follow * Time.unscaledDeltaTime));
+            pagesRoot.anchoredPosition = new Vector2(0f, newY);
+        }
     }
 
     public void EndDrag()
@@ -252,25 +298,22 @@ public class FidgetShortsController : MonoBehaviour, IScrollHandler
         if (isSwiping) return;
         if (galleryView != null && galleryView.activeSelf) return;
 
-        float moved01 = Mathf.Abs(pagesRoot ? pagesRoot.anchoredPosition.y : dragDeltaY) / Mathf.Max(1f, viewH);
+        float y = pagesRoot ? pagesRoot.anchoredPosition.y : 0f;
+        float moved01 = Mathf.Abs(y) / Mathf.Max(1f, viewH);
+
         if (moved01 < commitThreshold01)
         {
             StartCoroutine(CoSnapBack());
             return;
         }
 
-        float y = pagesRoot ? pagesRoot.anchoredPosition.y : dragDeltaY;
-
-        // ✅ (Prev 위 / Curr 중간 / Next 아래) 기준 권장 매핑
         if (y > 0f)
         {
-            // content가 위로 올라감 = 아래(next)쪽이 보임
-            CommitNext();
+            CommitNext(); // 다음
         }
         else
         {
-            // content가 아래로 내려감 = 위(prev)쪽이 보임
-            if (cursor > 0) CommitPrev();
+            if (cursor > 0) CommitPrev(); // 이전
             else StartCoroutine(CoSnapBack());
         }
     }
@@ -300,14 +343,14 @@ public class FidgetShortsController : MonoBehaviour, IScrollHandler
     private void CommitNext()
     {
         if (isSwiping) return;
-        SetOverlaySwiping(true, instant: true);   // ✅ 휠/드래그 공통: 스와이프 시작 숨김
+        SetOverlayVisible(false, instant: true); // ✅ 휠/드래그 공통: 스와이프 시작 숨김
         StartCoroutine(CoCommit(next: true));
     }
 
     private void CommitPrev()
     {
         if (isSwiping) return;
-        SetOverlaySwiping(true, instant: true);   // ✅ 휠/드래그 공통
+        SetOverlayVisible(false, instant: true);  // ✅ 휠/드래그 공통
         StartCoroutine(CoCommit(next: false));
     }
     private IEnumerator CoCommit(bool next)
@@ -331,7 +374,8 @@ public class FidgetShortsController : MonoBehaviour, IScrollHandler
         if (next) MoveCursorNext();
         else MoveCursorPrev();
 
-        ApplyImagesInstant();
+        if (next) RecycleAfterNext();
+        else RecycleAfterPrev();
 
         if (pagesRoot) pagesRoot.anchoredPosition = Vector2.zero;
 
@@ -348,21 +392,20 @@ public class FidgetShortsController : MonoBehaviour, IScrollHandler
             return;
         }
 
-        // “새 랜덤 추가”는 pending을 확정으로 넣는다
-        int next = EnsurePendingNext();
-        history.Add(next);
+        // 새 랜덤 추가: ApplyImagesInstant에서 미리 뽑아둔 pending을 그대로 확정
+        int idx = (_pendingNextIndex >= 0) ? _pendingNextIndex : PickRandomIndex();
+        history.Add(idx);
         cursor = history.Count - 1;
 
-        // 다음 프리뷰는 다시 “미정” 상태가 되어야 하므로 pending 비움
-        _hasPendingNext = false;
-        _pendingNext = -1;
+        _pendingNextIndex = -1; // 확정했으니 비움
     }
 
     private void MoveCursorPrev()
     {
-        // 맨 앞이면 더 못 감(원하면 여기서 새로 “앞에도 랜덤 생성” 가능)
         if (cursor <= 0) return;
         cursor--;
+
+        _pendingNextIndex = -1; // 뒤로 가면 ‘다음’은 history에 있을 가능성이 높으니 pending 폐기
     }
 
     private void ApplyImagesInstant()
@@ -375,12 +418,15 @@ public class FidgetShortsController : MonoBehaviour, IScrollHandler
         int next;
         if (cursor < history.Count - 1)
         {
+            // 이미 히스토리에 다음이 존재
             next = history[cursor + 1];
+            _pendingNextIndex = -1; // 이미 정해져 있으니 pending 필요 없음
         }
         else
         {
-            // 아직 내려간 적 없는 “미래”는 pending으로 1개만 잡아둔다
-            next = EnsurePendingNext();
+            // 아직 “다음”이 없으면 미리 1번만 뽑아서 pending에 고정
+            if (_pendingNextIndex < 0) _pendingNextIndex = PickRandomIndex();
+            next = _pendingNextIndex;
         }
 
         if (pagePrevImage) pagePrevImage.sprite = pool[prev];
@@ -471,4 +517,51 @@ public class FidgetShortsController : MonoBehaviour, IScrollHandler
 
         StartCoroutine(CoFadeCG(cg, alpha, overlayFadeDur, interactable));
     }
+
+    private void RecycleAfterNext()
+    {
+        if (pool == null || pool.Length == 0) return;
+        // Prev <- Curr <- Next <- Prev(재사용)
+        var oldPrev = pagePrevImage;
+        pagePrevImage = pageCurrImage;
+        pageCurrImage = pageNextImage;
+        pageNextImage = oldPrev;
+
+        // "새 Next" 스프라이트만 갱신
+        int nextIdx;
+        if (cursor < history.Count - 1)
+        {
+            nextIdx = history[cursor + 1];
+            _pendingNextIndex = -1;
+        }
+        else
+        {
+            if (_pendingNextIndex < 0) _pendingNextIndex = PickRandomIndex();
+            nextIdx = _pendingNextIndex;
+        }
+
+        if (pageNextImage) pageNextImage.sprite = pool[nextIdx];
+
+        // 위치 재배치(+H/0/-H)
+        SetupPageRects();
+    }
+
+    private void RecycleAfterPrev()
+    {
+        if (pool == null || pool.Length == 0) return;
+        // Next <- Curr <- Prev <- Next(재사용)
+        var oldNext = pageNextImage;
+        pageNextImage = pageCurrImage;
+        pageCurrImage = pagePrevImage;
+        pagePrevImage = oldNext;
+
+        // "새 Prev" 스프라이트만 갱신
+        int prevIdx = (cursor > 0) ? history[cursor - 1] : history[cursor];
+        if (pagePrevImage) pagePrevImage.sprite = pool[prevIdx];
+
+        // 위치 재배치(+H/0/-H)
+        SetupPageRects();
+    }
+
+    
 }
