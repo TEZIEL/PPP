@@ -4,11 +4,11 @@ using UnityEngine.EventSystems;
 
 public class RightClickButton : MonoBehaviour, IPointerClickHandler
 {
-    public UnityEvent onRightClick;
+    [SerializeField] private UnityEvent onRightClick;
 
     public void OnPointerClick(PointerEventData eventData)
     {
-        if (eventData.button == PointerEventData.InputButton.Right)
-            onRightClick?.Invoke();
+        if (eventData.button != PointerEventData.InputButton.Right) return;
+        onRightClick?.Invoke();
     }
 }

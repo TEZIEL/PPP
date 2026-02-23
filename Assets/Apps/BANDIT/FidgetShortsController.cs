@@ -42,6 +42,7 @@ public class FidgetShortsController : MonoBehaviour, IScrollHandler
     [SerializeField] private TMP_Text dislikeCountText;
 
 
+
     private float _lastWheelTime;
     private int _likeCount;
     private int _dislikeCount;
@@ -93,6 +94,7 @@ public class FidgetShortsController : MonoBehaviour, IScrollHandler
         if (backButton) backButton.onClick.AddListener(CloseGallery);
 
         CloseGallery();
+        RefreshCounts();
     }
 
     private void Like()
@@ -113,25 +115,26 @@ public class FidgetShortsController : MonoBehaviour, IScrollHandler
             viewH = swipeViewport.rect.height;
     }
 
-    // ====== 메뉴에서 호출 ======
     public void AddLike()
     {
-        LikeCount++;
-        // TODO: UI 텍스트 연결해뒀으면 여기서 갱신
+        _likeCount++;
+        RefreshCounts();
     }
 
     public void AddDislike()
     {
-        DislikeCount++;
-        // TODO: UI 텍스트 연결해뒀으면 여기서 갱신
+        _dislikeCount++;
+        RefreshCounts();
     }
 
     public void ResetCounts()
     {
-        LikeCount = 0;
-        DislikeCount = 0;
-        // TODO: UI 텍스트 갱신
+        _likeCount = 0;
+        _dislikeCount = 0;
+        RefreshCounts();
     }
+
+   
 
     public void OpenGallery()
     {

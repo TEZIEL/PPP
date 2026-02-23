@@ -1586,7 +1586,7 @@ MonoBehaviour:
   wheelCooldown: 0.18
   swipeDuration: 0.18
   dragSensitivity: 1
-  likeButton: {fileID: 1101490511454675741}
+  likeButton: {fileID: 0}
   likeCountText: {fileID: 8270120984166795040}
   dislikeCountText: {fileID: 606844526979262085}
 --- !u!1 &4785905212976355280
