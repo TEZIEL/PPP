@@ -41,8 +41,16 @@ public class WindowManager : MonoBehaviour
     private bool isShowDesktop;
     private readonly List<string> lastShownDesktop = new(); // 직전에 "전체 최소화"로 내려간 창들
 
+    private float closeLockUntil;
+    public void LockCloseForSeconds(float seconds)
+    {
+        closeLockUntil = Mathf.Max(closeLockUntil, Time.unscaledTime + seconds);
+    }
+    private bool IsCloseLocked() => Time.unscaledTime < closeLockUntil;
+
     public bool IsFocused(string appId)
     {
+
         // 네 시스템에서 activeAppId 같은 걸 쓰는 듯
         return activeAppId == appId;
     }
@@ -552,40 +560,58 @@ public class WindowManager : MonoBehaviour
 
     public void Close(string appId)
     {
-        // 0) 대상 창 확인
+        // 0) Close 입력락
+        if (IsCloseLocked())
+        {
+            Debug.Log("[OS] Close ignored (close lock).");
+            return;
+        }
+
+        // 1) 대상 창 확인
         if (!openWindows.TryGetValue(appId, out var window) || window == null)
             return;
 
-        // (선택) 닫기 요청 시 포커스 확보
+        // 2) ✅ VN Drink 모드면: 닫기 자체 무시(팝업도 금지)
+        if (IsVNInDrinkMode(appId))
+        {
+            Debug.Log("[OS] Close ignored (VN drink mode).");
+            return;
+        }
+
+        // 3) (선택) 닫기 요청 시 포커스 확보
         EnsureFocused(appId);
 
-        // 1) 브릿지 찾기
+        // 4) 브릿지 찾기
         var bridge = FindBridge(appId);
 
-        // 2) 닫기 가능 여부 확인 (VN만 막는다)
+        // 5) VN이 닫기를 막는 상태면: OS는 닫지 않고, VN에게 “닫기 요청”만 전달
         if (bridge != null && !bridge.CanCloseNow())
         {
             Debug.Log("[OS] Close blocked by VN.");
-            bridge.NotifyCloseRequested(); // ✅ 이거 한 줄
-            // ✅ VN이 "종료 확정"하면 여기서 실제 닫기 실행
+
+            // ✅ 이벤트 중복 등록 방지: appId 기반으로 한 번만 등록하는 게 안전함
+            // (간단 버전: 콜백 안에서 다시 검증하고 닫기)
             void OnForce()
             {
                 bridge.OnForceCloseRequested -= OnForce;
 
-                // VN이 아직 BlockClose 켜놨으면 풀게 하고 강제닫기 실행
-                // (가장 안전: OS는 정책 무시하고 닫는다)
-                PerformClose(window, appId);
+                // ✅ 여기서 "그때의" 윈도우를 다시 찾아서 닫기 (캡처 위험 제거)
+                if (!openWindows.TryGetValue(appId, out var w2) || w2 == null)
+                    return;
+
+                PerformClose(w2, appId);
             }
 
-            bridge.OnForceCloseRequested -= OnForce; // 중복방지
+            bridge.OnForceCloseRequested -= OnForce;
             bridge.OnForceCloseRequested += OnForce;
 
+            // ✅ Notify는 딱 한 번만
             bridge.NotifyCloseRequested();
             return;
         }
 
-        // 3) 실제 닫기 실행 (검증 통과한 경우만)
-        CloseInternal(appId, window);
+        // 6) 검증 통과 → 실제 닫기
+        PerformClose(window, appId);
     }
 
     private void CloseInternal(string appId, WindowController window)
@@ -1006,7 +1032,16 @@ public class WindowManager : MonoBehaviour
     }
 
 
+    private bool IsVNInDrinkMode(string appId)
+    {
+        // VN 앱만 검사하고 싶으면 appId 비교해도 됨(선택)
+        if (!openWindows.TryGetValue(appId, out var wc) || wc == null) return false;
 
+        var policy = wc.GetComponentInChildren<PPP.BLUE.VN.VNPolicyController>(true);
+        if (policy == null) return false;
+
+        return policy.IsInDrinkMode;
+    }
 
 
 

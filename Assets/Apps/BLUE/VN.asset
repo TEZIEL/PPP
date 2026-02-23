@@ -12,7 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 29c65b859b9529546a48d49229159c35, type: 3}
   m_Name: VN
   m_EditorClassIdentifier: 
-  appId: VN
+  appId: app.vn
   displayName: BLUE
   windowPrefab: {fileID: 7342045915086621803, guid: 93109acf87296bf4cade05dd86f28f2b, type: 3}
   contentPrefab: {fileID: 3903954642463811216, guid: 0cddc48c07cafd54c924ee18556de25c, type: 3}

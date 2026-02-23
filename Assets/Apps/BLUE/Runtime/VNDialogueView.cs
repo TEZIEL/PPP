@@ -68,6 +68,8 @@ namespace PPP.BLUE.VN
             if (runner == null) return;
             if (!runner.HasScript) return;
 
+            if (policy != null && policy.IsModalOpen) return; // ✅ 팝업 떠있으면 VN 진행 금지
+
             // ✅ 0) 입력 자체 허용 여부 (포커스/최소화/팝업 등)
             if (!CanAcceptVNInput()) return;
 

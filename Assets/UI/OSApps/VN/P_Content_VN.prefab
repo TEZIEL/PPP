@@ -92,7 +92,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   bridge: {fileID: 8020622904635775800}
-  lockCloseOnStart: 1
 --- !u!1 &607310561740340133
 GameObject:
   m_ObjectHideFlags: 0
@@ -355,6 +354,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   bridge: {fileID: 8020622904635775800}
+  policy: {fileID: 5970636519023333258}
   popupRoot: {fileID: 1193640094525939873}
   messageText: {fileID: 7912164081179457294}
   btnCancel: {fileID: 1736150546484746577}
@@ -1368,6 +1368,8 @@ MonoBehaviour:
   root: {fileID: 4887654175444270362}
   runner: {fileID: 5088717439015034517}
   policy: {fileID: 5970636519023333258}
+  shortcutController: {fileID: 0}
+  windowManager: {fileID: 0}
   btnFail: {fileID: 3903291523792763129}
   btnSuccess: {fileID: 302480413563459420}
   btnGreat: {fileID: 3582019894709765412}

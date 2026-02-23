@@ -1,5 +1,6 @@
 ﻿using UnityEngine;
 using UnityEngine.UI;
+using UnityEngine.EventSystems;
 
 namespace PPP.BLUE.VN
 {
@@ -10,6 +11,7 @@ namespace PPP.BLUE.VN
         [SerializeField] private VNRunner runner;
         [SerializeField] private VNPolicyController policy;
         [SerializeField] private WindowShortcutController shortcutController;
+        [SerializeField] private WindowManager windowManager;
 
         [Header("Buttons")]
         [SerializeField] private Button btnFail;
@@ -33,8 +35,16 @@ namespace PPP.BLUE.VN
 
         private void Choose(string result)
         {
+            windowManager?.LockCloseForSeconds(0.15f);
+            shortcutController?.LockForSeconds(0.15f);
+            EventSystem.current?.SetSelectedGameObject(null);
+
             // ✅ 0) 전역 단축키 잠깐 잠그기 (버튼 클릭 직후 이상한 키 입력 방지)
             shortcutController?.LockForSeconds(0.1f);
+
+            // ✅ 0-1) OS 닫기(마우스)도 잠깐 락
+            // (윈도우매니저 참조가 없으면 shortcutController 통해서 전달하거나, 여기서 WindowManager를 직접 물려도 됨)
+            windowManager?.LockCloseForSeconds(0.15f);
 
             // ✅ 1) UI 선택 해제 (Space/Enter가 버튼에 다시 먹는 문제 방지)
             UnityEngine.EventSystems.EventSystem.current?.SetSelectedGameObject(null);

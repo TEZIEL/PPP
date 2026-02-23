@@ -8,38 +8,33 @@ namespace PPP.BLUE.VN
     {
         [Header("Refs")]
         [SerializeField] private VNOSBridge bridge;
+        [SerializeField] private VNPolicyController policy; // ✅ 추가
 
-        [SerializeField] private GameObject popupRoot;  // UI_ClosePopup (전체)
-        [SerializeField] private TMP_Text messageText;  // Panel/Text(TMP)
+        [SerializeField] private GameObject popupRoot;
+        [SerializeField] private TMP_Text messageText;
 
-        [SerializeField] private Button btnCancel;      // "아니오"
-        [SerializeField] private Button btnExit;        // "예(종료)"
+        [SerializeField] private Button btnCancel;
+        [SerializeField] private Button btnExit;
 
         [Header("Text")]
         [TextArea]
-        [SerializeField] private string defaultMessage = "정말 종료하시겠습니까?";
+        [SerializeField] private string defaultMessage = "Are you sure you want to quit?";
 
         private void Awake()
         {
-            // 시작 시 숨김
             if (popupRoot != null) popupRoot.SetActive(false);
 
             if (btnCancel != null) btnCancel.onClick.AddListener(Hide);
             if (btnExit != null) btnExit.onClick.AddListener(ForceExit);
 
             if (bridge != null)
-            {
-                // OS에서 닫기 눌렀는데 BlockClose라 막혔을 때 VN이 팝업 띄우는 이벤트
                 bridge.OnCloseRequested += Show;
-            }
         }
 
         private void OnDestroy()
         {
             if (bridge != null)
-            {
                 bridge.OnCloseRequested -= Show;
-            }
         }
 
         public void Show()
@@ -48,18 +43,29 @@ namespace PPP.BLUE.VN
 
             if (messageText != null) messageText.text = defaultMessage;
             popupRoot.SetActive(true);
+
+            // ✅ 팝업 열림 = 모달 열림
+            policy?.SetModalOpen(true);
+
+            // ✅ Space/Enter가 버튼에 먹지 않게(중요)
+            UnityEngine.EventSystems.EventSystem.current?.SetSelectedGameObject(null);
         }
 
         public void Hide()
         {
             if (popupRoot == null) return;
+
             popupRoot.SetActive(false);
+
+            // ✅ 모달 닫힘
+            policy?.SetModalOpen(false);
+
+            UnityEngine.EventSystems.EventSystem.current?.SetSelectedGameObject(null);
         }
 
         private void ForceExit()
         {
-            // VN이 "진짜 닫아도 된다" 승인하고, OS에게 강제닫기 요청
-            if (bridge != null) bridge.RequestForceClose();
+            bridge?.RequestForceClose();
             Hide();
         }
     }
