@@ -56,7 +56,7 @@ MonoBehaviour:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 340013181807330288}
-  m_Enabled: 1
+  m_Enabled: 0
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: fe87c0e1cc204ed48ad3b37840f39efc, type: 3}
   m_Name: 
@@ -241,8 +241,8 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 0}
-        m_TargetAssemblyTypeName: FidgetShortformController, Assembly-CSharp
+      - m_Target: {fileID: 152788900074242110}
+        m_TargetAssemblyTypeName: FidgetShortsController, Assembly-CSharp
         m_MethodName: ResetCounts
         m_Mode: 1
         m_Arguments:
@@ -637,9 +637,9 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 0}
-        m_TargetAssemblyTypeName: FidgetShortformController, Assembly-CSharp
-        m_MethodName: Like
+      - m_Target: {fileID: 152788900074242110}
+        m_TargetAssemblyTypeName: FidgetShortsController, Assembly-CSharp
+        m_MethodName: AddLike
         m_Mode: 1
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
@@ -1628,6 +1628,7 @@ MonoBehaviour:
   commitThreshold01: 0.3
   swipeAnimDur: 0.12
   wheelStep01: 0.35
+  wheelCooldown: 0.18
 --- !u!1 &4785905212976355280
 GameObject:
   m_ObjectHideFlags: 0
@@ -2186,6 +2187,7 @@ GameObject:
   - component: {fileID: 4872993491998129655}
   - component: {fileID: 5087236419685309589}
   - component: {fileID: 8254585068551599457}
+  - component: {fileID: 4170896522822549573}
   m_Layer: 5
   m_Name: Dislike
   m_TagString: Untagged
@@ -2309,6 +2311,19 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   controller: {fileID: 152788900074242110}
   action: 1
+--- !u!114 &4170896522822549573
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6439481136144928670}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b54faba08d0014146a685e5e1bc99dcf, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  controller: {fileID: 152788900074242110}
 --- !u!1 &8152840557413499835
 GameObject:
   m_ObjectHideFlags: 0

@@ -1,54 +1,65 @@
-using System.Collections;
+ï»¿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
+using UnityEngine.EventSystems;
 
-public class FidgetShortsController : MonoBehaviour
+public class FidgetShortsController : MonoBehaviour, IScrollHandler
 {
     [Header("Viewport / Pages")]
     [SerializeField] private RectTransform swipeViewport;   // SwipeViewport
     [SerializeField] private RectTransform pagesRoot;       // Pages
-    [SerializeField] private Image pagePrevImage;           // PagePrev ¾ÈÀÇ Image
-    [SerializeField] private Image pageCurrImage;           // PageCurr ¾ÈÀÇ Image
-    [SerializeField] private Image pageNextImage;           // PageNext ¾ÈÀÇ Image
+    [SerializeField] private Image pagePrevImage;           // PagePrev ì•ˆì˜ Image
+    [SerializeField] private Image pageCurrImage;           // PageCurr ì•ˆì˜ Image
+    [SerializeField] private Image pageNextImage;           // PageNext ì•ˆì˜ Image
 
     [Header("UI Groups to hide while swiping")]
-    [SerializeField] private CanvasGroup rightMenuGroup;    // RightMenu (CanvasGroup ±ÇÀå)
-    [SerializeField] private CanvasGroup infoGroup;         // Information (CanvasGroup ±ÇÀå)
+    [SerializeField] private CanvasGroup rightMenuGroup;    // RightMenu (CanvasGroup ê¶Œì¥)
+    [SerializeField] private CanvasGroup infoGroup;         // Information (CanvasGroup ê¶Œì¥)
 
     [Header("Gallery View")]
     [SerializeField] private GameObject galleryView;        // GalleryView
-    [SerializeField] private Button galleryButton;          // RightMenu/Gallery ¹öÆ°(¼±ÅÃ)
+    [SerializeField] private Button galleryButton;          // RightMenu/Gallery ë²„íŠ¼(ì„ íƒ)
     [SerializeField] private Button backButton;             // GalleryView/BackButton
 
     [Header("Sprites")]
-    [SerializeField] private Sprite[] pool;                 // ·£´ıÀ¸·Î ¾µ ÀÌ¹ÌÁö Ç®
+    [SerializeField] private Sprite[] pool;                 // ëœë¤ìœ¼ë¡œ ì“¸ ì´ë¯¸ì§€ í’€
 
     [Header("Swipe")]
     [Range(0.1f, 0.8f)]
     [SerializeField] private float commitThreshold01 = 0.30f; // 30%
     [SerializeField] private float swipeAnimDur = 0.12f;
-    [SerializeField] private float wheelStep01 = 0.35f;        // ÈÙ·Îµµ ³Ñ±â±â(°¨°¢°ª)
+    [SerializeField] private float wheelStep01 = 0.35f;        // íœ ë¡œë„ ë„˜ê¸°ê¸°(ê°ê°ê°’)
+    [SerializeField] private float wheelCooldown = 0.18f;
+    private float _lastWheelTime;
 
+    
+    private Vector2 _startPos;
     private float viewH;
     private bool isSwiping;
     private Vector2 dragStartLocal;
-    private float dragDeltaY; // +¸é À§·Î µå·¡±×(´ÙÀ½), -¸é ¾Æ·¡·Î µå·¡±×(ÀÌÀü)
+    private float dragDeltaY; // +ë©´ ìœ„ë¡œ ë“œë˜ê·¸(ë‹¤ìŒ), -ë©´ ì•„ë˜ë¡œ ë“œë˜ê·¸(ì´ì „)
 
-    // È÷½ºÅä¸®: ÀÎµ¦½º ±â¹İ
+    // íˆìŠ¤í† ë¦¬: ì¸ë±ìŠ¤ ê¸°ë°˜
     private readonly List<int> history = new List<int>();
-    private int cursor = 0; // history[cursor]°¡ ÇöÀç
+    private int cursor = 0; // history[cursor]ê°€ í˜„ì¬
 
-    // ¿ÜºÎ¿¡¼­ Ä«¿îÆ® ¾÷µ¥ÀÌÆ®¿ë
+    // ì™¸ë¶€ì—ì„œ ì¹´ìš´íŠ¸ ì—…ë°ì´íŠ¸ìš©
     public int LikeCount { get; private set; }
     public int DislikeCount { get; private set; }
+
+    private void StartSwipe(Vector2 pos)
+    {
+        isSwiping = true;
+        _startPos = pos;
+    }
 
     private void Awake()
     {
         if (swipeViewport == null) swipeViewport = GetComponentInChildren<RectTransform>();
         viewH = swipeViewport.rect.height;
 
-        // ÃÖ¼Ò 1Àå ¼¼ÆÃ
+        // ìµœì†Œ 1ì¥ ì„¸íŒ…
         int first = PickRandomIndex();
         history.Clear();
         history.Add(first);
@@ -70,34 +81,34 @@ public class FidgetShortsController : MonoBehaviour
             viewH = swipeViewport.rect.height;
     }
 
-    // ====== ¸Ş´º¿¡¼­ È£Ãâ ======
+    // ====== ë©”ë‰´ì—ì„œ í˜¸ì¶œ ======
     public void AddLike()
     {
         LikeCount++;
-        // TODO: UI ÅØ½ºÆ® ¿¬°áÇØµ×À¸¸é ¿©±â¼­ °»½Å
+        // TODO: UI í…ìŠ¤íŠ¸ ì—°ê²°í•´ë’€ìœ¼ë©´ ì—¬ê¸°ì„œ ê°±ì‹ 
     }
 
     public void AddDislike()
     {
         DislikeCount++;
-        // TODO: UI ÅØ½ºÆ® ¿¬°áÇØµ×À¸¸é ¿©±â¼­ °»½Å
+        // TODO: UI í…ìŠ¤íŠ¸ ì—°ê²°í•´ë’€ìœ¼ë©´ ì—¬ê¸°ì„œ ê°±ì‹ 
     }
 
     public void ResetCounts()
     {
         LikeCount = 0;
         DislikeCount = 0;
-        // TODO: UI ÅØ½ºÆ® °»½Å
+        // TODO: UI í…ìŠ¤íŠ¸ ê°±ì‹ 
     }
 
     public void OpenGallery()
     {
-        // ½º¿ÍÀÌÇÁ ÁßÀÌ¸é ¹«½Ã (·¹ÀÌ½º ¹æÁö)
+        // ìŠ¤ì™€ì´í”„ ì¤‘ì´ë©´ ë¬´ì‹œ (ë ˆì´ìŠ¤ ë°©ì§€)
         if (isSwiping) return;
 
         if (galleryView) galleryView.SetActive(true);
 
-        // °¶·¯¸® ÄÑ¸é ¸ŞÀÎ ÀÔ·Â/¸Ş´º ²¨µµ µÇ´Âµ¥, "·çÆ®"´Â ²ôÁö ¸¶
+        // ê°¤ëŸ¬ë¦¬ ì¼œë©´ ë©”ì¸ ì…ë ¥/ë©”ë‰´ êº¼ë„ ë˜ëŠ”ë°, "ë£¨íŠ¸"ëŠ” ë„ì§€ ë§ˆ
         SetOverlayVisible(false, instant: true);
         if (pagesRoot) pagesRoot.gameObject.SetActive(false);
     }
@@ -110,26 +121,41 @@ public class FidgetShortsController : MonoBehaviour
         SetOverlayVisible(true, instant: true);
     }
 
-    // ====== ÀÔ·Â(µå·¡±×/ÈÙ) ======
+    public void OnScroll(PointerEventData eventData)
+    {
+        if (Time.unscaledTime - _lastWheelTime < wheelCooldown) return;
+
+        float y = eventData.scrollDelta.y;
+        if (Mathf.Abs(y) < 0.01f) return;
+
+        if (y < 0f)
+            GoNext();   // ë‹¤ìŒ ì´ë¯¸ì§€
+        else
+            GoPrev();   // ì´ì „ ì´ë¯¸ì§€
+
+        _lastWheelTime = Time.unscaledTime;
+    }
+
+    // ====== ì…ë ¥(ë“œë˜ê·¸/íœ ) ======
     private void Update()
     {
         if (isSwiping) return;
         if (galleryView != null && galleryView.activeSelf) return;
         if (pool == null || pool.Length == 0) return;
 
-        // ÈÙ·Îµµ ³Ñ±â±â
+        // íœ ë¡œë„ ë„˜ê¸°ê¸°
         float wheel = Input.mouseScrollDelta.y;
         if (Mathf.Abs(wheel) > 0.01f)
         {
-            // ¾Æ·¡·Î ÈÙ(-)ÀÌ¸é ´ÙÀ½(³»¸®±â), À§·Î ÈÙ(+)ÀÌ¸é ÀÌÀü(¿Ã¸®±â) ÃëÇâ´ë·Î Á¶Àı °¡´É
+            // ì•„ë˜ë¡œ íœ (-)ì´ë©´ ë‹¤ìŒ(ë‚´ë¦¬ê¸°), ìœ„ë¡œ íœ (+)ì´ë©´ ì´ì „(ì˜¬ë¦¬ê¸°) ì·¨í–¥ëŒ€ë¡œ ì¡°ì ˆ ê°€ëŠ¥
             if (wheel < 0f) CommitNext();
             else CommitPrev();
         }
     }
 
-    // ¾Æ·¡ 3°³ ÇÔ¼ö´Â SwipeViewport¿¡ ºÙÀÏ ÀÔ·Â ½ºÅ©¸³Æ®°¡ È£ÃâÇÏ°Ô ÇÒ ¼öµµ ÀÖ´Âµ¥,
-    // ³Ê°¡ "½ºÅ©¸³Æ® ÇÏ³ª·Î ³¡³»°í ½Í´Ù"¸é SwipeViewport¿¡ EventTrigger·Î ¿¬°áÇØµµ µÊ.
-    // (ÇÏÁö¸¸ ³­ ±ò²ûÇÏ°Ô Input ±â¹İ + ·¹ÀÌÄ³½ºÆ® ÀÌ½´ ÃÖ¼ÒÈ­¸¦ À§ÇØ º°µµ ÀÔ·Â ½ºÅ©¸³Æ®µµ ÃßÃµÇÔ)
+    // ì•„ë˜ 3ê°œ í•¨ìˆ˜ëŠ” SwipeViewportì— ë¶™ì¼ ì…ë ¥ ìŠ¤í¬ë¦½íŠ¸ê°€ í˜¸ì¶œí•˜ê²Œ í•  ìˆ˜ë„ ìˆëŠ”ë°,
+    // ë„ˆê°€ "ìŠ¤í¬ë¦½íŠ¸ í•˜ë‚˜ë¡œ ëë‚´ê³  ì‹¶ë‹¤"ë©´ SwipeViewportì— EventTriggerë¡œ ì—°ê²°í•´ë„ ë¨.
+    // (í•˜ì§€ë§Œ ë‚œ ê¹”ë”í•˜ê²Œ Input ê¸°ë°˜ + ë ˆì´ìºìŠ¤íŠ¸ ì´ìŠˆ ìµœì†Œí™”ë¥¼ ìœ„í•´ ë³„ë„ ì…ë ¥ ìŠ¤í¬ë¦½íŠ¸ë„ ì¶”ì²œí•¨)
     public void BeginDrag(Vector2 screenPos, Camera uiCam)
     {
         if (isSwiping) return;
@@ -152,8 +178,8 @@ public class FidgetShortsController : MonoBehaviour
 
         dragDeltaY = (local.y - dragStartLocal.y);
 
-        // PagesRoot¸¦ ½ÇÁ¦·Î ²ø¾î³»¸®´Â ¿¬Ãâ(¼±ÅÃ)
-        // y°¡ -¸é ¾Æ·¡·Î µå·¡±×(´ÙÀ½), +¸é À§·Î µå·¡±×(ÀÌÀü)·Î ¾µ°Å¸é ¿©±â¼­ ºÎÈ£ ¹Ù²ãµµ µÊ
+        // PagesRootë¥¼ ì‹¤ì œë¡œ ëŒì–´ë‚´ë¦¬ëŠ” ì—°ì¶œ(ì„ íƒ)
+        // yê°€ -ë©´ ì•„ë˜ë¡œ ë“œë˜ê·¸(ë‹¤ìŒ), +ë©´ ìœ„ë¡œ ë“œë˜ê·¸(ì´ì „)ë¡œ ì“¸ê±°ë©´ ì—¬ê¸°ì„œ ë¶€í˜¸ ë°”ê¿”ë„ ë¨
         if (pagesRoot)
             pagesRoot.anchoredPosition = new Vector2(0f, dragDeltaY);
     }
@@ -166,13 +192,13 @@ public class FidgetShortsController : MonoBehaviour
         float moved01 = Mathf.Abs(dragDeltaY) / Mathf.Max(1f, viewH);
         if (moved01 >= commitThreshold01)
         {
-            // ¾Æ·¡·Î µå·¡±×(À½¼ö)¸é ´ÙÀ½ / À§·Î µå·¡±×(¾ç¼ö)¸é ÀÌÀü (¿øÇÏ´Â °¨°¢´ë·Î)
+            // ì•„ë˜ë¡œ ë“œë˜ê·¸(ìŒìˆ˜)ë©´ ë‹¤ìŒ / ìœ„ë¡œ ë“œë˜ê·¸(ì–‘ìˆ˜)ë©´ ì´ì „ (ì›í•˜ëŠ” ê°ê°ëŒ€ë¡œ)
             if (dragDeltaY < 0f) CommitNext();
             else CommitPrev();
         }
         else
         {
-            // ¿øÀ§Ä¡ ½º³À
+            // ì›ìœ„ì¹˜ ìŠ¤ëƒ…
             StartCoroutine(CoSnapBack());
         }
     }
@@ -205,6 +231,30 @@ public class FidgetShortsController : MonoBehaviour
         StartCoroutine(CoCommit(next: true));
     }
 
+
+    private void GoNext()
+    {
+        // TODO: ì—¬ê¸° ì•ˆì— â€œë“œë˜ê·¸ ìŠ¤ì™€ì´í”„ ì„±ê³µ ì‹œ ë‹¤ìŒìœ¼ë¡œ ë„˜ê¸¸ ë•Œâ€ ì“°ëŠ”
+        // ì¸ë±ìŠ¤ ë³€ê²½ + ì´ë¯¸ì§€ ì ìš© + ì €ì¥(ìˆìœ¼ë©´) ì½”ë“œë¥¼ ê·¸ëŒ€ë¡œ ë„£ì–´ì¤˜
+        CommitIndex(+1);
+    }
+
+    private void GoPrev()
+    {
+        CommitIndex(-1);
+    }
+
+    private void CommitIndex(int dir)
+    {
+        // âœ… ì—¬ê¸°ë§Œ ë„ˆ ê¸°ì¡´ ì½”ë“œë¡œ ì±„ìš°ë©´ ë¨.
+        // ì˜ˆì‹œ(ë„ˆ í”„ë¡œì íŠ¸ì— ë§ê²Œ ë°”ê¿”):
+        // _index = (_index + dir + sprites.Length) % sprites.Length;
+        // ApplyIndex();
+        // SaveIndex();
+
+        // ---- ë„ˆ ê¸°ì¡´ â€œì´ë¯¸ì§€ ë°”ê¾¸ëŠ” ì½”ë“œâ€ë¥¼ ì—¬ê¸°ë¡œ ì´ë™ ----
+    }
+
     private void CommitPrev()
     {
         if (isSwiping) return;
@@ -215,8 +265,8 @@ public class FidgetShortsController : MonoBehaviour
     {
         isSwiping = true;
 
-        // ¸ñÇ¥ À§Ä¡: ´ÙÀ½ÀÌ¸é È­¸é ³ôÀÌ¸¸Å­ À§·Î(¶Ç´Â ¾Æ·¡·Î) ¾¦
-        float dir = next ? -1f : 1f; // next¸é ¾Æ·¡·Î ³Ñ±ä´Ù(À½¼ö)
+        // ëª©í‘œ ìœ„ì¹˜: ë‹¤ìŒì´ë©´ í™”ë©´ ë†’ì´ë§Œí¼ ìœ„ë¡œ(ë˜ëŠ” ì•„ë˜ë¡œ) ì‘¥
+        float dir = next ? -1f : 1f; // nextë©´ ì•„ë˜ë¡œ ë„˜ê¸´ë‹¤(ìŒìˆ˜)
         Vector2 from = pagesRoot ? pagesRoot.anchoredPosition : Vector2.zero;
         Vector2 to = new Vector2(0f, dir * viewH);
 
@@ -229,14 +279,14 @@ public class FidgetShortsController : MonoBehaviour
             yield return null;
         }
 
-        // ½ÇÁ¦ µ¥ÀÌÅÍ ÀÌµ¿
+        // ì‹¤ì œ ë°ì´í„° ì´ë™
         if (next) MoveCursorNext();
         else MoveCursorPrev();
 
-        // ÆäÀÌÁö ÀÌ¹ÌÁö Àç¹èÄ¡
+        // í˜ì´ì§€ ì´ë¯¸ì§€ ì¬ë°°ì¹˜
         ApplyImagesInstant();
 
-        // ¿øÀ§Ä¡
+        // ì›ìœ„ì¹˜
         if (pagesRoot) pagesRoot.anchoredPosition = Vector2.zero;
 
         isSwiping = false;
@@ -245,21 +295,21 @@ public class FidgetShortsController : MonoBehaviour
 
     private void MoveCursorNext()
     {
-        // ÀÌ¹Ì È÷½ºÅä¸® ´ÙÀ½ÀÌ ÀÖÀ¸¸é ±×´ë·Î ÀÌµ¿
+        // ì´ë¯¸ íˆìŠ¤í† ë¦¬ ë‹¤ìŒì´ ìˆìœ¼ë©´ ê·¸ëŒ€ë¡œ ì´ë™
         if (cursor < history.Count - 1)
         {
             cursor++;
             return;
         }
 
-        // »õ ·£´ı Ãß°¡
+        // ìƒˆ ëœë¤ ì¶”ê°€
         history.Add(PickRandomIndex());
         cursor = history.Count - 1;
     }
 
     private void MoveCursorPrev()
     {
-        // ¸Ç ¾ÕÀÌ¸é ´õ ¸ø °¨(¿øÇÏ¸é ¿©±â¼­ »õ·Î ¡°¾Õ¿¡µµ ·£´ı »ı¼º¡± °¡´É)
+        // ë§¨ ì•ì´ë©´ ë” ëª» ê°(ì›í•˜ë©´ ì—¬ê¸°ì„œ ìƒˆë¡œ â€œì•ì—ë„ ëœë¤ ìƒì„±â€ ê°€ëŠ¥)
         if (cursor <= 0) return;
         cursor--;
     }
@@ -303,7 +353,7 @@ public class FidgetShortsController : MonoBehaviour
             return;
         }
 
-        // ¾ÆÁÖ Âª°Ô¸¸
+        // ì•„ì£¼ ì§§ê²Œë§Œ
         StartCoroutine(CoFadeCG(cg, to, 0.08f, on));
     }
 
