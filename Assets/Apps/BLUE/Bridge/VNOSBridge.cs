@@ -1,4 +1,5 @@
 ﻿using UnityEngine;
+using System;
 
 public sealed class VNOSBridge : MonoBehaviour, IVNCloseRequestHandler
 {
@@ -13,6 +14,7 @@ public sealed class VNOSBridge : MonoBehaviour, IVNCloseRequestHandler
     // VN이 설정하는 정책
     public bool ExitLocked { get; private set; }
     public bool BlockClose { get; private set; }
+    
 
     private bool registered; // ✅ 중복 등록 방지
 
@@ -66,9 +68,23 @@ public sealed class VNOSBridge : MonoBehaviour, IVNCloseRequestHandler
     }
 
     // OS가 닫기 누름 -> VN에게 물어봄
-    public bool CanCloseNow()
+    public bool CanCloseNow() => !BlockClose;
+
+
+    public event Action OnForceCloseRequested;
+
+    public void RequestForceClose()
     {
-        return !BlockClose;
+        BlockClose = false; // 이제 닫아도 됨
+        OnForceCloseRequested?.Invoke();
+    }
+
+    public event Action OnCloseRequested;
+
+    // ✅ OS가 호출하는 함수
+    public void NotifyCloseRequested()
+    {
+        OnCloseRequested?.Invoke();
     }
 
     public void SaveVN(string key, object data) => Host?.SaveSubBlock(key, data);

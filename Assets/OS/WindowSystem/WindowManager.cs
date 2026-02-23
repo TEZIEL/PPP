@@ -564,8 +564,21 @@ public class WindowManager : MonoBehaviour
         if (bridge != null && !bridge.CanCloseNow())
         {
             Debug.Log("[OS] Close blocked by VN.");
-            // TODO: 여기서 "종료하시겠습니까?" 팝업 띄우기
-            // 예: ShowConfirmClose(appId, onYes: () => CloseInternal(appId, window));
+            bridge.NotifyCloseRequested(); // ✅ 이거 한 줄
+            // ✅ VN이 "종료 확정"하면 여기서 실제 닫기 실행
+            void OnForce()
+            {
+                bridge.OnForceCloseRequested -= OnForce;
+
+                // VN이 아직 BlockClose 켜놨으면 풀게 하고 강제닫기 실행
+                // (가장 안전: OS는 정책 무시하고 닫는다)
+                PerformClose(window, appId);
+            }
+
+            bridge.OnForceCloseRequested -= OnForce; // 중복방지
+            bridge.OnForceCloseRequested += OnForce;
+
+            bridge.NotifyCloseRequested();
             return;
         }
 

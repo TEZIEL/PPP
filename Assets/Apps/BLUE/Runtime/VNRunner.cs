@@ -9,6 +9,7 @@ namespace PPP.BLUE.VN
         [Header("Debug")]
         [SerializeField] private bool logToConsole = true;
         [SerializeField] private VNScript testScript;
+        [SerializeField] private VNOSBridge bridge;
 
         public event Action<string, string, string> OnSay; // speakerId, text, lineId
         public event Action OnEnd;
@@ -41,6 +42,7 @@ namespace PPP.BLUE.VN
         {
             // 테스트 스크립트 에셋이 없다면, 하드코딩 테스트 스크립트 생성
             SetScript(BuildTestScript());
+            if (bridge != null) bridge.RequestBlockClose(true);
         }
 
         private void Update()
