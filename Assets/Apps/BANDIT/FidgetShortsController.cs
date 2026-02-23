@@ -37,7 +37,6 @@ public class FidgetShortsController : MonoBehaviour, IScrollHandler
     [SerializeField] private float swipeDuration = 0.18f;     // 쑥 이동 애니 시간
     [SerializeField] private float dragSensitivity = 1.0f;    // 드래그가 얼마나 잘 따라오나(증폭)
 
-    [SerializeField] private Button likeButton;
     [SerializeField] private TMP_Text likeCountText;
     [SerializeField] private TMP_Text dislikeCountText;
 
@@ -88,8 +87,7 @@ public class FidgetShortsController : MonoBehaviour, IScrollHandler
         ApplyImagesInstant();
 
         SetOverlayVisible(true, instant: true);
-        if (likeButton) likeButton.onClick.AddListener(Like);
-        RefreshCounts();
+        
         if (galleryButton) galleryButton.onClick.AddListener(OpenGallery);
         if (backButton) backButton.onClick.AddListener(CloseGallery);
 
@@ -97,18 +95,7 @@ public class FidgetShortsController : MonoBehaviour, IScrollHandler
         RefreshCounts();
     }
 
-    private void Like()
-    {
-        _likeCount++;
-        RefreshCounts();
-    }
-
-    private void Dislike()
-    {
-        _dislikeCount++;
-        RefreshCounts();
-    }
-
+   
     private void OnRectTransformDimensionsChange()
     {
         if (swipeViewport != null)

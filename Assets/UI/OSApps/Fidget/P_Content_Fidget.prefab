@@ -1580,13 +1580,12 @@ MonoBehaviour:
   - {fileID: 21300000, guid: 6b7c94dee0b8cb94fb75326d4aa54ca7, type: 3}
   - {fileID: 21300000, guid: 3fbd142f2d9940e44b9ab3dce34b02bc, type: 3}
   - {fileID: 21300000, guid: 7707bcab23d4107468859151a85b3826, type: 3}
-  commitThreshold01: 0.123
-  swipeAnimDur: 0.25
+  commitThreshold01: 0.268
+  swipeAnimDur: 4
   wheelStep01: 0.35
   wheelCooldown: 0.18
-  swipeDuration: 0.18
+  swipeDuration: -7.35
   dragSensitivity: 1
-  likeButton: {fileID: 0}
   likeCountText: {fileID: 8270120984166795040}
   dislikeCountText: {fileID: 606844526979262085}
 --- !u!1 &4785905212976355280
