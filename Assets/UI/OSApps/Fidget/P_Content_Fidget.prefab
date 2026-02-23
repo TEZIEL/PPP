@@ -131,7 +131,6 @@ GameObject:
   - component: {fileID: 5784174126151611471}
   - component: {fileID: 8681403829339264923}
   - component: {fileID: 2008465312560298103}
-  - component: {fileID: 1287267031799014736}
   m_Layer: 5
   m_Name: Reset
   m_TagString: Untagged
@@ -253,20 +252,6 @@ MonoBehaviour:
           m_StringArgument: 
           m_BoolArgument: 0
         m_CallState: 2
---- !u!114 &1287267031799014736
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 577704044639961550}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 6dfbb99442d9c164083fbed9689bb2c1, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  controller: {fileID: 152788900074242110}
-  action: 2
 --- !u!1 &747011108842251003
 GameObject:
   m_ObjectHideFlags: 0
@@ -527,7 +512,6 @@ GameObject:
   - component: {fileID: 7576309811096281589}
   - component: {fileID: 1845692366896933797}
   - component: {fileID: 1101490511454675741}
-  - component: {fileID: 5054014857795806097}
   m_Layer: 5
   m_Name: Like
   m_TagString: Untagged
@@ -649,20 +633,6 @@ MonoBehaviour:
           m_StringArgument: 
           m_BoolArgument: 0
         m_CallState: 2
---- !u!114 &5054014857795806097
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1881320168209135937}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 6dfbb99442d9c164083fbed9689bb2c1, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  controller: {fileID: 152788900074242110}
-  action: 0
 --- !u!1 &2095688013809555438
 GameObject:
   m_ObjectHideFlags: 0
@@ -818,7 +788,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 1, y: 1}
-  m_AnchoredPosition: {x: 0, y: 0}
+  m_AnchoredPosition: {x: 0, y: -636}
   m_SizeDelta: {x: 0, y: 0}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &8794419894697745267
@@ -871,7 +841,6 @@ GameObject:
   - component: {fileID: 5871688913865854382}
   - component: {fileID: 2700405705916186379}
   - component: {fileID: 1203513784660716908}
-  - component: {fileID: 3651580520570382521}
   m_Layer: 5
   m_Name: Gallary
   m_TagString: Untagged
@@ -993,20 +962,6 @@ MonoBehaviour:
           m_StringArgument: 
           m_BoolArgument: 0
         m_CallState: 2
---- !u!114 &3651580520570382521
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 2722545369732291543}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 6dfbb99442d9c164083fbed9689bb2c1, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  controller: {fileID: 152788900074242110}
-  action: 3
 --- !u!1 &2736917901017962302
 GameObject:
   m_ObjectHideFlags: 0
@@ -1255,7 +1210,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 1, y: 1}
-  m_AnchoredPosition: {x: 0, y: 0}
+  m_AnchoredPosition: {x: 0, y: 636}
   m_SizeDelta: {x: 0, y: 0}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &6324564367980923917
@@ -1625,10 +1580,15 @@ MonoBehaviour:
   - {fileID: 21300000, guid: 6b7c94dee0b8cb94fb75326d4aa54ca7, type: 3}
   - {fileID: 21300000, guid: 3fbd142f2d9940e44b9ab3dce34b02bc, type: 3}
   - {fileID: 21300000, guid: 7707bcab23d4107468859151a85b3826, type: 3}
-  commitThreshold01: 0.3
-  swipeAnimDur: 0.12
+  commitThreshold01: 0.123
+  swipeAnimDur: 0.25
   wheelStep01: 0.35
   wheelCooldown: 0.18
+  swipeDuration: 0.18
+  dragSensitivity: 1
+  likeButton: {fileID: 1101490511454675741}
+  likeCountText: {fileID: 8270120984166795040}
+  dislikeCountText: {fileID: 606844526979262085}
 --- !u!1 &4785905212976355280
 GameObject:
   m_ObjectHideFlags: 0
@@ -2186,8 +2146,7 @@ GameObject:
   - component: {fileID: 3658877343520693239}
   - component: {fileID: 4872993491998129655}
   - component: {fileID: 5087236419685309589}
-  - component: {fileID: 8254585068551599457}
-  - component: {fileID: 4170896522822549573}
+  - component: {fileID: 4645529201625617}
   m_Layer: 5
   m_Name: Dislike
   m_TagString: Untagged
@@ -2297,7 +2256,7 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls: []
---- !u!114 &8254585068551599457
+--- !u!114 &4645529201625617
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -2306,24 +2265,24 @@ MonoBehaviour:
   m_GameObject: {fileID: 6439481136144928670}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 6dfbb99442d9c164083fbed9689bb2c1, type: 3}
+  m_Script: {fileID: 11500000, guid: 9e67041436db8e441a79fb6070689a16, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  controller: {fileID: 152788900074242110}
-  action: 1
---- !u!114 &4170896522822549573
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 6439481136144928670}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: b54faba08d0014146a685e5e1bc99dcf, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  controller: {fileID: 152788900074242110}
+  onRightClick:
+    m_PersistentCalls:
+      m_Calls:
+      - m_Target: {fileID: 152788900074242110}
+        m_TargetAssemblyTypeName: FidgetShortsController, Assembly-CSharp
+        m_MethodName: AddDislike
+        m_Mode: 1
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
 --- !u!1 &8152840557413499835
 GameObject:
   m_ObjectHideFlags: 0

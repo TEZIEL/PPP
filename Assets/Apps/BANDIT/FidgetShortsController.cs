@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 using UnityEngine.EventSystems;
+using TMPro; // ✅ 추가
 
 public class FidgetShortsController : MonoBehaviour, IScrollHandler
 {
@@ -31,9 +32,27 @@ public class FidgetShortsController : MonoBehaviour, IScrollHandler
     [SerializeField] private float swipeAnimDur = 0.12f;
     [SerializeField] private float wheelStep01 = 0.35f;        // 휠로도 넘기기(감각값)
     [SerializeField] private float wheelCooldown = 0.18f;
-    private float _lastWheelTime;
 
-    
+    [Header("Swipe Tuning")]
+    [SerializeField] private float swipeDuration = 0.18f;     // 쑥 이동 애니 시간
+    [SerializeField] private float dragSensitivity = 1.0f;    // 드래그가 얼마나 잘 따라오나(증폭)
+
+    [SerializeField] private Button likeButton;
+    [SerializeField] private TMP_Text likeCountText;
+    [SerializeField] private TMP_Text dislikeCountText;
+
+
+    private float _lastWheelTime;
+    private int _likeCount;
+    private int _dislikeCount;
+
+    private void RefreshCounts()
+    {
+        if (likeCountText) likeCountText.text = _likeCount.ToString();
+        if (dislikeCountText) dislikeCountText.text = _dislikeCount.ToString();
+    }
+
+
     private Vector2 _startPos;
     private float viewH;
     private bool isSwiping;
@@ -68,11 +87,24 @@ public class FidgetShortsController : MonoBehaviour, IScrollHandler
         ApplyImagesInstant();
 
         SetOverlayVisible(true, instant: true);
-
+        if (likeButton) likeButton.onClick.AddListener(Like);
+        RefreshCounts();
         if (galleryButton) galleryButton.onClick.AddListener(OpenGallery);
         if (backButton) backButton.onClick.AddListener(CloseGallery);
 
         CloseGallery();
+    }
+
+    private void Like()
+    {
+        _likeCount++;
+        RefreshCounts();
+    }
+
+    private void Dislike()
+    {
+        _dislikeCount++;
+        RefreshCounts();
     }
 
     private void OnRectTransformDimensionsChange()
