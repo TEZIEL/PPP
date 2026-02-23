@@ -17,6 +17,10 @@ public class FidgetShortsController : MonoBehaviour, IScrollHandler
     [Header("UI Groups to hide while swiping")]
     [SerializeField] private CanvasGroup rightMenuGroup;    // RightMenu (CanvasGroup 권장)
     [SerializeField] private CanvasGroup infoGroup;         // Information (CanvasGroup 권장)
+    [Header("Overlay Hover While Swiping")]
+    [SerializeField, Range(0f, 1f)] private float overlayHoverAlpha = 0f;
+    [SerializeField] private float overlayFadeDur = 0.08f;
+
 
     [Header("Gallery View")]
     [SerializeField] private GameObject galleryView;        // GalleryView
@@ -27,15 +31,15 @@ public class FidgetShortsController : MonoBehaviour, IScrollHandler
     [SerializeField] private Sprite[] pool;                 // 랜덤으로 쓸 이미지 풀
 
     [Header("Swipe")]
-    [Range(0.1f, 0.8f)]
-    [SerializeField] private float commitThreshold01 = 0.30f; // 30%
+    [Range(0.05f, 0.8f)]
+    [SerializeField] private float commitThreshold01 = 0.15f;
     [SerializeField] private float swipeAnimDur = 0.12f;
     [SerializeField] private float wheelStep01 = 0.35f;        // 휠로도 넘기기(감각값)
-    [SerializeField] private float wheelCooldown = 0.18f;
+    [SerializeField] private float wheelCooldown = 0.12f;
 
     [Header("Swipe Tuning")]
     [SerializeField] private float swipeDuration = 0.18f;     // 쑥 이동 애니 시간
-    [SerializeField] private float dragSensitivity = 1.0f;    // 드래그가 얼마나 잘 따라오나(증폭)
+    [SerializeField] private float dragSensitivity = 1.6f;    // 드래그가 얼마나 잘 따라오나(증폭)
 
     [SerializeField] private TMP_Text likeCountText;
     [SerializeField] private TMP_Text dislikeCountText;
@@ -196,7 +200,20 @@ public class FidgetShortsController : MonoBehaviour, IScrollHandler
         if (galleryView != null && galleryView.activeSelf) return;
         if (pool == null || pool.Length == 0) return;
 
-      
+        // ✅ 휠 fallback (OnScroll이 안 와도 동작)
+        float wheel = Input.mouseScrollDelta.y;
+        if (Mathf.Abs(wheel) > 0.01f)
+        {
+            if (Time.unscaledTime - _lastWheelTime < wheelCooldown) return;
+
+            if (wheel < 0f) CommitNext();
+            else
+            {
+                if (cursor > 0) CommitPrev();
+            }
+
+            _lastWheelTime = Time.unscaledTime;
+        }
     }
 
     // 아래 3개 함수는 SwipeViewport에 붙일 입력 스크립트가 호출하게 할 수도 있는데,
@@ -211,7 +228,7 @@ public class FidgetShortsController : MonoBehaviour, IScrollHandler
             return;
 
         dragDeltaY = 0f;
-        SetOverlayVisible(false, instant: false);
+        SetOverlaySwiping(true, instant: true); // ✅ 숨김은 즉시
     }
 
     public void Drag(Vector2 screenPos, Camera uiCam)
@@ -227,7 +244,7 @@ public class FidgetShortsController : MonoBehaviour, IScrollHandler
         // PagesRoot를 실제로 끌어내리는 연출(선택)
         // y가 -면 아래로 드래그(다음), +면 위로 드래그(이전)로 쓸거면 여기서 부호 바꿔도 됨
         if (pagesRoot)
-            pagesRoot.anchoredPosition = new Vector2(0f, dragDeltaY);
+            pagesRoot.anchoredPosition = new Vector2(0f, dragDeltaY * dragSensitivity);
     }
 
     public void EndDrag()
@@ -261,6 +278,7 @@ public class FidgetShortsController : MonoBehaviour, IScrollHandler
     private IEnumerator CoSnapBack()
     {
         isSwiping = true;
+        SetOverlaySwiping(true, instant: true); // ✅ 스냅백 중에도 확실히 숨김
 
         Vector2 from = pagesRoot ? pagesRoot.anchoredPosition : Vector2.zero;
         Vector2 to = Vector2.zero;
@@ -276,25 +294,22 @@ public class FidgetShortsController : MonoBehaviour, IScrollHandler
 
         if (pagesRoot) pagesRoot.anchoredPosition = Vector2.zero;
         isSwiping = false;
-
-        SetOverlayVisible(true, instant: false);
+        SetOverlaySwiping(false, instant: false);
     }
 
     private void CommitNext()
     {
         if (isSwiping) return;
+        SetOverlaySwiping(true, instant: true);   // ✅ 휠/드래그 공통: 스와이프 시작 숨김
         StartCoroutine(CoCommit(next: true));
     }
-
-
-    
 
     private void CommitPrev()
     {
         if (isSwiping) return;
+        SetOverlaySwiping(true, instant: true);   // ✅ 휠/드래그 공통
         StartCoroutine(CoCommit(next: false));
     }
-
     private IEnumerator CoCommit(bool next)
     {
         isSwiping = true;
@@ -321,7 +336,7 @@ public class FidgetShortsController : MonoBehaviour, IScrollHandler
         if (pagesRoot) pagesRoot.anchoredPosition = Vector2.zero;
 
         isSwiping = false;
-        SetOverlayVisible(true, instant: false);
+        SetOverlaySwiping(false, instant: false);
     }
 
     private void MoveCursorNext()
@@ -424,5 +439,36 @@ public class FidgetShortsController : MonoBehaviour, IScrollHandler
         local = default;
         if (swipeViewport == null) return false;
         return RectTransformUtility.ScreenPointToLocalPointInRectangle(swipeViewport, screenPos, uiCam, out local);
+    }
+
+    private void SetOverlaySwiping(bool swiping, bool instant)
+    {
+        if (swiping)
+        {
+            // ✅ 살짝 보이되 클릭은 막기
+            SetCanvasGroupAlpha(rightMenuGroup, overlayHoverAlpha, instant, interactable: false);
+            SetCanvasGroupAlpha(infoGroup, overlayHoverAlpha, instant, interactable: false);
+        }
+        else
+        {
+            // ✅ 정상 복귀
+            SetCanvasGroupAlpha(rightMenuGroup, 1f, instant, interactable: true);
+            SetCanvasGroupAlpha(infoGroup, 1f, instant, interactable: true);
+        }
+    }
+
+    private void SetCanvasGroupAlpha(CanvasGroup cg, float alpha, bool instant, bool interactable)
+    {
+        if (cg == null) return;
+
+        if (instant)
+        {
+            cg.alpha = alpha;
+            cg.interactable = interactable;
+            cg.blocksRaycasts = interactable; // ✅ 스와이프 중엔 레이캐스트 차단
+            return;
+        }
+
+        StartCoroutine(CoFadeCG(cg, alpha, overlayFadeDur, interactable));
     }
 }

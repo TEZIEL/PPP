@@ -1521,6 +1521,8 @@ GameObject:
   m_Component:
   - component: {fileID: 3221794757274047823}
   - component: {fileID: 152788900074242110}
+  - component: {fileID: 569069358897381445}
+  - component: {fileID: 395897833972188588}
   m_Layer: 5
   m_Name: FidgetController
   m_TagString: Untagged
@@ -1566,6 +1568,8 @@ MonoBehaviour:
   pageNextImage: {fileID: 3154614513912278877}
   rightMenuGroup: {fileID: 417058078449094597}
   infoGroup: {fileID: 6957680195217611809}
+  overlayHoverAlpha: 0
+  overlayFadeDur: 0.08
   galleryView: {fileID: 6309732910490047442}
   galleryButton: {fileID: 1203513784660716908}
   backButton: {fileID: 3074104283090365217}
@@ -1588,6 +1592,44 @@ MonoBehaviour:
   dragSensitivity: 1.4
   likeCountText: {fileID: 8270120984166795040}
   dislikeCountText: {fileID: 606844526979262085}
+--- !u!222 &569069358897381445
+CanvasRenderer:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4668077851724455848}
+  m_CullTransparentMesh: 1
+--- !u!114 &395897833972188588
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4668077851724455848}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fe87c0e1cc204ed48ad3b37840f39efc, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_Material: {fileID: 0}
+  m_Color: {r: 1, g: 1, b: 1, a: 0}
+  m_RaycastTarget: 1
+  m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
+  m_Maskable: 1
+  m_OnCullStateChanged:
+    m_PersistentCalls:
+      m_Calls: []
+  m_Sprite: {fileID: 0}
+  m_Type: 0
+  m_PreserveAspect: 0
+  m_FillCenter: 1
+  m_FillMethod: 4
+  m_FillAmount: 1
+  m_FillClockwise: 1
+  m_FillOrigin: 0
+  m_UseSpriteMesh: 0
+  m_PixelsPerUnitMultiplier: 1
 --- !u!1 &4785905212976355280
 GameObject:
   m_ObjectHideFlags: 0
