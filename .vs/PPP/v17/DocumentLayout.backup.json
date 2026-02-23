@@ -3,6 +3,22 @@
   "WorkspaceRootPath": "C:\\Users\\123\\PPP\\",
   "Documents": [
     {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|C:\\Users\\123\\PPP\\Assets\\OS\\Taskbar\\TaskbarButtonController.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:Assets\\OS\\Taskbar\\TaskbarButtonController.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|C:\\Users\\123\\PPP\\Assets\\OS\\Desktop\\DesktopIconLauncher.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:Assets\\OS\\Desktop\\DesktopIconLauncher.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|C:\\Users\\123\\PPP\\Assets\\Apps\\AppRegistry.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:Assets\\Apps\\AppRegistry.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|C:\\Users\\123\\PPP\\Assets\\Apps\\AppDefinition.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:Assets\\Apps\\AppDefinition.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
       "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|C:\\Users\\123\\PPP\\Assets\\OS\\WindowSystem\\WindowManager.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
       "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:Assets\\OS\\WindowSystem\\WindowManager.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
@@ -11,16 +27,32 @@
       "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:Assets\\OS\\WindowSystem\\WindowController.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
-      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|C:\\Users\\123\\PPP\\Assets\\OS\\Taskbar\\TaskbarManager.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:Assets\\OS\\Taskbar\\TaskbarManager.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|C:\\Users\\123\\PPP\\Assets\\Core\\GameState\\GameState.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:Assets\\Core\\GameState\\GameState.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|C:\\Users\\123\\PPP\\Assets\\Core\\OSState\\OSState.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:Assets\\Core\\OSState\\OSState.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|C:\\Users\\123\\PPP\\Assets\\OS\\Skin\\SkinApplier.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:Assets\\OS\\Skin\\SkinApplier.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|C:\\Users\\123\\PPP\\Assets\\OS\\Skin\\UISkin.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:Assets\\OS\\Skin\\UISkin.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|C:\\Users\\123\\PPP\\Assets\\OS\\Desktop\\DesktopIconDraggable.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:Assets\\OS\\Desktop\\DesktopIconDraggable.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|C:\\Users\\123\\PPP\\Assets\\OS\\Desktop\\DesktopGridManager.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:Assets\\OS\\Desktop\\DesktopGridManager.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
       "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|C:\\Users\\123\\PPP\\Assets\\OS\\Desktop\\ShowDesktopController.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
       "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:Assets\\OS\\Desktop\\ShowDesktopController.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|C:\\Users\\123\\PPP\\Assets\\OS\\Taskbar\\TaskbarButtonController.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:Assets\\OS\\Taskbar\\TaskbarButtonController.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
       "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|C:\\Users\\123\\PPP\\Assets\\OS\\Desktop\\DesktopContextMenuController.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
@@ -31,24 +63,12 @@
       "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:Assets\\OS\\Desktop\\DesktopContextMenuView.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
-      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|C:\\Users\\123\\PPP\\Assets\\OS\\Desktop\\DesktopGridManager.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:Assets\\OS\\Desktop\\DesktopGridManager.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|C:\\Users\\123\\PPP\\Assets\\OS\\Desktop\\DesktopIconLauncher.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:Assets\\OS\\Desktop\\DesktopIconLauncher.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
       "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|C:\\Users\\123\\PPP\\Assets\\OS\\OSSave\\SaveDebugController.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
       "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:Assets\\OS\\OSSave\\SaveDebugController.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
       "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|C:\\Users\\123\\PPP\\Assets\\OS\\OSSave\\OSSaveData.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
       "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:Assets\\OS\\OSSave\\OSSaveData.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|C:\\Users\\123\\PPP\\Assets\\OS\\Desktop\\DesktopIconDraggable.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:Assets\\OS\\Desktop\\DesktopIconDraggable.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
       "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|C:\\Users\\123\\PPP\\Assets\\OS\\Desktop\\DesktopBounds.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
@@ -73,18 +93,6 @@
     {
       "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|C:\\Users\\123\\PPP\\Assets\\OS\\WindowSystem\\WindowShortcutController.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
       "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:Assets\\OS\\WindowSystem\\WindowShortcutController.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|C:\\Users\\123\\PPP\\Assets\\Core\\SaveSystem\\SaveSystem.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:Assets\\Core\\SaveSystem\\SaveSystem.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|C:\\Users\\123\\PPP\\Assets\\OS\\Skin\\UISkin.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:Assets\\OS\\Skin\\UISkin.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|C:\\Users\\123\\PPP\\Assets\\OS\\Skin\\SkinApplier.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:Assets\\OS\\Skin\\SkinApplier.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     }
   ],
   "DocumentGroupContainers": [
@@ -94,72 +102,180 @@
       "DocumentGroups": [
         {
           "DockedWidth": 200,
-          "SelectedChildIndex": 1,
+          "SelectedChildIndex": 2,
           "Children": [
             {
               "$type": "Document",
               "DocumentIndex": 1,
-              "Title": "WindowController.cs",
-              "DocumentMoniker": "C:\\Users\\123\\PPP\\Assets\\OS\\WindowSystem\\WindowController.cs",
-              "RelativeDocumentMoniker": "Assets\\OS\\WindowSystem\\WindowController.cs",
-              "ToolTip": "C:\\Users\\123\\PPP\\Assets\\OS\\WindowSystem\\WindowController.cs",
-              "RelativeToolTip": "Assets\\OS\\WindowSystem\\WindowController.cs",
-              "ViewState": "AgIAACYBAAAAAAAAAAAawC8BAAAlAAAAAAAAAA==",
+              "Title": "DesktopIconLauncher.cs",
+              "DocumentMoniker": "C:\\Users\\123\\PPP\\Assets\\OS\\Desktop\\DesktopIconLauncher.cs",
+              "RelativeDocumentMoniker": "Assets\\OS\\Desktop\\DesktopIconLauncher.cs",
+              "ToolTip": "C:\\Users\\123\\PPP\\Assets\\OS\\Desktop\\DesktopIconLauncher.cs",
+              "RelativeToolTip": "Assets\\OS\\Desktop\\DesktopIconLauncher.cs",
+              "ViewState": "AgIAAD0AAAAAAAAAAAAqwFUAAAABAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-02-16T09:37:14.143Z"
+              "WhenOpened": "2026-02-16T03:16:32.6Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 2,
+              "Title": "AppRegistry.cs",
+              "DocumentMoniker": "C:\\Users\\123\\PPP\\Assets\\Apps\\AppRegistry.cs",
+              "RelativeDocumentMoniker": "Assets\\Apps\\AppRegistry.cs",
+              "ToolTip": "C:\\Users\\123\\PPP\\Assets\\Apps\\AppRegistry.cs",
+              "RelativeToolTip": "Assets\\Apps\\AppRegistry.cs",
+              "ViewState": "AgIAABIAAAAAAAAAAAAAABoAAAAtAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-02-22T03:35:56.092Z",
+              "EditorCaption": ""
             },
             {
               "$type": "Document",
               "DocumentIndex": 0,
+              "Title": "TaskbarButtonController.cs",
+              "DocumentMoniker": "C:\\Users\\123\\PPP\\Assets\\OS\\Taskbar\\TaskbarButtonController.cs",
+              "RelativeDocumentMoniker": "Assets\\OS\\Taskbar\\TaskbarButtonController.cs",
+              "ToolTip": "C:\\Users\\123\\PPP\\Assets\\OS\\Taskbar\\TaskbarButtonController.cs",
+              "RelativeToolTip": "Assets\\OS\\Taskbar\\TaskbarButtonController.cs",
+              "ViewState": "AgIAAI0AAAAAAAAAAAAqwI0AAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-02-16T09:33:12.72Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 3,
+              "Title": "AppDefinition.cs",
+              "DocumentMoniker": "C:\\Users\\123\\PPP\\Assets\\Apps\\AppDefinition.cs",
+              "RelativeDocumentMoniker": "Assets\\Apps\\AppDefinition.cs",
+              "ToolTip": "C:\\Users\\123\\PPP\\Assets\\Apps\\AppDefinition.cs",
+              "RelativeToolTip": "Assets\\Apps\\AppDefinition.cs",
+              "ViewState": "AgIAAA8AAAAAAAAAAAAAAB0AAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-02-22T03:35:38.175Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 4,
               "Title": "WindowManager.cs",
               "DocumentMoniker": "C:\\Users\\123\\PPP\\Assets\\OS\\WindowSystem\\WindowManager.cs",
               "RelativeDocumentMoniker": "Assets\\OS\\WindowSystem\\WindowManager.cs",
               "ToolTip": "C:\\Users\\123\\PPP\\Assets\\OS\\WindowSystem\\WindowManager.cs",
               "RelativeToolTip": "Assets\\OS\\WindowSystem\\WindowManager.cs",
-              "ViewState": "AgIAAPEBAAAAAAAAAAAqwAYCAAAcAAAAAAAAAA==",
+              "ViewState": "AgIAADQAAAAAAAAAAAAAADwAAAACAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
               "WhenOpened": "2026-02-16T03:17:36.11Z",
               "EditorCaption": ""
             },
             {
               "$type": "Document",
-              "DocumentIndex": 2,
-              "Title": "TaskbarManager.cs",
-              "DocumentMoniker": "C:\\Users\\123\\PPP\\Assets\\OS\\Taskbar\\TaskbarManager.cs",
-              "RelativeDocumentMoniker": "Assets\\OS\\Taskbar\\TaskbarManager.cs",
-              "ToolTip": "C:\\Users\\123\\PPP\\Assets\\OS\\Taskbar\\TaskbarManager.cs",
-              "RelativeToolTip": "Assets\\OS\\Taskbar\\TaskbarManager.cs",
-              "ViewState": "AgIAABoAAAAAAAAAAAAawFgAAAABAAAAAAAAAA==",
+              "DocumentIndex": 5,
+              "Title": "WindowController.cs",
+              "DocumentMoniker": "C:\\Users\\123\\PPP\\Assets\\OS\\WindowSystem\\WindowController.cs",
+              "RelativeDocumentMoniker": "Assets\\OS\\WindowSystem\\WindowController.cs",
+              "ToolTip": "C:\\Users\\123\\PPP\\Assets\\OS\\WindowSystem\\WindowController.cs",
+              "RelativeToolTip": "Assets\\OS\\WindowSystem\\WindowController.cs",
+              "ViewState": "AgIAAEgAAAAAAAAAAAAawFQAAAAFAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-02-15T04:17:04.621Z"
+              "WhenOpened": "2026-02-22T01:08:25.462Z",
+              "EditorCaption": ""
             },
             {
               "$type": "Document",
-              "DocumentIndex": 3,
+              "DocumentIndex": 6,
+              "Title": "GameState.cs",
+              "DocumentMoniker": "C:\\Users\\123\\PPP\\Assets\\Core\\GameState\\GameState.cs",
+              "RelativeDocumentMoniker": "Assets\\Core\\GameState\\GameState.cs",
+              "ToolTip": "C:\\Users\\123\\PPP\\Assets\\Core\\GameState\\GameState.cs",
+              "RelativeToolTip": "Assets\\Core\\GameState\\GameState.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAwAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-02-22T03:07:42.886Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 7,
+              "Title": "OSState.cs",
+              "DocumentMoniker": "C:\\Users\\123\\PPP\\Assets\\Core\\OSState\\OSState.cs",
+              "RelativeDocumentMoniker": "Assets\\Core\\OSState\\OSState.cs",
+              "ToolTip": "C:\\Users\\123\\PPP\\Assets\\Core\\OSState\\OSState.cs",
+              "RelativeToolTip": "Assets\\Core\\OSState\\OSState.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-02-22T03:07:34.615Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 8,
+              "Title": "SkinApplier.cs",
+              "DocumentMoniker": "C:\\Users\\123\\PPP\\Assets\\OS\\Skin\\SkinApplier.cs",
+              "RelativeDocumentMoniker": "Assets\\OS\\Skin\\SkinApplier.cs",
+              "ToolTip": "C:\\Users\\123\\PPP\\Assets\\OS\\Skin\\SkinApplier.cs",
+              "RelativeToolTip": "Assets\\OS\\Skin\\SkinApplier.cs",
+              "ViewState": "AgIAAAkAAAAAAAAAAAAAABcAAABOAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-02-15T04:32:49.374Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 9,
+              "Title": "UISkin.cs",
+              "DocumentMoniker": "C:\\Users\\123\\PPP\\Assets\\OS\\Skin\\UISkin.cs",
+              "RelativeDocumentMoniker": "Assets\\OS\\Skin\\UISkin.cs",
+              "ToolTip": "C:\\Users\\123\\PPP\\Assets\\OS\\Skin\\UISkin.cs",
+              "RelativeToolTip": "Assets\\OS\\Skin\\UISkin.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAA8AAAAWAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-02-15T04:27:22.821Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 10,
+              "Title": "DesktopIconDraggable.cs",
+              "DocumentMoniker": "C:\\Users\\123\\PPP\\Assets\\OS\\Desktop\\DesktopIconDraggable.cs",
+              "RelativeDocumentMoniker": "Assets\\OS\\Desktop\\DesktopIconDraggable.cs",
+              "ToolTip": "C:\\Users\\123\\PPP\\Assets\\OS\\Desktop\\DesktopIconDraggable.cs",
+              "RelativeToolTip": "Assets\\OS\\Desktop\\DesktopIconDraggable.cs",
+              "ViewState": "AgIAAEcAAAAAAAAAAAAqwF8AAAABAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-02-16T03:16:36.308Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 11,
+              "Title": "DesktopGridManager.cs",
+              "DocumentMoniker": "C:\\Users\\123\\PPP\\Assets\\OS\\Desktop\\DesktopGridManager.cs",
+              "RelativeDocumentMoniker": "Assets\\OS\\Desktop\\DesktopGridManager.cs",
+              "ToolTip": "C:\\Users\\123\\PPP\\Assets\\OS\\Desktop\\DesktopGridManager.cs",
+              "RelativeToolTip": "Assets\\OS\\Desktop\\DesktopGridManager.cs",
+              "ViewState": "AgIAAM4AAAAAAAAAAAAqwOYAAAABAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-02-16T04:51:04.054Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 12,
               "Title": "ShowDesktopController.cs",
               "DocumentMoniker": "C:\\Users\\123\\PPP\\Assets\\OS\\Desktop\\ShowDesktopController.cs",
               "RelativeDocumentMoniker": "Assets\\OS\\Desktop\\ShowDesktopController.cs",
               "ToolTip": "C:\\Users\\123\\PPP\\Assets\\OS\\Desktop\\ShowDesktopController.cs",
               "RelativeToolTip": "Assets\\OS\\Desktop\\ShowDesktopController.cs",
-              "ViewState": "AgIAABgAAAAAAAAAAAAawFQAAAA5AAAAAAAAAA==",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAUAAAAyAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-02-15T04:01:38.039Z"
+              "WhenOpened": "2026-02-15T04:01:38.039Z",
+              "EditorCaption": ""
             },
             {
               "$type": "Document",
-              "DocumentIndex": 4,
-              "Title": "TaskbarButtonController.cs",
-              "DocumentMoniker": "C:\\Users\\123\\PPP\\Assets\\OS\\Taskbar\\TaskbarButtonController.cs",
-              "RelativeDocumentMoniker": "Assets\\OS\\Taskbar\\TaskbarButtonController.cs",
-              "ToolTip": "C:\\Users\\123\\PPP\\Assets\\OS\\Taskbar\\TaskbarButtonController.cs",
-              "RelativeToolTip": "Assets\\OS\\Taskbar\\TaskbarButtonController.cs",
-              "ViewState": "AgIAADkAAAAAAAAAAAAAAFoAAAAFAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-02-16T09:33:12.72Z"
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 5,
+              "DocumentIndex": 13,
               "Title": "DesktopContextMenuController.cs",
               "DocumentMoniker": "C:\\Users\\123\\PPP\\Assets\\OS\\Desktop\\DesktopContextMenuController.cs",
               "RelativeDocumentMoniker": "Assets\\OS\\Desktop\\DesktopContextMenuController.cs",
@@ -171,7 +287,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 6,
+              "DocumentIndex": 14,
               "Title": "DesktopContextMenuView.cs",
               "DocumentMoniker": "C:\\Users\\123\\PPP\\Assets\\OS\\Desktop\\DesktopContextMenuView.cs",
               "RelativeDocumentMoniker": "Assets\\OS\\Desktop\\DesktopContextMenuView.cs",
@@ -183,31 +299,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 7,
-              "Title": "DesktopGridManager.cs",
-              "DocumentMoniker": "C:\\Users\\123\\PPP\\Assets\\OS\\Desktop\\DesktopGridManager.cs",
-              "RelativeDocumentMoniker": "Assets\\OS\\Desktop\\DesktopGridManager.cs",
-              "ToolTip": "C:\\Users\\123\\PPP\\Assets\\OS\\Desktop\\DesktopGridManager.cs",
-              "RelativeToolTip": "Assets\\OS\\Desktop\\DesktopGridManager.cs",
-              "ViewState": "AgIAABgAAAAAAAAAAAAqwCUAAAAYAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-02-16T04:51:04.054Z"
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 8,
-              "Title": "DesktopIconLauncher.cs",
-              "DocumentMoniker": "C:\\Users\\123\\PPP\\Assets\\OS\\Desktop\\DesktopIconLauncher.cs",
-              "RelativeDocumentMoniker": "Assets\\OS\\Desktop\\DesktopIconLauncher.cs",
-              "ToolTip": "C:\\Users\\123\\PPP\\Assets\\OS\\Desktop\\DesktopIconLauncher.cs",
-              "RelativeToolTip": "Assets\\OS\\Desktop\\DesktopIconLauncher.cs",
-              "ViewState": "AgIAADIAAAAAAAAAAAAawEUAAAA/AAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-02-16T03:16:32.6Z"
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 9,
+              "DocumentIndex": 15,
               "Title": "SaveDebugController.cs",
               "DocumentMoniker": "C:\\Users\\123\\PPP\\Assets\\OS\\OSSave\\SaveDebugController.cs",
               "RelativeDocumentMoniker": "Assets\\OS\\OSSave\\SaveDebugController.cs",
@@ -219,7 +311,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 10,
+              "DocumentIndex": 16,
               "Title": "OSSaveData.cs",
               "DocumentMoniker": "C:\\Users\\123\\PPP\\Assets\\OS\\OSSave\\OSSaveData.cs",
               "RelativeDocumentMoniker": "Assets\\OS\\OSSave\\OSSaveData.cs",
@@ -231,19 +323,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 11,
-              "Title": "DesktopIconDraggable.cs",
-              "DocumentMoniker": "C:\\Users\\123\\PPP\\Assets\\OS\\Desktop\\DesktopIconDraggable.cs",
-              "RelativeDocumentMoniker": "Assets\\OS\\Desktop\\DesktopIconDraggable.cs",
-              "ToolTip": "C:\\Users\\123\\PPP\\Assets\\OS\\Desktop\\DesktopIconDraggable.cs",
-              "RelativeToolTip": "Assets\\OS\\Desktop\\DesktopIconDraggable.cs",
-              "ViewState": "AgIAAAkAAAAAAAAAAAAAAB4AAAAAAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-02-16T03:16:36.308Z"
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 12,
+              "DocumentIndex": 17,
               "Title": "DesktopBounds.cs",
               "DocumentMoniker": "C:\\Users\\123\\PPP\\Assets\\OS\\Desktop\\DesktopBounds.cs",
               "RelativeDocumentMoniker": "Assets\\OS\\Desktop\\DesktopBounds.cs",
@@ -255,7 +335,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 13,
+              "DocumentIndex": 18,
               "Title": "IconController.cs",
               "DocumentMoniker": "C:\\Users\\123\\PPP\\Assets\\OS\\Desktop\\IconController.cs",
               "RelativeDocumentMoniker": "Assets\\OS\\Desktop\\IconController.cs",
@@ -267,7 +347,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 14,
+              "DocumentIndex": 19,
               "Title": "SaveData.cs",
               "DocumentMoniker": "C:\\Users\\123\\PPP\\Assets\\OS\\Save\\SaveData.cs",
               "RelativeDocumentMoniker": "Assets\\OS\\Save\\SaveData.cs",
@@ -279,7 +359,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 15,
+              "DocumentIndex": 20,
               "Title": "OSSaveSystem.cs",
               "DocumentMoniker": "C:\\Users\\123\\PPP\\Assets\\OS\\OSSave\\OSSaveSystem.cs",
               "RelativeDocumentMoniker": "Assets\\OS\\OSSave\\OSSaveSystem.cs",
@@ -291,7 +371,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 16,
+              "DocumentIndex": 21,
               "Title": "SaveDebugController.cs",
               "DocumentMoniker": "C:\\Users\\123\\PPP\\Assets\\OS\\Save\\SaveDebugController.cs",
               "RelativeDocumentMoniker": "Assets\\OS\\Save\\SaveDebugController.cs",
@@ -303,7 +383,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 17,
+              "DocumentIndex": 22,
               "Title": "WindowShortcutController.cs",
               "DocumentMoniker": "C:\\Users\\123\\PPP\\Assets\\OS\\WindowSystem\\WindowShortcutController.cs",
               "RelativeDocumentMoniker": "Assets\\OS\\WindowSystem\\WindowShortcutController.cs",
@@ -312,42 +392,6 @@
               "ViewState": "AgIAAAAAAAAAAAAAAAAAAAIAAAApAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
               "WhenOpened": "2026-02-15T09:22:17.896Z"
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 18,
-              "Title": "SaveSystem.cs",
-              "DocumentMoniker": "C:\\Users\\123\\PPP\\Assets\\Core\\SaveSystem\\SaveSystem.cs",
-              "RelativeDocumentMoniker": "Assets\\Core\\SaveSystem\\SaveSystem.cs",
-              "ToolTip": "C:\\Users\\123\\PPP\\Assets\\Core\\SaveSystem\\SaveSystem.cs",
-              "RelativeToolTip": "Assets\\Core\\SaveSystem\\SaveSystem.cs",
-              "ViewState": "AgIAACQAAAAAAAAAAAAqwDwAAAAAAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-02-15T09:19:11.112Z"
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 19,
-              "Title": "UISkin.cs",
-              "DocumentMoniker": "C:\\Users\\123\\PPP\\Assets\\OS\\Skin\\UISkin.cs",
-              "RelativeDocumentMoniker": "Assets\\OS\\Skin\\UISkin.cs",
-              "ToolTip": "C:\\Users\\123\\PPP\\Assets\\OS\\Skin\\UISkin.cs",
-              "RelativeToolTip": "Assets\\OS\\Skin\\UISkin.cs",
-              "ViewState": "AgIAAAAAAAAAAAAAAAAAAA0AAAAAAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-02-15T04:27:22.821Z"
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 20,
-              "Title": "SkinApplier.cs",
-              "DocumentMoniker": "C:\\Users\\123\\PPP\\Assets\\OS\\Skin\\SkinApplier.cs",
-              "RelativeDocumentMoniker": "Assets\\OS\\Skin\\SkinApplier.cs",
-              "ToolTip": "C:\\Users\\123\\PPP\\Assets\\OS\\Skin\\SkinApplier.cs",
-              "RelativeToolTip": "Assets\\OS\\Skin\\SkinApplier.cs",
-              "ViewState": "AgIAAAAAAAAAAAAAAAAAABYAAAAAAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-02-15T04:32:49.374Z"
             }
           ]
         }
