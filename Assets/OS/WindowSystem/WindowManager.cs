@@ -446,6 +446,10 @@ public class WindowManager : MonoBehaviour
             if (!suppressAutoFocus)
                 FocusNextTopWindow(appId);
 
+
+
+
+
             RequestAutoSave();
         });
     }
@@ -516,19 +520,39 @@ public class WindowManager : MonoBehaviour
 
 
 
+    
+    private VNOSBridge FindBridge(string appId)
+    {
+        if (!openWindows.TryGetValue(appId, out var wc) || wc == null) return null;
+        return wc.GetComponentInChildren<VNOSBridge>(true);
+    }
 
-
-  
 
     public void Close(string appId)
     {
         if (!openWindows.TryGetValue(appId, out var window) || window == null)
             return;
-        
-        EnsureFocused(appId); // ✅ 추가
 
+        // (선택) 닫기 요청 시 포커스 확보
+        EnsureFocused(appId);
 
+        // 1) 브릿지 찾기
+        var bridge = FindBridge(appId);
 
+        // 2) 닫기 가능 여부 확인 (VN만 막는다)
+        if (bridge != null && !bridge.CanCloseNow())
+        {
+            Debug.Log("[OS] Close blocked by VN.");
+            // TODO: 여기서 "종료하시겠습니까?" 팝업 띄우기
+            return;
+        }
+
+        // 3) 실제 닫기 실행
+        PerformClose(window, appId);
+    }
+
+    private void PerformClose(WindowController window, string appId)
+    {
         window.PlayClose(() =>
         {
             taskbarManager?.Remove(appId);
@@ -542,6 +566,7 @@ public class WindowManager : MonoBehaviour
         });
     }
 
+   
 
 
 

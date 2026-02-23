@@ -605,7 +605,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 7c2cac09b2e4e60438121f0c8eaf0e18, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  appId: Visual Novel
+  appId: 
   titleText: {fileID: 210423143418867942}
   windowRoot: {fileID: 674040382740864952}
   titleBar: {fileID: 5770267493144395910}
