@@ -17,7 +17,7 @@ public sealed class VNOSBridge : MonoBehaviour, IVNCloseRequestHandler
     {
         if (Host == null)
         {
-            Debug.LogError("[VNOSBridge] Host is null or does not implement IVNHostOS.");
+            Debug.Log("[VNOSBridge] Host not set (ok for early stage).");
             return;
         }
 
