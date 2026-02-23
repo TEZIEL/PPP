@@ -40,11 +40,45 @@ public class FidgetShortsController : MonoBehaviour, IScrollHandler
     [SerializeField] private TMP_Text likeCountText;
     [SerializeField] private TMP_Text dislikeCountText;
 
-
-
+    // “아래로 내릴 때” 다음 이미지 프리뷰/확정을 일치시키기 위한 pending
+    private int _pendingNext = -1;      // 다음으로 확정될 후보 (history에 아직 안 넣음)
+    private bool _hasPendingNext = false;
+    private int _pendingNextIndex = -1; // next가 아직 history에 없을 때, “미리보기용”으로 1번만 뽑아두는 캐시
     private float _lastWheelTime;
     private int _likeCount;
     private int _dislikeCount;
+
+
+    private int EnsurePendingNext()
+    {
+        if (!_hasPendingNext)
+        {
+            _pendingNext = PickRandomIndex();
+            _hasPendingNext = true;
+        }
+        return _pendingNext;
+    }
+
+    private void OnEnable()
+    {
+        ResetShorts();
+    }
+
+    private void ResetShorts()
+    {
+        if (pool == null || pool.Length == 0) return;
+
+        history.Clear();
+        history.Add(PickRandomIndex());
+        cursor = 0;
+
+        _hasPendingNext = false;
+        _pendingNext = -1;
+
+        ApplyImagesInstant();
+
+        if (pagesRoot) pagesRoot.anchoredPosition = Vector2.zero;
+    }
 
     private void RefreshCounts()
     {
@@ -78,13 +112,7 @@ public class FidgetShortsController : MonoBehaviour, IScrollHandler
         if (swipeViewport == null) swipeViewport = GetComponentInChildren<RectTransform>();
         viewH = swipeViewport.rect.height;
 
-        // 최소 1장 세팅
-        int first = PickRandomIndex();
-        history.Clear();
-        history.Add(first);
-        cursor = 0;
-
-        ApplyImagesInstant();
+        ResetShorts(); // ✅ 여기서 초기화
 
         SetOverlayVisible(true, instant: true);
         
@@ -150,10 +178,13 @@ public class FidgetShortsController : MonoBehaviour, IScrollHandler
         float y = eventData.scrollDelta.y;
         if (Mathf.Abs(y) < 0.01f) return;
 
-        if (y < 0f)
-            GoNext();   // 다음 이미지
+        // 보통 휠 아래(-) = 다음, 위(+) = 이전
+        if (y < 0f) CommitNext();
         else
-            GoPrev();   // 이전 이미지
+        {
+            if (cursor > 0) CommitPrev();
+            // cursor==0이면 이전 없음
+        }
 
         _lastWheelTime = Time.unscaledTime;
     }
@@ -165,14 +196,7 @@ public class FidgetShortsController : MonoBehaviour, IScrollHandler
         if (galleryView != null && galleryView.activeSelf) return;
         if (pool == null || pool.Length == 0) return;
 
-        // 휠로도 넘기기
-        float wheel = Input.mouseScrollDelta.y;
-        if (Mathf.Abs(wheel) > 0.01f)
-        {
-            // 아래로 휠(-)이면 다음(내리기), 위로 휠(+)이면 이전(올리기) 취향대로 조절 가능
-            if (wheel < 0f) CommitNext();
-            else CommitPrev();
-        }
+      
     }
 
     // 아래 3개 함수는 SwipeViewport에 붙일 입력 스크립트가 호출하게 할 수도 있는데,
@@ -211,17 +235,26 @@ public class FidgetShortsController : MonoBehaviour, IScrollHandler
         if (isSwiping) return;
         if (galleryView != null && galleryView.activeSelf) return;
 
-        float moved01 = Mathf.Abs(dragDeltaY) / Mathf.Max(1f, viewH);
-        if (moved01 >= commitThreshold01)
+        float moved01 = Mathf.Abs(pagesRoot ? pagesRoot.anchoredPosition.y : dragDeltaY) / Mathf.Max(1f, viewH);
+        if (moved01 < commitThreshold01)
         {
-            // 아래로 드래그(음수)면 다음 / 위로 드래그(양수)면 이전 (원하는 감각대로)
-            if (dragDeltaY < 0f) CommitNext();
-            else CommitPrev();
+            StartCoroutine(CoSnapBack());
+            return;
+        }
+
+        float y = pagesRoot ? pagesRoot.anchoredPosition.y : dragDeltaY;
+
+        // ✅ (Prev 위 / Curr 중간 / Next 아래) 기준 권장 매핑
+        if (y > 0f)
+        {
+            // content가 위로 올라감 = 아래(next)쪽이 보임
+            CommitNext();
         }
         else
         {
-            // 원위치 스냅
-            StartCoroutine(CoSnapBack());
+            // content가 아래로 내려감 = 위(prev)쪽이 보임
+            if (cursor > 0) CommitPrev();
+            else StartCoroutine(CoSnapBack());
         }
     }
 
@@ -254,28 +287,7 @@ public class FidgetShortsController : MonoBehaviour, IScrollHandler
     }
 
 
-    private void GoNext()
-    {
-        // TODO: 여기 안에 “드래그 스와이프 성공 시 다음으로 넘길 때” 쓰는
-        // 인덱스 변경 + 이미지 적용 + 저장(있으면) 코드를 그대로 넣어줘
-        CommitIndex(+1);
-    }
-
-    private void GoPrev()
-    {
-        CommitIndex(-1);
-    }
-
-    private void CommitIndex(int dir)
-    {
-        // ✅ 여기만 너 기존 코드로 채우면 됨.
-        // 예시(너 프로젝트에 맞게 바꿔):
-        // _index = (_index + dir + sprites.Length) % sprites.Length;
-        // ApplyIndex();
-        // SaveIndex();
-
-        // ---- 너 기존 “이미지 바꾸는 코드”를 여기로 이동 ----
-    }
+    
 
     private void CommitPrev()
     {
@@ -287,8 +299,8 @@ public class FidgetShortsController : MonoBehaviour, IScrollHandler
     {
         isSwiping = true;
 
-        // 목표 위치: 다음이면 화면 높이만큼 위로(또는 아래로) 쑥
-        float dir = next ? -1f : 1f; // next면 아래로 넘긴다(음수)
+        // ✅ next면 content 위로(+), prev면 아래로(-)
+        float dir = next ? 1f : -1f;
         Vector2 from = pagesRoot ? pagesRoot.anchoredPosition : Vector2.zero;
         Vector2 to = new Vector2(0f, dir * viewH);
 
@@ -301,14 +313,11 @@ public class FidgetShortsController : MonoBehaviour, IScrollHandler
             yield return null;
         }
 
-        // 실제 데이터 이동
         if (next) MoveCursorNext();
         else MoveCursorPrev();
 
-        // 페이지 이미지 재배치
         ApplyImagesInstant();
 
-        // 원위치
         if (pagesRoot) pagesRoot.anchoredPosition = Vector2.zero;
 
         isSwiping = false;
@@ -324,9 +333,14 @@ public class FidgetShortsController : MonoBehaviour, IScrollHandler
             return;
         }
 
-        // 새 랜덤 추가
-        history.Add(PickRandomIndex());
+        // “새 랜덤 추가”는 pending을 확정으로 넣는다
+        int next = EnsurePendingNext();
+        history.Add(next);
         cursor = history.Count - 1;
+
+        // 다음 프리뷰는 다시 “미정” 상태가 되어야 하므로 pending 비움
+        _hasPendingNext = false;
+        _pendingNext = -1;
     }
 
     private void MoveCursorPrev()
@@ -342,7 +356,17 @@ public class FidgetShortsController : MonoBehaviour, IScrollHandler
 
         int curr = history[cursor];
         int prev = (cursor > 0) ? history[cursor - 1] : curr;
-        int next = (cursor < history.Count - 1) ? history[cursor + 1] : PickRandomIndex();
+
+        int next;
+        if (cursor < history.Count - 1)
+        {
+            next = history[cursor + 1];
+        }
+        else
+        {
+            // 아직 내려간 적 없는 “미래”는 pending으로 1개만 잡아둔다
+            next = EnsurePendingNext();
+        }
 
         if (pagePrevImage) pagePrevImage.sprite = pool[prev];
         if (pageCurrImage) pageCurrImage.sprite = pool[curr];
