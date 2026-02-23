@@ -185,10 +185,14 @@ public class WindowController : MonoBehaviour,
     {
         IsMinimized = minimized;
 
-        // “완전 숨김” 방식 유지
+        // “완전 숨김”
         canvasGroup.alpha = minimized ? 0f : 1f;
         canvasGroup.interactable = !minimized;
         canvasGroup.blocksRaycasts = !minimized;
+
+        // ✅ 중요: 최소화/복원 어느 쪽이든, UI Selected를 끊어준다
+        // 그래야 Space/Enter(Submit)가 작업표시줄 버튼/창 버튼에 먹지 않음
+        EventSystem.current?.SetSelectedGameObject(null);
     }
 
     public void SetActiveVisual(bool active)
