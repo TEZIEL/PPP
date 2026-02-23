@@ -49,6 +49,8 @@ namespace PPP.BLUE.VN
 
             // ✅ Space/Enter가 버튼에 먹지 않게(중요)
             UnityEngine.EventSystems.EventSystem.current?.SetSelectedGameObject(null);
+
+
         }
 
         public void Hide()
