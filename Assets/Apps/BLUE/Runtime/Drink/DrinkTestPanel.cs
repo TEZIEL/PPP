@@ -47,6 +47,7 @@ namespace PPP.BLUE.VN
 
             // 2) 결과 반영
             runner?.ApplyDrinkResult(result);
+            runner?.MarkSaveAllowed();
 
             // 3) 닫기 + 모드 종료
             if (root != null) root.SetActive(false);

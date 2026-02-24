@@ -54,6 +54,8 @@ namespace PPP.BLUE.VN
             Debug.Log($"[VNChoicePanel] root before activeSelf={root.activeSelf}, activeInHierarchy={root.activeInHierarchy}");
             ClearButtons();
 
+            runner?.MarkSaveAllowed();
+
             // 모달 락(스페이스 진행 막기)
             policy?.SetModalOpen(true);
 

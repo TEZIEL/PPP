@@ -10,6 +10,10 @@ namespace PPP.BLUE.VN
         [SerializeField] private bool logToConsole = true;
         [SerializeField] private VNScript testScript;
         [SerializeField] private VNOSBridge bridge;
+        public bool SaveAllowed { get; private set; }
+
+        public void MarkSaveBlocked() => SaveAllowed = false;
+        public void MarkSaveAllowed() => SaveAllowed = true;
 
         public event Action<string, string, string> OnSay; // speakerId, text, lineId
         public event Action OnEnd;
@@ -24,6 +28,22 @@ namespace PPP.BLUE.VN
         private int failCount = 0;
         private int successCount = 0;
         private string lastResult = "great"; // "fail"/"success"/"great"
+
+        // VNRunner 필드
+        private readonly Dictionary<string, int> vars = new();
+
+        // VNRunner 메서드
+        public void SetVar(string key, int value)
+        {
+            if (string.IsNullOrEmpty(key)) return;
+            vars[key] = value;
+        }
+
+        public int GetVar(string key, int defaultValue = 0)
+        {
+            if (string.IsNullOrEmpty(key)) return defaultValue;
+            return vars.TryGetValue(key, out var v) ? v : defaultValue;
+        }
 
         // 1단계: 하드코딩 테스트용
         public void Begin()
@@ -42,6 +62,8 @@ namespace PPP.BLUE.VN
 
         private void Start()
         {
+            SetVar("lastDrink", 0); // 테스트
+
             var loaded = VNScriptLoader.LoadFromStreamingAssets("day01");
             SetScript(loaded);
 
@@ -71,6 +93,8 @@ namespace PPP.BLUE.VN
 
         public void Next()
         {
+            Debug.Log("[VN] SaveAllowed FALSE (Next)");
+            MarkSaveBlocked();
             if (script == null || script.nodes == null)
             {
                 Debug.LogError("[VNRunner] No script loaded.");
@@ -147,6 +171,11 @@ namespace PPP.BLUE.VN
             
         }
 
+
+        
+
+        
+
         public void SetScript(VNScript s)
         {
             script = s;
@@ -172,19 +201,22 @@ namespace PPP.BLUE.VN
 
         private bool EvaluateExpr(string expr)
         {
-            if (string.IsNullOrEmpty(expr)) return false;
+            if (string.IsNullOrWhiteSpace(expr)) return false;
 
-            // 공백 제거
-            expr = expr.Replace(" ", "").ToLowerInvariant();
+            expr = expr.Replace(" ", "").Trim().ToLowerInvariant();
 
-            // last==great 같은 패턴
-            if (expr.StartsWith("last=="))
+            // lastdrink==1 같은 패턴만 지원 (최소 구현)
+            const string prefix = "lastdrink==";
+            if (expr.StartsWith(prefix))
             {
-                var v = expr.Substring("last==".Length);
-                return lastResult == v;
+                var rhsStr = expr.Substring(prefix.Length);
+                if (!int.TryParse(rhsStr, out var rhs)) return false;
+
+                var lhs = GetVar("lastDrink", 0);
+                return lhs == rhs;
             }
 
-            // great>=2 같은 패턴
+            // 기존 수치 비교는 유지 (great>=2 등)
             if (TryParseCompare(expr, "great", greatCount, out var ok1)) return ok1;
             if (TryParseCompare(expr, "fail", failCount, out var ok2)) return ok2;
             if (TryParseCompare(expr, "success", successCount, out var ok3)) return ok3;

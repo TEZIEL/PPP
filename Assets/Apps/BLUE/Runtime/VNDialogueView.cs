@@ -140,7 +140,11 @@ namespace PPP.BLUE.VN
             typer.StartTyping(currentFullText, onCompleted: () =>
             {
                 lineCompleted = true;
+                runner?.MarkSaveAllowed();
             });
+
+            runner.MarkSaveAllowed();
+            Debug.Log("[VN] SaveAllowed TRUE (Typing End)");
 
             // 임시: 특정 라인에서 드링크 패널 열기
             if (lineId == "t.drink")

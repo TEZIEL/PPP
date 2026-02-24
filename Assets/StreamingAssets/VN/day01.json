@@ -1,23 +1,28 @@
 {
   "scriptId": "day01",
   "nodes": [
-
-    { "id": "start", "type": "Say", "speakerId": "sys", "text": "손님이 들어왔다." },
+    { "id": "t.001", "type": "Say", "speakerId": "sys", "text": "Auto branch test." },
 
     {
-      "id": "drink_branch",
+      "id": "t.br",
       "type": "Branch",
       "branches": [
-        { "expr": "lastDrink==SPORTS", "jumpLabel": "route_sports", "choiceText": "" },
-        { "expr": "lastDrink==COFFEE", "jumpLabel": "route_coffee", "choiceText": "" },
-        { "expr": "else", "jumpLabel": "route_default", "choiceText": "" }
+        { "expr": "lastDrink==1", "jumpLabel": "sports_route", "choiceText": "" },
+        { "expr": "lastDrink==2", "jumpLabel": "coffee_route", "choiceText": "" },
+        { "expr": "else",         "jumpLabel": "default_route", "choiceText": "" }
       ]
     },
 
-    { "id": "route_sports", "type": "Say", "speakerId": "sys", "text": "운동 음료를 받았다." },
-    { "id": "route_coffee", "type": "Say", "speakerId": "sys", "text": "커피를 받았다." },
-    { "id": "route_default", "type": "Say", "speakerId": "sys", "text": "묘한 음료를 받았다." },
+    { "id": "t.lb.s", "type": "Label", "label": "sports_route" },
+    { "id": "t.say.s", "type": "Say", "speakerId": "sys", "text": "SPORTS route." },
+    { "id": "t.end.s", "type": "End" },
 
-    { "id": "end", "type": "End" }
+    { "id": "t.lb.c", "type": "Label", "label": "coffee_route" },
+    { "id": "t.say.c", "type": "Say", "speakerId": "sys", "text": "COFFEE route." },
+    { "id": "t.end.c", "type": "End" },
+
+    { "id": "t.lb.d", "type": "Label", "label": "default_route" },
+    { "id": "t.say.d", "type": "Say", "speakerId": "sys", "text": "DEFAULT route." },
+    { "id": "t.end.d", "type": "End" }
   ]
 }
