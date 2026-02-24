@@ -66,6 +66,7 @@ namespace PPP.BLUE.VN
 
         private void Update()
         {
+
             if (inputLockFrames > 0) { inputLockFrames--; return; }
             if (runner == null) return;
             if (!runner.HasScript) return;

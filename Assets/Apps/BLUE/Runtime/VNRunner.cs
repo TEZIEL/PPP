@@ -40,7 +40,7 @@ namespace PPP.BLUE.VN
 
         private void Start()
         {
-            var loaded = VNScriptLoader.LoadFromStreamingAssets("t_say_null");
+            var loaded = VNScriptLoader.LoadFromStreamingAssets("t_jump_empty");
             SetScript(loaded);
 
             if (bridge != null) bridge.RequestBlockClose(true);
@@ -207,7 +207,7 @@ namespace PPP.BLUE.VN
         {
             if (node.branches == null || node.branches.Length == 0)
             {
-                Debug.LogError("[VNRunner] Branch has no rules.");
+                Debug.LogWarning("[VNRunner] Branch has no rules. Skip.");
                 pointer++;
                 return;
             }
@@ -236,20 +236,20 @@ namespace PPP.BLUE.VN
         {
             if (string.IsNullOrEmpty(label))
             {
-                Debug.LogError("[VNRunner] Jump label is empty.");
+                Debug.LogError($"[VNRunner] Jump label is empty. nodeId={script?.nodes?[pointer]?.id} idx={pointer}");
                 pointer++;
                 return;
             }
 
             if (!script.TryGetLabelIndex(label, out var idx))
             {
-                Debug.LogError($"[VNRunner] Jump target not found: {label}");
+                Debug.LogError($"[VNRunner] Jump target not found: '{label}'. nodeId={script?.nodes?[pointer]?.id} idx={pointer} scriptId={script?.scriptId}");
                 pointer++;
                 return;
             }
 
             if (logToConsole)
-                Debug.Log($"[VN] Jump -> {label} (idx {idx})");
+                Debug.Log($"[VN] Jump -> {label} (idx {idx}) from nodeId={script?.nodes?[pointer]?.id} curIdx={pointer}");
 
             // 보통 라벨 다음 줄부터 실행하고 싶으니 +1
             pointer = idx + 1;

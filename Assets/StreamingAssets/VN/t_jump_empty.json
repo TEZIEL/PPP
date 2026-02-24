@@ -1,0 +1,9 @@
+{
+  "scriptId": "t_jump_empty",
+  "nodes": [
+    { "id": "t.001", "type": "Say", "speakerId": "sys", "text": "Before empty jump" },
+    { "id": "t.j",   "type": "Jump", "label": "" },
+    { "id": "t.002", "type": "Say", "speakerId": "sys", "text": "After empty jump" },
+    { "id": "t.end", "type": "End" }
+  ]
+}

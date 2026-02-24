@@ -1,8 +1,0 @@
-{
-  "scriptId": "t_say_null",
-  "nodes": [
-    { "id": "t.001", "type": "Say" },
-    { "id": "t.002", "type": "Say", "speakerId": "", "text": "" },
-    { "id": "t.end", "type": "End" }
-  ]
-}
