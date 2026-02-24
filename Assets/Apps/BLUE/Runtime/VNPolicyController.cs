@@ -7,7 +7,11 @@ namespace PPP.BLUE.VN
         [Header("Refs")]
         [SerializeField] private VNOSBridge bridge;
 
-     
+        public VNWindowState GetWindowState()
+        {
+            return bridge != null ? bridge.GetWindowState() : new VNWindowState(false, true);
+        }
+
         public bool IsInDrinkMode { get; private set; }
 
         // ✅ 팝업 떠 있으면 VN 입력 막기용

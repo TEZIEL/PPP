@@ -185,6 +185,8 @@ public class WindowController : MonoBehaviour,
     {
         IsMinimized = minimized;
 
+
+
         // “완전 숨김”
         canvasGroup.alpha = minimized ? 0f : 1f;
         canvasGroup.interactable = !minimized;

@@ -14,6 +14,7 @@ namespace PPP.BLUE.VN
         [SerializeField] private TMP_Text nameText;
         [SerializeField] private TMP_Text dialogueText;
         [SerializeField] private VNOSBridge osBridge;
+        [SerializeField] private VNOSBridge bridge;
         [SerializeField] private DrinkTestPanel drinkTestPanel;
 
         [Header("Typing")]
@@ -32,17 +33,24 @@ namespace PPP.BLUE.VN
 
         private bool CanAcceptVNInput()
         {
-            // 1) 팝업 떠있으면 VN 진행 입력 막기
-            // (너 ClosePopup이 active면)
-            // popupRoot 참조 없으면, 일단 아래 줄은 나중에 연결해도 됨
-            // if (closePopupRoot != null && closePopupRoot.activeSelf) return false;
+            // 1) 팝업/모달이면 입력 금지 (이미 위에서 막고 있지만 안전)
+            if (policy != null && policy.IsModalOpen) return false;
 
-            // 2) 타이핑 처리/모드 처리는 Update에서 이미 하니까 여기선 최소만
+            // 2) 브릿지가 있으면 “포커스/최소화”로 컷
+            if (bridge != null)
+            {
+                var st = bridge.GetWindowState();
+                if (!st.IsFocused) return false;
+                if (st.IsMinimized) return false;
+            }
+
             return true;
         }
 
         private void Awake()
         {
+            if (bridge == null) bridge = GetComponentInParent<VNOSBridge>(true);
+            if (bridge == null) bridge = GetComponentInChildren<VNOSBridge>(true);
             if (typer != null) typer.SetTarget(dialogueText);
             if (runner == null) runner = GetComponentInParent<VNRunner>(true);
             choicePanel = GetComponentInChildren<VNChoicePanel>(true); // 같은 윈도우 트리에서 찾기
@@ -92,8 +100,13 @@ namespace PPP.BLUE.VN
 
             if (policy != null && policy.IsModalOpen) return; // ✅ 팝업 떠있으면 VN 진행 금지
 
+            
             // ✅ 0) 입력 자체 허용 여부 (포커스/최소화/팝업 등)
-            if (!CanAcceptVNInput()) return;
+            if (policy != null)
+            {
+                var st = policy.GetWindowState();
+                if (!st.IsFocused || st.IsMinimized) return;
+            }
 
             // ✅ 1) Drink 모드면 진행 입력 금지 (Space가 뭐든 먹지 않게)
             if (policy != null && policy.IsInDrinkMode) return;

@@ -22,6 +22,9 @@ public class WindowManager : MonoBehaviour, IVNHostOS
         public Vector2 size;
     }
 
+    private readonly Dictionary<string, bool> minimizedByAppId = new();
+    private readonly Dictionary<string, bool> exitLockedByAppId = new();
+
     private readonly Dictionary<string, WindowDefault> windowDefaults = new();
 
     private readonly Dictionary<string, WindowController> openWindows = new();
@@ -48,6 +51,18 @@ public class WindowManager : MonoBehaviour, IVNHostOS
         closeLockUntil = Mathf.Max(closeLockUntil, Time.unscaledTime + seconds);
     }
     private bool IsCloseLocked() => Time.unscaledTime < closeLockUntil;
+
+
+    public void SetMinimized(string appId, bool minimized)
+    {
+        if (!openWindows.TryGetValue(appId, out var w) || w == null) return;
+
+        minimizedByAppId[appId] = minimized;
+        w.SetMinimized(minimized);
+
+        // (선택) 최소화/복원 직후 잔입력 방지
+        // LockCloseForSeconds(0.1f);
+    }
 
     public bool IsFocused(string appId)
     {
@@ -1123,13 +1138,12 @@ public class WindowManager : MonoBehaviour, IVNHostOS
     public void SetCloseHandler(string appId, IVNCloseRequestHandler handler)
     {
         if (string.IsNullOrEmpty(appId) || handler == null) return;
-        closeHandlers[appId] = handler; // appId당 1개만 유지(중복 누적 방지)
+        closeHandlers[appId] = handler; // appId당 1개만 유지
     }
 
     public void ClearCloseHandler(string appId, IVNCloseRequestHandler handler)
     {
         if (string.IsNullOrEmpty(appId) || handler == null) return;
-
         if (closeHandlers.TryGetValue(appId, out var cur) && ReferenceEquals(cur, handler))
             closeHandlers.Remove(appId);
     }
@@ -1138,54 +1152,28 @@ public class WindowManager : MonoBehaviour, IVNHostOS
     // ✅ 1) 포커스/최소화 상태 제공
     public VNWindowState GetWindowState(string appId)
     {
-        // 너 프로젝트에서 "포커스"를 어떻게 판단하는지 모르니, 일단 보수적으로 구성:
-        // - openWindows에 있으면 최소화 여부는 window 상태에서 가져오고
-        // - 포커스는 네 기존 IsFocused(appId)를 쓰면 됨(이미 있다고 했지)
         bool focused = IsFocused(appId);
 
-        bool minimized = false;
-        if (openWindows.TryGetValue(appId, out var w) && w != null)
-        {
-            // ✅ WindowController에 최소화 상태가 있으면 그걸 써
-            // 프로젝트마다 이름이 다르니까 아래 2개 중 하나로 맞춰.
-            // minimized = w.IsMinimized;
-            // minimized = w.IsMinimized(); 
-            // 못 찾으면 그냥 false 유지해도 됨(입력 막는 정도에서만 쓰는 값이라 치명적 X)
-        }
+        bool minimized = minimizedByAppId.TryGetValue(appId, out var m) && m;
 
         return new VNWindowState(focused, minimized);
     }
 
-    // ✅ 2) "나가기 잠금" 플래그 저장
+
+    public void SaveSubBlock(string key, object data) { /* 지금은 비워둬도 됨 */ }
+    public T LoadSubBlock<T>(string key) where T : class => null;
+
+    public bool IsExitLocked(string appId)
+    {
+        if (string.IsNullOrEmpty(appId)) return false;
+        return exitLockedByAppId.TryGetValue(appId, out var v) && v;
+    }
+
+    // IVNHostOS 구현
     public void SetExitLocked(string appId, bool locked)
     {
         if (string.IsNullOrEmpty(appId)) return;
-
-        if (locked) exitLockedApps.Add(appId);
-        else exitLockedApps.Remove(appId);
-    }
-
-    // (선택) 이게 있으면 다른 데서 체크 가능
-    private bool IsExitLocked(string appId) => exitLockedApps.Contains(appId);
-
-    // ✅ 3) VN 서브블록 저장 (OSSaveSystem에 위임)
-    public void SaveSubBlock(string key, object data)
-    {
-        // 네 프로젝트에 OSSaveSystem이 이미 있고 SaveOS에서 저장한다 했지?
-        // 여기서는 "OSSaveData" 내부에 subBlocks 같은 저장공간이 있을 확률이 높음.
-        // 일단 최소 구현: 너 WindowManager에 이미 있는 SaveSubBlock/LoadSubBlock 방식이 있으면 거기로 연결.
-        // 없다면, 지금은 컴파일만 통과시키고(= TODO) 4단계에서 본격 연결하면 됨.
-
-        // TODO: 4단계(진짜 저장/로드)에서 구현
-        Debug.Log($"[OS] SaveSubBlock stub key={key} type={data?.GetType().Name}");
-    }
-
-    // ✅ 4) VN 서브블록 로드
-    public T LoadSubBlock<T>(string key) where T : class
-    {
-        // TODO: 4단계에서 구현
-        Debug.Log($"[OS] LoadSubBlock stub key={key} type={typeof(T).Name}");
-        return null;
+        exitLockedByAppId[appId] = locked;
     }
 
 

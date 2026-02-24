@@ -20,16 +20,20 @@ namespace PPP.BLUE.VN
         [TextArea]
         [SerializeField] private string defaultMessage = "Are you sure you want to quit?";
 
+        private bool isShowing;
+
         private void Awake()
         {
-            // ✅ 자동 주입 (인스펙터 누락 방지)
+            if (bridge == null) bridge = GetComponentInParent<VNOSBridge>(true);
             if (bridge == null) bridge = GetComponentInChildren<VNOSBridge>(true);
+
+            if (policy == null) policy = GetComponentInParent<VNPolicyController>(true);
             if (policy == null) policy = GetComponentInChildren<VNPolicyController>(true);
 
             if (popupRoot != null) popupRoot.SetActive(false);
 
-            if (btnCancel != null) btnCancel.onClick.AddListener(Hide);
-            if (btnExit != null) btnExit.onClick.AddListener(ForceExit);
+            btnCancel?.onClick.AddListener(Hide);
+            btnExit?.onClick.AddListener(ForceExit);
 
             if (bridge != null)
                 bridge.OnCloseRequested += Show;
@@ -43,17 +47,16 @@ namespace PPP.BLUE.VN
 
         public void Show()
         {
-            // ✅ 드링크 모드면 팝업 자체 금지(2중 방어)
             if (policy != null && policy.IsInDrinkMode) return;
-
             if (popupRoot == null) return;
+
+            if (isShowing) return;          // ✅ 중복 방지
+            isShowing = true;
 
             if (messageText != null) messageText.text = defaultMessage;
             popupRoot.SetActive(true);
 
             policy?.SetModalOpen(true);
-
-            // ✅ Space/Enter 버튼 재클릭 방지
             UnityEngine.EventSystems.EventSystem.current?.SetSelectedGameObject(null);
         }
 
@@ -61,9 +64,11 @@ namespace PPP.BLUE.VN
         {
             if (popupRoot == null) return;
 
+            if (!isShowing) return;
+            isShowing = false;
+
             popupRoot.SetActive(false);
             policy?.SetModalOpen(false);
-
             UnityEngine.EventSystems.EventSystem.current?.SetSelectedGameObject(null);
         }
 
