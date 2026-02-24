@@ -294,13 +294,20 @@ public class WindowManager : MonoBehaviour, IVNHostOS
     public void SaveOS()
     {
         var data = new OSSaveData();
+
         CollectWindows(data);
         CollectIcons(data);
 
-        OSSaveSystem.Save(data);
-        cachedSave = data;
-
-        Debug.Log("[OS] SaveOS completed.");
+        // ✅ 마지막에 subBlocks 채우기
+        data.subBlocks.Clear();
+        foreach (var kv in subBlockJsonByKey)
+        {
+            data.subBlocks.Add(new PPP.OS.Save.OSSubBlockData
+            {
+                key = kv.Key,
+                json = kv.Value
+            });
+        }
     }
 
     private IEnumerator CoPostApplyLayoutSanityNextFrame()
@@ -314,12 +321,23 @@ public class WindowManager : MonoBehaviour, IVNHostOS
         var data = OSSaveSystem.Load();
         if (data == null) return;
 
+        // ✅ 로드한 data에서 subBlocks → 캐시에 복원
+        subBlockJsonByKey.Clear();
+        if (data.subBlocks != null)
+        {
+            foreach (var sb in data.subBlocks)
+            {
+                if (sb == null || string.IsNullOrEmpty(sb.key)) continue;
+                subBlockJsonByKey[sb.key] = sb.json ?? "";
+            }
+        }
+
         ApplyWindows(data);
         ApplyIcons(data);
         cachedSave = data;
 
-        PostApplyLayoutSanity(); // ✅ 추가
-        StartCoroutine(CoPostApplyLayoutSanityNextFrame()); // ✅ 추가
+        PostApplyLayoutSanity();
+        StartCoroutine(CoPostApplyLayoutSanityNextFrame());
 
         Debug.Log("[OS] LoadOS applied.");
     }
@@ -1132,6 +1150,8 @@ public class WindowManager : MonoBehaviour, IVNHostOS
         return pos;
     }
 
+    // ✅ 실행 중 캐시(저장 전까지 유지)
+    private readonly Dictionary<string, string> subBlockJsonByKey = new();
     private readonly Dictionary<string, IVNCloseRequestHandler> closeHandlers = new();
     private readonly HashSet<string> exitLockedApps = new();
 
@@ -1160,8 +1180,29 @@ public class WindowManager : MonoBehaviour, IVNHostOS
     }
 
 
-    public void SaveSubBlock(string key, object data) { /* 지금은 비워둬도 됨 */ }
-    public T LoadSubBlock<T>(string key) where T : class => null;
+    public void SaveSubBlock(string key, object data)
+    {
+        if (string.IsNullOrEmpty(key) || data == null) return;
+
+        var json = JsonUtility.ToJson(data);
+        subBlockJsonByKey[key] = json;
+        RequestAutoSave(); // 네가 이미 쓰는 자동저장 루틴 있지?
+
+        // (선택) 즉시 autosave 예약하고 싶으면 여기서 RequestAutoSave() 같은거 호출
+    }
+
+    public T LoadSubBlock<T>(string key) where T : class
+    {
+        if (string.IsNullOrEmpty(key)) return null;
+
+        // 1) 실행 중 캐시 우선
+        if (subBlockJsonByKey.TryGetValue(key, out var json) && !string.IsNullOrEmpty(json))
+            return JsonUtility.FromJson<T>(json);
+
+        // 2) 없으면 "마지막 로드된 OSSaveData"에서 찾아야 함
+        //    → 아래 5)에서 LoadOS 시 캐시에 채우는 처리 넣을거야.
+        return null;
+    }
 
     public bool IsExitLocked(string appId)
     {

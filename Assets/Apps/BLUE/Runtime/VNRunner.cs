@@ -12,8 +12,15 @@ namespace PPP.BLUE.VN
         [SerializeField] private VNOSBridge bridge;
         public bool SaveAllowed { get; private set; }
 
+        private const string SAVE_KEY = "vn.state";
+
         public void MarkSaveBlocked() => SaveAllowed = false;
-        public void MarkSaveAllowed() => SaveAllowed = true;
+        public void MarkSaveAllowed() 
+        { 
+                SaveAllowed = true;
+                SaveState(); // ✅ 여기 한 줄로 “자동 저장” 완성
+            }
+
 
         public event Action<string, string, string> OnSay; // speakerId, text, lineId
         public event Action OnEnd;
@@ -323,7 +330,7 @@ namespace PPP.BLUE.VN
 
             if (!script.TryGetLabelIndex(label, out var idx))
             {
-                Debug.LogError($"[VNRunner] Jump target not found: '{label}'. nodeId={script?.nodes?[pointer]?.id} idx={pointer} scriptId={script?.scriptId}");
+                
                 pointer++;
                 return;
             }
@@ -344,6 +351,77 @@ namespace PPP.BLUE.VN
             enabled = false; // 1단계에서는 그냥 멈춤
         }
 
+        public void SaveState()
+        {
+            if (bridge == null) return;
+            var dto = CaptureState();
+            bridge.SaveVN(SAVE_KEY, dto);
+            if (logToConsole) Debug.Log("[VN] State saved.");
+        }
+
+        public bool LoadState()
+        {
+            if (bridge == null) return false;
+
+            var dto = bridge.LoadVN<VNStateDTO>(SAVE_KEY);
+            if (dto == null) return false;
+
+            var ok = RestoreState(dto);
+            if (logToConsole) Debug.Log(ok ? "[VN] State loaded." : "[VN] State load failed (script mismatch).");
+            return ok;
+        }
+
+        public VNStateDTO CaptureState()
+        {
+            var dto = new VNStateDTO
+            {
+                scriptId = script != null ? script.ScriptId : string.Empty,
+                pointer = pointer,
+                greatCount = greatCount,
+                successCount = successCount,
+                failCount = failCount,
+                lastResult = lastResult,
+            };
+
+            dto.intVars.Clear();
+            foreach (var kv in vars)
+            {
+                dto.intVars.Add(new IntVarDTO { key = kv.Key, value = kv.Value });
+            }
+
+            return dto;
+        }
+
+        public bool RestoreState(VNStateDTO dto)
+        {
+            if (dto == null) return false;
+            if (script == null || script.nodes == null) return false;
+
+            // 스크립트가 다르면 로드 실패 (원하면 여기서 리셋로직)
+            if (!string.Equals(dto.scriptId, script.ScriptId, StringComparison.Ordinal))
+                return false;
+
+            // pointer 범위 보정
+            pointer = Mathf.Clamp(dto.pointer, 0, script.nodes.Count);
+
+            vars.Clear();
+            if (dto.intVars != null)
+            {
+                for (int i = 0; i < dto.intVars.Count; i++)
+                {
+                    var v = dto.intVars[i];
+                    if (v == null || string.IsNullOrEmpty(v.key)) continue;
+                    vars[v.key] = v.value;
+                }
+            }
+
+            greatCount = dto.greatCount;
+            successCount = dto.successCount;
+            failCount = dto.failCount;
+            lastResult = dto.lastResult;
+
+            return true;
+        }
 
         public void ApplyDrinkResult(string result) // "fail" / "success" / "great"
         {
@@ -411,4 +489,5 @@ namespace PPP.BLUE.VN
             return new VNScript("test", nodes);
         }
     }
+
 }

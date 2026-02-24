@@ -10,6 +10,14 @@ namespace PPP.OS.Save
         public int version = 2;
         public List<OSWindowData> windows = new();
         public List<OSIconData> icons = new();
+        public List<OSSubBlockData> subBlocks = new();
+    }
+
+    [Serializable]
+    public class OSSubBlockData
+    {
+        public string key;
+        public string json;
     }
 
     [Serializable]

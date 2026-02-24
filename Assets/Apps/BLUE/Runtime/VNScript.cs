@@ -4,17 +4,16 @@ namespace PPP.BLUE.VN
 {
     public sealed class VNScript
     {
-        public readonly string scriptId;
-        public readonly List<VNNode> nodes;
+        public string ScriptId { get; }
+        public List<VNNode> nodes;
 
         // label -> index
         private readonly Dictionary<string, int> labelToIndex = new();
 
         public VNScript(string scriptId, List<VNNode> nodes)
         {
-            this.scriptId = scriptId;
-            this.nodes = nodes ?? new List<VNNode>();
-            BuildLabelIndex();
+            ScriptId = scriptId ?? string.Empty;
+            this.nodes = nodes;
         }
 
         private void BuildLabelIndex()
