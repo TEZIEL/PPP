@@ -1,0 +1,30 @@
+{
+  "scriptId": "day01",
+  "nodes": [
+    { "id": "t.001", "type": "Say", "speakerId": "sys", "text": "(Test) Hello. Press SPACE." },
+
+    { "id": "t.drink", "type": "Say", "speakerId": "sys", "text": "(Drink) Make a drink now." },
+
+    {
+      "id": "t.branch",
+      "type": "Branch",
+      "branches": [
+        { "expr": "great>=2", "jumpLabel": "route2" },
+        { "expr": "fail>=2", "jumpLabel": "route3" },
+        { "expr": "else", "jumpLabel": "route1" }
+      ]
+    },
+
+    { "id": "t.r1", "type": "Label", "label": "route1" },
+    { "id": "t.r1s", "type": "Say", "speakerId": "sys", "text": "Route1: Normal." },
+    { "id": "t.end1", "type": "End" },
+
+    { "id": "t.r2", "type": "Label", "label": "route2" },
+    { "id": "t.r2s", "type": "Say", "speakerId": "sys", "text": "Route2: Great >= 2." },
+    { "id": "t.end2", "type": "End" },
+
+    { "id": "t.r3", "type": "Label", "label": "route3" },
+    { "id": "t.r3s", "type": "Say", "speakerId": "sys", "text": "Route3: Fail >= 2." },
+    { "id": "t.end3", "type": "End" }
+  ]
+}
