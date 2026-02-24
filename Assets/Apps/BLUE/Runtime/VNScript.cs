@@ -15,7 +15,6 @@ namespace PPP.BLUE.VN
             ScriptId = scriptId ?? string.Empty;
             this.nodes = nodes;
 
-
             BuildLabelIndex(); // ✅ 필수
         }
 

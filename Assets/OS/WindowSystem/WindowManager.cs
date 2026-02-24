@@ -168,16 +168,17 @@ public class WindowManager : MonoBehaviour, IVNHostOS
 
         // ✅ (2) VNOSBridge가 있으면 Host 주입
         var bridge = content.GetComponentInChildren<PPP.BLUE.VN.VNOSBridge>(true);
+        var runner = content.GetComponentInChildren<PPP.BLUE.VN.VNRunner>(true);
+
         if (bridge != null)
         {
-            // 🔥 여기만 네 WindowController에 맞춰야 함
-            // 1순위: spawned.AppId
-            // 2순위: spawned.appId
-            // 3순위: spawned.Definition.AppId / spawned.Def.appId 등
-            string id = spawned.AppId; // <- 컴파일 에러 나면 이 줄만 네 필드명으로 바꿔
+            bridge.InjectHost(this, spawned.AppId); // ← AppId 필드명은 네 프로젝트에 맞춰
+            Debug.Log($"[OS] InjectHost -> {spawned.AppId}");
+        }
 
-            bridge.InjectHost(this, id);
-            Debug.Log($"[OS] InjectHost -> {id}");
+        if (runner != null && bridge != null)
+        {
+            runner.InjectBridge(bridge); // 아래 메서드 추가
         }
     }
 
@@ -1190,9 +1191,11 @@ public class WindowManager : MonoBehaviour, IVNHostOS
     public void SaveSubBlock(string key, object data)
     {
         if (string.IsNullOrEmpty(key) || data == null) return;
+
         var json = JsonUtility.ToJson(data);
         subBlockJsonByKey[key] = json;
-        Debug.Log($"[OS] SaveSubBlock key={key} len={json?.Length ?? 0}");
+
+        Debug.Log($"[OS] SaveSubBlock key={key} len={json?.Length ?? 0} total={subBlockJsonByKey.Count}");
     }
 
     public T LoadSubBlock<T>(string key) where T : class
@@ -1200,6 +1203,8 @@ public class WindowManager : MonoBehaviour, IVNHostOS
         if (string.IsNullOrEmpty(key)) return null;
         if (!subBlockJsonByKey.TryGetValue(key, out var json)) return null;
         if (string.IsNullOrEmpty(json)) return null;
+
+        Debug.Log($"[OS] LoadSubBlock key={key} len={json.Length} total={subBlockJsonByKey.Count}");
         return JsonUtility.FromJson<T>(json);
     }
 

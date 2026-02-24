@@ -28,7 +28,8 @@ namespace PPP.BLUE.VN
 
         private void Start()
         {
-           
+            LockInputFrames(2);
+          
         }
 
         private bool CanAcceptVNInput()
@@ -59,22 +60,25 @@ namespace PPP.BLUE.VN
 
         private void OnEnable()
         {
+            LockInputFrames(5); // 여기 추가 (2 말고 5 추천)
 
-            if (runner != null) runner.OnChoice += HandleChoice;
             if (subscribed) return;
+            if (runner == null) return;
+
             runner.OnSay += HandleSay;
             runner.OnEnd += HandleEnd;
-            runner.OnChoice += HandleChoice;   // ✅ 추가
+            runner.OnChoice += HandleChoice;
             subscribed = true;
         }
 
         private void OnDisable()
         {
-            if (runner != null) runner.OnChoice -= HandleChoice;
             if (!subscribed) return;
+            if (runner == null) return;
+
             runner.OnSay -= HandleSay;
             runner.OnEnd -= HandleEnd;
-            runner.OnChoice -= HandleChoice;   // ✅ 추가
+            runner.OnChoice -= HandleChoice;
             subscribed = false;
         }
 
@@ -125,6 +129,11 @@ namespace PPP.BLUE.VN
             runner.Next();
         }
 
+
+        public void LockInputFrames(int frames = 2)
+        {
+            inputLockFrames = Mathf.Max(inputLockFrames, frames);
+        }
 
         private void HandleSay(string speakerId, string text, string lineId)
         {

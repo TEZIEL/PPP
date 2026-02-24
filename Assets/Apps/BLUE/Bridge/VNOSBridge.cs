@@ -32,6 +32,8 @@ namespace PPP.BLUE.VN
             if (!string.IsNullOrEmpty(injectedAppId))
                 appId = injectedAppId;
 
+            Debug.Log($"[VNBridge] InjectHost host={(hostBehaviour ? hostBehaviour.name : "NULL")} appId={appId}");
+
             TryRegisterCloseHandler();
         }
 
@@ -75,13 +77,17 @@ namespace PPP.BLUE.VN
         private void TryRegisterCloseHandler()
         {
             if (registered) return;
-            if (Host == null) return;
+            if (Host == null)
+            {
+                Debug.LogWarning($"[VNBridge] Host is NULL (hostBehaviour={(hostBehaviour ? hostBehaviour.GetType().Name : "NULL")})");
+                return;
+            }
 
             Host.SetCloseHandler(appId, this);
             registered = true;
 
-            // 지금까지 켜둔 정책들이 있다면 Host에 반영(안전)
             Host.SetExitLocked(appId, ExitLocked);
+            Debug.Log($"[VNBridge] Registered close handler appId={appId}");
         }
 
         public VNWindowState GetWindowState()

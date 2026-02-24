@@ -2,7 +2,14 @@
   "scriptId": "day01",
   "nodes": [
     { "id": "t.001", "type": "Say", "speakerId": "sys", "text": "SaveAllowed test A/B/C. (Typing End => TRUE)" },
-    { "id": "t.002", "type": "Say", "speakerId": "sys", "text": "Now press NEXT. (Next() should set FALSE)" },
+    { "id": "t.002", "type": "Say", "speakerId": "sys", "text": "Now press NEXT. (Next()  set FALSE)" },
+    { "id": "t.002", "type": "Say", "speakerId": "sys", "text": "Now pres NEXT. (() should set FALSE)" },
+    { "id": "t.002", "type": "Say", "speakerId": "sys", "text": "Now  NEXT. (Next() should set FALSE)" },
+    { "id": "t.002", "type": "Say", "speakerId": "sys", "text": "Now  NEXT. (Next()   FALSE)" },
+    { "id": "t.002", "type": "Say", "speakerId": "sys", "text": " press NEXT. (() should set FALSE)" },
+    { "id": "t.002", "type": "Say", "speakerId": "sys", "text": "Now press . (Next() should set )" },
+    { "id": "t.002", "type": "Say", "speakerId": "sys", "text": " press NEXT. (Next() should set FALSE)" },
+
 
     { "id": "t.drink", "type": "Say", "speakerId": "sys", "text": "(Drink) Choose a result now." },
 

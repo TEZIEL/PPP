@@ -14,13 +14,19 @@ namespace PPP.BLUE.VN
 
         private const string SAVE_KEY = "vn.state";
         private const string VN_STATE_KEY = "vn.state";
+        private int lastShownPointer = -1;
+        private int lastStopIndex = 0; // 마지막으로 '멈춘' 노드(Say/Choice)의 인덱스
 
+        public void InjectBridge(VNOSBridge b)
+        {
+            bridge = b;
+        }
 
         private void Awake()
         {
-            if (bridge == null) bridge = GetComponentInChildren<VNOSBridge>(true);
-            if (bridge == null) bridge = GetComponentInParent<VNOSBridge>(true);
+            TryResolveBridge(silent: true);
         }
+
 
         public void MarkSaveBlocked() => SaveAllowed = false;
         public void MarkSaveAllowed() 
@@ -60,32 +66,58 @@ namespace PPP.BLUE.VN
             return vars.TryGetValue(key, out var v) ? v : defaultValue;
         }
 
-        // 1단계: 하드코딩 테스트용
+
         public void Begin()
         {
-            
             if (started) return;
-            if (script == null)
-            {
-                Debug.LogError("[VNRunner] No script loaded.");
-                return;
-            }
-            // ✅ 세이브 있으면 먼저 복원
-            LoadState();
+            if (script == null) { Debug.LogError("[VNRunner] No script loaded."); return; }
+            Debug.Log($"[VN] Begin() id={GetInstanceID()} go={gameObject.name} started={started}");
+
+            LoadState();   // 있으면 복원, 없으면 false
             started = true;
             Next();
+        }
+
+        private void EmitCurrent()
+        {
+            if (script == null || script.nodes == null) return;
+            if (pointer < 0 || pointer >= script.nodes.Count)
+            {
+                Debug.LogWarning($"[VNRunner] EmitCurrent out of range pointer={pointer}");
+                return;
+            }
+
+            // “현재 포인터 노드를 한번 재생”하는 함수
+            // 보통 Next() 안에서 switch(node.type) 하는 로직이 있을 텐데,
+            // 그걸 분리해서 "RunNode(script.nodes[pointer], advance:false)" 같은 형태로 만드는 게 베스트.
+            // 일단 간단히는 Next() 구조를 조금 바꿔야 함.
         }
 
         public event Action<VNNode.BranchRule[]> OnChoice;
 
         private void Start()
         {
-            SetVar("lastDrink", 0); // 테스트
+            TryResolveBridge(silent: false);
+
+            if (bridge != null)
+                bridge.RequestBlockClose(true);
 
             var loaded = VNScriptLoader.LoadFromStreamingAssets("day01");
             SetScript(loaded);
 
-            if (bridge != null) bridge.RequestBlockClose(true);
+            Begin();
+        }
+
+        private void TryResolveBridge(bool silent)
+        {
+            if (bridge != null) return;
+
+            // 같은 프리팹 루트(VN_APP) 아래에서 브릿지 찾기
+            bridge = GetComponentInParent<Transform>()
+                ?.GetComponentInChildren<VNOSBridge>(true);
+
+            if (!silent && bridge == null)
+                Debug.LogError("[VNRunner] bridge not found (VNOSBridge).");
         }
 
         private void Update()
@@ -111,6 +143,8 @@ namespace PPP.BLUE.VN
 
         public void Next()
         {
+            Debug.Log($"[VN] Next() id={GetInstanceID()} go={gameObject.name} pointer={pointer} started={started}");
+            Debug.Log($"[VN] Next() pointer={pointer} nodes={script?.nodes?.Count ?? -1} started={started}");
             Debug.Log("[VN] SaveAllowed FALSE (Next)");
             MarkSaveBlocked();
             if (script == null || script.nodes == null)
@@ -133,6 +167,7 @@ namespace PPP.BLUE.VN
                 }
 
                 var node = script.nodes[pointer];
+                Debug.Log($"[VN] node@{pointer} type={node?.type} label={node?.label}");
                 if (node == null)
                 {
                     pointer++;
@@ -142,6 +177,7 @@ namespace PPP.BLUE.VN
                 switch (node.type)
                 {
                     case VNNodeType.Say:
+                        lastShownPointer = pointer; // ✅ 이 줄이 핵심
                         EmitSay(node);
                         pointer++;
                         return; // ✅ Say는 "멈춤" 포인트 (화면에 보여주고 기다림)
@@ -150,6 +186,7 @@ namespace PPP.BLUE.VN
                         if (node.branches != null && node.branches.Length > 0 &&
                             HasAnyChoiceText(node.branches))
                         {
+                            lastStopIndex = pointer;
                             OnChoice?.Invoke(node.branches);
                             pointer++;        // Branch 자체는 소비
                             return;           // ✅ 여기서 멈춤(선택 기다림)
@@ -190,24 +227,16 @@ namespace PPP.BLUE.VN
         }
 
 
-        
 
-        
+
+
 
         public void SetScript(VNScript s)
         {
             script = s;
             pointer = 0;
+            lastStopIndex = 0;
             started = false;
-
-            if (script == null)
-            {
-                Debug.LogError("[VNRunner] Script is null.");
-                return;
-            }
-
-            Begin(); // ✅ 스크립트가 확실히 있을 때만 시작
-            TryLoadState(bridge);
         }
 
         private void EmitSay(VNNode node)
@@ -368,13 +397,13 @@ namespace PPP.BLUE.VN
         {
             var st = new VNState();
             st.scriptId = script != null ? script.ScriptId : "";
-            st.pointer = pointer;
+
+            // ✅ 마지막으로 화면에 보여준 노드부터 다시 시작
+            st.pointer = (lastShownPointer >= 0) ? lastShownPointer : pointer;
 
             st.vars.Clear();
             foreach (var kv in vars)
-            {
                 st.vars.Add(new VNIntVar { key = kv.Key, value = kv.Value });
-            }
 
             st.greatCount = greatCount;
             st.successCount = successCount;
@@ -383,6 +412,7 @@ namespace PPP.BLUE.VN
 
             return st;
         }
+
 
         private void ApplyState(VNState st)
         {
@@ -417,33 +447,33 @@ namespace PPP.BLUE.VN
 
         private void SaveState()
         {
-            // SaveAllowed true일 때만 저장
             if (!SaveAllowed) return;
             if (bridge == null || script == null) return;
 
-
-            
-
-            var st = BuildState(); // 또는 BuildState() 중 하나만 쓰기
+            var st = BuildState(); // CaptureState/BuildState 중 하나로 통일 추천
             bridge.SaveVN(VN_STATE_KEY, st);
 
             if (logToConsole)
-                Debug.Log($"[VN] Saved state ({VN_STATE_KEY}) scriptId={st.scriptId} pointer={st.pointer} vars={st.vars?.Count ?? 0}");
+                Debug.Log($"[VN] SaveState -> key={VN_STATE_KEY} scriptId={st.scriptId} pointer={st.pointer} vars={st.vars?.Count ?? 0}");
         }
 
-        public bool TryLoadState(VNOSBridge bridge)
+
+
+        private bool LoadState()
         {
-            if (bridge == null) return false;
+            if (bridge == null || script == null)
+                return false;
 
             var st = bridge.LoadVN<VNState>(VN_STATE_KEY);
-            if (st == null) return false;
-            if (script == null) return false;
+            if (st == null)
+                return false;
 
-            // 다른 스크립트면 적용 금지
             if (!string.Equals(st.scriptId, script.ScriptId, StringComparison.Ordinal))
                 return false;
 
-            pointer = st.pointer;
+            pointer = Mathf.Clamp(st.pointer, 0, script.nodes.Count - 1);
+            lastShownPointer = pointer;
+            lastStopIndex = pointer; // 같이 맞춰두면 안전
 
             vars.Clear();
             if (st.vars != null)
@@ -460,33 +490,10 @@ namespace PPP.BLUE.VN
             failCount = st.failCount;
             lastResult = st.lastResult;
 
-            
             return true;
         }
 
-        private bool LoadState()
-        {
-            if (bridge == null) return false;
-            if (script == null) return false;
 
-            var st = bridge.LoadVN<VNState>(VN_STATE_KEY);
-            if (st == null) return false;
-
-            if (!string.Equals(st.scriptId, script.ScriptId, StringComparison.Ordinal))
-            {
-                Debug.LogWarning($"[VNRunner] LoadState ignored: saved scriptId={st.scriptId} but current={script.ScriptId}");
-                return false;
-            }
-
-            ApplyState(st);
-
-            if (logToConsole)
-                Debug.Log($"[VN] Loaded state ({VN_STATE_KEY}) scriptId={st.scriptId} pointer={pointer} vars={vars.Count}");
-
-            return true;
-        }
-
-        
 
         public bool RestoreState(VNState dto)
         {
