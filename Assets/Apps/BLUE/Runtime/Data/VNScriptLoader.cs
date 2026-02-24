@@ -51,7 +51,7 @@ namespace PPP.BLUE.VN
                         continue;
                     }
 
-                    if (!Enum.TryParse<VNNodeType>(nodeDto.type, true, out var t))
+                    if (!Enum.TryParse(nodeDto.type, true, out VNNodeType t))
                     {
                         Debug.LogError($"[VNScriptLoader] Invalid node type '{nodeDto.type}' at index {i} in {path}");
                         return null;
@@ -71,7 +71,9 @@ namespace PPP.BLUE.VN
                 }
             }
 
-            return new VNScript(dto.scriptId ?? string.Empty, nodes);
+            var script = new VNScript(fileNameNoExt ?? string.Empty, nodes);
+            Debug.Log($"[VN] Loaded scriptId={script.ScriptId} nodes={script.nodes.Count} labels={script.LabelCount}");
+            return script;
         }
 
         private static VNNode.BranchRule[] ConvertBranches(VNBranchRuleDTO[] branchDtos)
