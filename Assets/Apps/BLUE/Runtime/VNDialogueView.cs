@@ -22,6 +22,7 @@ namespace PPP.BLUE.VN
         private string currentFullText = "";
         private bool lineCompleted = true; // true면 Next로 "다음 라인" 가능
         private int inputLockFrames = 0;
+        private bool subscribed;
 
         private void Start()
         {
@@ -46,20 +47,20 @@ namespace PPP.BLUE.VN
 
         private void OnEnable()
         {
-            if (runner != null)
-            {
-                runner.OnSay += HandleSay;
-                runner.OnEnd += HandleEnd;
-            }
+            if (runner == null) return;
+            if (subscribed) return;
+            runner.OnSay += HandleSay;
+            runner.OnEnd += HandleEnd;
+            subscribed = true;
         }
 
         private void OnDisable()
         {
-            if (runner != null)
-            {
-                runner.OnSay -= HandleSay;
-                runner.OnEnd -= HandleEnd;
-            }
+            if (runner == null) return;
+            if (!subscribed) return;
+            runner.OnSay -= HandleSay;
+            runner.OnEnd -= HandleEnd;
+            subscribed = false;
         }
 
 
@@ -94,8 +95,8 @@ namespace PPP.BLUE.VN
 
         private void HandleSay(string speakerId, string text, string lineId)
         {
-            Debug.Log($"[HandleSay] nameText={(nameText ? "OK" : "NULL")} dialogueText={(dialogueText ? "OK" : "NULL")} typer={(typer ? "OK" : "NULL")} drinkPanel={(drinkTestPanel ? "OK" : "NULL")} lineId={lineId}");
-
+            Debug.Log($"HandleSay called by {gameObject.name}");
+            
             inputLockFrames = 1;
             // 새 라인이 오면, 일단 "진행 금지" 상태로 만들고 타이핑 시작
             lineCompleted = false;

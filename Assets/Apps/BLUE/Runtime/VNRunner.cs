@@ -40,9 +40,10 @@ namespace PPP.BLUE.VN
 
         private void Start()
         {
-            if (testScript != null) SetScript(testScript);
-            else SetScript(BuildTestScript());
-            // bridge.RequestBlockClose(true)는 PolicyController가 기본으로 잡는 게 더 깔끔함
+            var loaded = VNScriptLoader.LoadFromStreamingAssets("t_say_null");
+            SetScript(loaded);
+
+            if (bridge != null) bridge.RequestBlockClose(true);
         }
 
         private void Update()
