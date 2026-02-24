@@ -10,9 +10,16 @@ namespace PPP.OS.Save
 
         public static void Save(OSSaveData data)
         {
-            string json = JsonUtility.ToJson(data, true);
-            File.WriteAllText(SavePath, json);
-            Debug.Log($"[OS SAVE] ¡æ {SavePath}");
+            try
+            {
+                string json = JsonUtility.ToJson(data, true);
+                File.WriteAllText(SavePath, json);
+                Debug.Log($"[OS SAVE] ¡æ {SavePath} (len={json.Length}) existsAfter={File.Exists(SavePath)}");
+            }
+            catch (System.Exception e)
+            {
+                Debug.LogError($"[OS SAVE] FAILED path={SavePath}\n{e}");
+            }
         }
 
         public static OSSaveData Load()

@@ -364,22 +364,21 @@ namespace PPP.BLUE.VN
         {
             if (string.IsNullOrEmpty(label))
             {
-                Debug.LogError($"[VNRunner] Jump label is empty. nodeId={script?.nodes?[pointer]?.id} idx={pointer}");
-                pointer++;
+                Debug.LogError($"[VN] Jump label is empty. nodeId={script?.nodes?[pointer]?.id} idx={pointer}");
+                // 안전: 여기서는 진행하지 말자
                 return;
             }
 
             if (!script.TryGetLabelIndex(label, out var idx))
             {
-                
-                pointer++;
+                Debug.LogError($"[VN] Label not found: '{label}' nodeId={script?.nodes?[pointer]?.id} curIdx={pointer}");
+                // 안전: 여기서는 진행하지 말자 (엔진 상태를 망치지 않게)
                 return;
             }
 
             if (logToConsole)
                 Debug.Log($"[VN] Jump -> {label} (idx {idx}) from nodeId={script?.nodes?[pointer]?.id} curIdx={pointer}");
 
-            // 보통 라벨 다음 줄부터 실행하고 싶으니 +1
             pointer = idx + 1;
         }
 

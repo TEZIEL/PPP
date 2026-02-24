@@ -1,41 +1,40 @@
-{
-  "scriptId": "day01",
-  "nodes": [
-    { "id": "t.001", "type": "Say", "speakerId": "sys", "text": "SaveAllowed test A/B/C. (Typing End => TRUE)" },
-    { "id": "t.002", "type": "Say", "speakerId": "sys", "text": "Now press NEXT. (Next()  set FALSE)" },
-    { "id": "t.002", "type": "Say", "speakerId": "sys", "text": "Now pres NEXT. (() should set FALSE)" },
-    { "id": "t.002", "type": "Say", "speakerId": "sys", "text": "Now  NEXT. (Next() should set FALSE)" },
-    { "id": "t.002", "type": "Say", "speakerId": "sys", "text": "Now  NEXT. (Next()   FALSE)" },
-    { "id": "t.002", "type": "Say", "speakerId": "sys", "text": " press NEXT. (() should set FALSE)" },
-    { "id": "t.002", "type": "Say", "speakerId": "sys", "text": "Now press . (Next() should set )" },
-    { "id": "t.002", "type": "Say", "speakerId": "sys", "text": " press NEXT. (Next() should set FALSE)" },
+  {
+    "scriptId": "day01",
+    "nodes": [
+      { "id": "t.001", "type": "Say", "speakerId": "sys", "text": "SaveAllowed test A/B/C. (Typing End => TRUE)" },
+      { "id": "t.003", "type": "Say", "speakerId": "sys", "text": "Now press NEXT. (Next()  set FALSE)" },
+      { "id": "t.002", "type": "Say", "speakerId": "sys", "text": "Now pres NEXT. (() should set FALSE)" },
+      { "id": "t.002", "type": "Say", "speakerId": "sys", "text": "Now  NEXT. (Next() should set FALSE)" },
+      { "id": "t.002", "type": "Say", "speakerId": "sys", "text": "Now  NEXT. (Next()   FALSE)" },
+      { "id": "t.002", "type": "Say", "speakerId": "sys", "text": " press NEXT. (() should set FALSE)" },
+      { "id": "t.002", "type": "Say", "speakerId": "sys", "text": "Now press . (Next() should set )" },
+      { "id": "t.002", "type": "Say", "speakerId": "sys", "text": " press NEXT. (Next() should set FALSE)" },
 
+      { "id": "t.drink", "type": "Say", "speakerId": "sys", "text": "(Drink) Choose a result now." },
 
-    { "id": "t.drink", "type": "Say", "speakerId": "sys", "text": "(Drink) Choose a result now." },
+      {
+        "id": "t.br",
+        "type": "Branch",
+        "branches": [
+          { "expr": "lastDrink==1", "jumpLabel": "sports_route__NOPE__", "choiceText": "" },
+          { "expr": "lastDrink==2", "jumpLabel": "coffee_route",        "choiceText": "" },
+          { "expr": "else",         "jumpLabel": "default_route",       "choiceText": "" }
+        ]
+      },
 
-    {
-      "id": "t.br",
-      "type": "Branch",
-      "branches": [
-        { "expr": "lastDrink==1", "jumpLabel": "sports_route",  "choiceText": "" },
-        { "expr": "lastDrink==2", "jumpLabel": "coffee_route",  "choiceText": "" },
-        { "expr": "else",         "jumpLabel": "default_route", "choiceText": "" }
-      ]
-    },
+      { "id": "t.lb.s", "type": "Label", "label": "sports_route_REAL" },
+      { "id": "t.say.s1", "type": "Say", "speakerId": "sys", "text": "SPORTS route. (Typing End => TRUE)" },
+      { "id": "t.say.s2", "type": "Say", "speakerId": "sys", "text": "Press NEXT again. (Next() => FALSE, then Typing End => TRUE)" },
+      { "id": "t.end.s", "type": "End" },
 
-    { "id": "t.lb.s", "type": "Label", "label": "sports_route" },
-    { "id": "t.say.s1", "type": "Say", "speakerId": "sys", "text": "SPORTS route. (Typing End => TRUE)" },
-    { "id": "t.say.s2", "type": "Say", "speakerId": "sys", "text": "Press NEXT again. (Next() => FALSE, then Typing End => TRUE)" },
-    { "id": "t.end.s", "type": "End" },
+      { "id": "t.lb.c", "type": "Label", "label": "coffee_route" },
+      { "id": "t.say.c1", "type": "Say", "speakerId": "sys", "text": "COFFEE route. (Typing End => TRUE)" },
+      { "id": "t.say.c2", "type": "Say", "speakerId": "sys", "text": "Press NEXT again. (Next() => FALSE, then Typing End => TRUE)" },
+      { "id": "t.end.c", "type": "End" },
 
-    { "id": "t.lb.c", "type": "Label", "label": "coffee_route" },
-    { "id": "t.say.c1", "type": "Say", "speakerId": "sys", "text": "COFFEE route. (Typing End => TRUE)" },
-    { "id": "t.say.c2", "type": "Say", "speakerId": "sys", "text": "Press NEXT again. (Next() => FALSE, then Typing End => TRUE)" },
-    { "id": "t.end.c", "type": "End" },
-
-    { "id": "t.lb.d", "type": "Label", "label": "default_route" },
-    { "id": "t.say.d1", "type": "Say", "speakerId": "sys", "text": "DEFAULT route. (Typing End => TRUE)" },
-    { "id": "t.say.d2", "type": "Say", "speakerId": "sys", "text": "Press NEXT again. (Next() => FALSE, then Typing End => TRUE)" },
-    { "id": "t.end.d", "type": "End" }
-  ]
-}
+      { "id": "t.lb.d", "type": "Label", "label": "default_route" },
+      { "id": "t.say.d1", "type": "Say", "speakerId": "sys", "text": "DEFAULT route. (Typing End => TRUE)" },
+      { "id": "t.say.d2", "type": "Say", "speakerId": "sys", "text": "Press NEXT again. (Next() => FALSE, then Typing End => TRUE)" },
+      { "id": "t.end.d", "type": "End" }
+    ]
+  }

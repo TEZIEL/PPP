@@ -298,6 +298,7 @@ public class WindowManager : MonoBehaviour, IVNHostOS
 
     public void SaveOS()
     {
+        Debug.Log($"[OS SAVE] persistentDataPath={Application.persistentDataPath}");
         var saveData = new OSSaveData();
 
         // 1) windows/icons 먼저
