@@ -52,6 +52,8 @@ namespace PPP.BLUE.VN
 
         // VNRunner 필드
         private readonly Dictionary<string, int> vars = new();
+        private readonly List<string> seenLineIds = new();
+        private VNSettings settings = VNSettings.Default();
 
         // VNRunner 메서드
         public void SetVar(string key, int value)
@@ -103,6 +105,12 @@ namespace PPP.BLUE.VN
                 bridge.RequestBlockClose(true);
 
             var loaded = VNScriptLoader.LoadFromStreamingAssets("day01");
+            if (loaded == null)
+            {
+                Debug.LogError("[VNRunner] Failed to load script 'day01'.");
+                return;
+            }
+
             SetScript(loaded);
 
             Begin();
@@ -235,12 +243,14 @@ namespace PPP.BLUE.VN
         {
             script = s;
             pointer = 0;
-            lastStopIndex = 0;
             started = false;
         }
 
         private void EmitSay(VNNode node)
         {
+            if (!string.IsNullOrEmpty(node?.id) && !seenLineIds.Contains(node.id))
+                seenLineIds.Add(node.id);
+
             if (logToConsole)
                 Debug.Log($"[VN] {node.speakerId}: {node.text} (id={node.id})");
 
@@ -404,6 +414,9 @@ namespace PPP.BLUE.VN
             foreach (var kv in vars)
                 st.vars.Add(new VNIntVar { key = kv.Key, value = kv.Value });
 
+            st.seen = new List<string>(seenLineIds);
+            st.settings = settings ?? VNSettings.Default();
+
             st.greatCount = greatCount;
             st.successCount = successCount;
             st.failCount = failCount;
@@ -450,6 +463,13 @@ namespace PPP.BLUE.VN
             if (bridge == null || script == null) return;
 
             var st = BuildState(); // CaptureState/BuildState 중 하나로 통일 추천
+
+            if (logToConsole)
+            {
+                var safeSettings = st.settings ?? VNSettings.Default();
+                Debug.Log($"[VN] SaveState seen={st.seen?.Count ?? 0} auto={safeSettings.auto} skip={safeSettings.skip} speed={safeSettings.speed}");
+            }
+
             bridge.SaveVN(VN_STATE_KEY, st);
 
             if (logToConsole)
@@ -484,10 +504,21 @@ namespace PPP.BLUE.VN
                 }
             }
 
+            st.seen ??= new List<string>();
+            st.settings ??= VNSettings.Default();
+
+            seenLineIds.Clear();
+            seenLineIds.AddRange(st.seen);
+
+            settings = st.settings;
+
             greatCount = st.greatCount;
             successCount = st.successCount;
             failCount = st.failCount;
             lastResult = st.lastResult;
+
+            if (logToConsole)
+                Debug.Log($"[VN] LoadState seen={seenLineIds.Count} auto={settings.auto} skip={settings.skip} speed={settings.speed}");
 
             return true;
         }
