@@ -46,6 +46,32 @@ namespace PPP.BLUE.VN
             TryRegisterCloseHandler();
         }
 
+        private void OnDisable()
+        {
+            if (Host != null)
+                Host.ClearCloseHandler(appId, this);
+
+            registered = false; // 다시 켜질 때 재등록 가능
+        }
+
+        private void OnDestroy()
+        {
+            if (Host != null)
+                Host.ClearCloseHandler(appId, this);
+
+            registered = false;
+        }
+
+        private void Unregister()
+        {
+            if (!registered) return;
+            if (Host == null) return;
+
+            Host.ClearCloseHandler(appId, this);
+            registered = false;
+        }
+
+
         private void TryRegisterCloseHandler()
         {
             if (registered) return;

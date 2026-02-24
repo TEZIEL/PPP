@@ -36,24 +36,27 @@ namespace PPP.BLUE.VN
             EventSystem.current?.SetSelectedGameObject(null);
         }
 
+        private bool choosing;
+
+
         private void Choose(string result)
         {
-            // 0) 입력/닫기 잠금 (버튼 클릭 직후 입력 잔상 방지)
             windowManager?.LockCloseForSeconds(0.15f);
             shortcutController?.LockForSeconds(0.15f);
-
-            // 1) UI 선택 해제 (Space/Enter가 버튼에 다시 먹는 문제 방지)
             EventSystem.current?.SetSelectedGameObject(null);
 
-            // 2) 결과 반영
-            runner?.ApplyDrinkResult(result);
-            runner?.MarkSaveAllowed();
+            // ✅ 테스트용: 버튼에 따라 lastDrink도 세팅
+            if (runner != null)
+            {
+                int lastDrinkValue = result == "great" ? 1 : (result == "success" ? 2 : 3);
+                runner.SetVar("lastDrink", lastDrinkValue);
+            }
 
-            // 3) 닫기 + 모드 종료
+            runner?.ApplyDrinkResult(result);
+
             if (root != null) root.SetActive(false);
             policy?.ExitDrinkMode();
 
-            // 4) VN 계속 진행
             runner?.Next();
         }
     }

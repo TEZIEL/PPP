@@ -203,26 +203,50 @@ namespace PPP.BLUE.VN
         {
             if (string.IsNullOrWhiteSpace(expr)) return false;
 
-            expr = expr.Replace(" ", "").Trim().ToLowerInvariant();
+            expr = expr.Replace(" ", "").Trim();
 
-            // lastdrink==1 같은 패턴만 지원 (최소 구현)
-            const string prefix = "lastdrink==";
-            if (expr.StartsWith(prefix))
+            // else는 DoBranch에서 이미 처리하니까 여기서는 false
+            if (expr.Equals("else", StringComparison.OrdinalIgnoreCase))
+                return false;
+
+            // 지원 연산자: >= <= == > <
+            string op = null;
+            if (expr.Contains(">=")) op = ">=";
+            else if (expr.Contains("<=")) op = "<=";
+            else if (expr.Contains("==")) op = "==";
+            else if (expr.Contains(">")) op = ">";
+            else if (expr.Contains("<")) op = "<";
+            else
             {
-                var rhsStr = expr.Substring(prefix.Length);
-                if (!int.TryParse(rhsStr, out var rhs)) return false;
-
-                var lhs = GetVar("lastDrink", 0);
-                return lhs == rhs;
+                Debug.LogWarning($"[VNRunner] Unknown expr(no operator): {expr}");
+                return false;
             }
 
-            // 기존 수치 비교는 유지 (great>=2 등)
-            if (TryParseCompare(expr, "great", greatCount, out var ok1)) return ok1;
-            if (TryParseCompare(expr, "fail", failCount, out var ok2)) return ok2;
-            if (TryParseCompare(expr, "success", successCount, out var ok3)) return ok3;
+            var parts = expr.Split(new[] { op }, StringSplitOptions.None);
+            if (parts.Length != 2)
+            {
+                Debug.LogWarning($"[VNRunner] Bad expr(split): {expr}");
+                return false;
+            }
 
-            Debug.LogWarning($"[VNRunner] Unknown expr: {expr}");
-            return false;
+            var key = parts[0];
+            if (!int.TryParse(parts[1], out var rhs))
+            {
+                Debug.LogWarning($"[VNRunner] Bad expr(rhs not int): {expr}");
+                return false;
+            }
+
+            var lhs = GetVar(key, 0); // ✅ vars(int)에서 가져옴
+
+            return op switch
+            {
+                ">=" => lhs >= rhs,
+                "<=" => lhs <= rhs,
+                "==" => lhs == rhs,
+                ">" => lhs > rhs,
+                "<" => lhs < rhs,
+                _ => false
+            };
         }
 
         private bool TryParseCompare(string expr, string key, int value, out bool result)

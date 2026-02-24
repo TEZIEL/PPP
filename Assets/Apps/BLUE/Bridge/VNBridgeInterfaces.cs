@@ -14,6 +14,8 @@ namespace PPP.BLUE.VN
         }
     }
 
+
+
     public interface IVNCloseRequestHandler
     {
         bool CanCloseNow();
@@ -25,7 +27,7 @@ namespace PPP.BLUE.VN
         VNWindowState GetWindowState(string appId);
         void SetExitLocked(string appId, bool locked);
         void SetCloseHandler(string appId, IVNCloseRequestHandler handler);
-
+        void ClearCloseHandler(string appId, IVNCloseRequestHandler handler);
         void SaveSubBlock(string key, object data);
         T LoadSubBlock<T>(string key) where T : class;
     }

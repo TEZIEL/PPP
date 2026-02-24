@@ -7,7 +7,7 @@ using PPP.BLUE.VN;
 
 
 
-public class WindowManager : MonoBehaviour
+public class WindowManager : MonoBehaviour, IVNHostOS
 {
     [SerializeField] private RectTransform windowsRoot;
     [SerializeField] private RectTransform canvasRect;
@@ -571,6 +571,13 @@ public class WindowManager : MonoBehaviour
 
     public void Close(string appId)
     {
+
+        // 1.5) ✅ ExitLocked면 닫기 무시 (VN이 강제 잠금 걸어둔 상태)
+        if (IsExitLocked(appId))
+        {
+            Debug.Log("[OS] Close ignored (ExitLocked).");
+            return;
+        }
         // 0) Close 입력락
         if (IsCloseLocked())
         {
@@ -593,31 +600,32 @@ public class WindowManager : MonoBehaviour
         EnsureFocused(appId);
 
         // 4) 브릿지 찾기
-        var bridge = FindBridge(appId);
+        closeHandlers.TryGetValue(appId, out var handler); // handler: IVNCloseRequestHandler (or VNOSBridge)
 
         // 5) VN이 닫기를 막는 상태면: OS는 닫지 않고, VN에게 “닫기 요청”만 전달
-        if (bridge != null && !bridge.CanCloseNow())
+        if (handler != null && !handler.CanCloseNow())
         {
             Debug.Log("[OS] Close blocked by VN.");
 
-            // ✅ 이벤트 중복 등록 방지: appId 기반으로 한 번만 등록하는 게 안전함
-            // (간단 버전: 콜백 안에서 다시 검증하고 닫기)
-            void OnForce()
+            // ✅ OnForceCloseRequested는 "VNOSBridge에만" 있으니까 캐스팅 필요
+            if (handler is PPP.BLUE.VN.VNOSBridge bridge)
             {
+                void OnForce()
+                {
+                    bridge.OnForceCloseRequested -= OnForce;
+
+                    if (!openWindows.TryGetValue(appId, out var w2) || w2 == null)
+                        return;
+
+                    PerformClose(w2, appId);
+                }
+
                 bridge.OnForceCloseRequested -= OnForce;
-
-                // ✅ 여기서 "그때의" 윈도우를 다시 찾아서 닫기 (캡처 위험 제거)
-                if (!openWindows.TryGetValue(appId, out var w2) || w2 == null)
-                    return;
-
-                PerformClose(w2, appId);
+                bridge.OnForceCloseRequested += OnForce;
             }
 
-            bridge.OnForceCloseRequested -= OnForce;
-            bridge.OnForceCloseRequested += OnForce;
-
-            // ✅ Notify는 딱 한 번만
-            bridge.NotifyCloseRequested();
+            // ✅ Notify는 인터페이스에 있으니 handler로 호출
+            handler.NotifyCloseRequested();
             return;
         }
 
@@ -1107,6 +1115,77 @@ public class WindowManager : MonoBehaviour
         pos.y = Mathf.Clamp(pos.y, minY, maxY);
 
         return pos;
+    }
+
+    private readonly Dictionary<string, IVNCloseRequestHandler> closeHandlers = new();
+    private readonly HashSet<string> exitLockedApps = new();
+
+    public void SetCloseHandler(string appId, IVNCloseRequestHandler handler)
+    {
+        if (string.IsNullOrEmpty(appId) || handler == null) return;
+        closeHandlers[appId] = handler; // appId당 1개만 유지(중복 누적 방지)
+    }
+
+    public void ClearCloseHandler(string appId, IVNCloseRequestHandler handler)
+    {
+        if (string.IsNullOrEmpty(appId) || handler == null) return;
+
+        if (closeHandlers.TryGetValue(appId, out var cur) && ReferenceEquals(cur, handler))
+            closeHandlers.Remove(appId);
+    }
+
+
+    // ✅ 1) 포커스/최소화 상태 제공
+    public VNWindowState GetWindowState(string appId)
+    {
+        // 너 프로젝트에서 "포커스"를 어떻게 판단하는지 모르니, 일단 보수적으로 구성:
+        // - openWindows에 있으면 최소화 여부는 window 상태에서 가져오고
+        // - 포커스는 네 기존 IsFocused(appId)를 쓰면 됨(이미 있다고 했지)
+        bool focused = IsFocused(appId);
+
+        bool minimized = false;
+        if (openWindows.TryGetValue(appId, out var w) && w != null)
+        {
+            // ✅ WindowController에 최소화 상태가 있으면 그걸 써
+            // 프로젝트마다 이름이 다르니까 아래 2개 중 하나로 맞춰.
+            // minimized = w.IsMinimized;
+            // minimized = w.IsMinimized(); 
+            // 못 찾으면 그냥 false 유지해도 됨(입력 막는 정도에서만 쓰는 값이라 치명적 X)
+        }
+
+        return new VNWindowState(focused, minimized);
+    }
+
+    // ✅ 2) "나가기 잠금" 플래그 저장
+    public void SetExitLocked(string appId, bool locked)
+    {
+        if (string.IsNullOrEmpty(appId)) return;
+
+        if (locked) exitLockedApps.Add(appId);
+        else exitLockedApps.Remove(appId);
+    }
+
+    // (선택) 이게 있으면 다른 데서 체크 가능
+    private bool IsExitLocked(string appId) => exitLockedApps.Contains(appId);
+
+    // ✅ 3) VN 서브블록 저장 (OSSaveSystem에 위임)
+    public void SaveSubBlock(string key, object data)
+    {
+        // 네 프로젝트에 OSSaveSystem이 이미 있고 SaveOS에서 저장한다 했지?
+        // 여기서는 "OSSaveData" 내부에 subBlocks 같은 저장공간이 있을 확률이 높음.
+        // 일단 최소 구현: 너 WindowManager에 이미 있는 SaveSubBlock/LoadSubBlock 방식이 있으면 거기로 연결.
+        // 없다면, 지금은 컴파일만 통과시키고(= TODO) 4단계에서 본격 연결하면 됨.
+
+        // TODO: 4단계(진짜 저장/로드)에서 구현
+        Debug.Log($"[OS] SaveSubBlock stub key={key} type={data?.GetType().Name}");
+    }
+
+    // ✅ 4) VN 서브블록 로드
+    public T LoadSubBlock<T>(string key) where T : class
+    {
+        // TODO: 4단계에서 구현
+        Debug.Log($"[OS] LoadSubBlock stub key={key} type={typeof(T).Name}");
+        return null;
     }
 
 

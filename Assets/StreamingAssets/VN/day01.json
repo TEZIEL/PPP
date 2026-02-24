@@ -1,28 +1,34 @@
 {
   "scriptId": "day01",
   "nodes": [
-    { "id": "t.001", "type": "Say", "speakerId": "sys", "text": "Auto branch test." },
+    { "id": "t.001", "type": "Say", "speakerId": "sys", "text": "SaveAllowed test A/B/C. (Typing End => TRUE)" },
+    { "id": "t.002", "type": "Say", "speakerId": "sys", "text": "Now press NEXT. (Next() should set FALSE)" },
+
+    { "id": "t.drink", "type": "Say", "speakerId": "sys", "text": "(Drink) Choose a result now." },
 
     {
       "id": "t.br",
       "type": "Branch",
       "branches": [
-        { "expr": "lastDrink==1", "jumpLabel": "sports_route", "choiceText": "" },
-        { "expr": "lastDrink==2", "jumpLabel": "coffee_route", "choiceText": "" },
+        { "expr": "lastDrink==1", "jumpLabel": "sports_route",  "choiceText": "" },
+        { "expr": "lastDrink==2", "jumpLabel": "coffee_route",  "choiceText": "" },
         { "expr": "else",         "jumpLabel": "default_route", "choiceText": "" }
       ]
     },
 
     { "id": "t.lb.s", "type": "Label", "label": "sports_route" },
-    { "id": "t.say.s", "type": "Say", "speakerId": "sys", "text": "SPORTS route." },
+    { "id": "t.say.s1", "type": "Say", "speakerId": "sys", "text": "SPORTS route. (Typing End => TRUE)" },
+    { "id": "t.say.s2", "type": "Say", "speakerId": "sys", "text": "Press NEXT again. (Next() => FALSE, then Typing End => TRUE)" },
     { "id": "t.end.s", "type": "End" },
 
     { "id": "t.lb.c", "type": "Label", "label": "coffee_route" },
-    { "id": "t.say.c", "type": "Say", "speakerId": "sys", "text": "COFFEE route." },
+    { "id": "t.say.c1", "type": "Say", "speakerId": "sys", "text": "COFFEE route. (Typing End => TRUE)" },
+    { "id": "t.say.c2", "type": "Say", "speakerId": "sys", "text": "Press NEXT again. (Next() => FALSE, then Typing End => TRUE)" },
     { "id": "t.end.c", "type": "End" },
 
     { "id": "t.lb.d", "type": "Label", "label": "default_route" },
-    { "id": "t.say.d", "type": "Say", "speakerId": "sys", "text": "DEFAULT route." },
+    { "id": "t.say.d1", "type": "Say", "speakerId": "sys", "text": "DEFAULT route. (Typing End => TRUE)" },
+    { "id": "t.say.d2", "type": "Say", "speakerId": "sys", "text": "Press NEXT again. (Next() => FALSE, then Typing End => TRUE)" },
     { "id": "t.end.d", "type": "End" }
   ]
 }

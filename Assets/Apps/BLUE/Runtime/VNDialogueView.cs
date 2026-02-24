@@ -116,37 +116,44 @@ namespace PPP.BLUE.VN
         private void HandleSay(string speakerId, string text, string lineId)
         {
             Debug.Log($"HandleSay called by {gameObject.name}");
-            
+
             inputLockFrames = 1;
-            // 새 라인이 오면, 일단 "진행 금지" 상태로 만들고 타이핑 시작
+
+            // 새 라인 시작 = 기본적으로 아직 저장 금지(타이핑 끝나기 전)
             lineCompleted = false;
             currentFullText = text ?? "";
 
             if (nameText != null) nameText.text = speakerId ?? "";
             if (dialogueText != null) dialogueText.text = "";
 
+            // ✅ 타이퍼 없으면 즉시 출력 + 즉시 SaveAllowed
             if (typer == null)
             {
-                // 타이퍼가 없으면 즉시 출력
                 if (dialogueText != null) dialogueText.text = currentFullText;
                 lineCompleted = true;
+                runner?.MarkSaveAllowed();
+                Debug.Log("[VN] SaveAllowed TRUE (No Typer => Immediate)");
+
+                // t.drink 트리거도 동일하게 적용
+                if (lineId == "t.drink")
+                    drinkTestPanel?.Open();
+
                 return;
             }
 
-            // 타이핑 속도 적용
-            // (typer 내부 변수를 public set으로 바꾸거나, 여기서 직접 값을 넘기는 방식 중 택1)
-            // 간단히: inspector에서 charsPerSecond 맞춰두고 사용
-
+            // ✅ 타이핑 시작: 끝날 때만 SaveAllowed TRUE
             typer.StartTyping(currentFullText, onCompleted: () =>
             {
                 lineCompleted = true;
                 runner?.MarkSaveAllowed();
+                Debug.Log("[VN] SaveAllowed TRUE (Typing End)");
+
+                // (선택) 타이핑이 끝난 다음 드링크 패널 띄우고 싶으면 여기로 옮기면 됨
+                // if (lineId == "t.drink") drinkTestPanel?.Open();
             });
 
-            runner.MarkSaveAllowed();
-            Debug.Log("[VN] SaveAllowed TRUE (Typing End)");
-
-            // 임시: 특정 라인에서 드링크 패널 열기
+            // ✅ 지금은 여기서 MarkSaveAllowed() 찍지 않는다!
+            // ✅ 드링크 패널을 "라인 표시 순간"에 띄우고 싶으면 아래 유지
             if (lineId == "t.drink")
             {
                 if (drinkTestPanel == null)
