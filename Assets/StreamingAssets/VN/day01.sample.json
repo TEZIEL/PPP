@@ -1,0 +1,9 @@
+{
+  "nodes": [
+    { "id": "n.start", "type": "Label", "label": "start" },
+    { "id": "n.1", "type": "Say", "speakerId": "me", "text": "안녕." },
+    { "id": "n.mid", "type": "Label", "label": "mid" },
+    { "id": "n.2", "type": "Say", "speakerId": "you", "text": "반가워." },
+    { "id": "n.end", "type": "End" }
+  ]
+}
