@@ -138,6 +138,16 @@ namespace PPP.BLUE.VN
 
             if (!HasScript) return;
 
+            if (Input.GetKeyDown(KeyCode.F1))
+            {
+                settings.skipMode =
+                    settings.skipMode == VNSkipMode.Off
+                    ? VNSkipMode.SeenOnly
+                    : VNSkipMode.Off;
+
+                Debug.Log($"[VN] SkipMode={settings.skipMode}");
+            }
+
         }
 
         public void Choose(string jumpLabel)
@@ -190,6 +200,15 @@ namespace PPP.BLUE.VN
                 switch (node.type)
                 {
                     case VNNodeType.Say:
+                        if (settings.skipMode == VNSkipMode.SeenOnly
+                            && !string.IsNullOrEmpty(node.id)
+                            && seenLineIds.Contains(node.id))
+                        {
+                            Debug.Log($"[VN] Skip: {node.id}");
+                            pointer++;
+                            continue;
+                        }
+
                         lastShownPointer = pointer; // ✅ 이 줄이 핵심
                         EmitSay(node);
                         pointer++;
@@ -434,6 +453,7 @@ namespace PPP.BLUE.VN
             {
                 auto = settings.auto,
                 skip = settings.skip,
+                skipMode = settings.skipMode,
                 speed = settings.speed
             };
 
