@@ -159,6 +159,7 @@ namespace PPP.BLUE.VN
             {
                 lineCompleted = true;
                 runner?.MarkSaveAllowed();
+                
                 Debug.Log("[VN] SaveAllowed TRUE (Typing End)");
 
                 // (선택) 타이핑이 끝난 다음 드링크 패널 띄우고 싶으면 여기로 옮기면 됨

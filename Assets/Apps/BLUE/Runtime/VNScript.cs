@@ -1,11 +1,11 @@
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 
 namespace PPP.BLUE.VN
 {
     public sealed class VNScript
     {
         public string ScriptId { get; }
-        public List<VNNode> nodes;
+        public List<VNNode> nodes; 
 
         // label -> index
         private readonly Dictionary<string, int> labelToIndex = new();
@@ -14,6 +14,9 @@ namespace PPP.BLUE.VN
         {
             ScriptId = scriptId ?? string.Empty;
             this.nodes = nodes;
+
+
+            BuildLabelIndex(); // ✅ 필수
         }
 
         private void BuildLabelIndex()

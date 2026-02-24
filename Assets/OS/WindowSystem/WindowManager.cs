@@ -166,14 +166,18 @@ public class WindowManager : MonoBehaviour, IVNHostOS
             rt.localRotation = Quaternion.identity;
         }
 
-        // ✅ (2) VNOSBridge가 있으면 Host 주입 (중요)
-        // WindowManager가 IVNHostOS를 구현하고 있다는 전제
+        // ✅ (2) VNOSBridge가 있으면 Host 주입
         var bridge = content.GetComponentInChildren<PPP.BLUE.VN.VNOSBridge>(true);
         if (bridge != null)
         {
-            // appId는 spawned가 가진 appId를 쓰는 게 가장 안전
-            // spawned.AppId 같은 프로퍼티가 없으면, AttachContent를 호출하는 쪽에서 appId를 인자로 넘겨줘.
-            bridge.InjectHost(this as PPP.BLUE.VN.IVNHostOS, spawned.AppId /* 또는 appId */);
+            // 🔥 여기만 네 WindowController에 맞춰야 함
+            // 1순위: spawned.AppId
+            // 2순위: spawned.appId
+            // 3순위: spawned.Definition.AppId / spawned.Def.appId 등
+            string id = spawned.AppId; // <- 컴파일 에러 나면 이 줄만 네 필드명으로 바꿔
+
+            bridge.InjectHost(this, id);
+            Debug.Log($"[OS] InjectHost -> {id}");
         }
     }
 
@@ -293,22 +297,29 @@ public class WindowManager : MonoBehaviour, IVNHostOS
 
     public void SaveOS()
     {
-        var data = new OSSaveData();
+        var saveData = new OSSaveData();
 
-        CollectWindows(data);
-        CollectIcons(data);
+        // 1) windows/icons 먼저
+        CollectWindows(saveData);
+        CollectIcons(saveData);
 
-        // ✅ 마지막에 subBlocks 채우기
-        data.subBlocks.Clear();
+        // 2) ✅ subBlocks 채우기 (같은 saveData에!)
+        saveData.subBlocks.Clear();
         foreach (var kv in subBlockJsonByKey)
         {
-            data.subBlocks.Add(new PPP.OS.Save.OSSubBlockData
+            saveData.subBlocks.Add(new OSSubBlockData
             {
                 key = kv.Key,
-                json = kv.Value
+                json = kv.Value ?? ""
             });
         }
+
+        OSSaveSystem.Save(saveData);
+        cachedSave = saveData;
+
+        Debug.Log($"[OS] SaveOS completed. subBlocks={saveData.subBlocks.Count}");
     }
+
 
     private IEnumerator CoPostApplyLayoutSanityNextFrame()
     {
@@ -321,16 +332,12 @@ public class WindowManager : MonoBehaviour, IVNHostOS
         var data = OSSaveSystem.Load();
         if (data == null) return;
 
-        // ✅ 로드한 data에서 subBlocks → 캐시에 복원
+        // subBlocks 먼저 복원
         subBlockJsonByKey.Clear();
         if (data.subBlocks != null)
-        {
             foreach (var sb in data.subBlocks)
-            {
-                if (sb == null || string.IsNullOrEmpty(sb.key)) continue;
-                subBlockJsonByKey[sb.key] = sb.json ?? "";
-            }
-        }
+                if (sb != null && !string.IsNullOrEmpty(sb.key))
+                    subBlockJsonByKey[sb.key] = sb.json ?? "";
 
         ApplyWindows(data);
         ApplyIcons(data);
@@ -339,7 +346,7 @@ public class WindowManager : MonoBehaviour, IVNHostOS
         PostApplyLayoutSanity();
         StartCoroutine(CoPostApplyLayoutSanityNextFrame());
 
-        Debug.Log("[OS] LoadOS applied.");
+        Debug.Log($"[OS] LoadOS applied. subBlocks={subBlockJsonByKey.Count}");
     }
 
     private void PostApplyLayoutSanity()
@@ -1183,25 +1190,17 @@ public class WindowManager : MonoBehaviour, IVNHostOS
     public void SaveSubBlock(string key, object data)
     {
         if (string.IsNullOrEmpty(key) || data == null) return;
-
         var json = JsonUtility.ToJson(data);
         subBlockJsonByKey[key] = json;
-        RequestAutoSave(); // 네가 이미 쓰는 자동저장 루틴 있지?
-
-        // (선택) 즉시 autosave 예약하고 싶으면 여기서 RequestAutoSave() 같은거 호출
+        Debug.Log($"[OS] SaveSubBlock key={key} len={json?.Length ?? 0}");
     }
 
     public T LoadSubBlock<T>(string key) where T : class
     {
         if (string.IsNullOrEmpty(key)) return null;
-
-        // 1) 실행 중 캐시 우선
-        if (subBlockJsonByKey.TryGetValue(key, out var json) && !string.IsNullOrEmpty(json))
-            return JsonUtility.FromJson<T>(json);
-
-        // 2) 없으면 "마지막 로드된 OSSaveData"에서 찾아야 함
-        //    → 아래 5)에서 LoadOS 시 캐시에 채우는 처리 넣을거야.
-        return null;
+        if (!subBlockJsonByKey.TryGetValue(key, out var json)) return null;
+        if (string.IsNullOrEmpty(json)) return null;
+        return JsonUtility.FromJson<T>(json);
     }
 
     public bool IsExitLocked(string appId)

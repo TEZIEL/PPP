@@ -13,6 +13,14 @@ namespace PPP.BLUE.VN
         public bool SaveAllowed { get; private set; }
 
         private const string SAVE_KEY = "vn.state";
+        private const string VN_STATE_KEY = "vn.state";
+
+
+        private void Awake()
+        {
+            if (bridge == null) bridge = GetComponentInChildren<VNOSBridge>(true);
+            if (bridge == null) bridge = GetComponentInParent<VNOSBridge>(true);
+        }
 
         public void MarkSaveBlocked() => SaveAllowed = false;
         public void MarkSaveAllowed() 
@@ -55,12 +63,15 @@ namespace PPP.BLUE.VN
         // 1단계: 하드코딩 테스트용
         public void Begin()
         {
+            
             if (started) return;
             if (script == null)
             {
                 Debug.LogError("[VNRunner] No script loaded.");
                 return;
             }
+            // ✅ 세이브 있으면 먼저 복원
+            LoadState();
             started = true;
             Next();
         }
@@ -196,6 +207,7 @@ namespace PPP.BLUE.VN
             }
 
             Begin(); // ✅ 스크립트가 확실히 있을 때만 시작
+            TryLoadState(bridge);
         }
 
         private void EmitSay(VNNode node)
@@ -351,48 +363,132 @@ namespace PPP.BLUE.VN
             enabled = false; // 1단계에서는 그냥 멈춤
         }
 
-        public void SaveState()
+
+        private VNState BuildState()
         {
-            if (bridge == null) return;
-            var dto = CaptureState();
-            bridge.SaveVN(SAVE_KEY, dto);
-            if (logToConsole) Debug.Log("[VN] State saved.");
+            var st = new VNState();
+            st.scriptId = script != null ? script.ScriptId : "";
+            st.pointer = pointer;
+
+            st.vars.Clear();
+            foreach (var kv in vars)
+            {
+                st.vars.Add(new VNIntVar { key = kv.Key, value = kv.Value });
+            }
+
+            st.greatCount = greatCount;
+            st.successCount = successCount;
+            st.failCount = failCount;
+            st.lastResult = lastResult ?? "";
+
+            return st;
         }
 
-        public bool LoadState()
+        private void ApplyState(VNState st)
+        {
+            if (st == null) return;
+
+            // scriptId가 다르면 다른 스크립트 세이브라서 무시
+            if (script == null || !string.Equals(st.scriptId, script.ScriptId, StringComparison.Ordinal))
+                return;
+
+            // pointer 안전 클램프
+            pointer = Mathf.Clamp(st.pointer, 0, script.nodes != null ? script.nodes.Count : 0);
+
+            // vars 복원
+            vars.Clear();
+            if (st.vars != null)
+            {
+                for (int i = 0; i < st.vars.Count; i++)
+                {
+                    var v = st.vars[i];
+                    if (v == null || string.IsNullOrEmpty(v.key)) continue;
+                    vars[v.key] = v.value;
+                }
+            }
+
+            // drink counters 복원
+            greatCount = st.greatCount;
+            successCount = st.successCount;
+            failCount = st.failCount;
+            lastResult = string.IsNullOrEmpty(st.lastResult) ? "success" : st.lastResult;
+        }
+
+
+        private void SaveState()
+        {
+            // SaveAllowed true일 때만 저장
+            if (!SaveAllowed) return;
+            if (bridge == null || script == null) return;
+
+
+            
+
+            var st = BuildState(); // 또는 BuildState() 중 하나만 쓰기
+            bridge.SaveVN(VN_STATE_KEY, st);
+
+            if (logToConsole)
+                Debug.Log($"[VN] Saved state ({VN_STATE_KEY}) scriptId={st.scriptId} pointer={st.pointer} vars={st.vars?.Count ?? 0}");
+        }
+
+        public bool TryLoadState(VNOSBridge bridge)
         {
             if (bridge == null) return false;
 
-            var dto = bridge.LoadVN<VNStateDTO>(SAVE_KEY);
-            if (dto == null) return false;
+            var st = bridge.LoadVN<VNState>(VN_STATE_KEY);
+            if (st == null) return false;
+            if (script == null) return false;
 
-            var ok = RestoreState(dto);
-            if (logToConsole) Debug.Log(ok ? "[VN] State loaded." : "[VN] State load failed (script mismatch).");
-            return ok;
-        }
+            // 다른 스크립트면 적용 금지
+            if (!string.Equals(st.scriptId, script.ScriptId, StringComparison.Ordinal))
+                return false;
 
-        public VNStateDTO CaptureState()
-        {
-            var dto = new VNStateDTO
+            pointer = st.pointer;
+
+            vars.Clear();
+            if (st.vars != null)
             {
-                scriptId = script != null ? script.ScriptId : string.Empty,
-                pointer = pointer,
-                greatCount = greatCount,
-                successCount = successCount,
-                failCount = failCount,
-                lastResult = lastResult,
-            };
-
-            dto.intVars.Clear();
-            foreach (var kv in vars)
-            {
-                dto.intVars.Add(new IntVarDTO { key = kv.Key, value = kv.Value });
+                foreach (var kv in st.vars)
+                {
+                    if (!string.IsNullOrEmpty(kv.key))
+                        vars[kv.key] = kv.value;
+                }
             }
 
-            return dto;
+            greatCount = st.greatCount;
+            successCount = st.successCount;
+            failCount = st.failCount;
+            lastResult = st.lastResult;
+
+            
+            return true;
         }
 
-        public bool RestoreState(VNStateDTO dto)
+        private bool LoadState()
+        {
+            if (bridge == null) return false;
+            if (script == null) return false;
+
+            var st = bridge.LoadVN<VNState>(VN_STATE_KEY);
+            if (st == null) return false;
+
+            if (!string.Equals(st.scriptId, script.ScriptId, StringComparison.Ordinal))
+            {
+                Debug.LogWarning($"[VNRunner] LoadState ignored: saved scriptId={st.scriptId} but current={script.ScriptId}");
+                return false;
+            }
+
+            ApplyState(st);
+
+            if (logToConsole)
+                Debug.Log($"[VN] Loaded state ({VN_STATE_KEY}) scriptId={st.scriptId} pointer={pointer} vars={vars.Count}");
+
+            return true;
+        }
+
+        
+
+        public bool RestoreState(VNState dto)
         {
             if (dto == null) return false;
             if (script == null || script.nodes == null) return false;
@@ -405,15 +501,7 @@ namespace PPP.BLUE.VN
             pointer = Mathf.Clamp(dto.pointer, 0, script.nodes.Count);
 
             vars.Clear();
-            if (dto.intVars != null)
-            {
-                for (int i = 0; i < dto.intVars.Count; i++)
-                {
-                    var v = dto.intVars[i];
-                    if (v == null || string.IsNullOrEmpty(v.key)) continue;
-                    vars[v.key] = v.value;
-                }
-            }
+            
 
             greatCount = dto.greatCount;
             successCount = dto.successCount;
