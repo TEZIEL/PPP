@@ -18,7 +18,7 @@ namespace PPP.BLUE.VN
         // VN이 설정하는 정책
         public bool ExitLocked { get; private set; }
         public bool BlockClose { get; private set; }
-
+        private bool closeRequestPending;
 
         private bool registered; // ✅ 중복 등록 방지
 
@@ -119,7 +119,14 @@ namespace PPP.BLUE.VN
         // ✅ OS가 호출하는 함수
         public void NotifyCloseRequested()
         {
+            if (closeRequestPending) return;  // ✅ 이미 요청 처리중이면 무시
+            closeRequestPending = true;
             OnCloseRequested?.Invoke();
+        }
+
+        public void ClearCloseRequestPending()
+        {
+            closeRequestPending = false;
         }
 
         public void SaveVN(string key, object data) => Host?.SaveSubBlock(key, data);

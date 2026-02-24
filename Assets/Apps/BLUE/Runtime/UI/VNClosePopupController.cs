@@ -47,6 +47,11 @@ namespace PPP.BLUE.VN
 
         public void Show()
         {
+            Debug.Log("[VNClosePopup] Show()");
+            if (popupRoot != null && popupRoot.activeSelf) return;
+            if (policy != null && policy.IsModalOpen) return;
+
+
             if (policy != null && policy.IsInDrinkMode) return;
             if (popupRoot == null) return;
 
@@ -69,6 +74,7 @@ namespace PPP.BLUE.VN
 
             popupRoot.SetActive(false);
             policy?.SetModalOpen(false);
+            bridge?.ClearCloseRequestPending(); // ✅ 여기
             UnityEngine.EventSystems.EventSystem.current?.SetSelectedGameObject(null);
         }
 
