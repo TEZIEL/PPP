@@ -145,6 +145,9 @@ namespace PPP.BLUE.VN
             lineCompleted = false;
             currentFullText = text ?? "";
 
+            // seen 기록은 "말풍선에 라인이 표시되기 시작한 순간(타이핑 시작)"에만 수행
+            runner?.MarkSeen(lineId);
+
             if (nameText != null) nameText.text = speakerId ?? "";
             if (dialogueText != null) dialogueText.text = "";
 

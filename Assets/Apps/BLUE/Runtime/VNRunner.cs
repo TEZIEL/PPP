@@ -52,7 +52,7 @@ namespace PPP.BLUE.VN
 
         // VNRunner 필드
         private readonly Dictionary<string, int> vars = new();
-        private readonly List<string> seenLineIds = new();
+        private readonly HashSet<string> seenLineIds = new();
         private VNSettings settings = VNSettings.Default();
 
         // VNRunner 메서드
@@ -248,13 +248,16 @@ namespace PPP.BLUE.VN
 
         private void EmitSay(VNNode node)
         {
-            if (!string.IsNullOrEmpty(node?.id) && !seenLineIds.Contains(node.id))
-                seenLineIds.Add(node.id);
-
             if (logToConsole)
                 Debug.Log($"[VN] {node.speakerId}: {node.text} (id={node.id})");
 
             OnSay?.Invoke(node.speakerId, node.text, node.id);
+        }
+
+        public void MarkSeen(string lineId)
+        {
+            if (string.IsNullOrEmpty(lineId)) return;
+            seenLineIds.Add(lineId);
         }
 
         private bool EvaluateExpr(string expr)
@@ -508,7 +511,11 @@ namespace PPP.BLUE.VN
             st.settings ??= VNSettings.Default();
 
             seenLineIds.Clear();
-            seenLineIds.AddRange(st.seen);
+            foreach (var lineId in st.seen)
+            {
+                if (string.IsNullOrEmpty(lineId)) continue;
+                seenLineIds.Add(lineId);
+            }
 
             settings = st.settings;
 
