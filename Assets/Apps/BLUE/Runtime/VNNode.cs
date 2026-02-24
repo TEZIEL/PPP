@@ -21,6 +21,7 @@ namespace PPP.BLUE.VN
         [Serializable]
         public sealed class BranchRule
         {
+            public string choiceText;
             public string expr;      // 조건식 (지금은 아주 단순하게)
             public string jumpLabel; // 조건이 true면 점프할 라벨
         }

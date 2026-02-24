@@ -1,9 +1,21 @@
 {
   "scriptId": "day01",
   "nodes": [
-    { "id": "t.001", "type": "Say", "speakerId": "sys", "text": "Before Branch" },
-    { "id": "t.b", "type": "Branch", "branches": [] },
-    { "id": "t.002", "type": "Say", "speakerId": "sys", "text": "After Branch (should continue if empty)" },
-    { "id": "t.end", "type": "End" }
+    { "id": "t.001", "type": "Say", "speakerId": "sys", "text": "Choose one." },
+
+    { "id": "t.br1", "type": "Branch",
+      "branches": [
+        { "expr": "else", "jumpLabel": "A", "choiceText": "Go A" },
+        { "expr": "else", "jumpLabel": "B", "choiceText": "Go B" }
+      ]
+    },
+
+    { "id": "t.a", "type": "Label", "label": "A" },
+    { "id": "t.a1", "type": "Say", "speakerId": "sys", "text": "You chose A." },
+    { "id": "t.e1", "type": "End" },
+
+    { "id": "t.b", "type": "Label", "label": "B" },
+    { "id": "t.b1", "type": "Say", "speakerId": "sys", "text": "You chose B." },
+    { "id": "t.e2", "type": "End" }
   ]
 }

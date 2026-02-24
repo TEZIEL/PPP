@@ -94,6 +94,7 @@ namespace PPP.BLUE.VN
                 {
                     expr = branchDto.expr ?? string.Empty,
                     jumpLabel = branchDto.jumpLabel ?? string.Empty,
+                    choiceText = branchDto.choiceText ?? string.Empty,
                 };
             }
 

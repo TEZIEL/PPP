@@ -9,6 +9,7 @@ namespace PPP.BLUE.VN
         [SerializeField] private VNRunner runner;
         [SerializeField] private VNTextTyper typer;
         [SerializeField] private VNPolicyController policy;
+        [SerializeField] private VNChoicePanel choicePanel;
 
         [SerializeField] private TMP_Text nameText;
         [SerializeField] private TMP_Text dialogueText;
@@ -43,26 +44,44 @@ namespace PPP.BLUE.VN
         private void Awake()
         {
             if (typer != null) typer.SetTarget(dialogueText);
+            if (runner == null) runner = GetComponentInParent<VNRunner>(true);
+            choicePanel = GetComponentInChildren<VNChoicePanel>(true); // 같은 윈도우 트리에서 찾기
+            Debug.Log($"[VN_UI] bind runner={(runner ? runner.name : "NULL")} choicePanel={(choicePanel ? choicePanel.name : "NULL")}");
         }
 
         private void OnEnable()
         {
-            if (runner == null) return;
+
+            if (runner != null) runner.OnChoice += HandleChoice;
             if (subscribed) return;
             runner.OnSay += HandleSay;
             runner.OnEnd += HandleEnd;
+            runner.OnChoice += HandleChoice;   // ✅ 추가
             subscribed = true;
         }
 
         private void OnDisable()
         {
-            if (runner == null) return;
+            if (runner != null) runner.OnChoice -= HandleChoice;
             if (!subscribed) return;
             runner.OnSay -= HandleSay;
             runner.OnEnd -= HandleEnd;
+            runner.OnChoice -= HandleChoice;   // ✅ 추가
             subscribed = false;
         }
 
+        private void HandleChoice(VNNode.BranchRule[] rules)
+        {
+            if (choicePanel == null)
+            {
+                Debug.LogError("[VNDialogueView] choicePanel is NULL. Assign it in Inspector.");
+                // 패널 없으면 진행 막히니까 최소 안전장치
+                runner.Next();
+                return;
+            }
+
+            choicePanel.Open(rules);
+        }
 
         private void Update()
         {

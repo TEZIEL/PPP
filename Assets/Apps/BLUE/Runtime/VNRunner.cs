@@ -38,9 +38,11 @@ namespace PPP.BLUE.VN
             Next();
         }
 
+        public event Action<VNNode.BranchRule[]> OnChoice;
+
         private void Start()
         {
-            var loaded = VNScriptLoader.LoadFromStreamingAssets("t_jump_empty");
+            var loaded = VNScriptLoader.LoadFromStreamingAssets("day01");
             SetScript(loaded);
 
             if (bridge != null) bridge.RequestBlockClose(true);
@@ -53,7 +55,19 @@ namespace PPP.BLUE.VN
 
         }
 
+        public void Choose(string jumpLabel)
+        {
+            DoJump(jumpLabel);
+            Next();
+        }
 
+        private bool HasAnyChoiceText(VNNode.BranchRule[] rules)
+        {
+            foreach (var r in rules)
+                if (r != null && !string.IsNullOrEmpty(r.choiceText))
+                    return true;
+            return false;
+        }
 
         public void Next()
         {
@@ -91,8 +105,18 @@ namespace PPP.BLUE.VN
                         return; // ✅ Say는 "멈춤" 포인트 (화면에 보여주고 기다림)
 
                     case VNNodeType.Branch:
-                        DoBranch(node);
-                        continue; // ✅ 출력 없음 → 계속 진행
+                        if (node.branches != null && node.branches.Length > 0 &&
+                            HasAnyChoiceText(node.branches))
+                        {
+                            OnChoice?.Invoke(node.branches);
+                            pointer++;        // Branch 자체는 소비
+                            return;           // ✅ 여기서 멈춤(선택 기다림)
+                        }
+                        else
+                        {
+                            DoBranch(node);   // 기존 자동 분기
+                            continue;
+                        }
 
                     case VNNodeType.Label:
                         if (logToConsole) Debug.Log($"[VN] Label: {node.label} (idx {pointer})");
@@ -291,42 +315,42 @@ namespace PPP.BLUE.VN
         {
             var nodes = new List<VNNode>
     {
-        new VNNode { id="t.001", type=VNNodeType.Say, speakerId="sys",
+            new VNNode { id="t.001", type=VNNodeType.Say, speakerId="sys",
             text="(Test) Dialogue -> Drink -> Branch. Press SPACE to continue." },
 
         // ✅ 이 라인을 만나면 VNDialogueView에서 drinkTestPanel.Open()을 호출하도록 할 것
-        new VNNode { id="t.drink", type=VNNodeType.Say, speakerId="sys",
+            new VNNode { id="t.drink", type=VNNodeType.Say, speakerId="sys",
             text="(Drink) Please make a drink now." },
 
         // 결과 버튼을 누르면 runner.ApplyDrinkResult(...)가 호출되고
         // 그 직후 runner.Next()로 여기 Branch로 진입하게 됨
-        new VNNode {
-            id="t.branch",
-            type=VNNodeType.Branch,
-            branches = new[]
-            {
+            new VNNode {
+                id="t.branch",
+                type=VNNodeType.Branch,
+                branches = new[]
+                {
                 // great는 success 포함 규칙이라 great>=2면 항상 route2로 가게 됨
                 new VNNode.BranchRule{ expr="great>=2", jumpLabel="route2" },
                 new VNNode.BranchRule{ expr="fail>=2",  jumpLabel="route3" },
                 new VNNode.BranchRule{ expr="else",     jumpLabel="route1" },
-            }
-        },
+                }
+            },
 
-        new VNNode { id="t.r1", type=VNNodeType.Label, label="route1" },
-        new VNNode { id="t.r1s", type=VNNodeType.Say, speakerId="sys",
-            text="Route 1: Normal result (not enough Great, not enough Fail)." },
-        new VNNode { id="t.end1", type=VNNodeType.End },
+            new VNNode { id="t.r1", type=VNNodeType.Label, label="route1" },
+            new VNNode { id="t.r1s", type=VNNodeType.Say, speakerId="sys",
+                text="Route 1: Normal result (not enough Great, not enough Fail)." },
+            new VNNode { id="t.end1", type=VNNodeType.End },
 
-        new VNNode { id="t.r2", type=VNNodeType.Label, label="route2" },
-        new VNNode { id="t.r2s", type=VNNodeType.Say, speakerId="sys",
-            text="Route 2: Great >= 2 (Excellent performance)." },
-        new VNNode { id="t.end2", type=VNNodeType.End },
+            new VNNode { id="t.r2", type=VNNodeType.Label, label="route2" },
+            new VNNode { id="t.r2s", type=VNNodeType.Say, speakerId="sys",
+                text="Route 2: Great >= 2 (Excellent performance)." },
+            new VNNode { id="t.end2", type=VNNodeType.End },
 
-        new VNNode { id="t.r3", type=VNNodeType.Label, label="route3" },
-        new VNNode { id="t.r3s", type=VNNodeType.Say, speakerId="sys",
-            text="Route 3: Fail >= 2 (Too many mistakes)." },
-        new VNNode { id="t.end3", type=VNNodeType.End },
-    };
+            new VNNode { id="t.r3", type=VNNodeType.Label, label="route3" },
+            new VNNode { id="t.r3s", type=VNNodeType.Say, speakerId="sys",
+                text="Route 3: Fail >= 2 (Too many mistakes)." },
+            new VNNode { id="t.end3", type=VNNodeType.End },
+            };
 
             return new VNScript("test", nodes);
         }

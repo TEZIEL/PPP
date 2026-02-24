@@ -23,6 +23,7 @@ namespace PPP.BLUE.VN
     [Serializable]
     public sealed class VNBranchRuleDTO
     {
+        public string choiceText;
         public string expr;
         public string jumpLabel;
     }
