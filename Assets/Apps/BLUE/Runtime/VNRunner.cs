@@ -12,6 +12,11 @@ namespace PPP.BLUE.VN
         [SerializeField] private VNOSBridge bridge;
         public bool SaveAllowed { get; private set; }
 
+        [SerializeField] private VNRunner runner;
+        private VNState state;
+        
+
+
         private const string SAVE_KEY = "vn.state";
         private const string VN_STATE_KEY = "vn.state";
         private int lastShownPointer = -1;
@@ -257,7 +262,11 @@ namespace PPP.BLUE.VN
         public void MarkSeen(string lineId)
         {
             if (string.IsNullOrEmpty(lineId)) return;
-            seenLineIds.Add(lineId);
+
+            if (seenLineIds.Add(lineId))
+            {
+                Debug.Log($"[VN] Seen + {lineId} (total={seenLineIds.Count})");
+            }
         }
 
         private bool EvaluateExpr(string expr)
@@ -408,22 +417,25 @@ namespace PPP.BLUE.VN
         private VNState BuildState()
         {
             var st = new VNState();
-            st.scriptId = script != null ? script.ScriptId : "";
 
-            // ✅ 마지막으로 화면에 보여준 노드부터 다시 시작
-            st.pointer = (lastShownPointer >= 0) ? lastShownPointer : pointer;
+            st.scriptId = script?.ScriptId ?? "";
+            st.pointer = pointer;
 
+            // vars 복사
             st.vars.Clear();
             foreach (var kv in vars)
                 st.vars.Add(new VNIntVar { key = kv.Key, value = kv.Value });
 
+            // seen 복사
             st.seen = new List<string>(seenLineIds);
-            st.settings = settings ?? VNSettings.Default();
 
-            st.greatCount = greatCount;
-            st.successCount = successCount;
-            st.failCount = failCount;
-            st.lastResult = lastResult ?? "";
+            // settings 복사
+            st.settings = new VNSettings
+            {
+                auto = settings.auto,
+                skip = settings.skip,
+                speed = settings.speed
+            };
 
             return st;
         }
@@ -553,6 +565,29 @@ namespace PPP.BLUE.VN
             lastResult = dto.lastResult;
 
             return true;
+        }
+
+
+
+
+        public void TestSpeed25()
+        {
+            if (settings == null)
+                settings = VNSettings.Default();
+
+            settings.speed = 2.5f;
+
+            Debug.Log($"[VN] TestSpeed25 -> speed={settings.speed}");
+        }
+
+        public void SetSpeed(float v)
+        {
+            // 안전장치
+            if (state == null) state = new VNState();
+            if (state.settings == null) state.settings = VNSettings.Default();
+
+            state.settings.speed = v;
+            Debug.Log($"[VN] SetSpeed -> {state.settings.speed}");
         }
 
         public void ApplyDrinkResult(string result) // "fail" / "success" / "great"
