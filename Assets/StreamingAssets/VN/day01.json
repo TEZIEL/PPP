@@ -1,21 +1,23 @@
 {
   "scriptId": "day01",
   "nodes": [
-    { "id": "t.001", "type": "Say", "speakerId": "sys", "text": "Choose one." },
 
-    { "id": "t.br1", "type": "Branch",
+    { "id": "start", "type": "Say", "speakerId": "sys", "text": "손님이 들어왔다." },
+
+    {
+      "id": "drink_branch",
+      "type": "Branch",
       "branches": [
-        { "expr": "else", "jumpLabel": "A", "choiceText": "Go A" },
-        { "expr": "else", "jumpLabel": "B", "choiceText": "Go B" }
+        { "expr": "lastDrink==SPORTS", "jumpLabel": "route_sports", "choiceText": "" },
+        { "expr": "lastDrink==COFFEE", "jumpLabel": "route_coffee", "choiceText": "" },
+        { "expr": "else", "jumpLabel": "route_default", "choiceText": "" }
       ]
     },
 
-    { "id": "t.a", "type": "Label", "label": "A" },
-    { "id": "t.a1", "type": "Say", "speakerId": "sys", "text": "You chose A." },
-    { "id": "t.e1", "type": "End" },
+    { "id": "route_sports", "type": "Say", "speakerId": "sys", "text": "운동 음료를 받았다." },
+    { "id": "route_coffee", "type": "Say", "speakerId": "sys", "text": "커피를 받았다." },
+    { "id": "route_default", "type": "Say", "speakerId": "sys", "text": "묘한 음료를 받았다." },
 
-    { "id": "t.b", "type": "Label", "label": "B" },
-    { "id": "t.b1", "type": "Say", "speakerId": "sys", "text": "You chose B." },
-    { "id": "t.e2", "type": "End" }
+    { "id": "end", "type": "End" }
   ]
 }
