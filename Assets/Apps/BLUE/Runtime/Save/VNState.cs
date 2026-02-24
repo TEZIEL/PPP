@@ -10,6 +10,8 @@ namespace PPP.BLUE.VN
         public int pointer;
 
         public List<VNIntVar> vars = new();
+        public List<string> seen = new();
+        public VNSettings settings = VNSettings.Default();
 
         public int greatCount;
         public int successCount;
@@ -22,5 +24,23 @@ namespace PPP.BLUE.VN
     {
         public string key;
         public int value;
+    }
+
+    [Serializable]
+    public sealed class VNSettings
+    {
+        public bool auto;
+        public bool skip;
+        public float speed;
+
+        public static VNSettings Default()
+        {
+            return new VNSettings
+            {
+                auto = false,
+                skip = false,
+                speed = 1f,
+            };
+        }
     }
 }
