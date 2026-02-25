@@ -29,10 +29,12 @@ namespace PPP.BLUE.VN
 
         private const string SAVE_KEY = "vn.state";
         private const string VN_STATE_KEY = "vn.state";
+        private const string VN_STATE_KEY_DBG = "vn.state.dbg";
         private const float AutoDelaySeconds = 0.35f;
         private int lastShownPointer = -1;
         private int lastStopIndex = 0; // 마지막으로 '멈춘' 노드(Say/Choice)의 인덱스
         
+
 
         public void InjectBridge(VNOSBridge b)
         {
@@ -791,6 +793,7 @@ namespace PPP.BLUE.VN
 
         private void SaveState(bool ignoreSaveAllowed)
         {
+            SaveStateToKey(VN_STATE_KEY, ignoreSaveAllowed);
             if (!ignoreSaveAllowed && !SaveAllowed) return;
             if (bridge == null || script == null) return;
 
@@ -810,14 +813,16 @@ namespace PPP.BLUE.VN
 
         public void DebugForceSave(string reason)
         {
-            Debug.Log($"[VNDBG] ForceSave (ignore SaveAllowed) reason={reason}");
-            SaveState(ignoreSaveAllowed: true);
+            Debug.Log($"[VNDBG] ForceSave (debug slot) reason={reason}");
+            SaveStateToKey(VN_STATE_KEY_DBG, ignoreSaveAllowed: true);
         }
 
 
 
         private bool LoadState()
         {
+            return LoadStateFromKey(VN_STATE_KEY);
+
             if (bridge == null || script == null)
                 return false;
 
@@ -894,8 +899,9 @@ namespace PPP.BLUE.VN
 
         public void DebugForceLoad(string reason)
         {
-            Debug.Log($"[VNDBG] ForceLoad reason={reason}");
-            if (LoadState())
+            Debug.Log($"[VNDBG] ForceLoad (debug slot) reason={reason}");
+
+            if (LoadStateFromKey(VN_STATE_KEY_DBG))
                 GetComponentInChildren<VNDialogueView>(true)?.LockInputFrames(1);
         }
 
@@ -1131,6 +1137,96 @@ namespace PPP.BLUE.VN
 
             if (logToConsole)
                 Debug.Log($"[VN] policy bind={(policy != null ? $"OK({policy.name})" : "NULL")} from={from}");
+        }
+
+
+        private void SaveStateToKey(string key, bool ignoreSaveAllowed)
+        {
+            if (!ignoreSaveAllowed && !SaveAllowed) return;
+            if (bridge == null || script == null) return;
+
+            var st = BuildState();
+
+            if (logToConsole)
+            {
+                var safe = st.settings ?? VNSettings.Default();
+                Debug.Log($"[VN] SaveState seen={st.seen?.Count ?? 0} auto={safe.auto} skipMode={safe.skipMode} speed={safe.speed}");
+            }
+
+            bridge.SaveVN(key, st);
+
+            if (logToConsole)
+                Debug.Log($"[VN] SaveState -> key={key} scriptId={st.scriptId} pointer={st.pointer} vars={st.vars?.Count ?? 0}");
+        }
+
+        private bool LoadStateFromKey(string key)
+        {
+            if (bridge == null || script == null)
+                return false;
+
+            var st = bridge.LoadVN<VNState>(key);
+            if (st == null)
+                return false;
+
+            if (!string.Equals(st.scriptId, script.ScriptId, StringComparison.Ordinal))
+                return false;
+
+            pointer = Mathf.Clamp(st.pointer, 0, script.nodes.Count - 1);
+            lastShownPointer = pointer;
+            lastStopIndex = pointer;
+
+            vars.Clear();
+            if (st.vars != null)
+            {
+                foreach (var kv in st.vars)
+                    if (!string.IsNullOrEmpty(kv.key))
+                        vars[kv.key] = kv.value;
+            }
+
+            st.seen ??= new List<string>();
+            st.settings ??= VNSettings.Default();
+
+            seenLineIds.Clear();
+            foreach (var lineId in st.seen)
+                if (!string.IsNullOrEmpty(lineId))
+                    seenLineIds.Add(lineId);
+
+            settings = st.settings;
+
+            greatCount = st.greatCount;
+            successCount = st.successCount;
+            failCount = st.failCount;
+            lastResult = st.lastResult;
+
+            callStack.Clear();
+            pendingCallResumeFrame = null;
+
+            if (st.callStack != null && st.callStack.Count > 0)
+            {
+                for (int i = st.callStack.Count - 1; i >= 0; i--)
+                {
+                    var frame = st.callStack[i];
+                    if (frame == null) continue;
+
+                    callStack.Push(new VNCallFrame
+                    {
+                        returnPointer = frame.returnPointer,
+                        target = frame.target,
+                        arg = frame.arg
+                    });
+                }
+
+                pendingCallResumeFrame = callStack.Peek();
+                isWaiting = true;
+                waitPointer = Mathf.Max(0, pendingCallResumeFrame.returnPointer - 1);
+            }
+
+            if (logToConsole)
+            {
+                Debug.Log($"[VN] LoadState <- key={key} pointer={pointer} callStack={callStack.Count} target={pendingCallResumeFrame?.target ?? "-"} arg={pendingCallResumeFrame?.arg ?? "-"}");
+            }
+
+            return true;
         }
 
         private VNScript BuildTestScript()

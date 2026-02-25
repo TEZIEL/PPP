@@ -701,6 +701,7 @@ GameObject:
   m_Component:
   - component: {fileID: 8462211860574732806}
   - component: {fileID: 5088717439015034517}
+  - component: {fileID: 2321816555586790909}
   m_Layer: 5
   m_Name: VN_Runner
   m_TagString: Untagged
@@ -745,6 +746,19 @@ MonoBehaviour:
   bridge: {fileID: 8020622904635775800}
   runner: {fileID: 5088717439015034517}
   policy: {fileID: 5970636519023333258}
+--- !u!114 &2321816555586790909
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1827892736844967023}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b4ed7c76bc26480a85c341f319028ca3, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  runner: {fileID: 5088717439015034517}
 --- !u!1 &1974178750765012198
 GameObject:
   m_ObjectHideFlags: 0

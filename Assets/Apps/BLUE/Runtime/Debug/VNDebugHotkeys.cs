@@ -18,11 +18,11 @@ namespace PPP.BLUE.VN
             if (runner == null || !runner.HasScript)
                 return;
 
-            if (Input.GetKeyDown(KeyCode.F9))
-                runner.DebugForceSave("F9");
+            if (Input.GetKeyDown(KeyCode.Alpha9))
+            runner.DebugForceSave("9");
 
-            if (Input.GetKeyDown(KeyCode.F10))
-                runner.DebugForceLoad("F10");
+            if (Input.GetKeyDown(KeyCode.Alpha0))
+            runner.DebugForceLoad("0");
 #endif
         }
     }
