@@ -29,12 +29,9 @@ public class WindowManager : MonoBehaviour, IVNHostOS
 
     private readonly Dictionary<string, WindowController> openWindows = new();
 
-    private string lastActiveBeforeMinimizeAll;
-
     private string activeAppId;
     public string ActiveAppId => activeAppId;
     private OSSaveData cachedSave;
-    private string activeBeforeShowDesktop;
 
     private bool isAnimating;
     public bool IsAnimating => isAnimating;
@@ -42,9 +39,6 @@ public class WindowManager : MonoBehaviour, IVNHostOS
     private bool suppressAutoFocus;
     public void BeginBatch() => suppressAutoFocus = true;
     public void EndBatch() => suppressAutoFocus = false;
-    private bool isShowDesktop;
-    private readonly List<string> lastShownDesktop = new(); // 직전에 "전체 최소화"로 내려간 창들
-
     private float closeLockUntil;
     public void LockCloseForSeconds(float seconds)
     {
@@ -73,10 +67,7 @@ public class WindowManager : MonoBehaviour, IVNHostOS
 
     public void ToggleShowDesktop()
     {
-        if (!isShowDesktop)
-            ShowDesktop();
-        else
-            RestoreDesktop();
+        Debug.Log("[OS] ToggleShowDesktop disabled");
     }
 
     public void Open(AppDefinition def)
@@ -824,273 +815,60 @@ public class WindowManager : MonoBehaviour, IVNHostOS
 
     public void MinimizeAllAnimated()
     {
-        // 루프 중 포커스 자동 이동 막기
-        BeginBatch();
-
-        // 딕셔너리 foreach 도중 상태 변해도 안전하도록 키 복사
-        var ids = new List<string>(openWindows.Keys);
-
-        foreach (var id in ids)
-        {
-            if (!openWindows.TryGetValue(id, out var w) || w == null) continue;
-            if (w.IsMinimized) continue;
-
-            // ✅ 애니 버전: Focus/FocusNextTopWindow 절대 호출하지 않는다
-            MinimizeNoFocusAnimated(id);
-        }
-
-
-        // 전체 최소화면 active는 꺼도 됨(원하면)
-        activeAppId = null;
-        foreach (var id in ids) taskbarManager?.SetActive(id, false);
-
-        EndBatch();
+        Debug.Log("[OS] MinimizeAllAnimated disabled");
     }
 
 
     public void MinimizeNoFocusAnimated(string appId)
     {
-        if (!openWindows.TryGetValue(appId, out var w) || w == null) return;
-        if (w.IsMinimized) return;
-
-        w.CacheRestorePos(w.GetWindowRoot().anchoredPosition);
-
-        var btnRect = taskbarManager?.GetButtonRect(appId);
-        Vector2 target =
-            btnRect != null ? ConvertToWindowLocal(btnRect)
-                            : new Vector2(0, -500);
-
-        w.PlayMinimize(target, () =>
-        {
-            w.SetMinimized(true);
-            taskbarManager?.SetMinimized(appId, true);
-            RequestAutoSave();
-        });
+        Debug.Log("[OS] MinimizeNoFocusAnimated disabled");
     }
 
 
     public void RestoreAllAnimated()
     {
-        BeginBatch();
-
-        var ids = new List<string>(openWindows.Keys);
-
-        foreach (var id in ids)
-        {
-            if (!openWindows.TryGetValue(id, out var w) || w == null) continue;
-            if (!w.IsMinimized) continue;
-
-            RestoreNoFocusAnimated(id);
-        }
-
-        EndBatch();
+        Debug.Log("[OS] RestoreAllAnimated disabled");
     }
 
     public void RestoreNoFocusAnimated(string appId)
     {
-        if (!openWindows.TryGetValue(appId, out var w) || w == null) return;
-        if (!w.IsMinimized) return;
-
-        var btnRect = taskbarManager?.GetButtonRect(appId);
-        Vector2 from =
-            btnRect != null ? ConvertToWindowLocal(btnRect)
-                            : w.GetWindowRoot().anchoredPosition;
-
-        w.SetMinimized(false);
-        taskbarManager?.SetMinimized(appId, false);
-
-        // ✅ Z-order 안 건드림 (SetAsLastSibling 금지)
-        w.PlayRestore(from, () =>
-        {
-            RequestAutoSave();
-        }, 0.12f, bringToFront: false);
+        Debug.Log("[OS] RestoreNoFocusAnimated disabled");
     }
 
 
 
     public void ShowDesktop()
     {
-        activeBeforeShowDesktop = activeAppId;
-
-        if (isShowDesktop) return;
-
-        isShowDesktop = true;
-        lastShownDesktop.Clear();
-
-        // 포커스 흔들림 방지
-        BeginBatch();
-
-        foreach (var kv in openWindows)
-        {
-            string id = kv.Key;
-            var w = kv.Value;
-            if (w == null) continue;
-            if (w.IsMinimized) continue;        // 이미 내려간 건 제외
-
-            // (선택) 핀된 창은 제외하고 싶으면 WindowController에 IsPinned 노출해서 여기서 continue
-            // if (w.IsPinned) continue;
-
-            lastShownDesktop.Add(id);
-
-            // 목표: 태스크바 버튼 위치
-            var btnRect = taskbarManager?.GetButtonRect(id);
-            Vector2 target = (btnRect != null)
-                ? ConvertToWindowsRootLocal(btnRect)
-                : new Vector2(0, -500);
-
-            // 개별 최소화 애니
-            w.CacheRestorePos(w.GetWindowRoot().anchoredPosition);
-
-            w.PlayMinimize(target, () =>
-            {
-                w.SetMinimized(true);
-                taskbarManager?.SetMinimized(id, true);
-            });
-        }
-
-        EndBatch();
-
-        // 바탕화면 상태이므로 activeAppId 비우고 taskbar active도 끄기
-        activeAppId = null;
-        foreach (var kv in openWindows)
-            taskbarManager?.SetActive(kv.Key, false);
-
-        RequestAutoSave();
+        Debug.Log("[OS] ShowDesktop disabled");
     }
 
 
     public void RestoreDesktop()
     {
-        if (!isShowDesktop) return;
-        isShowDesktop = false;
-
-        BeginBatch();
-
-        foreach (var id in lastShownDesktop)
-        {
-            if (!openWindows.TryGetValue(id, out var w) || w == null) continue;
-            if (!w.IsMinimized) continue;
-
-            var btnRect = taskbarManager?.GetButtonRect(id);
-            Vector2 from = (btnRect != null)
-                ? ConvertToWindowsRootLocal(btnRect)
-                : w.GetWindowRoot().anchoredPosition;
-
-            w.SetMinimized(false);
-            taskbarManager?.SetMinimized(id, false);
-
-            // ❌ w.transform.SetAsLastSibling();  <-- 삭제!!
-
-            w.PlayRestore(from, () => { }, 0.12f, bringToFront: false);
-        }
-
-        EndBatch();
-
-        // ✅ 원래 활성창으로 복귀 (이때 Focus가 맨 위로 올림)
-        if (!string.IsNullOrEmpty(activeBeforeShowDesktop) &&
-            openWindows.TryGetValue(activeBeforeShowDesktop, out var aw) && aw != null && !aw.IsMinimized)
-        {
-            Focus(activeBeforeShowDesktop);
-        }
-        else
-        {
-            FocusNextTopWindow(null);
-        }
-
-        lastShownDesktop.Clear();
-        RequestAutoSave();
+        Debug.Log("[OS] RestoreDesktop disabled");
     }
 
     private void Minimize_NoFocusAnimated(string appId)
     {
-        if (!openWindows.TryGetValue(appId, out var w) || w == null) return;
-        if (w.IsMinimized) return;
-
-        w.CacheRestorePos(w.GetWindowRoot().anchoredPosition);
-
-        var btnRect = taskbarManager?.GetButtonRect(appId);
-
-        Vector2 target =
-            btnRect != null ? ConvertToWindowLocal(btnRect)
-                            : new Vector2(0, -500);
-
-        w.PlayMinimize(target, () =>
-        {
-            w.SetMinimized(true);
-            taskbarManager?.SetMinimized(appId, true);
-            RequestAutoSave();
-        });
+        Debug.Log("[OS] Minimize_NoFocusAnimated disabled");
     }
 
 
     private void Restore_NoFocusAnimated(string appId)
     {
-        if (!openWindows.TryGetValue(appId, out var w) || w == null) return;
-        if (!w.IsMinimized) return;
-
-        var btnRect = taskbarManager?.GetButtonRect(appId);
-
-        Vector2 from =
-            btnRect != null ? ConvertToWindowLocal(btnRect)
-                            : w.GetWindowRoot().anchoredPosition;
-
-        w.SetMinimized(false);
-        taskbarManager?.SetMinimized(appId, false);
-
-        // ✅ Z-order 건드리지 않음 (SetAsLastSibling 금지)
-
-        w.PlayRestore(from, () =>
-        {
-            RequestAutoSave();
-        }, 0.12f, bringToFront: false);
+        Debug.Log("[OS] Restore_NoFocusAnimated disabled");
     }
 
 
 
     public void MinimizeAll()
     {
-        // ✅ 현재 포커스 저장 (복원 때 그대로 되돌릴 거)
-        lastActiveBeforeMinimizeAll = activeAppId;
-
-        BeginBatch(); // suppressAutoFocus = true
-
-        var ids = new List<string>(openWindows.Keys);
-        foreach (var id in ids)
-            Minimize_NoFocusAnimated(id);
-
-        EndBatch();
-
-        // ✅ Win+D처럼: 일단 active는 비워두고(복원 시 되돌림)
-        activeAppId = null;
-        foreach (var pair in openWindows)
-            taskbarManager?.SetActive(pair.Key, false);
+        Debug.Log("[OS] MinimizeAll disabled");
     }
 
     public void RestoreAll()
     {
-        BeginBatch();
-
-        var ids = new List<string>(openWindows.Keys);
-        foreach (var id in ids)
-            Restore_NoFocusAnimated(id);
-
-        EndBatch();
-
-        // ✅ “원래 활성 창”을 기존 규칙(Focus)으로 그대로 복원
-        if (!string.IsNullOrEmpty(lastActiveBeforeMinimizeAll) &&
-            openWindows.TryGetValue(lastActiveBeforeMinimizeAll, out var w) &&
-            w != null)
-        {
-            // Focus()가 기존 규칙(=SetAsLastSibling + ActiveVisual + TaskbarActive)을 책임짐
-            Focus(lastActiveBeforeMinimizeAll);
-        }
-        else
-        {
-            // ✅ 원래 활성 창이 없으면 기존 규칙대로 “가장 위 창”으로 포커스
-            FocusNextTopWindow(excludedAppId: null);
-        }
-
-        lastActiveBeforeMinimizeAll = null;
+        Debug.Log("[OS] RestoreAll disabled");
     }
 
 
