@@ -283,9 +283,9 @@ public class WindowManager : MonoBehaviour, IVNHostOS
 
     public void InternalRequestAutoSave()
     {
-        InternalRequestAutoSave(); // 네가 이미 가진 함수라면 이름 충돌 나니까
+        RequestAutoSave(); // 네가 이미 가진 함수라면 이름 충돌 나니까
         // 만약 동일 이름이면 내부용을 다른 이름으로 바꿔:
-        // InternalRequestAutoSave();
+        
     }
 
     public void RequestAutoSave()
@@ -1181,18 +1181,17 @@ public class WindowManager : MonoBehaviour, IVNHostOS
 
     public VNWindowState GetWindowState(string appId)
     {
-        // 못 찾으면 보수적으로 입력 막기
         if (string.IsNullOrEmpty(appId) || !openWindows.TryGetValue(appId, out var wc) || wc == null)
+        {
+            Debug.Log($"[OS] GetWindowState appId={appId} -> not found (treat minimized)");
             return new VNWindowState(isFocused: false, isMinimized: true);
+        }
 
-        // ✅ 진짜 최소화 상태는 WindowController에서 읽는다
         bool minimized = wc.IsMinimized;
-
-        // 포커스는 “최소화가 아닐 때만 true”로만 처리해도 충분 (너는 포커스는 상관없다 했으니)
         bool focused = !minimized;
 
+        Debug.Log($"[OS] GetWindowState appId={appId} min={minimized} focused={focused}");
         return new VNWindowState(focused, minimized);
-        UnityEngine.Debug.Log($"[OS] GetWindowState appId={appId} min={minimized}");
     }
 
     private WindowController FindWindowByAppId(string appId)

@@ -117,6 +117,9 @@ namespace PPP.BLUE.VN
             // ✅ Next 입력
             if (!Input.GetKeyDown(KeyCode.Space)) return;
 
+            // ✅ 유저 입력이면 무조건 Auto OFF (타이핑완료/Next 둘 다 포함)
+            runner.ForceAutoOff("User input (Space)");
+
             // ✅ 타이핑 중이면 "완성"만 하고 다음 라인으로 넘어가진 않음
             if (!lineCompleted && typer != null && typer.IsTyping)
             {
@@ -125,10 +128,11 @@ namespace PPP.BLUE.VN
             }
 
             // ✅ 그 외에는 다음 라인
-            runner.ForceAutoOff("User Next input");  // ✅ 유저가 스페이스로 넘기면 Auto 상태 자체 OFF
             runner.Next();
             Debug.Log("[VN_UI] Next input detected -> runner.Next()");
         }
+
+          
 
 
         public void LockInputFrames(int frames = 2)
