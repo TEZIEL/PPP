@@ -82,7 +82,7 @@ namespace PPP.BLUE.VN
             subscribed = false;
         }
 
-        private void HandleChoice(VNNode.BranchRule[] rules)
+        private void HandleChoice(VNNode.ChoiceOption[] choices)
         {
             if (choicePanel == null)
             {
@@ -92,7 +92,7 @@ namespace PPP.BLUE.VN
                 return;
             }
 
-            choicePanel.Open(rules);
+            choicePanel.Open(choices);
         }
 
         private void Update()

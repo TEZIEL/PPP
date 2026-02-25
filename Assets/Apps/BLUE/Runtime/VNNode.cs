@@ -5,7 +5,7 @@ namespace PPP.BLUE.VN
     [Serializable]
     public sealed class VNNode
     {
-        public string id;          // 라인 고유키 (seenSet 등에 사용)
+        public string id;          // Stable line key (seenSet, save)
         public VNNodeType type;
 
         // Say
@@ -18,12 +18,22 @@ namespace PPP.BLUE.VN
         // Branch
         public BranchRule[] branches;
 
+        // Choice
+        public ChoiceOption[] choices;
+
         [Serializable]
         public sealed class BranchRule
         {
             public string choiceText;
-            public string expr;      // 조건식 (지금은 아주 단순하게)
-            public string jumpLabel; // 조건이 true면 점프할 라벨
+            public string expr;      // Conditional expression
+            public string jumpLabel; // Jump target when condition passes
+        }
+
+        [Serializable]
+        public sealed class ChoiceOption
+        {
+            public string choiceText;
+            public string jumpLabel;
         }
 
         public override string ToString()

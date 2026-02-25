@@ -18,6 +18,7 @@ namespace PPP.BLUE.VN
         public string text;
         public string label;
         public VNBranchRuleDTO[] branches;
+        public VNChoiceOptionDTO[] choices;
     }
 
     [Serializable]
@@ -25,6 +26,13 @@ namespace PPP.BLUE.VN
     {
         public string choiceText;
         public string expr;
+        public string jumpLabel;
+    }
+
+    [Serializable]
+    public sealed class VNChoiceOptionDTO
+    {
+        public string choiceText;
         public string jumpLabel;
     }
 }

@@ -49,6 +49,8 @@ namespace PPP.BLUE.VN.Editor
             var nodes = new List<VNNodeDTO>();
             VNNodeDTO branchAccumulator = null;
             var branchRules = new List<VNBranchRuleDTO>();
+            VNNodeDTO choiceAccumulator = null;
+            var choiceOptions = new List<VNChoiceOptionDTO>();
 
             for (int i = 1; i < lines.Length; i++)
             {
@@ -97,6 +99,30 @@ namespace PPP.BLUE.VN.Editor
 
                 FlushBranchNode(nodes, ref branchAccumulator, branchRules);
 
+                if (normalizedType.Equals(nameof(VNNodeType.Choice), StringComparison.OrdinalIgnoreCase))
+                {
+                    if (choiceAccumulator == null || !string.Equals(choiceAccumulator.id, id, StringComparison.Ordinal))
+                    {
+                        FlushChoiceNode(nodes, ref choiceAccumulator, choiceOptions);
+                        choiceAccumulator = new VNNodeDTO
+                        {
+                            id = id,
+                            type = nameof(VNNodeType.Choice)
+                        };
+                    }
+
+                    choiceOptions.Add(new VNChoiceOptionDTO
+                    {
+                        jumpLabel = jumpLabel ?? string.Empty,
+                        choiceText = arg2 ?? string.Empty,
+                    });
+
+                    continue;
+                }
+
+                FlushBranchNode(nodes, ref branchAccumulator, branchRules);
+                FlushChoiceNode(nodes, ref choiceAccumulator, choiceOptions);
+
                 var node = new VNNodeDTO
                 {
                     id = id,
@@ -110,6 +136,7 @@ namespace PPP.BLUE.VN.Editor
             }
 
             FlushBranchNode(nodes, ref branchAccumulator, branchRules);
+            FlushChoiceNode(nodes, ref choiceAccumulator, choiceOptions);
 
             var scriptId = Path.GetFileNameWithoutExtension(csvFilePath);
             var dto = new VNScriptDTO
@@ -162,6 +189,19 @@ namespace PPP.BLUE.VN.Editor
             nodes.Add(branchAccumulator);
             branchAccumulator = null;
             branchRules.Clear();
+        }
+
+        private static void FlushChoiceNode(List<VNNodeDTO> nodes, ref VNNodeDTO choiceAccumulator, List<VNChoiceOptionDTO> choiceOptions)
+        {
+            if (choiceAccumulator == null)
+            {
+                return;
+            }
+
+            choiceAccumulator.choices = choiceOptions.ToArray();
+            nodes.Add(choiceAccumulator);
+            choiceAccumulator = null;
+            choiceOptions.Clear();
         }
 
         private static Dictionary<string, int> BuildHeaderMap(List<string> header)

@@ -8,8 +8,8 @@ namespace PPP.BLUE.VN
     public sealed class VNChoicePanel : MonoBehaviour
     {
         [Header("Refs")]
-        [SerializeField] private GameObject root;          // UI_ChoicePanel (자기 자신이어도 됨)
-        [SerializeField] private Transform ChoicesList;    
+        [SerializeField] private GameObject root;          // UI_ChoicePanel root object
+        [SerializeField] private Transform ChoicesList;
         [SerializeField] private Button choiceButtonPrefab; // ChoiceButton prefab
 
         [SerializeField] private VNRunner runner;
@@ -17,7 +17,7 @@ namespace PPP.BLUE.VN
 
         private readonly List<Button> spawned = new();
 
-        
+
         private static string GetPath(Transform t)
         {
             string path = t.name;
@@ -41,11 +41,11 @@ namespace PPP.BLUE.VN
             Debug.Log($"[VNChoicePanel] bind runner={(runner ? runner.name : "NULL")} policy={(policy ? policy.name : "NULL")}");
         }
 
-        public void Open(VNNode.BranchRule[] rules)
+        public void Open(VNNode.ChoiceOption[] choices)
         {
-            Debug.Log($"[VNChoicePanel] Open called on instanceID={GetInstanceID()} rules={rules?.Length ?? -1}");
+            Debug.Log($"[VNChoicePanel] Open called on instanceID={GetInstanceID()} choices={choices?.Length ?? -1}");
 
-            if (root == null || ChoicesList == null || choiceButtonPrefab == null || runner == null)
+            if (root == null || ChoicesList == null || choiceButtonPrefab == null || runner == null || choices == null)
             {
                 Debug.LogError("[VNChoicePanel] Missing refs. Check inspector wiring.");
                 return;
@@ -55,30 +55,30 @@ namespace PPP.BLUE.VN
             ClearButtons();
 
 
-            // 모달 락(스페이스 진행 막기)
+            // Auto pause + modal lock while choice UI is open.
             runner?.StopAutoExternal("ChoicePanel Open");
-            policy?.SetModalOpen(true);
+            policy?.PushModal("ChoicePanel");
 
             root.SetActive(true);
 
-            for (int i = 0; i < rules.Length; i++)
+            for (int i = 0; i < choices.Length; i++)
             {
-                var r = rules[i];
-                if (r == null) continue;
+                var choice = choices[i];
+                if (choice == null) continue;
 
-                // choiceText 없는 건 선택지로 안 보여준다(자동분기용)
-                if (string.IsNullOrEmpty(r.choiceText)) continue;
+                // Create only entries with visible text.
+                if (string.IsNullOrEmpty(choice.choiceText)) continue;
 
-                
+
                 var btn = Instantiate(choiceButtonPrefab, ChoicesList, worldPositionStays: false);
                 spawned.Add(btn);
 
 
-                // 라벨 텍스트 설정 (TMP 우선)
+                // Set button text (TMP first).
                 var tmp = btn.GetComponentInChildren<TMP_Text>(true);
-                if (tmp != null) tmp.text = r.choiceText;
+                if (tmp != null) tmp.text = choice.choiceText;
 
-                string jump = r.jumpLabel; // 클로저 캡처 안전
+                string jump = choice.jumpLabel; // capture for closure
                 btn.onClick.AddListener(() =>
                 {
                     Close();
@@ -87,7 +87,7 @@ namespace PPP.BLUE.VN
 
             }
 
-            // 아무 버튼도 안 만들어졌으면 그냥 닫고 진행
+            // No valid buttons: close and continue safely.
             if (spawned.Count == 0)
             {
                 Debug.LogWarning("[VNChoicePanel] No choices to show. Closing and continuing.");
@@ -95,7 +95,7 @@ namespace PPP.BLUE.VN
                 runner.Next();
             }
 
-            // 선택 포커스 제거 (Space/Enter가 버튼에 먹지 않게)
+            // Clear focus to avoid accidental keyboard click.
             UnityEngine.EventSystems.EventSystem.current?.SetSelectedGameObject(null);
         }
 
@@ -104,7 +104,7 @@ namespace PPP.BLUE.VN
             ClearButtons();
             if (root != null) root.SetActive(false);
 
-            policy?.SetModalOpen(false);
+            policy?.PopModal("ChoicePanel");
             UnityEngine.EventSystems.EventSystem.current?.SetSelectedGameObject(null);
         }
 

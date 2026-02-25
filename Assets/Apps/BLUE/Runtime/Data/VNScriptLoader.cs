@@ -70,6 +70,7 @@ namespace PPP.BLUE.VN
                         text = nodeDto.text ?? string.Empty,
                         label = nodeDto.label ?? string.Empty,
                         branches = ConvertBranches(nodeDto.branches),
+                        choices = ConvertChoices(nodeDto.choices),
                     };
 
                     nodes.Add(node);
@@ -107,6 +108,32 @@ namespace PPP.BLUE.VN
             }
 
             return branches;
+        }
+
+        private static VNNode.ChoiceOption[] ConvertChoices(VNChoiceOptionDTO[] choiceDtos)
+        {
+            if (choiceDtos == null)
+            {
+                return null;
+            }
+
+            var choices = new VNNode.ChoiceOption[choiceDtos.Length];
+            for (int i = 0; i < choiceDtos.Length; i++)
+            {
+                var choiceDto = choiceDtos[i];
+                if (choiceDto == null)
+                {
+                    continue;
+                }
+
+                choices[i] = new VNNode.ChoiceOption
+                {
+                    choiceText = choiceDto.choiceText ?? string.Empty,
+                    jumpLabel = choiceDto.jumpLabel ?? string.Empty,
+                };
+            }
+
+            return choices;
         }
     }
 }

@@ -26,7 +26,6 @@ namespace PPP.BLUE.VN
         private bool lastMinimized;
         private int waitPointer = -1;   // 화면에 보여주고 '기다리는' 노드 인덱스
         private bool isWaiting;         // 지금 입력/선택 대기 상태인지
-        private bool suppressSkipOnce;
 
         private const string SAVE_KEY = "vn.state";
         private const string VN_STATE_KEY = "vn.state";
@@ -136,7 +135,7 @@ namespace PPP.BLUE.VN
             // 일단 간단히는 Next() 구조를 조금 바꿔야 함.
         }
 
-        public event Action<VNNode.BranchRule[]> OnChoice;
+        public event Action<VNNode.ChoiceOption[]> OnChoice;
 
         private void Start()
         {
@@ -314,12 +313,57 @@ namespace PPP.BLUE.VN
             Next();
         }
 
+        private static bool HasChoiceText(VNNode.ChoiceOption[] choices)
+        {
+            if (choices == null || choices.Length == 0)
+            {
+                return false;
+            }
+
+            for (int i = 0; i < choices.Length; i++)
+            {
+                var choice = choices[i];
+                if (choice != null && !string.IsNullOrEmpty(choice.choiceText))
+                {
+                    return true;
+                }
+            }
+
+            return false;
+        }
+
         private bool HasAnyChoiceText(VNNode.BranchRule[] rules)
         {
             foreach (var r in rules)
                 if (r != null && !string.IsNullOrEmpty(r.choiceText))
                     return true;
             return false;
+        }
+
+        private static VNNode.ChoiceOption[] ConvertChoiceRules(VNNode.BranchRule[] rules)
+        {
+            if (rules == null || rules.Length == 0)
+            {
+                return Array.Empty<VNNode.ChoiceOption>();
+            }
+
+            var choices = new VNNode.ChoiceOption[rules.Length];
+            for (int i = 0; i < rules.Length; i++)
+            {
+                var rule = rules[i];
+                if (rule == null)
+                {
+                    continue;
+                }
+
+                choices[i] = new VNNode.ChoiceOption
+                {
+                    choiceText = rule.choiceText,
+                    jumpLabel = rule.jumpLabel,
+                };
+            }
+
+            return choices;
         }
 
         public void Next()
@@ -368,17 +412,15 @@ namespace PPP.BLUE.VN
                     switch (node.type)
                     {
                         case VNNodeType.Say:
-                            if (!suppressSkipOnce
-                                && settings.skipMode == VNSkipMode.SeenOnly
+                            if (settings.skipMode == VNSkipMode.SeenOnly
                                 && !string.IsNullOrEmpty(node.id)
-                                && seenLineIds.Contains(node.id))
+                                && seenLineIds.Contains(node.id)
+                                && !string.Equals(node.id, "t.drink", StringComparison.Ordinal))
                             {
                                 Debug.Log($"[VN] Skip: {node.id}");
                                 pointer++;
                                 continue;
                             }
-
-                            suppressSkipOnce = false; // ✅ 로드 직후 첫 Say 처리 후 해제
 
                             waitPointer = pointer;
                             isWaiting = true;
@@ -388,6 +430,21 @@ namespace PPP.BLUE.VN
                             pointer++;
                             return;
 
+                        case VNNodeType.Choice:
+                            if (node.choices != null && HasChoiceText(node.choices))
+                            {
+                                lastStopIndex = pointer;
+                                waitPointer = pointer;
+                                isWaiting = true;
+
+                                MarkSaveAllowed(true, "Choice Open");
+                                OnChoice?.Invoke(node.choices);
+                                return;
+                            }
+
+                            pointer++;
+                            continue;
+
                         case VNNodeType.Branch:
                             if (node.branches != null && node.branches.Length > 0 &&
                                 HasAnyChoiceText(node.branches))
@@ -396,7 +453,8 @@ namespace PPP.BLUE.VN
                                 waitPointer = pointer;  // ✅ “이 Branch에서 멈춤”
                                 isWaiting = true;
 
-                                OnChoice?.Invoke(node.branches);
+                                MarkSaveAllowed(true, "Choice Open");
+                                OnChoice?.Invoke(ConvertChoiceRules(node.branches));
                                 pointer++;        // Branch 자체는 소비
                                 return;           // ✅ 여기서 멈춤(선택 기다림)
                             }
@@ -738,8 +796,6 @@ namespace PPP.BLUE.VN
 
             if (logToConsole)
                 Debug.Log($"[VN] LoadState seen={seenLineIds.Count} auto={settings.auto} skipMode={settings.skipMode} speed={settings.speed}");
-            
-            suppressSkipOnce = true;
 
             return true;
         }
