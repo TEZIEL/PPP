@@ -12,7 +12,7 @@ public class WindowShortcutController : MonoBehaviour
     [SerializeField] private string vnAppId = "app.vn"; // VN AppId
 
     private float lastActionTime;
-
+    
     // ✅ 외부에서 잠깐 입력 막기(선택)
     private float shortcutLockUntil;
     public void LockForSeconds(float seconds)
@@ -67,7 +67,6 @@ public class WindowShortcutController : MonoBehaviour
 
     private bool ShouldBlockClose(string activeId)
     {
-        // VN이 아니면 닫기 막을 이유 없음
         if (activeId != vnAppId) return false;
 
         var windows = windowManager.GetOpenWindows();
@@ -76,8 +75,11 @@ public class WindowShortcutController : MonoBehaviour
         var policy = wc.GetComponentInChildren<VNPolicyController>(true);
         if (policy == null) return false;
 
-        // ✅ 닫기만 막고 싶은 조건
-        return policy.IsInDrinkMode;
+        var drinkPanel = wc.GetComponentInChildren<DrinkTestPanel>(true);
+
+        // 🔥 DrinkMode OR PendingOpen이면 Close 차단
+        return policy.IsInDrinkMode ||
+               (drinkPanel != null && drinkPanel.IsPendingOpen);
     }
 
     private void TogglePin(string appId)

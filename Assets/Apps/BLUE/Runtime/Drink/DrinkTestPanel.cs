@@ -1,6 +1,7 @@
 ﻿using UnityEngine;
 using UnityEngine.UI;
 using UnityEngine.EventSystems;
+using System.Collections;
 
 namespace PPP.BLUE.VN
 {
@@ -18,6 +19,11 @@ namespace PPP.BLUE.VN
         [SerializeField] private Button btnSuccess;
         [SerializeField] private Button btnGreat;
 
+        private bool pendingOpen;
+        public bool IsPendingOpen => pendingOpen;
+        private int openDelayFrames = 0;
+        private bool waitOneFrameAfterModal;
+
         private void Awake()
         {
             if (root != null) root.SetActive(false);
@@ -29,13 +35,20 @@ namespace PPP.BLUE.VN
 
         public void Open()
         {
-            if (root != null) root.SetActive(true);
-
             runner?.StopAutoExternal("DrinkPanel Open");
+            StartCoroutine(CoOpenSafe());
+        }
 
-            // ✅ 드링크 패널 자체 모달 토큰
+        private IEnumerator CoOpenSafe()
+        {
+            // 다른 modal 완전 종료까지 대기
+            while (policy != null && policy.IsModalOpen)
+                yield return null;
+
+            if (root != null)
+                root.SetActive(true);
+
             policy?.PushModal("DrinkPanel");
-
             policy?.EnterDrinkMode();
 
             choosing = false;
@@ -44,6 +57,26 @@ namespace PPP.BLUE.VN
 
         private bool choosing;
 
+        private void Update()
+        {
+            if (!pendingOpen) return;
+
+            // 다른 모달 있을 때만 대기
+            if (policy != null && policy.IsModalOpen)
+                return;
+
+            pendingOpen = false;
+
+            if (root != null) root.SetActive(true);
+
+            runner?.StopAutoExternal("DrinkPanel Open");
+
+            // ✅ 여기서 modal 잡아야 함
+            policy?.PushModal("DrinkPanel");
+            policy?.EnterDrinkMode();
+
+            choosing = false;
+        }
 
         private void Choose(string result)
         {

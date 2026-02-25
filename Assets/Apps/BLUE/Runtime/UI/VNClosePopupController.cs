@@ -9,6 +9,7 @@ namespace PPP.BLUE.VN
         [Header("Refs")]
         [SerializeField] private VNOSBridge bridge;
         [SerializeField] private VNPolicyController policy;
+        [SerializeField] private WindowShortcutController shortcutController;
 
         [SerializeField] private GameObject popupRoot;
         [SerializeField] private TMP_Text messageText;
@@ -52,10 +53,16 @@ namespace PPP.BLUE.VN
 
             isShowing = true;
 
-            if (messageText != null) messageText.text = defaultMessage;
+            if (messageText != null)
+                messageText.text = defaultMessage;
+
             popupRoot.SetActive(true);
 
             policy?.PushModal("ClosePopup");
+
+            // 🔥 Close 입력 잠금
+            shortcutController?.LockForSeconds(0.25f);
+
             UnityEngine.EventSystems.EventSystem.current?.SetSelectedGameObject(null);
         }
 
@@ -68,7 +75,12 @@ namespace PPP.BLUE.VN
             popupRoot.SetActive(false);
 
             policy?.PopModal("ClosePopup");
+
             bridge?.ClearCloseRequestPending();
+
+            // 🔥 재입력 방지
+            shortcutController?.LockForSeconds(0.15f);
+
             UnityEngine.EventSystems.EventSystem.current?.SetSelectedGameObject(null);
         }
 
