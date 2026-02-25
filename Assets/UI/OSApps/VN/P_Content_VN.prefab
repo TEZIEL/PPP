@@ -739,6 +739,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   logToConsole: 1
+  loadFromJsonOnStart: 1
+  startDayId: day01
   bridge: {fileID: 8020622904635775800}
   runner: {fileID: 5088717439015034517}
   policy: {fileID: 5970636519023333258}

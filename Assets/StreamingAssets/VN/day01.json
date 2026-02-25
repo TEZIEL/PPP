@@ -1,96 +1,133 @@
 {
-  "scriptId": "day01",
-  "nodes": [
-    {
-      "id": "lb.start",
-      "type": "Label",
-      "label": "start"
-    },
-    {
-      "id": "t.001",
-      "type": "Say",
-      "speakerId": "sys",
-      "text": "CSV Import 테스트 시작."
-    },
-    {
-      "id": "t.002",
-      "type": "Say",
-      "speakerId": "sys",
-      "text": "day01.csv 에서 생성된 JSON을 재생 중입니다."
-    },
-    {
-      "id": "t.choice",
-      "type": "Branch",
-      "branches": [
+    "scriptId": "day01",
+    "nodes": [
         {
-          "expr": "lastDrink==1",
-          "jumpLabel": "sports_route",
-          "choiceText": "운동음료"
+            "id": "lb.start",
+            "type": "Label",
+            "speakerId": "",
+            "text": "",
+            "label": "start",
+            "branches": []
         },
         {
-          "expr": "lastDrink==2",
-          "jumpLabel": "coffee_route",
-          "choiceText": "커피"
+            "id": "t.001",
+            "type": "Say",
+            "speakerId": "sys",
+            "text": "CSV Import 테스트 시작.",
+            "label": "",
+            "branches": []
         },
         {
-          "expr": "else",
-          "jumpLabel": "default_route",
-          "choiceText": "기본"
+            "id": "t.002",
+            "type": "Say",
+            "speakerId": "sys",
+            "text": "day01.csv 에서 생성된 JSON을 재생 중입니다.",
+            "label": "",
+            "branches": []
+        },
+        {
+            "id": "t.choice",
+            "type": "Branch",
+            "speakerId": "",
+            "text": "",
+            "label": "",
+            "branches": [
+                {
+                    "choiceText": "",
+                    "expr": "lastDrink==1",
+                    "jumpLabel": "sports_route"
+                },
+                {
+                    "choiceText": "",
+                    "expr": "lastDrink==2",
+                    "jumpLabel": "coffee_route"
+                },
+                {
+                    "choiceText": "",
+                    "expr": "else",
+                    "jumpLabel": "default_route"
+                }
+            ]
+        },
+        {
+            "id": "lb.sports",
+            "type": "Label",
+            "speakerId": "",
+            "text": "",
+            "label": "sports_route",
+            "branches": []
+        },
+        {
+            "id": "t.sports.1",
+            "type": "Say",
+            "speakerId": "sys",
+            "text": "SPORTS 경로로 진입했습니다.",
+            "label": "",
+            "branches": []
+        },
+        {
+            "id": "t.jump",
+            "type": "Jump",
+            "speakerId": "",
+            "text": "",
+            "label": "end",
+            "branches": []
+        },
+        {
+            "id": "lb.coffee",
+            "type": "Label",
+            "speakerId": "",
+            "text": "",
+            "label": "coffee_route",
+            "branches": []
+        },
+        {
+            "id": "t.coffee.1",
+            "type": "Say",
+            "speakerId": "sys",
+            "text": "COFFEE 경로로 진입했습니다.",
+            "label": "",
+            "branches": []
+        },
+        {
+            "id": "lb.default",
+            "type": "Label",
+            "speakerId": "",
+            "text": "",
+            "label": "default_route",
+            "branches": []
+        },
+        {
+            "id": "t.default.1",
+            "type": "Say",
+            "speakerId": "sys",
+            "text": "DEFAULT 경로로 진입했습니다.",
+            "label": "",
+            "branches": []
+        },
+        {
+            "id": "lb.end",
+            "type": "Label",
+            "speakerId": "",
+            "text": "",
+            "label": "end",
+            "branches": []
+        },
+        {
+            "id": "t.end",
+            "type": "Say",
+            "speakerId": "sys",
+            "text": "day01 끝.",
+            "label": "",
+            "branches": []
+        },
+        {
+            "id": "end",
+            "type": "End",
+            "speakerId": "",
+            "text": "",
+            "label": "",
+            "branches": []
         }
-      ]
-    },
-    {
-      "id": "lb.sports",
-      "type": "Label",
-      "label": "sports_route"
-    },
-    {
-      "id": "t.sports.1",
-      "type": "Say",
-      "speakerId": "sys",
-      "text": "SPORTS 경로로 진입했습니다."
-    },
-    {
-      "id": "t.jump",
-      "type": "Jump",
-      "label": "end"
-    },
-    {
-      "id": "lb.coffee",
-      "type": "Label",
-      "label": "coffee_route"
-    },
-    {
-      "id": "t.coffee.1",
-      "type": "Say",
-      "speakerId": "sys",
-      "text": "COFFEE 경로로 진입했습니다."
-    },
-    {
-      "id": "lb.default",
-      "type": "Label",
-      "label": "default_route"
-    },
-    {
-      "id": "t.default.1",
-      "type": "Say",
-      "speakerId": "sys",
-      "text": "DEFAULT 경로로 진입했습니다."
-    },
-    {
-      "id": "lb.end",
-      "type": "Label",
-      "label": "end"
-    },
-    {
-      "id": "t.end",
-      "type": "Say",
-      "speakerId": "sys",
-      "text": "day01 끝."
-    },
-    {
-      "id": "end",
-      "type": "End"
-    }
-  ]
+    ]
 }

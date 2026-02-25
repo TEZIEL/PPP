@@ -97,37 +97,35 @@ namespace PPP.BLUE.VN
 
         private void Update()
         {
-
             if (inputLockFrames > 0) { inputLockFrames--; return; }
             if (runner == null) return;
             if (!runner.HasScript) return;
 
-            if (policy != null && policy.IsModalOpen) return; // ✅ 팝업 떠있으면 VN 진행 금지
+            // ✅ 모달/드링크 중에는 진행 입력 금지
+            if (policy != null && (policy.IsModalOpen || policy.IsInDrinkMode))
+                return;
 
-            
-            // ✅ 0) 입력 자체 허용 여부 (포커스/최소화/팝업 등)
+            // ✅ 최소화 상태면 진행 입력 금지 (포커스는 "무시"한다)
             if (policy != null)
             {
                 var st = policy.GetWindowState();
-                if (!st.IsFocused || st.IsMinimized) return;
+                if (st.IsMinimized) return;
             }
 
-            // ✅ 1) Drink 모드면 진행 입력 금지 (Space가 뭐든 먹지 않게)
-            if (policy != null && policy.IsInDrinkMode) return;
-
-            // ✅ 2) Next 입력
+            // ✅ Next 입력
             if (!Input.GetKeyDown(KeyCode.Space)) return;
 
-            // ✅ 3) 타이핑 중이면 "완성"만 하고 다음 라인으로 넘어가진 않음
+            // ✅ 타이핑 중이면 "완성"만 하고 다음 라인으로 넘어가진 않음
             if (!lineCompleted && typer != null && typer.IsTyping)
             {
                 ForceCompleteLine();
                 return;
             }
 
-            // ✅ 4) 그 외에는 다음 라인
+            // ✅ 그 외에는 다음 라인
             runner.CancelAuto();
             runner.Next();
+            Debug.Log("[VN_UI] Next input detected -> runner.Next()");
         }
 
 
