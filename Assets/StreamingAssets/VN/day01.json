@@ -26,6 +26,14 @@
             "branches": []
         },
         {
+            "id": "t.drink",
+            "type": "Say",
+            "speakerId": "sys",
+            "text": "(Drink) Choose result.",
+            "label": "",
+            "branches": []
+        },
+        {
             "id": "t.choice",
             "type": "Branch",
             "speakerId": "",
@@ -66,7 +74,7 @@
             "branches": []
         },
         {
-            "id": "t.jump",
+            "id": "t.jump_sports",
             "type": "Jump",
             "speakerId": "",
             "text": "",
@@ -90,6 +98,14 @@
             "branches": []
         },
         {
+            "id": "t.jump_coffee",
+            "type": "Jump",
+            "speakerId": "",
+            "text": "",
+            "label": "end",
+            "branches": []
+        },
+        {
             "id": "lb.default",
             "type": "Label",
             "speakerId": "",
@@ -103,6 +119,14 @@
             "speakerId": "sys",
             "text": "DEFAULT 경로로 진입했습니다.",
             "label": "",
+            "branches": []
+        },
+        {
+            "id": "t.jump_default",
+            "type": "Jump",
+            "speakerId": "",
+            "text": "",
+            "label": "end",
             "branches": []
         },
         {

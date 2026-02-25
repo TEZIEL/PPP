@@ -24,7 +24,9 @@ namespace PPP.BLUE.VN
         private bool lastBlocked;                 // 지난 프레임에 입력/오토가 막혀있었나?
         private bool autoSuspendedByBlock;        // 막힘 때문에 Auto를 멈췄었나?
         private bool lastMinimized;
-
+        private int waitPointer = -1;   // 화면에 보여주고 '기다리는' 노드 인덱스
+        private bool isWaiting;         // 지금 입력/선택 대기 상태인지
+        private bool suppressSkipOnce;
 
         private const string SAVE_KEY = "vn.state";
         private const string VN_STATE_KEY = "vn.state";
@@ -322,6 +324,9 @@ namespace PPP.BLUE.VN
 
         public void Next()
         {
+            isWaiting = false;
+            waitPointer = -1;
+
             if (policy != null && policy.GetWindowState().IsMinimized)
             {
                 if (logToConsole) Debug.Log("[VN] Next ignored (minimized).");
@@ -363,7 +368,8 @@ namespace PPP.BLUE.VN
                     switch (node.type)
                     {
                         case VNNodeType.Say:
-                            if (settings.skipMode == VNSkipMode.SeenOnly
+                            if (!suppressSkipOnce
+                                && settings.skipMode == VNSkipMode.SeenOnly
                                 && !string.IsNullOrEmpty(node.id)
                                 && seenLineIds.Contains(node.id))
                             {
@@ -372,16 +378,24 @@ namespace PPP.BLUE.VN
                                 continue;
                             }
 
-                            lastShownPointer = pointer; // ✅ 이 줄이 핵심
+                            suppressSkipOnce = false; // ✅ 로드 직후 첫 Say 처리 후 해제
+
+                            waitPointer = pointer;
+                            isWaiting = true;
+                            lastShownPointer = pointer;
+
                             EmitSay(node);
                             pointer++;
-                            return; // ✅ Say는 "멈춤" 포인트 (화면에 보여주고 기다림)
+                            return;
 
                         case VNNodeType.Branch:
                             if (node.branches != null && node.branches.Length > 0 &&
                                 HasAnyChoiceText(node.branches))
                             {
                                 lastStopIndex = pointer;
+                                waitPointer = pointer;  // ✅ “이 Branch에서 멈춤”
+                                isWaiting = true;
+
                                 OnChoice?.Invoke(node.branches);
                                 pointer++;        // Branch 자체는 소비
                                 return;           // ✅ 여기서 멈춤(선택 기다림)
@@ -599,14 +613,17 @@ namespace PPP.BLUE.VN
         private VNState BuildState()
         {
             var st = new VNState();
+            st.scriptId = script.ScriptId;
 
-            st.scriptId = script?.ScriptId ?? "";
-            st.pointer = pointer;
+            int savePointer = pointer;
 
-            // vars 복사
-            st.vars.Clear();
-            foreach (var kv in vars)
-                st.vars.Add(new VNIntVar { key = kv.Key, value = kv.Value });
+            // ✅ 타이핑 완료로 SaveAllowed TRUE가 되는 ‘발할라식’ 타이밍이면
+            // 실제로 화면에 떠있는 라인은 lastShownPointer다.
+            if (lastShownPointer >= 0 && script != null && lastShownPointer < script.nodes.Count)
+                savePointer = lastShownPointer;
+
+            st.pointer = savePointer;
+
 
             // seen 복사
             st.seen = new List<string>(seenLineIds);
@@ -615,7 +632,7 @@ namespace PPP.BLUE.VN
             st.settings = new VNSettings
             {
                 auto = settings.auto,
-                skip = settings.skip,
+                
                 skipMode = settings.skipMode,
                 speed = settings.speed
             };
@@ -664,8 +681,8 @@ namespace PPP.BLUE.VN
 
             if (logToConsole)
             {
-                var safeSettings = st.settings ?? VNSettings.Default();
-                Debug.Log($"[VN] SaveState seen={st.seen?.Count ?? 0} auto={safeSettings.auto} skip={safeSettings.skip} speed={safeSettings.speed}");
+                var safe = st.settings ?? VNSettings.Default();
+                Debug.Log($"[VN] SaveState seen={st.seen?.Count ?? 0} auto={safe.auto} skipMode={safe.skipMode} speed={safe.speed}");
             }
 
             bridge.SaveVN(VN_STATE_KEY, st);
@@ -720,7 +737,9 @@ namespace PPP.BLUE.VN
             lastResult = st.lastResult;
 
             if (logToConsole)
-                Debug.Log($"[VN] LoadState seen={seenLineIds.Count} auto={settings.auto} skip={settings.skip} speed={settings.speed}");
+                Debug.Log($"[VN] LoadState seen={seenLineIds.Count} auto={settings.auto} skipMode={settings.skipMode} speed={settings.speed}");
+            
+            suppressSkipOnce = true;
 
             return true;
         }
@@ -766,11 +785,11 @@ namespace PPP.BLUE.VN
         public void SetSpeed(float v)
         {
             // 안전장치
-            if (state == null) state = new VNState();
-            if (state.settings == null) state.settings = VNSettings.Default();
+            if (settings == null)
+                settings = VNSettings.Default();
 
-            state.settings.speed = v;
-            Debug.Log($"[VN] SetSpeed -> {state.settings.speed}");
+            settings.speed = v;
+            Debug.Log($"[VN] SetSpeed -> {settings.speed}");
         }
 
         public void ApplyDrinkResult(string result) // "fail" / "success" / "great"

@@ -47,7 +47,7 @@ namespace PPP.BLUE.VN
 
         private void Choose(string result)
         {
-            if (choosing) return;     // ✅ 중복 클릭 방지
+            if (choosing) return;
             choosing = true;
 
             windowManager?.LockCloseForSeconds(0.15f);
@@ -57,14 +57,12 @@ namespace PPP.BLUE.VN
             if (runner != null)
             {
                 int lastDrinkValue = result == "great" ? 1 : (result == "success" ? 2 : 3);
-                runner.SetVar("lastDrink", lastDrinkValue);
+                runner.SetVar("lastDrink", lastDrinkValue);   // ✅ 분기 변수 세팅
+                                                              // runner.ApplyDrinkResult(result);            // ❌ 지금은 빼도 됨(중복 방지)
             }
-
-            runner?.ApplyDrinkResult(result);
 
             if (root != null) root.SetActive(false);
 
-            // ✅ 반드시 1:1로 내린다
             policy?.ExitDrinkMode();
             policy?.PopModal("DrinkPanel");
 
