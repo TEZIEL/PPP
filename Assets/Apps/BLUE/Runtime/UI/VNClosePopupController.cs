@@ -47,35 +47,40 @@ namespace PPP.BLUE.VN
 
         public void Show()
         {
-            Debug.Log("[VNClosePopup] Show()");
-            if (popupRoot != null && popupRoot.activeSelf) return;
-            if (policy != null && policy.IsModalOpen) return;
-
-
-            if (policy != null && policy.IsInDrinkMode) return;
             if (popupRoot == null) return;
+            if (isShowing) return;
 
-            if (isShowing) return;          // ✅ 중복 방지
             isShowing = true;
 
             if (messageText != null) messageText.text = defaultMessage;
             popupRoot.SetActive(true);
 
-            policy?.SetModalOpen(true);
+            policy?.PushModal("ClosePopup");
             UnityEngine.EventSystems.EventSystem.current?.SetSelectedGameObject(null);
         }
 
         public void Hide()
         {
             if (popupRoot == null) return;
-
             if (!isShowing) return;
-            isShowing = false;
 
+            isShowing = false;
             popupRoot.SetActive(false);
-            policy?.SetModalOpen(false);
-            bridge?.ClearCloseRequestPending(); // ✅ 여기
+
+            policy?.PopModal("ClosePopup");
+            bridge?.ClearCloseRequestPending();
             UnityEngine.EventSystems.EventSystem.current?.SetSelectedGameObject(null);
+        }
+
+        public void OnCloseCancel()
+        {
+            Hide(); // 이미 내부에서 modal off + clearPending 처리함
+        }
+
+        public void OnCloseConfirm()
+        {
+            bridge?.RequestForceClose(); // OS에 강제 닫기 요청
+            Hide();                      // 팝업 닫기
         }
 
         private void ForceExit()

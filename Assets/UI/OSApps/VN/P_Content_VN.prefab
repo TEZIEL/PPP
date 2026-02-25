@@ -739,8 +739,9 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   logToConsole: 1
-  bridge: {fileID: 0}
-  runner: {fileID: 0}
+  bridge: {fileID: 8020622904635775800}
+  runner: {fileID: 5088717439015034517}
+  policy: {fileID: 5970636519023333258}
 --- !u!1 &1974178750765012198
 GameObject:
   m_ObjectHideFlags: 0
@@ -832,7 +833,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 11e262bf62003c0498efdc40d603e73a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  target: {fileID: 0}
+  target: {fileID: 8338431015460203540}
   charsPerSecond: 40
 --- !u!1 &2175872416290240405
 GameObject:
@@ -1264,6 +1265,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   appId: VN
   hostBehaviour: {fileID: 0}
+  runner: {fileID: 0}
+  policy: {fileID: 0}
 --- !u!1 &3416875645459038597
 GameObject:
   m_ObjectHideFlags: 0
@@ -2277,7 +2280,7 @@ MonoBehaviour:
   nameText: {fileID: 5225778479266586369}
   dialogueText: {fileID: 8338431015460203540}
   osBridge: {fileID: 8020622904635775800}
-  bridge: {fileID: 0}
+  bridge: {fileID: 8020622904635775800}
   drinkTestPanel: {fileID: 2646848395472061454}
   charsPerSecond: 40
 --- !u!1 &7689263358937122676

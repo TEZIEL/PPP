@@ -30,9 +30,15 @@ namespace PPP.BLUE.VN
         public void Open()
         {
             if (root != null) root.SetActive(true);
+
+            runner?.StopAutoExternal("DrinkPanel Open");
+
+            // ✅ 드링크 패널 자체 모달 토큰
+            policy?.PushModal("DrinkPanel");
+
             policy?.EnterDrinkMode();
 
-            // (선택) 드링크 패널 열릴 때도 선택 해제해두면 안전
+            choosing = false;
             EventSystem.current?.SetSelectedGameObject(null);
         }
 
@@ -41,11 +47,13 @@ namespace PPP.BLUE.VN
 
         private void Choose(string result)
         {
+            if (choosing) return;     // ✅ 중복 클릭 방지
+            choosing = true;
+
             windowManager?.LockCloseForSeconds(0.15f);
             shortcutController?.LockForSeconds(0.15f);
             EventSystem.current?.SetSelectedGameObject(null);
 
-            // ✅ 테스트용: 버튼에 따라 lastDrink도 세팅
             if (runner != null)
             {
                 int lastDrinkValue = result == "great" ? 1 : (result == "success" ? 2 : 3);
@@ -55,7 +63,10 @@ namespace PPP.BLUE.VN
             runner?.ApplyDrinkResult(result);
 
             if (root != null) root.SetActive(false);
+
+            // ✅ 반드시 1:1로 내린다
             policy?.ExitDrinkMode();
+            policy?.PopModal("DrinkPanel");
 
             runner?.Next();
         }

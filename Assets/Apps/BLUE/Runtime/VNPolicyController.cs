@@ -1,4 +1,5 @@
 ﻿using UnityEngine;
+using System;
 
 namespace PPP.BLUE.VN
 {
@@ -8,19 +9,16 @@ namespace PPP.BLUE.VN
         [SerializeField] private VNOSBridge bridge;
 
         public VNWindowState GetWindowState()
-        {
-            return bridge != null ? bridge.GetWindowState() : new VNWindowState(false, true);
-        }
+            => bridge != null ? bridge.GetWindowState() : new VNWindowState(false, true);
 
         public bool IsInDrinkMode { get; private set; }
 
-        // ✅ 팝업 떠 있으면 VN 입력 막기용
-        public bool IsModalOpen { get; private set; }
+        // ✅ 더이상 bool 직접 토글 금지. refCount로 관리.
+        private int modalCount;
+        public bool IsModalOpen => modalCount > 0;
 
         private void Awake()
         {
-            // ✅ 가장 안전: inspector에 넣는 게 1순위
-            // ✅ 그래도 빠지면 "자식 → 부모" 순으로 찾아서 반드시 잡는다
             if (bridge == null) bridge = GetComponentInChildren<VNOSBridge>(true);
             if (bridge == null) bridge = GetComponentInParent<VNOSBridge>(true);
 
@@ -30,7 +28,6 @@ namespace PPP.BLUE.VN
 
         private void Start()
         {
-            // ✅ VN은 기본적으로 항상 닫기 팝업을 거치게 한다
             bridge?.RequestBlockClose(true);
             Debug.Log("[VNPolicy] BlockClose = True (default)");
         }
@@ -38,6 +35,10 @@ namespace PPP.BLUE.VN
         public void EnterDrinkMode()
         {
             IsInDrinkMode = true;
+
+            // ✅ 드링크는 "모달 1개"를 점유
+            PushModal("DrinkMode");
+
             Debug.Log("[VNPolicy] EnterDrinkMode");
         }
 
@@ -45,18 +46,34 @@ namespace PPP.BLUE.VN
         {
             IsInDrinkMode = false;
 
-            // ✅ 여기서도 "다시 한번" 보정해줘 (안전장치)
-            // 드링크가 끝난 뒤 팝업이 안 뜨는 현상은 대부분 여기서 잡힘
-            bridge?.RequestBlockClose(true);
+            PopModal("DrinkMode");
 
+            bridge?.RequestBlockClose(true);
             Debug.Log("[VNPolicy] ExitDrinkMode (re-assert BlockClose=True)");
         }
 
-        // VNClosePopupController가 Show/Hide에서 호출
+        // ----------------------------
+        // ✅ 새 API: Push / Pop
+        // ----------------------------
+        public void PushModal(string reason)
+        {
+            modalCount++;
+            Debug.Log($"[VNPolicy] Modal++ ({reason}) count={modalCount}");
+        }
+
+        public void PopModal(string reason)
+        {
+            modalCount = Mathf.Max(0, modalCount - 1);
+            Debug.Log($"[VNPolicy] Modal-- ({reason}) count={modalCount}");
+        }
+
+        // ----------------------------
+        // ✅ 호환용 API (기존 호출 유지 가능)
+        // ----------------------------
         public void SetModalOpen(bool on)
         {
-            IsModalOpen = on;
-            Debug.Log($"[VNPolicy] IsModalOpen = {IsModalOpen}");
+            if (on) PushModal("SetModalOpen(true)");
+            else PopModal("SetModalOpen(false)");
         }
     }
 }

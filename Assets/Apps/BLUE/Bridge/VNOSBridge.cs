@@ -12,6 +12,8 @@ namespace PPP.BLUE.VN
 
         [Header("OS Host (adapter)")]
         [SerializeField] private MonoBehaviour hostBehaviour; // IVNHostOS 구현체
+        [SerializeField] private VNRunner runner;
+        [SerializeField] private VNPolicyController policy;
 
         private IVNHostOS Host => hostBehaviour as IVNHostOS;
 
@@ -46,6 +48,8 @@ namespace PPP.BLUE.VN
         {
             // 인스펙터로도 꽂을 수 있지만, 정석은 OS가 InjectHost로 주입하는 것.
             TryRegisterCloseHandler();
+            if (runner == null) runner = GetComponentInChildren<VNRunner>(true);
+            if (policy == null) policy = GetComponentInChildren<VNPolicyController>(true);
         }
 
         private void OnDisable()
@@ -122,11 +126,21 @@ namespace PPP.BLUE.VN
 
         public event Action OnCloseRequested;
 
+
+
+
         // ✅ OS가 호출하는 함수
         public void NotifyCloseRequested()
         {
-            if (closeRequestPending) return;  // ✅ 이미 요청 처리중이면 무시
+            if (closeRequestPending) return;
             closeRequestPending = true;
+
+            // ✅ Auto 즉시 중단
+            runner?.StopAutoExternal("CloseRequested");
+
+            // ✅ 모달 ON (진행/스페이스/오토 차단)
+            policy?.SetModalOpen(true);
+
             OnCloseRequested?.Invoke();
         }
 

@@ -139,56 +139,63 @@ namespace PPP.BLUE.VN
         private void HandleSay(string speakerId, string text, string lineId)
         {
             Debug.Log($"HandleSay called by {gameObject.name}");
-
             inputLockFrames = 1;
 
-            // 새 라인 시작 = 기본적으로 아직 저장 금지(타이핑 끝나기 전)
             lineCompleted = false;
             currentFullText = text ?? "";
 
-            // seen 기록은 "말풍선에 라인이 표시되기 시작한 순간(타이핑 시작)"에만 수행
             runner?.MarkSeen(lineId);
 
             if (nameText != null) nameText.text = speakerId ?? "";
             if (dialogueText != null) dialogueText.text = "";
 
-            // ✅ 타이퍼 없으면 즉시 출력 + 즉시 SaveAllowed
+            bool isDrink = (lineId == "t.drink");
+
+            // ✅ 드링크 노드는 "타이핑 끝나도 진행 금지"가 기본
+            // (Auto 튀는 거 원천 차단)
+            runner?.MarkSaveAllowed(false, isDrink ? "Drink node => wait choice" : "Typing Start");
+
+            // ✅ 타이퍼 없으면 즉시 출력
             if (typer == null)
             {
                 if (dialogueText != null) dialogueText.text = currentFullText;
                 lineCompleted = true;
-                runner?.MarkSaveAllowed();
-                Debug.Log("[VN] SaveAllowed TRUE (No Typer => Immediate)");
 
-                // t.drink 트리거도 동일하게 적용
-                if (lineId == "t.drink")
+                if (isDrink)
+                {
+                    // ✅ 드링크는 여기서 패널을 열고 끝. SaveAllowed TRUE 절대 금지.
                     drinkTestPanel?.Open();
+                    return;
+                }
 
+                // ✅ 일반 라인만 SaveAllowed TRUE
+                runner?.MarkSaveAllowed(true, "No Typer => Immediate");
+                runner?.NotifyLineTypedEnd();
+                Debug.Log("[VN] SaveAllowed TRUE (No Typer => Immediate)");
                 return;
             }
 
-            // ✅ 타이핑 시작: 끝날 때만 SaveAllowed TRUE
+            // ✅ 타이핑 시작
             typer.StartTyping(currentFullText, onCompleted: () =>
             {
                 lineCompleted = true;
-                runner?.MarkSaveAllowed();
                 runner?.NotifyLineTypedEnd();
-                
-                Debug.Log("[VN] SaveAllowed TRUE (Typing End)");
 
-                // (선택) 타이핑이 끝난 다음 드링크 패널 띄우고 싶으면 여기로 옮기면 됨
-                // if (lineId == "t.drink") drinkTestPanel?.Open();
+                if (isDrink)
+                {
+                    // ✅ 타이핑 끝난 뒤에 드링크 패널을 연다
+                    // ✅ SaveAllowed TRUE는 여기서도 하지 않는다
+                    drinkTestPanel?.Open();
+                    return;
+                }
+
+                // ✅ 일반 라인만 SaveAllowed TRUE
+                runner?.MarkSaveAllowed(true, "Typing Completed");
+                Debug.Log("[VN] SaveAllowed TRUE (Typing Completed)");
             });
 
-            // ✅ 지금은 여기서 MarkSaveAllowed() 찍지 않는다!
-            // ✅ 드링크 패널을 "라인 표시 순간"에 띄우고 싶으면 아래 유지
-            if (lineId == "t.drink")
-            {
-                if (drinkTestPanel == null)
-                    Debug.LogError("[VNDialogueView] drinkTestPanel is NULL. Assign it in Inspector.");
-                else
-                    drinkTestPanel.Open();
-            }
+            // ✅ 여기서 드링크 패널 열던 코드는 삭제해야 함(중복+타이밍 문제)
+            // if (lineId == "t.drink") drinkTestPanel.Open();
         }
 
         private void ForceCompleteLine()

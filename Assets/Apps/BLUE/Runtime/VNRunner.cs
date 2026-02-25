@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Collections;
 using UnityEngine;
+using PPP.BLUE.VN;
 
 namespace PPP.BLUE.VN
 {
@@ -14,16 +16,15 @@ namespace PPP.BLUE.VN
 
         [SerializeField] private VNRunner runner;
         private VNState state;
-        
-
+        private Coroutine autoCo;
+        [SerializeField] private VNPolicyController policy;
 
         private const string SAVE_KEY = "vn.state";
         private const string VN_STATE_KEY = "vn.state";
         private const float AutoDelaySeconds = 0.35f;
         private int lastShownPointer = -1;
         private int lastStopIndex = 0; // 마지막으로 '멈춘' 노드(Say/Choice)의 인덱스
-        private bool autoPending;
-        private float autoTimer;
+        
 
         public void InjectBridge(VNOSBridge b)
         {
@@ -33,15 +34,34 @@ namespace PPP.BLUE.VN
         private void Awake()
         {
             TryResolveBridge(silent: true);
+
+            BindPolicy("Awake");
+
+            // ✅ 1프레임 뒤 재시도 (WindowManager가 AttachContent 후 wiring 끝난 뒤)
+            StartCoroutine(CoBindPolicyNextFrame());
         }
 
 
         public void MarkSaveBlocked() => SaveAllowed = false;
-        public void MarkSaveAllowed() 
-        { 
-                SaveAllowed = true;
-                SaveState(); // ✅ 여기 한 줄로 “자동 저장” 완성
-            }
+        public void MarkSaveAllowed(bool allowed, string reason)
+        {
+            SaveAllowed = allowed;
+
+            if (logToConsole)
+                Debug.Log($"[VN] SaveAllowed {(SaveAllowed ? "TRUE" : "FALSE")} ({reason})");
+
+            if (SaveAllowed)
+                TryStartAutoTimer();
+            else
+                StopAutoTimer();
+        }
+
+        // ✅ 기존 호출 유지용(대부분 DialogueView가 runner.MarkSaveAllowed()로 호출하니까)
+        public void MarkSaveAllowed()
+        {
+            MarkSaveAllowed(true, "Typing End");
+            SaveState(); // ✅ 자동저장 유지해도 OK (SaveAllowed TRUE 순간에만)
+        }
 
 
         public event Action<string, string, string> OnSay; // speakerId, text, lineId
@@ -119,6 +139,7 @@ namespace PPP.BLUE.VN
                 return;
             }
 
+            StartCoroutine(CoBindPolicyNextFrame());
             SetScript(loaded);
 
             Begin();
@@ -138,7 +159,6 @@ namespace PPP.BLUE.VN
 
         private void Update()
         {
-
             if (!HasScript) return;
 
             if (Input.GetKeyDown(KeyCode.F1))
@@ -155,44 +175,30 @@ namespace PPP.BLUE.VN
             {
                 settings.auto = !settings.auto;
                 Debug.Log($"[VN] Auto={(settings.auto ? "On" : "Off")}");
-                if (!settings.auto)
-                    CancelAuto();
+
+                if (settings.auto) TryStartAutoTimer();
+                else StopAutoTimer();
             }
 
-            if (autoPending)
-            {
-                if (!settings.auto)
-                {
-                    CancelAuto();
-                    return;
-                }
-
-                if (!SaveAllowed) return;
-
-                autoTimer += Time.unscaledDeltaTime;
-                if (autoTimer < AutoDelaySeconds) return;
-
-                autoPending = false;
-                autoTimer = 0f;
-                Debug.Log("[VN] AutoNext");
-                Next();
-            }
-
+            // ✅ 안전장치: 조건 깨지면 예약된 오토도 바로 끊음
+            if (autoCo != null && !CanAutoAdvance())
+                StopAutoTimer();
         }
 
         public void NotifyLineTypedEnd()
         {
             if (!settings.auto) return;
 
-            autoPending = true;
-            autoTimer = 0f;
-            Debug.Log($"[VN] AutoTimer Start ({AutoDelaySeconds:0.00}s)");
+            TryStartAutoTimer();
+
+            if (logToConsole)
+                Debug.Log("[VN] AutoTimer Start (TypingEnd)");
         }
+
 
         public void CancelAuto()
         {
-            autoPending = false;
-            autoTimer = 0f;
+            StopAutoTimer();
         }
 
         public void Choose(string jumpLabel)
@@ -675,6 +681,102 @@ namespace PPP.BLUE.VN
 
             if (logToConsole)
                 Debug.Log($"[VN] DrinkResult = {result} (great={greatCount}, success={successCount}, fail={failCount})");
+        }
+
+
+        // AutoNext가 "절대" 나가면 안 되는 조건들을 한 군데로 묶는다.
+        private bool CanAutoAdvance()
+        {
+            if (!settings.auto) return false;
+            if (!SaveAllowed) return false;
+            if (!started) return false;
+
+            if (policy == null) return false;
+
+            if (policy != null && (policy.IsModalOpen || policy.IsInDrinkMode))
+                return false;
+
+            // ✅ 팝업(클로즈 팝업/선택지 모달 등) 뜨면 오토 금지
+            if (policy != null && policy.IsModalOpen) return false;
+
+            // ✅ 드링크 모드면 오토 금지
+            if (policy != null && policy.IsInDrinkMode) return false;
+
+            return true;
+        }
+
+        public void StopAutoExternal(string reason)
+        {
+            StopAutoTimer();
+            if (logToConsole) Debug.Log($"[VN] AutoTimer Stop ({reason})");
+        }
+
+        private void TryStartAutoTimer()
+        {
+            if (autoCo != null) return;
+            if (!CanAutoAdvance()) return;
+
+            autoCo = StartCoroutine(CoAutoNext());
+        }
+
+        private void StopAutoTimer()
+        {
+            if (autoCo != null)
+            {
+                StopCoroutine(autoCo);
+                autoCo = null;
+
+                if (logToConsole)
+                    Debug.Log("[VN] AutoTimer Stopped");
+            }
+        }
+
+        private IEnumerator CoAutoNext()
+        {
+            if (logToConsole) Debug.Log($"[VN] AutoTimer Start ({AutoDelaySeconds:0.00}s)");
+
+            yield return new WaitForSeconds(AutoDelaySeconds);
+
+            autoCo = null;
+
+            // ✅ 발사 직전 재검사 (SaveAllowed FALSE, 모달 ON, 드링크 ON이면 여기서 차단)
+            if (!CanAutoAdvance()) yield break;
+
+            if (logToConsole) Debug.Log("[VN] AutoNext");
+            Next();
+        }
+
+
+        private IEnumerator CoBindPolicyNextFrame()
+        {
+            yield return null;
+            BindPolicy("Start+1frame");
+        }
+
+
+        private void BindPolicy(string from)
+        {
+            if (policy != null)
+            {
+                if (logToConsole) Debug.Log($"[VN] policy bind=OK({policy.name}) from={from}");
+                return;
+            }
+
+            // 1) 내 자식/부모
+            policy = GetComponentInChildren<VNPolicyController>(true);
+            if (policy == null) policy = GetComponentInParent<VNPolicyController>(true);
+
+            // 2) 그래도 없으면: "VN_APP 루트"를 잡아서 그 안에서 찾기
+            if (policy == null)
+            {
+                // VN_Runner의 부모가 VN_APP라는 전제(너 Hierarchy 기준)
+                var appRoot = transform.parent; // VN_APP
+                if (appRoot != null)
+                    policy = appRoot.GetComponentInChildren<VNPolicyController>(true);
+            }
+
+            if (logToConsole)
+                Debug.Log($"[VN] policy bind={(policy != null ? $"OK({policy.name})" : "NULL")} from={from}");
         }
 
         private VNScript BuildTestScript()
