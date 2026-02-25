@@ -37,6 +37,7 @@ namespace PPP.BLUE.VN
             btnExit?.onClick.AddListener(ForceExit);
 
             if (bridge != null)
+                bridge.OnCloseRequested -= Show; // 중복 방지
                 bridge.OnCloseRequested += Show;
         }
 

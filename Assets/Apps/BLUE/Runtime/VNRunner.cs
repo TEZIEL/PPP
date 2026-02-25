@@ -146,8 +146,7 @@ namespace PPP.BLUE.VN
         {
             TryResolveBridge(silent: false);
 
-            if (bridge != null)
-                bridge.RequestBlockClose(true);
+            if (bridge != null)               
 
             StartCoroutine(CoBindPolicyNextFrame());
 

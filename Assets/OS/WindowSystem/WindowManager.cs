@@ -1036,6 +1036,50 @@ public class WindowManager : MonoBehaviour, IVNHostOS
         return true; // 포커스 무시하고 싶으면 true로 둬도 됨(단, minimized일 때는 위에서 false 처리됨)
     }
 
+    public void RequestClose(string appId)
+    {
+        if (string.IsNullOrEmpty(appId)) return;
+
+        if (!openWindows.TryGetValue(appId, out var window) || window == null)
+            return;
+
+        // (선택) VN drink mode면 무시 (팝업도 금지 정책이면 유지)
+        if (IsVNInDrinkMode(appId))
+        {
+            Debug.Log("[OS] Close ignored (VN drink mode).");
+            return;
+        }
+
+        closeHandlers.TryGetValue(appId, out var handler);
+
+        Debug.Log($"[OS] RequestClose() appId={appId} handler={(handler == null ? "NULL" : handler.GetType().Name)} canClose={(handler != null ? handler.CanCloseNow().ToString() : "N/A")}");
+
+        if (handler != null && !handler.CanCloseNow())
+        {
+            Debug.Log("[OS] Close blocked by VN.");
+
+            if (handler is PPP.BLUE.VN.VNOSBridge bridge)
+            {
+                void OnForce()
+                {
+                    bridge.OnForceCloseRequested -= OnForce;
+
+                    if (!openWindows.TryGetValue(appId, out var w2) || w2 == null)
+                        return;
+
+                    PerformClose(w2, appId); // ✅ 여기 2개 인자
+                }
+
+                bridge.OnForceCloseRequested -= OnForce;
+                bridge.OnForceCloseRequested += OnForce;
+            }
+
+            handler.NotifyCloseRequested();
+            return;
+        }
+
+        PerformClose(window, appId); // ✅ 여기 2개 인자
+    }
 
     public void SaveSubBlock(string key, object data)
     {

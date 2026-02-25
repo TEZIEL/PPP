@@ -54,7 +54,7 @@ public class WindowShortcutController : MonoBehaviour
         // ✅ 정상
         if (Input.GetKeyDown(KeyCode.Alpha3))
         {
-            windowManager.Close(activeId);
+            windowManager.RequestClose(activeId); // ✅ 정책 엔트리
             lastActionTime = Time.unscaledTime;
             return;
         }
