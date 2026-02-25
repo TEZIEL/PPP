@@ -92,6 +92,7 @@ namespace PPP.BLUE.VN
         private readonly Dictionary<string, int> vars = new();
         private readonly HashSet<string> seenLineIds = new();
         private readonly Stack<VNCallFrame> callStack = new();
+        private VNCallFrame pendingCallResumeFrame;
         private VNSettings settings = VNSettings.Default();
 
         // VNRunner 메서드
@@ -371,6 +372,8 @@ namespace PPP.BLUE.VN
 
         public void Next()
         {
+            if (TryResumePendingCallAfterLoad()) return;
+
             isWaiting = false;
             waitPointer = -1;
 
@@ -716,8 +719,23 @@ namespace PPP.BLUE.VN
             if (lastShownPointer >= 0 && script != null && lastShownPointer < script.nodes.Count)
                 savePointer = lastShownPointer;
 
+            if (callStack.Count > 0 && waitPointer >= 0)
+                savePointer = waitPointer;
+
             st.pointer = savePointer;
 
+            st.callStack = new List<VNCallFrame>(callStack.Count);
+            foreach (var frame in callStack)
+            {
+                if (frame == null) continue;
+
+                st.callStack.Add(new VNCallFrame
+                {
+                    returnPointer = frame.returnPointer,
+                    target = frame.target,
+                    arg = frame.arg,
+                });
+            }
 
             // seen 복사
             st.seen = new List<string>(seenLineIds);
@@ -830,8 +848,35 @@ namespace PPP.BLUE.VN
             failCount = st.failCount;
             lastResult = st.lastResult;
 
+            callStack.Clear();
+            pendingCallResumeFrame = null;
+            if (st.callStack != null && st.callStack.Count > 0)
+            {
+                for (int i = st.callStack.Count - 1; i >= 0; i--)
+                {
+                    var frame = st.callStack[i];
+                    if (frame == null) continue;
+
+                    var restored = new VNCallFrame
+                    {
+                        returnPointer = frame.returnPointer,
+                        target = frame.target,
+                        arg = frame.arg,
+                    };
+
+                    callStack.Push(restored);
+                }
+
+                pendingCallResumeFrame = callStack.Peek();
+                isWaiting = true;
+                waitPointer = Mathf.Max(0, pendingCallResumeFrame.returnPointer - 1);
+            }
+
             if (logToConsole)
+            {
+                Debug.Log($"[VN] LoadState pointer={pointer} callStack={callStack.Count} target={pendingCallResumeFrame?.target ?? "-"} arg={pendingCallResumeFrame?.arg ?? "-"}");
                 Debug.Log($"[VN] LoadState seen={seenLineIds.Count} auto={settings.auto} skipMode={settings.skipMode} speed={settings.speed}");
+            }
 
             return true;
         }
@@ -883,6 +928,26 @@ namespace PPP.BLUE.VN
             settings.speed = v;
             Debug.Log($"[VN] SetSpeed -> {settings.speed}");
         }
+
+        private bool TryResumePendingCallAfterLoad()
+        {
+            if (pendingCallResumeFrame == null)
+                return false;
+
+            var frame = pendingCallResumeFrame;
+            pendingCallResumeFrame = null;
+
+            StopAutoExternal("ResumePendingCall");
+            isWaiting = true;
+            waitPointer = Mathf.Max(0, frame.returnPointer - 1);
+
+            if (logToConsole)
+                Debug.Log($"[VN] ResumePendingCall -> OnCall {frame.target} arg={frame.arg}");
+
+            OnCall?.Invoke(frame.target ?? string.Empty, frame.arg ?? string.Empty);
+            return true;
+        }
+
 
         public void ReturnFromCall(string result)
         {
