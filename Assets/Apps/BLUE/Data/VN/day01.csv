@@ -1,0 +1,17 @@
+id,type,speakerId,text,label,jumpLabel,arg1,arg2
+lb.start,Label,,,,start,,
+t.001,Say,sys,CSV Import 테스트 시작.,,,,
+t.002,Say,sys,day01.csv 에서 생성된 JSON을 재생 중입니다.,,,,
+t.choice,Branch,,,,sports_route,lastDrink==1,운동음료
+t.choice,Branch,,,,coffee_route,lastDrink==2,커피
+t.choice,Branch,,,,default_route,else,기본
+lb.sports,Label,,,,sports_route,,
+t.sports.1,Say,sys,SPORTS 경로로 진입했습니다.,,,,
+t.jump,Jump,,,,end,,
+lb.coffee,Label,,,,coffee_route,,
+t.coffee.1,Say,sys,COFFEE 경로로 진입했습니다.,,,,
+lb.default,Label,,,,default_route,,
+t.default.1,Say,sys,DEFAULT 경로로 진입했습니다.,,,,
+lb.end,Label,,,,end,,
+t.end,Say,sys,day01 끝.,,,,
+end,End,,,,,,

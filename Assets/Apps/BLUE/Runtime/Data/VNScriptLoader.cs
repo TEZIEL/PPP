@@ -7,6 +7,11 @@ namespace PPP.BLUE.VN
 {
     public static class VNScriptLoader
     {
+        public static VNScript LoadDay(string dayId)
+        {
+            return LoadFromStreamingAssets(dayId);
+        }
+
         public static VNScript LoadFromStreamingAssets(string fileNameNoExt)
         {
             var path = Application.streamingAssetsPath + "/VN/" + fileNameNoExt + ".json";
@@ -71,7 +76,8 @@ namespace PPP.BLUE.VN
                 }
             }
 
-            var script = new VNScript(fileNameNoExt ?? string.Empty, nodes);
+            var scriptId = string.IsNullOrWhiteSpace(dto.scriptId) ? (fileNameNoExt ?? string.Empty) : dto.scriptId;
+            var script = new VNScript(scriptId, nodes);
             Debug.Log($"[VN] Loaded scriptId={script.ScriptId} nodes={script.nodes.Count} labels={script.LabelCount}");
             return script;
         }

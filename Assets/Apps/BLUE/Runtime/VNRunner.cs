@@ -11,6 +11,8 @@ namespace PPP.BLUE.VN
         [Header("Debug")]
         [SerializeField] private bool logToConsole = true;
         [SerializeField] private VNScript testScript;
+        [SerializeField] private bool loadFromJsonOnStart;
+        [SerializeField] private string startDayId = "day01";
         [SerializeField] private VNOSBridge bridge;
         public bool SaveAllowed { get; private set; }
 
@@ -137,15 +139,29 @@ namespace PPP.BLUE.VN
             if (bridge != null)
                 bridge.RequestBlockClose(true);
 
-            var loaded = VNScriptLoader.LoadFromStreamingAssets("day01");
-            if (loaded == null)
+            StartCoroutine(CoBindPolicyNextFrame());
+
+            if (testScript != null)
+                SetScript(testScript);
+
+            if (loadFromJsonOnStart)
             {
-                Debug.LogError("[VNRunner] Failed to load script 'day01'.");
-                return;
+                var loaded = VNScriptLoader.LoadDay(startDayId);
+                if (loaded == null)
+                {
+                    Debug.LogError($"[VNRunner] Failed to load script '{startDayId}'.");
+                }
+                else
+                {
+                    SetScript(loaded);
+                }
             }
 
-            StartCoroutine(CoBindPolicyNextFrame());
-            SetScript(loaded);
+            if (!HasScript)
+            {
+                Debug.LogError("[VNRunner] No script configured to start.");
+                return;
+            }
 
             Begin();
         }
