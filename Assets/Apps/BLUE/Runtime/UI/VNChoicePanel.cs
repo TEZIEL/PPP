@@ -1,4 +1,4 @@
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
@@ -82,6 +82,7 @@ namespace PPP.BLUE.VN
                 btn.onClick.AddListener(() =>
                 {
                     Close();
+                    runner.ForceAutoOff("Choice Selected"); // ✅ 선택은 유저 개입 → Auto OFF
                     runner.Choose(jump);
                 });
 

@@ -85,16 +85,15 @@ namespace PPP.BLUE.VN
         private void HandleChoice(VNNode.ChoiceOption[] choices)
         {
             Debug.Log($"[VN_UI] HandleChoice choices={choices?.Length ?? -1}");
-            choicePanel.Open(choices);
 
             if (choicePanel == null)
             {
                 Debug.LogError("[VNDialogueView] choicePanel is NULL. Assign it in Inspector.");
-                // 패널 없으면 진행 막히니까 최소 안전장치
-                runner.Next();
+                runner.Next(); // 패널 없으면 안전하게 진행
                 return;
             }
 
+            choicePanel.Open(choices);
         }
 
         private void Update()
@@ -126,7 +125,7 @@ namespace PPP.BLUE.VN
             }
 
             // ✅ 그 외에는 다음 라인
-            runner.CancelAuto();
+            runner.ForceAutoOff("User Next input");  // ✅ 유저가 스페이스로 넘기면 Auto 상태 자체 OFF
             runner.Next();
             Debug.Log("[VN_UI] Next input detected -> runner.Next()");
         }
