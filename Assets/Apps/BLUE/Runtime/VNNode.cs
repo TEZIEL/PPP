@@ -15,6 +15,10 @@ namespace PPP.BLUE.VN
         // Label / Jump
         public string label;
 
+        // Call
+        public string callTarget;
+        public string callArg;
+
         // Branch
         public BranchRule[] branches;
 
@@ -38,7 +42,7 @@ namespace PPP.BLUE.VN
 
         public override string ToString()
         {
-            return $"[{type}] id={id} speaker={speakerId} label={label} text={text}";
+            return $"[{type}] id={id} speaker={speakerId} label={label} callTarget={callTarget} callArg={callArg} text={text}";
         }
     }
 }

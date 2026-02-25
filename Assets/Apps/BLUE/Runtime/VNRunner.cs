@@ -91,6 +91,7 @@ namespace PPP.BLUE.VN
         // VNRunner 필드
         private readonly Dictionary<string, int> vars = new();
         private readonly HashSet<string> seenLineIds = new();
+        private readonly Stack<VNCallFrame> callStack = new();
         private VNSettings settings = VNSettings.Default();
 
         // VNRunner 메서드
@@ -136,6 +137,7 @@ namespace PPP.BLUE.VN
         }
 
         public event Action<VNNode.ChoiceOption[]> OnChoice;
+        public event Action<string, string> OnCall; // callTarget, callArg
 
         private void Start()
         {
@@ -415,8 +417,7 @@ namespace PPP.BLUE.VN
                         case VNNodeType.Say:
                             if (settings.skipMode == VNSkipMode.SeenOnly
                                 && !string.IsNullOrEmpty(node.id)
-                                && seenLineIds.Contains(node.id)
-                                && !string.Equals(node.id, "t.drink", StringComparison.Ordinal))
+                                && seenLineIds.Contains(node.id))
                             {
                                 Debug.Log($"[VN] Skip: {node.id}");
                                 pointer++;
@@ -482,6 +483,27 @@ namespace PPP.BLUE.VN
                         case VNNodeType.Jump:
                             DoJump(node.label);
                             continue; // ✅ 출력 없음 → 계속 진행
+
+                        case VNNodeType.Call:
+                            {
+                                string target = node.callTarget ?? string.Empty;
+                                string arg = node.callArg ?? string.Empty;
+
+                                StopAutoExternal("Call:" + target);
+                                isWaiting = true;
+                                waitPointer = pointer;
+                                lastStopIndex = pointer;
+
+                                callStack.Push(new VNCallFrame
+                                {
+                                    returnPointer = pointer + 1,
+                                    target = target,
+                                    arg = arg,
+                                });
+
+                                OnCall?.Invoke(target, arg);
+                                return;
+                            }
 
                         case VNNodeType.End:
                             Finish();
@@ -858,6 +880,48 @@ namespace PPP.BLUE.VN
             Debug.Log($"[VN] SetSpeed -> {settings.speed}");
         }
 
+        public void ReturnFromCall(string result)
+        {
+            if (callStack.Count == 0)
+            {
+                Debug.LogWarning("[VN] ReturnFromCall ignored (callStack empty)");
+                return;
+            }
+
+            var frame = callStack.Pop();
+            ApplyCallResult(result);
+
+            pointer = frame.returnPointer;
+            isWaiting = false;
+            waitPointer = -1;
+
+            if (logToConsole)
+                Debug.Log($"[VN] ReturnFromCall target={frame.target} arg={frame.arg} result={result} -> pointer={pointer}");
+
+            Next();
+        }
+
+        private void ApplyCallResult(string result)
+        {
+            if (string.IsNullOrEmpty(result))
+                return;
+
+            if (string.Equals(result, "great", StringComparison.OrdinalIgnoreCase))
+            {
+                SetVar("lastDrink", 1);
+            }
+            else if (string.Equals(result, "success", StringComparison.OrdinalIgnoreCase))
+            {
+                SetVar("lastDrink", 2);
+            }
+            else if (string.Equals(result, "fail", StringComparison.OrdinalIgnoreCase))
+            {
+                SetVar("lastDrink", 3);
+            }
+
+            ApplyDrinkResult(result.ToLowerInvariant());
+        }
+
         public void ApplyDrinkResult(string result) // "fail" / "success" / "great"
         {
             lastResult = result;
@@ -989,21 +1053,20 @@ namespace PPP.BLUE.VN
             new VNNode { id="t.001", type=VNNodeType.Say, speakerId="sys",
             text="(Test) Dialogue -> Drink -> Branch. Press SPACE to continue." },
 
-        // ✅ 이 라인을 만나면 VNDialogueView에서 drinkTestPanel.Open()을 호출하도록 할 것
-            new VNNode { id="t.drink", type=VNNodeType.Say, speakerId="sys",
-            text="(Drink) Please make a drink now." },
+        // ✅ Call 노드로 외부 Drink 패널을 연다.
+            new VNNode { id="t.call", type=VNNodeType.Call, callTarget="Drink", callArg="order001" },
 
-        // 결과 버튼을 누르면 runner.ApplyDrinkResult(...)가 호출되고
-        // 그 직후 runner.Next()로 여기 Branch로 진입하게 됨
+        // 결과 버튼을 누르면 runner.ReturnFromCall(...)이 호출되고
+        // 그 직후 여기 Branch로 복귀한다.
             new VNNode {
                 id="t.branch",
                 type=VNNodeType.Branch,
                 branches = new[]
                 {
                 // great는 success 포함 규칙이라 great>=2면 항상 route2로 가게 됨
-                new VNNode.BranchRule{ expr="great>=2", jumpLabel="route2" },
-                new VNNode.BranchRule{ expr="fail>=2",  jumpLabel="route3" },
-                new VNNode.BranchRule{ expr="else",     jumpLabel="route1" },
+                new VNNode.BranchRule{ expr="lastDrink==1", jumpLabel="route2" },
+                new VNNode.BranchRule{ expr="lastDrink==3", jumpLabel="route3" },
+                new VNNode.BranchRule{ expr="else",         jumpLabel="route1" },
                 }
             },
 

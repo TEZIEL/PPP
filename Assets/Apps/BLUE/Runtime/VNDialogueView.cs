@@ -68,6 +68,7 @@ namespace PPP.BLUE.VN
             runner.OnSay += HandleSay;
             runner.OnEnd += HandleEnd;
             runner.OnChoice += HandleChoice;
+            runner.OnCall += HandleCall;
             subscribed = true;
         }
 
@@ -79,6 +80,7 @@ namespace PPP.BLUE.VN
             runner.OnSay -= HandleSay;
             runner.OnEnd -= HandleEnd;
             runner.OnChoice -= HandleChoice;
+            runner.OnCall -= HandleCall;
             subscribed = false;
         }
 
@@ -94,6 +96,14 @@ namespace PPP.BLUE.VN
             }
 
             choicePanel.Open(choices);
+        }
+
+        private void HandleCall(string callTarget, string callArg)
+        {
+            if (!string.Equals(callTarget, "Drink", System.StringComparison.OrdinalIgnoreCase))
+                return;
+
+            drinkTestPanel?.Open(callArg);
         }
 
         private void Update()
@@ -153,11 +163,7 @@ namespace PPP.BLUE.VN
             if (nameText != null) nameText.text = speakerId ?? "";
             if (dialogueText != null) dialogueText.text = "";
 
-            bool isDrink = (lineId == "t.drink");
-
-            // ✅ 드링크 노드는 "타이핑 끝나도 진행 금지"가 기본
-            // (Auto 튀는 거 원천 차단)
-            runner?.MarkSaveAllowed(false, isDrink ? "Drink node => wait choice" : "Typing Start");
+            runner?.MarkSaveAllowed(false, "Typing Start");
 
             // ✅ 타이퍼 없으면 즉시 출력
             if (typer == null)
@@ -165,14 +171,6 @@ namespace PPP.BLUE.VN
                 if (dialogueText != null) dialogueText.text = currentFullText;
                 lineCompleted = true;
 
-                if (isDrink)
-                {
-                    // ✅ 드링크는 여기서 패널을 열고 끝. SaveAllowed TRUE 절대 금지.
-                    drinkTestPanel?.Open();
-                    return;
-                }
-
-                // ✅ 일반 라인만 SaveAllowed TRUE
                 runner?.MarkSaveAllowed(true, "No Typer => Immediate");
                 runner?.NotifyLineTypedEnd();
                 Debug.Log("[VN] SaveAllowed TRUE (No Typer => Immediate)");
@@ -185,21 +183,9 @@ namespace PPP.BLUE.VN
                 lineCompleted = true;
                 runner?.NotifyLineTypedEnd();
 
-                if (isDrink)
-                {
-                    // ✅ 타이핑 끝난 뒤에 드링크 패널을 연다
-                    // ✅ SaveAllowed TRUE는 여기서도 하지 않는다
-                    drinkTestPanel?.Open();
-                    return;
-                }
-
-                // ✅ 일반 라인만 SaveAllowed TRUE
                 runner?.MarkSaveAllowed(true, "Typing Completed");
                 Debug.Log("[VN] SaveAllowed TRUE (Typing Completed)");
             });
-
-            // ✅ 여기서 드링크 패널 열던 코드는 삭제해야 함(중복+타이밍 문제)
-            // if (lineId == "t.drink") drinkTestPanel.Open();
         }
 
         private void ForceCompleteLine()

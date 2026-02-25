@@ -1,23 +1,27 @@
 id,type,speakerId,text,label,jumpLabel,arg1,arg2
 lb.start,Label,,,,start,,
-t.001,Say,sys,CSV Import 테스트 시작.,,,,
-t.002,Say,sys,day01.csv 에서 생성된 JSON을 재생 중입니다.,,,,
+t.001,Say,sys,Call/Return Drink 테스트 시작.,,,,
+t.call,Call,,,,,Drink,order001
+t.drink.branch,Branch,,,,route_great,lastDrink==1,
+t.drink.branch,Branch,,,,route_success,lastDrink==2,
+t.drink.branch,Branch,,,,route_fail,lastDrink==3,
+t.drink.branch,Branch,,,,route_else,else,
 
-t.c1,Choice,,,,sports_route,,스포츠 선택
-t.c1,Choice,,,,coffee_route,,커피 선택
-t.c1,Choice,,,,default_route,,디폴트 선택
+lb.route_great,Label,,,,route_great,,
+t.route_great.say,Say,sys,Great 결과로 분기되었습니다.,,,,
+t.route_great.jump,Jump,,,,end,,
 
-lb.sports,Label,,,,sports_route,,
-t.sports.1,Say,sys,SPORTS 경로로 진입했습니다.,,,,
-t.jump_sports,Jump,,,,end,,
+lb.route_success,Label,,,,route_success,,
+t.route_success.say,Say,sys,Success 결과로 분기되었습니다.,,,,
+t.route_success.jump,Jump,,,,end,,
 
-lb.coffee,Label,,,,coffee_route,,
-t.coffee.1,Say,sys,COFFEE 경로로 진입했습니다.,,,,
-t.jump_coffee,Jump,,,,end,,
+lb.route_fail,Label,,,,route_fail,,
+t.route_fail.say,Say,sys,Fail 결과로 분기되었습니다.,,,,
+t.route_fail.jump,Jump,,,,end,,
 
-lb.default,Label,,,,default_route,,
-t.default.1,Say,sys,DEFAULT 경로로 진입했습니다.,,,,
-t.jump_default,Jump,,,,end,,
+lb.route_else,Label,,,,route_else,,
+t.route_else.say,Say,sys,lastDrink가 비어 else로 분기되었습니다.,,,,
+t.route_else.jump,Jump,,,,end,,
 
 lb.end,Label,,,,end,,
 t.end,Say,sys,day01 끝.,,,,
