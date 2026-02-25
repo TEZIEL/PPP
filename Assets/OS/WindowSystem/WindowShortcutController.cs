@@ -49,46 +49,15 @@ public class WindowShortcutController : MonoBehaviour
             return;
         }
 
-       
+
         // --- 3 : 닫기 --- (VN + Drink모드일 때만 차단)
+        // ✅ 정상
         if (Input.GetKeyDown(KeyCode.Alpha3))
         {
-            if (ShouldBlockClose(activeId))
-            {
-                Debug.Log("[Shortcut] Close blocked (VN drink mode).");
-                lastActionTime = Time.unscaledTime;
-                return;
-            }
-
             windowManager.Close(activeId);
             lastActionTime = Time.unscaledTime;
             return;
         }
-    }
-
-    private bool ShouldBlockClose(string activeId)
-    {
-        if (string.IsNullOrEmpty(activeId)) return false;
-        if (activeId != vnAppId) return false;
-
-        var windows = windowManager.GetOpenWindows();
-        if (windows == null) return false;
-        if (!windows.TryGetValue(activeId, out var wc) || wc == null) return false;
-
-        // VN 정책
-        var policy = wc.GetComponentInChildren<PPP.BLUE.VN.VNPolicyController>(true);
-        if (policy == null) return false;
-
-        // 드링크 패널
-        var drinkPanel = wc.GetComponentInChildren<PPP.BLUE.VN.DrinkTestPanel>(true);
-
-        // ✅ "닫기 차단" 조건:
-        // - 드링크 모드이거나
-        // - 드링크 패널이 열려있거나(열리는 중 포함)
-        if (policy.IsInDrinkMode) return true;
-        if (drinkPanel != null && drinkPanel.IsOpenOrOpening) return true;
-
-        return false;
     }
 
     private void TogglePin(string appId)

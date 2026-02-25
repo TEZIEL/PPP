@@ -560,7 +560,7 @@ public class WindowManager : MonoBehaviour, IVNHostOS
         });
     }
 
-
+   
 
 
     public void ResetWindowsToDefaults()
@@ -636,6 +636,12 @@ public class WindowManager : MonoBehaviour, IVNHostOS
 
         // 4) 브릿지 찾기
         closeHandlers.TryGetValue(appId, out var handler); // handler: IVNCloseRequestHandler (or VNOSBridge)
+
+        Debug.Log(
+    $"[OS] Close() appId={appId} " +
+    $"handler={(handler == null ? "NULL" : handler.GetType().Name)} " +
+    $"canClose={(handler != null ? handler.CanCloseNow().ToString() : "N/A")}"
+);
 
         // 5) VN이 닫기를 막는 상태면: OS는 닫지 않고, VN에게 “닫기 요청”만 전달
         if (handler != null && !handler.CanCloseNow())

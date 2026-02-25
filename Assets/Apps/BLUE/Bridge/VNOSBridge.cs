@@ -23,6 +23,7 @@ namespace PPP.BLUE.VN
         private bool closeRequestPending;
 
         private bool registered; // ✅ 중복 등록 방지
+        private bool allowCloseOnce;
 
         /// <summary>
         /// OS가 ContentPrefab instantiate 직후 호출해서 Host를 주입한다.
@@ -41,12 +42,14 @@ namespace PPP.BLUE.VN
 
         private void OnEnable()
         {
+            RequestBlockClose(true); // VN은 기본적으로 닫기 차단
             TryRegisterCloseHandler();
         }
 
         private void Awake()
         {
             // 인스펙터로도 꽂을 수 있지만, 정석은 OS가 InjectHost로 주입하는 것.
+            RequestBlockClose(true);
             TryRegisterCloseHandler();
             if (runner == null) runner = GetComponentInChildren<VNRunner>(true);
             if (policy == null) policy = GetComponentInChildren<VNPolicyController>(true);
@@ -112,15 +115,26 @@ namespace PPP.BLUE.VN
             // BlockClose는 Host 쪽 Close 로직에서 CanCloseNow() 호출해서 반영
         }
 
-        // OS가 닫기 누름 -> VN에게 물어봄
-        public bool CanCloseNow() => !BlockClose;
+        public bool CanCloseNow()
+        {
+            if (allowCloseOnce)
+            {
+                allowCloseOnce = false; // ✅ 1회 소비
+                Debug.Log($"[VNBridge] CanCloseNow? allowCloseOnce=TRUE (consume) BlockClose={BlockClose} ExitLocked={ExitLocked}");
+                return true;
+            }
+
+            Debug.Log($"[VNBridge] CanCloseNow? BlockClose={BlockClose} ExitLocked={ExitLocked}");
+            return !BlockClose;
+        }
+
 
 
         public event Action OnForceCloseRequested;
 
         public void RequestForceClose()
         {
-            BlockClose = false; // 이제 닫아도 됨
+            allowCloseOnce = true;
             OnForceCloseRequested?.Invoke();
         }
 
