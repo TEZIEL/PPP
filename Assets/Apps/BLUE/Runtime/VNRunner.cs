@@ -58,7 +58,10 @@ namespace PPP.BLUE.VN
                 Debug.Log($"[VN] SaveAllowed {(SaveAllowed ? "TRUE" : "FALSE")} ({reason})");
 
             if (SaveAllowed)
+            {
+                SaveState();
                 TryStartAutoTimer();
+            }
             else
                 StopAutoTimer();
         }
@@ -67,7 +70,6 @@ namespace PPP.BLUE.VN
         public void MarkSaveAllowed()
         {
             MarkSaveAllowed(true, "Typing End");
-            SaveState(); // ✅ 자동저장 유지해도 OK (SaveAllowed TRUE 순간에만)
         }
 
 
@@ -110,7 +112,9 @@ namespace PPP.BLUE.VN
             if (script == null) { Debug.LogError("[VNRunner] No script loaded."); return; }
             Debug.Log($"[VN] Begin() id={GetInstanceID()} go={gameObject.name} started={started}");
 
-            LoadState();   // 있으면 복원, 없으면 false
+            if (LoadState())
+                GetComponentInChildren<VNDialogueView>(true)?.LockInputFrames(1);
+
             started = true;
             Next();
         }
