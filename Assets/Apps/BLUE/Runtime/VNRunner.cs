@@ -18,6 +18,9 @@ namespace PPP.BLUE.VN
         private VNState state;
         private Coroutine autoCo;
         [SerializeField] private VNPolicyController policy;
+        // --- Auto suspend/resume by modal/drink ---
+        private bool lastBlocked;                 // 지난 프레임에 입력/오토가 막혀있었나?
+        private bool autoSuspendedByBlock;        // 막힘 때문에 Auto를 멈췄었나?
 
         private const string SAVE_KEY = "vn.state";
         private const string VN_STATE_KEY = "vn.state";
@@ -161,28 +164,87 @@ namespace PPP.BLUE.VN
         {
             if (!HasScript) return;
 
+            // ----------------------------
+            // 1) Policy 기반 Auto suspend/resume (modal/drink)
+            // ----------------------------
+            bool blocked = (policy != null) && (policy.IsModalOpen || policy.IsInDrinkMode);
+
+            // 막힘이 "켜지는 순간" -> Auto 일시정지
+            if (blocked && !lastBlocked)
+            {
+                if (settings.auto) autoSuspendedByBlock = true;
+
+                StopAutoTimer();   // 코루틴 기반
+                CancelAuto();      // autoPending 기반(있으면 유지)
+
+                if (logToConsole) Debug.Log("[VN] Auto suspended by modal/drink");
+            }
+
+            // 막힘이 "꺼지는 순간" -> Auto 재개 (유저 의도가 ON일 때만)
+            if (!blocked && lastBlocked)
+            {
+                if (settings.auto && autoSuspendedByBlock)
+                {
+                    autoSuspendedByBlock = false;
+                    TryStartAutoTimer(); // CanAutoAdvance()가 최종 필터링
+
+                    if (logToConsole) Debug.Log("[VN] Auto resumed after modal/drink");
+                }
+            }
+
+            lastBlocked = blocked;
+
+            // ----------------------------
+            // 2) Hotkeys: modal/drink 중에는 무시
+            // ----------------------------
             if (Input.GetKeyDown(KeyCode.F1))
             {
-                settings.skipMode =
-                    settings.skipMode == VNSkipMode.Off
-                    ? VNSkipMode.SeenOnly
-                    : VNSkipMode.Off;
+                if (blocked)
+                {
+                    if (logToConsole) Debug.Log("[VN] Skip toggle ignored (modal/drink).");
+                }
+                else
+                {
+                    settings.skipMode =
+                        settings.skipMode == VNSkipMode.Off
+                            ? VNSkipMode.SeenOnly
+                            : VNSkipMode.Off;
 
-                Debug.Log($"[VN] SkipMode={settings.skipMode}");
+                    Debug.Log($"[VN] SkipMode={settings.skipMode}");
+                }
             }
 
             if (Input.GetKeyDown(KeyCode.F2))
             {
-                settings.auto = !settings.auto;
-                Debug.Log($"[VN] Auto={(settings.auto ? "On" : "Off")}");
+                if (blocked)
+                {
+                    if (logToConsole) Debug.Log("[VN] Auto toggle ignored (modal/drink).");
+                }
+                else
+                {
+                    settings.auto = !settings.auto;
+                    Debug.Log($"[VN] Auto={(settings.auto ? "On" : "Off")}");
 
-                if (settings.auto) TryStartAutoTimer();
-                else StopAutoTimer();
+                    // 유저가 직접 토글했으니 "자동정지 후 재개" 플래그는 리셋
+                    autoSuspendedByBlock = false;
+
+                    if (settings.auto)
+                        TryStartAutoTimer();
+                    else
+                    {
+                        StopAutoTimer();
+                        CancelAuto();
+                    }
+                }
             }
 
-            // ✅ 안전장치: 조건 깨지면 예약된 오토도 바로 끊음
+            // ----------------------------
+            // 3) Safety: 조건 깨졌으면 코루틴 Auto 즉시 정지
+            // ----------------------------
             if (autoCo != null && !CanAutoAdvance())
                 StopAutoTimer();
+
+            // (여기 아래에 네 기존 autoPending 방식 로직이 있으면 그대로 두면 됨)
         }
 
         public void NotifyLineTypedEnd()
@@ -690,18 +752,9 @@ namespace PPP.BLUE.VN
             if (!settings.auto) return false;
             if (!SaveAllowed) return false;
             if (!started) return false;
-
             if (policy == null) return false;
-
-            if (policy != null && (policy.IsModalOpen || policy.IsInDrinkMode))
-                return false;
-
-            // ✅ 팝업(클로즈 팝업/선택지 모달 등) 뜨면 오토 금지
-            if (policy != null && policy.IsModalOpen) return false;
-
-            // ✅ 드링크 모드면 오토 금지
-            if (policy != null && policy.IsInDrinkMode) return false;
-
+            if (policy.IsModalOpen) return false;
+            if (policy.IsInDrinkMode) return false;
             return true;
         }
 
