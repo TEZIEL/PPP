@@ -19,7 +19,7 @@ namespace PPP.BLUE.VN
 
         // VN이 설정하는 정책
         public bool ExitLocked { get; private set; }
-        public bool BlockClose { get; private set; }
+        public bool BlockClose { get; private set; } = true;
         private bool closeRequestPending;
 
         private bool registered; // ✅ 중복 등록 방지
@@ -42,6 +42,8 @@ namespace PPP.BLUE.VN
 
         private void OnEnable()
         {
+            Debug.Log($"[VNBridge] OnEnable id={GetInstanceID()} obj={name} (before BlockClose={BlockClose})");
+
             RequestBlockClose(true); // VN은 기본적으로 닫기 차단
             TryRegisterCloseHandler();
         }
@@ -112,34 +114,47 @@ namespace PPP.BLUE.VN
         public void RequestBlockClose(bool on)
         {
             BlockClose = on;
-            // BlockClose는 Host 쪽 Close 로직에서 CanCloseNow() 호출해서 반영
+
         }
 
         public bool CanCloseNow()
         {
+            // ExitLocked면 무조건 금지
+            if (ExitLocked) return false;
+
+            // ✅ 허용 토큰이 있을 때만 1회 통과
             if (allowCloseOnce)
             {
-                allowCloseOnce = false; // ✅ 1회 소비
-                Debug.Log($"[VNBridge] CanCloseNow? allowCloseOnce=TRUE (consume) BlockClose={BlockClose} ExitLocked={ExitLocked}");
+                allowCloseOnce = false;
                 return true;
             }
 
-            Debug.Log($"[VNBridge] CanCloseNow? BlockClose={BlockClose} ExitLocked={ExitLocked}");
-            return !BlockClose;
+            // ✅ 그 외는 무조건 막힘 (BlockClose 값이 뭐든 상관없게)
+            return false;
         }
-
 
 
         public event Action OnForceCloseRequested;
 
         public void RequestForceClose()
         {
+
             allowCloseOnce = true;
             OnForceCloseRequested?.Invoke();
         }
 
         public event Action OnCloseRequested;
 
+        public void ConsumeCloseOnce()
+        {
+            allowCloseOnce = false;
+        }
+
+        public void ResetCloseGuard()
+        {
+            allowCloseOnce = false;
+            BlockClose = true;
+        }
 
 
 
