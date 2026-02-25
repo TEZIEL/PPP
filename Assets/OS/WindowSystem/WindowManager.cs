@@ -26,12 +26,14 @@ public class WindowManager : MonoBehaviour, IVNHostOS
     private readonly Dictionary<string, bool> exitLockedByAppId = new();
 
     private readonly Dictionary<string, WindowDefault> windowDefaults = new();
-
+    private readonly Dictionary<string, VNWindowState> _lastStates = new();
     private readonly Dictionary<string, WindowController> openWindows = new();
 
     private string activeAppId;
     public string ActiveAppId => activeAppId;
     private OSSaveData cachedSave;
+
+    [SerializeField] private bool logWindowState = false; // 필요할 때만 Inspector에서 켜기
 
     private bool isAnimating;
     public bool IsAnimating => isAnimating;
@@ -959,18 +961,54 @@ public class WindowManager : MonoBehaviour, IVNHostOS
 
     public VNWindowState GetWindowState(string appId)
     {
-        if (string.IsNullOrEmpty(appId) || !openWindows.TryGetValue(appId, out var wc) || wc == null)
+        // ----------------------------
+        // 0) not found → minimized 처리
+        // ----------------------------
+        if (string.IsNullOrEmpty(appId) ||
+            !openWindows.TryGetValue(appId, out var wc) ||
+            wc == null)
         {
-            Debug.Log($"[OS] GetWindowState appId={appId} -> not found (treat minimized)");
-            return new VNWindowState(isFocused: false, isMinimized: true);
+            var st = new VNWindowState(isFocused: false, isMinimized: true);
+
+            // 상태 변화 있을 때만 로그
+            if (logWindowState && ShouldLogState(appId, st))
+            {
+                Debug.Log($"[OS] GetWindowState appId={appId} -> not found (treat minimized)");
+            }
+
+            _lastStates[appId] = st;
+            return st;
         }
 
+        // ----------------------------
+        // 1) 정상 상태 계산
+        // ----------------------------
         bool minimized = wc.IsMinimized;
         bool focused = !minimized;
 
-        Debug.Log($"[OS] GetWindowState appId={appId} min={minimized} focused={focused}");
-        return new VNWindowState(focused, minimized);
+        var state = new VNWindowState(focused, minimized);
+
+        // ----------------------------
+        // 2) 상태 변화 있을 때만 로그
+        // ----------------------------
+        if (logWindowState && ShouldLogState(appId, state))
+        {
+            Debug.Log($"[OS] GetWindowState appId={appId} min={minimized} focused={focused}");
+        }
+
+        _lastStates[appId] = state;
+        return state;
     }
+
+    private bool ShouldLogState(string appId, VNWindowState newState)
+    {
+        if (!_lastStates.TryGetValue(appId, out var oldState))
+            return true;
+
+        return oldState.IsFocused != newState.IsFocused ||
+               oldState.IsMinimized != newState.IsMinimized;
+    }
+
 
     private WindowController FindWindowByAppId(string appId)
     {

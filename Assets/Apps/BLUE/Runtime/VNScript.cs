@@ -34,6 +34,23 @@ namespace PPP.BLUE.VN
             }
         }
 
+        public string DumpLabels(int max = 50)
+        {
+            int n = 0;
+            var sb = new System.Text.StringBuilder();
+            foreach (var kv in labelToIndex)
+            {
+                sb.Append(kv.Key).Append("->").Append(kv.Value).Append(", ");
+                if (++n >= max) break;
+            }
+            return sb.ToString();
+        }
+
+        public void RebuildLabelIndex()
+        {
+            BuildLabelIndex();
+        }
+
         public bool TryGetLabelIndex(string label, out int index)
         {
             if (string.IsNullOrEmpty(label))

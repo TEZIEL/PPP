@@ -69,8 +69,8 @@ namespace PPP.BLUE.VN
                         speakerId = nodeDto.speakerId ?? string.Empty,
                         text = nodeDto.text ?? string.Empty,
                         label = nodeDto.label ?? string.Empty,
-                        callTarget = nodeDto.arg1 ?? string.Empty,
-                        callArg = nodeDto.arg2 ?? string.Empty,
+                        callTarget = nodeDto.arg2 ?? string.Empty,
+                        callArg = nodeDto.arg1 ?? string.Empty,
                         branches = ConvertBranches(nodeDto.branches),
                         choices = ConvertChoices(nodeDto.choices),
                     };

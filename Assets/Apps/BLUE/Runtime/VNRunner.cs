@@ -673,15 +673,19 @@ namespace PPP.BLUE.VN
             if (string.IsNullOrEmpty(label))
             {
                 Debug.LogError($"[VN] Jump label is empty. nodeId={script?.nodes?[pointer]?.id} idx={pointer}");
-                // 안전: 여기서는 진행하지 말자
                 return;
             }
 
             if (!script.TryGetLabelIndex(label, out var idx))
             {
-                Debug.LogError($"[VN] Label not found: '{label}' nodeId={script?.nodes?[pointer]?.id} curIdx={pointer}");
-                // 안전: 여기서는 진행하지 말자 (엔진 상태를 망치지 않게)
-                return;
+                // ✅ 1회 자동 복구: 라벨 인덱스 재빌드 후 재시도
+                script.RebuildLabelIndex();
+
+                if (!script.TryGetLabelIndex(label, out idx))
+                {
+                    Debug.LogError($"[VN] Label not found: '{label}' nodeId={script?.nodes?[pointer]?.id} curIdx={pointer} labels={script.LabelCount} dump={script.DumpLabels()}");
+                    return;
+                }
             }
 
             if (logToConsole)

@@ -59,6 +59,9 @@ namespace PPP.BLUE.VN.Editor
                     continue;
                 }
 
+                var raw = lines[i].TrimStart();
+                if (raw.StartsWith("#")) continue;
+
                 var row = ParseCsvLine(lines[i]);
                 string id = GetValue(row, map, "id");
                 string type = GetValue(row, map, "type");
@@ -68,6 +71,7 @@ namespace PPP.BLUE.VN.Editor
                 string jumpLabel = GetValue(row, map, "jumpLabel");
                 string arg1 = GetValue(row, map, "arg1");
                 string arg2 = GetValue(row, map, "arg2");
+
 
                 if (string.IsNullOrWhiteSpace(type))
                 {
@@ -100,27 +104,44 @@ namespace PPP.BLUE.VN.Editor
                 FlushBranchNode(nodes, ref branchAccumulator, branchRules);
 
                 if (normalizedType.Equals(nameof(VNNodeType.Choice), StringComparison.OrdinalIgnoreCase))
+                    {
+                     // 새 Choice 블록 시작(같은 id면 누적 유지)
+                        if (choiceAccumulator == null || !string.Equals(choiceAccumulator.id, id, StringComparison.Ordinal))
+                     {
+                     FlushChoiceNode(nodes, ref choiceAccumulator, choiceOptions);
+                     choiceAccumulator = new VNNodeDTO
+                     {
+                           id = id,
+                           type = nameof(VNNodeType.Choice)
+                      };
+                   }
+
+                    // ✅ A안: Choice 줄에서는 옵션 추가하지 않는다
+                     continue;
+                }
+                
+                if (normalizedType.Equals("ChoiceOption", StringComparison.OrdinalIgnoreCase))
 {
-    if (choiceAccumulator == null || !string.Equals(choiceAccumulator.id, id, StringComparison.Ordinal))
+    if (choiceAccumulator == null)
     {
-        FlushChoiceNode(nodes, ref choiceAccumulator, choiceOptions);
-        choiceAccumulator = new VNNodeDTO
-        {
-            id = id,
-            type = nameof(VNNodeType.Choice)
-        };
+        Debug.LogWarning($"[VNScriptImporter] ChoiceOption without active Choice at line {i + 1} in {csvFilePath} (id={id})");
+        continue;
     }
+
+    // A안 규칙:
+    // - arg1 = 표시 텍스트 (너 지금 JSON에서도 arg1에 들어오고 있음)
+    // - jumpLabel 컬럼 = 점프 라벨
+    var ct = !string.IsNullOrEmpty(arg1) ? arg1 : text;
 
     choiceOptions.Add(new VNChoiceOptionDTO
     {
+        choiceText = ct ?? string.Empty,
         jumpLabel = jumpLabel ?? string.Empty,
-        choiceText = arg2 ?? string.Empty,   // ✅ 버튼 텍스트는 arg2로 고정
     });
 
+    // ✅ nodes.Add(...) 절대 하지 말고 누적만 하고 끝
     continue;
 }
-                
-
                 
 
                     
