@@ -786,7 +786,12 @@ namespace PPP.BLUE.VN
 
         private void SaveState()
         {
-            if (!SaveAllowed) return;
+            SaveState(ignoreSaveAllowed: false);
+        }
+
+        private void SaveState(bool ignoreSaveAllowed)
+        {
+            if (!ignoreSaveAllowed && !SaveAllowed) return;
             if (bridge == null || script == null) return;
 
             var st = BuildState(); // CaptureState/BuildState 중 하나로 통일 추천
@@ -801,6 +806,12 @@ namespace PPP.BLUE.VN
 
             if (logToConsole)
                 Debug.Log($"[VN] SaveState -> key={VN_STATE_KEY} scriptId={st.scriptId} pointer={st.pointer} vars={st.vars?.Count ?? 0}");
+        }
+
+        public void DebugForceSave(string reason)
+        {
+            Debug.Log($"[VNDBG] ForceSave (ignore SaveAllowed) reason={reason}");
+            SaveState(ignoreSaveAllowed: true);
         }
 
 
@@ -879,6 +890,13 @@ namespace PPP.BLUE.VN
             }
 
             return true;
+        }
+
+        public void DebugForceLoad(string reason)
+        {
+            Debug.Log($"[VNDBG] ForceLoad reason={reason}");
+            if (LoadState())
+                GetComponentInChildren<VNDialogueView>(true)?.LockInputFrames(1);
         }
 
 
