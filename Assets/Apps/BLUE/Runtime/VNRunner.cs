@@ -21,6 +21,8 @@ namespace PPP.BLUE.VN
         // --- Auto suspend/resume by modal/drink ---
         private bool lastBlocked;                 // 지난 프레임에 입력/오토가 막혀있었나?
         private bool autoSuspendedByBlock;        // 막힘 때문에 Auto를 멈췄었나?
+        private bool lastMinimized;
+
 
         private const string SAVE_KEY = "vn.state";
         private const string VN_STATE_KEY = "vn.state";
@@ -165,19 +167,41 @@ namespace PPP.BLUE.VN
             if (!HasScript) return;
 
             // ----------------------------
-            // 1) Policy 기반 Auto suspend/resume (modal/drink)
+            // 0) Window state (minimized)
             // ----------------------------
-            bool blocked = (policy != null) && (policy.IsModalOpen || policy.IsInDrinkMode);
+            bool nowMin = (policy != null) && policy.GetWindowState().IsMinimized;
+
+            // ✅ "방금 최소화됨" 순간 -> Auto 강제 OFF
+            if (nowMin && !lastMinimized)
+            {
+                if (settings.auto)
+                {
+                    settings.auto = false;        // ✅ 유저 상태 자체를 OFF로
+                    autoSuspendedByBlock = false; // ✅ 자동재개 플래그 리셋
+
+                    StopAutoTimer();
+                    CancelAuto();
+
+                    if (logToConsole)
+                        Debug.Log("[VN] Auto forced OFF (Window minimized)");
+                }
+            }
+            lastMinimized = nowMin;
+
+            // ----------------------------
+            // 1) Policy 기반 Auto suspend/resume (modal/drink/minimized)
+            // ----------------------------
+            bool blocked = (policy != null) && (policy.IsModalOpen || policy.IsInDrinkMode || nowMin);
 
             // 막힘이 "켜지는 순간" -> Auto 일시정지
             if (blocked && !lastBlocked)
             {
                 if (settings.auto) autoSuspendedByBlock = true;
 
-                StopAutoTimer();   // 코루틴 기반
-                CancelAuto();      // autoPending 기반(있으면 유지)
+                StopAutoTimer();
+                CancelAuto();
 
-                if (logToConsole) Debug.Log("[VN] Auto suspended by modal/drink");
+                if (logToConsole) Debug.Log("[VN] Auto suspended by modal/drink/minimized");
             }
 
             // 막힘이 "꺼지는 순간" -> Auto 재개 (유저 의도가 ON일 때만)
@@ -186,7 +210,7 @@ namespace PPP.BLUE.VN
                 if (settings.auto && autoSuspendedByBlock)
                 {
                     autoSuspendedByBlock = false;
-                    TryStartAutoTimer(); // CanAutoAdvance()가 최종 필터링
+                    TryStartAutoTimer();
 
                     if (logToConsole) Debug.Log("[VN] Auto resumed after modal/drink");
                 }
@@ -195,13 +219,13 @@ namespace PPP.BLUE.VN
             lastBlocked = blocked;
 
             // ----------------------------
-            // 2) Hotkeys: modal/drink 중에는 무시
+            // 2) Hotkeys: blocked 중에는 무시
             // ----------------------------
             if (Input.GetKeyDown(KeyCode.F1))
             {
                 if (blocked)
                 {
-                    if (logToConsole) Debug.Log("[VN] Skip toggle ignored (modal/drink).");
+                    if (logToConsole) Debug.Log("[VN] Skip toggle ignored (blocked).");
                 }
                 else
                 {
@@ -218,15 +242,14 @@ namespace PPP.BLUE.VN
             {
                 if (blocked)
                 {
-                    if (logToConsole) Debug.Log("[VN] Auto toggle ignored (modal/drink).");
+                    if (logToConsole) Debug.Log("[VN] Auto toggle ignored (blocked).");
                 }
                 else
                 {
                     settings.auto = !settings.auto;
                     Debug.Log($"[VN] Auto={(settings.auto ? "On" : "Off")}");
 
-                    // 유저가 직접 토글했으니 "자동정지 후 재개" 플래그는 리셋
-                    autoSuspendedByBlock = false;
+                    autoSuspendedByBlock = false; // 유저가 직접 토글했으니 자동재개 플래그 리셋
 
                     if (settings.auto)
                         TryStartAutoTimer();
@@ -279,93 +302,100 @@ namespace PPP.BLUE.VN
 
         public void Next()
         {
-            Debug.Log($"[VN] Next() id={GetInstanceID()} go={gameObject.name} pointer={pointer} started={started}");
-            Debug.Log($"[VN] Next() pointer={pointer} nodes={script?.nodes?.Count ?? -1} started={started}");
-            Debug.Log("[VN] SaveAllowed FALSE (Next)");
-            MarkSaveBlocked();
-            if (script == null || script.nodes == null)
+            if (policy != null && policy.GetWindowState().IsMinimized)
             {
-                Debug.LogError("[VNRunner] No script loaded.");
+                if (logToConsole) Debug.Log("[VN] Next ignored (minimized).");
                 return;
             }
 
-            // 무한루프 방지용 안전장치
-            const int MAX_STEPS = 1000;
-            int steps = 0;
-
-            while (steps++ < MAX_STEPS)
             {
-                // 끝까지 갔으면 End 취급
-                if (pointer < 0 || pointer >= script.nodes.Count)
+                Debug.Log($"[VN] Next() id={GetInstanceID()} go={gameObject.name} pointer={pointer} started={started}");
+                Debug.Log($"[VN] Next() pointer={pointer} nodes={script?.nodes?.Count ?? -1} started={started}");
+                Debug.Log("[VN] SaveAllowed FALSE (Next)");
+                MarkSaveBlocked();
+                if (script == null || script.nodes == null)
                 {
-                    Finish();
+                    Debug.LogError("[VNRunner] No script loaded.");
                     return;
                 }
 
-                var node = script.nodes[pointer];
-                Debug.Log($"[VN] node@{pointer} type={node?.type} label={node?.label}");
-                if (node == null)
+                // 무한루프 방지용 안전장치
+                const int MAX_STEPS = 1000;
+                int steps = 0;
+
+                while (steps++ < MAX_STEPS)
                 {
-                    pointer++;
-                    continue;
-                }
-
-                switch (node.type)
-                {
-                    case VNNodeType.Say:
-                        if (settings.skipMode == VNSkipMode.SeenOnly
-                            && !string.IsNullOrEmpty(node.id)
-                            && seenLineIds.Contains(node.id))
-                        {
-                            Debug.Log($"[VN] Skip: {node.id}");
-                            pointer++;
-                            continue;
-                        }
-
-                        lastShownPointer = pointer; // ✅ 이 줄이 핵심
-                        EmitSay(node);
-                        pointer++;
-                        return; // ✅ Say는 "멈춤" 포인트 (화면에 보여주고 기다림)
-
-                    case VNNodeType.Branch:
-                        if (node.branches != null && node.branches.Length > 0 &&
-                            HasAnyChoiceText(node.branches))
-                        {
-                            lastStopIndex = pointer;
-                            OnChoice?.Invoke(node.branches);
-                            pointer++;        // Branch 자체는 소비
-                            return;           // ✅ 여기서 멈춤(선택 기다림)
-                        }
-                        else
-                        {
-                            DoBranch(node);   // 기존 자동 분기
-                            continue;
-                        }
-
-                    case VNNodeType.Label:
-                        if (logToConsole) Debug.Log($"[VN] Label: {node.label} (idx {pointer})");
-                        pointer++;
-                        continue; // ✅ 출력 없음 → 계속 진행
-
-                    case VNNodeType.Jump:
-                        DoJump(node.label);
-                        continue; // ✅ 출력 없음 → 계속 진행
-
-                    case VNNodeType.End:
+                    // 끝까지 갔으면 End 취급
+                    if (pointer < 0 || pointer >= script.nodes.Count)
+                    {
                         Finish();
                         return;
+                    }
 
-                    default:
-                        Debug.LogWarning($"[VNRunner] Unknown node type: {node.type}");
+                    var node = script.nodes[pointer];
+                    Debug.Log($"[VN] node@{pointer} type={node?.type} label={node?.label}");
+                    if (node == null)
+                    {
                         pointer++;
                         continue;
-                }
-            }
-            Debug.LogError($"[VNRunner] MAX_STEPS exceeded at pointer={pointer}. Possible infinite loop.");
-            
-            Finish();
-        }
+                    }
 
+                    switch (node.type)
+                    {
+                        case VNNodeType.Say:
+                            if (settings.skipMode == VNSkipMode.SeenOnly
+                                && !string.IsNullOrEmpty(node.id)
+                                && seenLineIds.Contains(node.id))
+                            {
+                                Debug.Log($"[VN] Skip: {node.id}");
+                                pointer++;
+                                continue;
+                            }
+
+                            lastShownPointer = pointer; // ✅ 이 줄이 핵심
+                            EmitSay(node);
+                            pointer++;
+                            return; // ✅ Say는 "멈춤" 포인트 (화면에 보여주고 기다림)
+
+                        case VNNodeType.Branch:
+                            if (node.branches != null && node.branches.Length > 0 &&
+                                HasAnyChoiceText(node.branches))
+                            {
+                                lastStopIndex = pointer;
+                                OnChoice?.Invoke(node.branches);
+                                pointer++;        // Branch 자체는 소비
+                                return;           // ✅ 여기서 멈춤(선택 기다림)
+                            }
+                            else
+                            {
+                                DoBranch(node);   // 기존 자동 분기
+                                continue;
+                            }
+
+                        case VNNodeType.Label:
+                            if (logToConsole) Debug.Log($"[VN] Label: {node.label} (idx {pointer})");
+                            pointer++;
+                            continue; // ✅ 출력 없음 → 계속 진행
+
+                        case VNNodeType.Jump:
+                            DoJump(node.label);
+                            continue; // ✅ 출력 없음 → 계속 진행
+
+                        case VNNodeType.End:
+                            Finish();
+                            return;
+
+                        default:
+                            Debug.LogWarning($"[VNRunner] Unknown node type: {node.type}");
+                            pointer++;
+                            continue;
+                    }
+                }
+                Debug.LogError($"[VNRunner] MAX_STEPS exceeded at pointer={pointer}. Possible infinite loop.");
+
+                Finish();
+            }
+        }
         public void OnAdvance()
         {
             
@@ -755,6 +785,8 @@ namespace PPP.BLUE.VN
             if (policy == null) return false;
             if (policy.IsModalOpen) return false;
             if (policy.IsInDrinkMode) return false;
+            var ws = policy.GetWindowState(); // bridge 통해 받아옴
+            if (ws.IsMinimized) return false;
             return true;
         }
 

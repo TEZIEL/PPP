@@ -787,6 +787,7 @@ public class WindowManager : MonoBehaviour, IVNHostOS
         return openWindows;
     }
 
+
     private void FocusNextTopWindow(string excludedAppId = null)
     {
         WindowController best = null;
@@ -1178,14 +1179,40 @@ public class WindowManager : MonoBehaviour, IVNHostOS
     }
 
 
-    // ✅ 1) 포커스/최소화 상태 제공
     public VNWindowState GetWindowState(string appId)
     {
-        bool focused = IsFocused(appId);
+        // 못 찾으면 보수적으로 입력 막기
+        if (string.IsNullOrEmpty(appId) || !openWindows.TryGetValue(appId, out var wc) || wc == null)
+            return new VNWindowState(isFocused: false, isMinimized: true);
 
-        bool minimized = minimizedByAppId.TryGetValue(appId, out var m) && m;
+        // ✅ 진짜 최소화 상태는 WindowController에서 읽는다
+        bool minimized = wc.IsMinimized;
+
+        // 포커스는 “최소화가 아닐 때만 true”로만 처리해도 충분 (너는 포커스는 상관없다 했으니)
+        bool focused = !minimized;
 
         return new VNWindowState(focused, minimized);
+        UnityEngine.Debug.Log($"[OS] GetWindowState appId={appId} min={minimized}");
+    }
+
+    private WindowController FindWindowByAppId(string appId)
+    {
+        // ✅ 너희가 이미 appId로 찾는 코드가 있을 거야:
+        // - Dictionary<string, WindowController> windowsByAppId
+        // - 열린 창 리스트에서 wc.AppId == appId 찾기
+        //
+        // 예시(리스트):
+        foreach (var wc in FindObjectsOfType<WindowController>(true))
+            if (wc != null && wc.AppId == appId) return wc;
+
+        return null;
+    }
+
+    private bool IsWindowFocused(WindowController wc)
+    {
+        // ✅ 너희 포커스 시스템이 있으면 거기 사용
+        // 예: return focusedWindow == wc;
+        return true; // 포커스 무시하고 싶으면 true로 둬도 됨(단, minimized일 때는 위에서 false 처리됨)
     }
 
 
