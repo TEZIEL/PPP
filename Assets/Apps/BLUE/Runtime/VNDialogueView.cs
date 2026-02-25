@@ -126,6 +126,7 @@ namespace PPP.BLUE.VN
             }
 
             // ✅ 4) 그 외에는 다음 라인
+            runner.CancelAuto();
             runner.Next();
         }
 
@@ -171,6 +172,7 @@ namespace PPP.BLUE.VN
             {
                 lineCompleted = true;
                 runner?.MarkSaveAllowed();
+                runner?.NotifyLineTypedEnd();
                 
                 Debug.Log("[VN] SaveAllowed TRUE (Typing End)");
 

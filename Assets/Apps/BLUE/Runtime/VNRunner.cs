@@ -19,8 +19,11 @@ namespace PPP.BLUE.VN
 
         private const string SAVE_KEY = "vn.state";
         private const string VN_STATE_KEY = "vn.state";
+        private const float AutoDelaySeconds = 0.35f;
         private int lastShownPointer = -1;
         private int lastStopIndex = 0; // 마지막으로 '멈춘' 노드(Say/Choice)의 인덱스
+        private bool autoPending;
+        private float autoTimer;
 
         public void InjectBridge(VNOSBridge b)
         {
@@ -148,6 +151,48 @@ namespace PPP.BLUE.VN
                 Debug.Log($"[VN] SkipMode={settings.skipMode}");
             }
 
+            if (Input.GetKeyDown(KeyCode.F2))
+            {
+                settings.auto = !settings.auto;
+                Debug.Log($"[VN] Auto={(settings.auto ? "On" : "Off")}");
+                if (!settings.auto)
+                    CancelAuto();
+            }
+
+            if (autoPending)
+            {
+                if (!settings.auto)
+                {
+                    CancelAuto();
+                    return;
+                }
+
+                if (!SaveAllowed) return;
+
+                autoTimer += Time.unscaledDeltaTime;
+                if (autoTimer < AutoDelaySeconds) return;
+
+                autoPending = false;
+                autoTimer = 0f;
+                Debug.Log("[VN] AutoNext");
+                Next();
+            }
+
+        }
+
+        public void NotifyLineTypedEnd()
+        {
+            if (!settings.auto) return;
+
+            autoPending = true;
+            autoTimer = 0f;
+            Debug.Log($"[VN] AutoTimer Start ({AutoDelaySeconds:0.00}s)");
+        }
+
+        public void CancelAuto()
+        {
+            autoPending = false;
+            autoTimer = 0f;
         }
 
         public void Choose(string jumpLabel)
