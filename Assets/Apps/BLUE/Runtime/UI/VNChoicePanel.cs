@@ -56,7 +56,7 @@ namespace PPP.BLUE.VN
 
 
             // Auto pause + modal lock while choice UI is open.
-            runner?.StopAutoExternal("ChoicePanel Open");
+            runner?.ForceAutoOff("ChoicePanel Open");
             policy?.PushModal("ChoicePanel");
 
             root.SetActive(true);

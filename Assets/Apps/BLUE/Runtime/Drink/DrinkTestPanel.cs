@@ -98,6 +98,7 @@ namespace PPP.BLUE.VN
 
             policy?.ExitDrinkMode();
             policy?.PopModal("DrinkPanel");
+            runner?.ForceAutoOff("Drink Finished");
 
             runner?.Next();
         }

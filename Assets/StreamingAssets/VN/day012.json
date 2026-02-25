@@ -1,0 +1,162 @@
+{
+    "scriptId": "day01",
+    "nodes": [
+        {
+            "id": "lb.start",
+            "type": "Label",
+            "speakerId": "",
+            "text": "",
+            "label": "start",
+            "branches": [],
+            "choices": []
+        },
+        {
+            "id": "t.001",
+            "type": "Say",
+            "speakerId": "sys",
+            "text": "CSV Import 테스트 시작.",
+            "label": "",
+            "branches": [],
+            "choices": []
+        },
+        {
+            "id": "t.002",
+            "type": "Say",
+            "speakerId": "sys",
+            "text": "day01.csv 에서 생성된 JSON을 재생 중입니다.",
+            "label": "",
+            "branches": [],
+            "choices": []
+        },
+        {
+            "id": "t.c1",
+            "type": "Choice",
+            "speakerId": "",
+            "text": "",
+            "label": "",
+            "branches": [],
+            "choices": [
+                {
+                    "choiceText": "스포츠 선택",
+                    "jumpLabel": "sports_route"
+                },
+                {
+                    "choiceText": "커피 선택",
+                    "jumpLabel": "coffee_route"
+                },
+                {
+                    "choiceText": "디폴트 선택",
+                    "jumpLabel": "default_route"
+                }
+            ]
+        },
+        {
+            "id": "lb.sports",
+            "type": "Label",
+            "speakerId": "",
+            "text": "",
+            "label": "sports_route",
+            "branches": [],
+            "choices": []
+        },
+        {
+            "id": "t.sports.1",
+            "type": "Say",
+            "speakerId": "sys",
+            "text": "SPORTS 경로로 진입했습니다.",
+            "label": "",
+            "branches": [],
+            "choices": []
+        },
+        {
+            "id": "t.jump_sports",
+            "type": "Jump",
+            "speakerId": "",
+            "text": "",
+            "label": "end",
+            "branches": [],
+            "choices": []
+        },
+        {
+            "id": "lb.coffee",
+            "type": "Label",
+            "speakerId": "",
+            "text": "",
+            "label": "coffee_route",
+            "branches": [],
+            "choices": []
+        },
+        {
+            "id": "t.coffee.1",
+            "type": "Say",
+            "speakerId": "sys",
+            "text": "COFFEE 경로로 진입했습니다.",
+            "label": "",
+            "branches": [],
+            "choices": []
+        },
+        {
+            "id": "t.jump_coffee",
+            "type": "Jump",
+            "speakerId": "",
+            "text": "",
+            "label": "end",
+            "branches": [],
+            "choices": []
+        },
+        {
+            "id": "lb.default",
+            "type": "Label",
+            "speakerId": "",
+            "text": "",
+            "label": "default_route",
+            "branches": [],
+            "choices": []
+        },
+        {
+            "id": "t.default.1",
+            "type": "Say",
+            "speakerId": "sys",
+            "text": "DEFAULT 경로로 진입했습니다.",
+            "label": "",
+            "branches": [],
+            "choices": []
+        },
+        {
+            "id": "t.jump_default",
+            "type": "Jump",
+            "speakerId": "",
+            "text": "",
+            "label": "end",
+            "branches": [],
+            "choices": []
+        },
+        {
+            "id": "lb.end",
+            "type": "Label",
+            "speakerId": "",
+            "text": "",
+            "label": "end",
+            "branches": [],
+            "choices": []
+        },
+        {
+            "id": "t.end",
+            "type": "Say",
+            "speakerId": "sys",
+            "text": "day01 끝.",
+            "label": "",
+            "branches": [],
+            "choices": []
+        },
+        {
+            "id": "end",
+            "type": "End",
+            "speakerId": "",
+            "text": "",
+            "label": "",
+            "branches": [],
+            "choices": []
+        }
+    ]
+}

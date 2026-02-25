@@ -1,4 +1,4 @@
-#if UNITY_EDITOR
+﻿#if UNITY_EDITOR
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -100,25 +100,30 @@ namespace PPP.BLUE.VN.Editor
                 FlushBranchNode(nodes, ref branchAccumulator, branchRules);
 
                 if (normalizedType.Equals(nameof(VNNodeType.Choice), StringComparison.OrdinalIgnoreCase))
-                {
-                    if (choiceAccumulator == null || !string.Equals(choiceAccumulator.id, id, StringComparison.Ordinal))
-                    {
-                        FlushChoiceNode(nodes, ref choiceAccumulator, choiceOptions);
-                        choiceAccumulator = new VNNodeDTO
-                        {
-                            id = id,
-                            type = nameof(VNNodeType.Choice)
-                        };
-                    }
+{
+    if (choiceAccumulator == null || !string.Equals(choiceAccumulator.id, id, StringComparison.Ordinal))
+    {
+        FlushChoiceNode(nodes, ref choiceAccumulator, choiceOptions);
+        choiceAccumulator = new VNNodeDTO
+        {
+            id = id,
+            type = nameof(VNNodeType.Choice)
+        };
+    }
 
-                    choiceOptions.Add(new VNChoiceOptionDTO
-                    {
-                        jumpLabel = jumpLabel ?? string.Empty,
-                        choiceText = arg2 ?? string.Empty,
-                    });
+    choiceOptions.Add(new VNChoiceOptionDTO
+    {
+        jumpLabel = jumpLabel ?? string.Empty,
+        choiceText = arg2 ?? string.Empty,   // ✅ 버튼 텍스트는 arg2로 고정
+    });
 
-                    continue;
-                }
+    continue;
+}
+                
+
+                
+
+                    
 
                 FlushBranchNode(nodes, ref branchAccumulator, branchRules);
                 FlushChoiceNode(nodes, ref choiceAccumulator, choiceOptions);

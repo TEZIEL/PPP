@@ -350,6 +350,7 @@ namespace PPP.BLUE.VN
             var choices = new VNNode.ChoiceOption[rules.Length];
             for (int i = 0; i < rules.Length; i++)
             {
+            
                 var rule = rules[i];
                 if (rule == null)
                 {
@@ -431,15 +432,24 @@ namespace PPP.BLUE.VN
                             return;
 
                         case VNNodeType.Choice:
-                            if (node.choices != null && HasChoiceText(node.choices))
                             {
-                                lastStopIndex = pointer;
-                                waitPointer = pointer;
-                                isWaiting = true;
+                                Debug.Log($"[VN] Choice hit id={node.id} choices={(node.choices == null ? -1 : node.choices.Length)} hasText={HasChoiceText(node.choices)}");
 
-                                MarkSaveAllowed(true, "Choice Open");
-                                OnChoice?.Invoke(node.choices);
-                                return;
+                                if (node.choices != null && HasChoiceText(node.choices))
+                                {
+                                    lastStopIndex = pointer;
+                                    waitPointer = pointer;
+                                    isWaiting = true;
+
+                                    MarkSaveAllowed(true, "Choice Open");
+                                    Debug.Log("[VN] OnChoice invoke");
+                                    OnChoice?.Invoke(node.choices);
+                                    return;
+                                }
+
+                                Debug.LogWarning("[VN] Choice skipped (no options or no text).");
+                                pointer++; // (너 코드에 이미 있을 가능성 높음)
+                                continue;
                             }
 
                             pointer++;
@@ -924,6 +934,19 @@ namespace PPP.BLUE.VN
 
             if (logToConsole) Debug.Log("[VN] AutoNext");
             Next();
+        }
+
+        public void ForceAutoOff(string reason)
+        {
+            if (!settings.auto && autoCo == null) return; // 이미 꺼져있으면 스킵(선택)
+
+            settings.auto = false;          // 유저 상태 자체 OFF
+            autoSuspendedByBlock = false;   // unblock 자동재개 플래그 제거
+
+            StopAutoTimer();
+            CancelAuto();
+
+            if (logToConsole) Debug.Log($"[VN] Auto forced OFF ({reason})");
         }
 
 

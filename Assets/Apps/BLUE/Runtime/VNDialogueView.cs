@@ -84,6 +84,9 @@ namespace PPP.BLUE.VN
 
         private void HandleChoice(VNNode.ChoiceOption[] choices)
         {
+            Debug.Log($"[VN_UI] HandleChoice choices={choices?.Length ?? -1}");
+            choicePanel.Open(choices);
+
             if (choicePanel == null)
             {
                 Debug.LogError("[VNDialogueView] choicePanel is NULL. Assign it in Inspector.");
@@ -92,11 +95,11 @@ namespace PPP.BLUE.VN
                 return;
             }
 
-            choicePanel.Open(choices);
         }
 
         private void Update()
         {
+            
             if (inputLockFrames > 0) { inputLockFrames--; return; }
             if (runner == null) return;
             if (!runner.HasScript) return;
