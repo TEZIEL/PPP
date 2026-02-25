@@ -33,9 +33,9 @@ namespace PPP.BLUE.VN
             if (btnGreat != null) btnGreat.onClick.AddListener(() => Choose("great"));
         }
 
-        public void Open()
+        public void Open(string orderId)
         {
-            runner?.StopAutoExternal("DrinkPanel Open");
+            runner?.StopAutoExternal("DrinkPanel Open:" + (orderId ?? string.Empty));
             StartCoroutine(CoOpenSafe());
         }
 
@@ -87,20 +87,13 @@ namespace PPP.BLUE.VN
             shortcutController?.LockForSeconds(0.15f);
             EventSystem.current?.SetSelectedGameObject(null);
 
-            if (runner != null)
-            {
-                int lastDrinkValue = result == "great" ? 1 : (result == "success" ? 2 : 3);
-                runner.SetVar("lastDrink", lastDrinkValue);   // ✅ 분기 변수 세팅
-                                                              // runner.ApplyDrinkResult(result);            // ❌ 지금은 빼도 됨(중복 방지)
-            }
-
             if (root != null) root.SetActive(false);
 
             policy?.ExitDrinkMode();
             policy?.PopModal("DrinkPanel");
             runner?.ForceAutoOff("Drink Finished");
 
-            runner?.Next();
+            runner?.ReturnFromCall(result);
         }
     }
 }

@@ -135,6 +135,8 @@ namespace PPP.BLUE.VN.Editor
                     speakerId = speakerId,
                     text = text,
                     label = ResolveLabel(normalizedType, label, jumpLabel),
+                    arg1 = arg1,
+                    arg2 = arg2,
                 };
 
                 nodes.Add(node);

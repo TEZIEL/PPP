@@ -1,97 +1,35 @@
 {
   "scriptId": "day01",
   "nodes": [
+    { "id": "lb.start", "type": "Label", "label": "start", "arg1": "", "arg2": "" },
+    { "id": "t.001", "type": "Say", "speakerId": "sys", "text": "Call/Return Drink 테스트 시작.", "arg1": "", "arg2": "" },
+    { "id": "t.call", "type": "Call", "arg1": "Drink", "arg2": "order001" },
 
-    { "id": "lb.auto", "type": "Label", "label": "auto_test" },
-    {
-      "id": "t.auto.1",
-      "type": "Say",
-      "speakerId": "sys",
-      "text": "AUTO TEST 1/3\n이 줄은 타이핑 시간이 충분히 길어야 한다.\nAuto 모드가 켜져 있으면 타이핑 종료 후 잠깐 기다렸다가 다음 줄로 자동 진행되어야 한다."
-    },
-    {
-      "id": "t.auto.2",
-      "type": "Say",
-      "speakerId": "sys",
-      "text": "AUTO TEST 2/3\n여기서 클릭을 한 번 하면(타이핑 중이면) ForceComplete가 발생할 수 있다.\n그래도 AutoNext가 폭주하지 않아야 한다."
-    },
-    {
-      "id": "t.auto.3",
-      "type": "Say",
-      "speakerId": "sys",
-      "text": "AUTO TEST 3/3\n이 줄이 끝난 뒤에도 Auto가 계속 켜져 있다면 다음 노드로 진행할 것이다.\n이제 기본 시나리오로 넘어간다."
-    },
+    { "id": "t.drink.branch", "type": "Branch", "branches": [
+      { "expr": "lastDrink==1", "jumpLabel": "route_great", "choiceText": "" },
+      { "expr": "lastDrink==2", "jumpLabel": "route_success", "choiceText": "" },
+      { "expr": "lastDrink==3", "jumpLabel": "route_fail", "choiceText": "" },
+      { "expr": "else", "jumpLabel": "route_else", "choiceText": "" }
+    ]},
 
-    {
-      "id": "t.001",
-      "type": "Say",
-      "speakerId": "sys",
-      "text": "Line 1. First time seen.\n(SeenOnly Skip 테스트용) 이 줄은 저장/로드 후에도 seen에 남아야 한다.\n텍스트를 길게 해서 타이핑 종료 타이밍을 확인한다."
-    },
-    {
-      "id": "t.002",
-      "type": "Say",
-      "speakerId": "sys",
-      "text": "Line 2. First time seen.\nAuto가 켜져 있으면 타이핑 끝난 뒤 자동으로 다음 줄로 넘어가야 한다.\nSeenOnly Skip이 켜져 있고 이미 본 줄이면 이 줄은 표시 없이 넘어가야 한다."
-    },
-    {
-      "id": "t.003",
-      "type": "Say",
-      "speakerId": "sys",
-      "text": "Line 3. First time seen.\n여기까지 본 뒤 저장하고 재실행해서, SkipMode=SeenOnly일 때 1~3이 스킵되는지 확인한다.\n단, 아직 안 본 줄이 나오면 멈춰야 한다."
-    },
+    { "id": "lb.route_great", "type": "Label", "label": "route_great", "arg1": "", "arg2": "" },
+    { "id": "t.route_great.say", "type": "Say", "speakerId": "sys", "text": "Great 결과로 분기되었습니다.", "arg1": "", "arg2": "" },
+    { "id": "t.route_great.jump", "type": "Jump", "label": "end", "arg1": "", "arg2": "" },
 
-    {
-      "id": "t.004",
-      "type": "Say",
-      "speakerId": "sys",
-      "text": "Line 4. Drink trigger next.\n다음 줄(t.drink)은 지금은 Say 트리거로 Drink UI를 여는 역할이다.\nAuto가 켜져 있을 때 외부 모드(Drink)에서 진행이 꼬이지 않는지 체크한다."
-    },
+    { "id": "lb.route_success", "type": "Label", "label": "route_success", "arg1": "", "arg2": "" },
+    { "id": "t.route_success.say", "type": "Say", "speakerId": "sys", "text": "Success 결과로 분기되었습니다.", "arg1": "", "arg2": "" },
+    { "id": "t.route_success.jump", "type": "Jump", "label": "end", "arg1": "", "arg2": "" },
 
-    {
-      "id": "t.drink",
-      "type": "Say",
-      "speakerId": "sys",
-      "text": "(Drink) Choose result.\n여기서 lastDrink 값이 확정되면 Branch로 분기한다.\n주의: Drink 중에는 SaveAllowed/AutoNext가 의도치 않게 동작하면 안 된다."
-    },
+    { "id": "lb.route_fail", "type": "Label", "label": "route_fail", "arg1": "", "arg2": "" },
+    { "id": "t.route_fail.say", "type": "Say", "speakerId": "sys", "text": "Fail 결과로 분기되었습니다.", "arg1": "", "arg2": "" },
+    { "id": "t.route_fail.jump", "type": "Jump", "label": "end", "arg1": "", "arg2": "" },
 
-    {
-      "id": "t.br",
-      "type": "Branch",
-      "branches": [
-        { "expr": "lastDrink==1", "jumpLabel": "sports_route",  "choiceText": "" },
-        { "expr": "lastDrink==2", "jumpLabel": "coffee_route",  "choiceText": "" },
-        { "expr": "else",         "jumpLabel": "default_route", "choiceText": "" }
-      ]
-    },
+    { "id": "lb.route_else", "type": "Label", "label": "route_else", "arg1": "", "arg2": "" },
+    { "id": "t.route_else.say", "type": "Say", "speakerId": "sys", "text": "lastDrink가 비어 else로 분기되었습니다.", "arg1": "", "arg2": "" },
+    { "id": "t.route_else.jump", "type": "Jump", "label": "end", "arg1": "", "arg2": "" },
 
-    { "id": "lb.s", "type": "Label", "label": "sports_route" },
-    {
-      "id": "t.s1",
-      "type": "Say",
-      "speakerId": "sys",
-      "text": "SPORTS route line 1.\nSeenOnly Skip이 켜져 있고 이미 본 줄이면 이 줄은 표시 없이 넘어가야 한다.\nAuto가 켜져 있으면 타이핑 종료 후 다음 줄로 자동 진행."
-    },
-    { "id": "t.s2", "type": "Say", "speakerId": "sys", "text": "SPORTS route line 2.\n(테스트) 저장 후 재실행하면 이 라인부터 정확히 복귀해야 한다." },
-    { "id": "t.s3", "type": "Say", "speakerId": "sys", "text": "SPORTS route end.\n(테스트) End 처리 후 저장/로드가 꼬이지 않아야 한다." },
-    { "id": "t.end.s", "type": "End" },
-
-    { "id": "lb.c", "type": "Label", "label": "coffee_route" },
-    {
-      "id": "t.c1",
-      "type": "Say",
-      "speakerId": "sys",
-      "text": "COFFEE route line 1.\nSeenOnly Skip 테스트용. 한 번 본 뒤 다시 들어오면 스킵되어야 한다."
-    },
-    { "id": "t.c2", "type": "Say", "speakerId": "sys", "text": "COFFEE route line 2.\n(테스트) Auto/Skip이 동시에 켜져도 폭주하면 안 된다." },
-    { "id": "t.c3", "type": "Say", "speakerId": "sys", "text": "COFFEE route end." },
-    { "id": "t.end.c", "type": "End" },
-
-    { "id": "lb.d", "type": "Label", "label": "default_route" },
-    { "id": "t.d1", "type": "Say", "speakerId": "sys", "text": "DEFAULT route line 1.\n(테스트) else 분기 확인." },
-    { "id": "t.d2", "type": "Say", "speakerId": "sys", "text": "DEFAULT route line 2." },
-    { "id": "t.d3", "type": "Say", "speakerId": "sys", "text": "DEFAULT route end." },
-    { "id": "t.end.d", "type": "End" }
-
+    { "id": "lb.end", "type": "Label", "label": "end", "arg1": "", "arg2": "" },
+    { "id": "t.end", "type": "Say", "speakerId": "sys", "text": "day01 끝.", "arg1": "", "arg2": "" },
+    { "id": "end", "type": "End", "arg1": "", "arg2": "" }
   ]
 }

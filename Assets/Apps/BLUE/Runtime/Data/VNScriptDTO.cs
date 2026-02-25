@@ -17,6 +17,8 @@ namespace PPP.BLUE.VN
         public string speakerId;
         public string text;
         public string label;
+        public string arg1;
+        public string arg2;
         public VNBranchRuleDTO[] branches;
         public VNChoiceOptionDTO[] choices;
     }
