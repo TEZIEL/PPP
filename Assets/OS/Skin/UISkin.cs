@@ -3,19 +3,14 @@ using UnityEngine;
 [CreateAssetMenu(menuName = "OS/UISkin")]
 public class UISkin : ScriptableObject
 {
-    [Header("TitleBar Tint")]
-    public Color titleActiveColor = Color.white;
-    public Color titleInactiveColor = Color.gray;
+    [Header("TitleBar Sprites")]
+    public Sprite titleActive;
+    public Sprite titleInactive;
 
-    [Header("Frame Tint")]
-    public Color frameActiveColor = Color.white;
-    public Color frameInactiveColor = Color.gray;
+    [Header("UnderBar Sprites")]
+    public Sprite underActive;
+    public Sprite underInactive;
 
-    [Header("UnderBar Tint")]
-    public Color underActiveColor = Color.white;
-    public Color underInactiveColor = Color.gray;
-
-    [Header("SideBar Tint")]
-    public Color sideActiveColor = Color.white;
-    public Color sideInactiveColor = Color.gray;
+    // (선택) 필요하면 색 틴트도 남겨둘 수 있음
+    public Color tint = Color.white;
 }

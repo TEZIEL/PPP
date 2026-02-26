@@ -12,11 +12,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ede774306529d344fad85c877480bdec, type: 3}
   m_Name: DefaultSkin
   m_EditorClassIdentifier: 
-  titleActiveColor: {r: 0.9103774, g: 0.32206747, b: 0.32206747, a: 1}
-  titleInactiveColor: {r: 0.18867922, g: 0.18867922, b: 0.18867922, a: 1}
-  frameActiveColor: {r: 0.38679248, g: 0.25907797, b: 0.25907797, a: 1}
-  frameInactiveColor: {r: 0.5, g: 0.5, b: 0.5, a: 1}
-  underActiveColor: {r: 0.8679245, g: 0.53221786, b: 0.53221786, a: 1}
-  underInactiveColor: {r: 0.7688679, g: 0.7688679, b: 0.7688679, a: 1}
-  sideActiveColor: {r: 0.6886792, g: 0.33665, b: 0.33134568, a: 1}
-  sideInactiveColor: {r: 0.5990566, g: 0.5990566, b: 0.5990566, a: 1}
+  titleActive: {fileID: 21300000, guid: b180f04e184c29d4a939e310db0820f4, type: 3}
+  titleInactive: {fileID: 21300000, guid: 3761e1b7a49682f4ab4e0b19fb06e4d5, type: 3}
+  underActive: {fileID: 21300000, guid: b180f04e184c29d4a939e310db0820f4, type: 3}
+  underInactive: {fileID: 21300000, guid: 3761e1b7a49682f4ab4e0b19fb06e4d5, type: 3}
+  tint: {r: 1, g: 1, b: 1, a: 1}

@@ -525,7 +525,6 @@ GameObject:
   - component: {fileID: 4631386949200394984}
   - component: {fileID: 4080227881334005079}
   - component: {fileID: 7342045915086621803}
-  - component: {fileID: 7723948963746395881}
   - component: {fileID: 6495900692413345600}
   m_Layer: 5
   m_Name: P_WindowFrame_Base
@@ -630,23 +629,6 @@ MonoBehaviour:
   closeDuration: 0.1
   openFromScale: {x: 0.92, y: 0.92, z: 1}
   contentRoot: {fileID: 3238316313002331558}
---- !u!114 &7723948963746395881
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 5256890642850338370}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: c257853cc33dd2444874396831f8bbd5, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  skin: {fileID: 11400000, guid: 2b77afb104f643d46afbe86c7a120b76, type: 2}
-  titleBarGraphic: {fileID: 8648425489691152799}
-  frameGraphic: {fileID: 4080227881334005079}
-  underGraphic: {fileID: 8385873238599215451}
-  sideGraphic: {fileID: 8342570216067235605}
 --- !u!225 &6495900692413345600
 CanvasGroup:
   m_ObjectHideFlags: 0

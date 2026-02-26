@@ -202,17 +202,20 @@ public class WindowController : MonoBehaviour,
         if (skin == null) return;
 
         if (titleBarImage != null)
-            titleBarImage.color = active ? skin.titleActiveColor : skin.titleInactiveColor;
-
-        if (frameImage != null)
-            frameImage.color = active ? skin.frameActiveColor : skin.frameInactiveColor;
+        {
+            var spr = active ? skin.titleActive : skin.titleInactive;
+            if (spr != null) titleBarImage.sprite = spr;
+            titleBarImage.color = skin.tint; // 틴트 원치 않으면 Color.white 고정
+        }
 
         if (underImage != null)
-            underImage.color = active ? skin.underActiveColor : skin.underInactiveColor;
+        {
+            var spr = active ? skin.underActive : skin.underInactive;
+            if (spr != null) underImage.sprite = spr;
+            underImage.color = skin.tint;
+        }
 
-        if (sideImage != null)
-            sideImage.color = active ? skin.sideActiveColor : skin.sideInactiveColor;
-
+        // 나머지(frame/side/shadow)는 이제 안 써도 된다 했으니 제거/무시
         if (shadowImage != null)
             shadowImage.gameObject.SetActive(active);
     }
