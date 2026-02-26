@@ -17,5 +17,5 @@ MonoBehaviour:
   windowPrefab: {fileID: 7342045915086621803, guid: 93109acf87296bf4cade05dd86f28f2b, type: 3}
   contentPrefab: {fileID: 8132136970174023561, guid: b5ee4abb10540514ba1677878eee823f, type: 3}
   defaultPos: {x: -480, y: 180}
-  defaultSize: {x: 640, y: 540}
+  defaultSize: {x: 642, y: 540}
   iconSprite: {fileID: 10905, guid: 0000000000000000f000000000000000, type: 0}
