@@ -10,12 +10,12 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 29c65b859b9529546a48d49229159c35, type: 3}
-  m_Name: Fidget
+  m_Name: Folder
   m_EditorClassIdentifier: 
-  appId: Fidget
-  displayName: BANDiT
+  appId: Folder
+  displayName: BOX
   windowPrefab: {fileID: 7342045915086621803, guid: 93109acf87296bf4cade05dd86f28f2b, type: 3}
-  contentPrefab: {fileID: 747011108842251003, guid: 86457b0af39a4054d8dbf42af2b7a013, type: 3}
-  defaultPos: {x: 660, y: -100}
-  defaultSize: {x: 480, y: 723}
+  contentPrefab: {fileID: 8132136970174023561, guid: d9377056a4514cc4e8eca6efaa2bbcbf, type: 3}
+  defaultPos: {x: -200, y: 80}
+  defaultSize: {x: 750, y: 660}
   iconSprite: {fileID: 10905, guid: 0000000000000000f000000000000000, type: 0}
