@@ -205,7 +205,7 @@ MonoBehaviour:
     m_PersistentCalls:
       m_Calls: []
   m_Sprite: {fileID: 21300000, guid: 8f621b84b2702464fb27216e9a004392, type: 3}
-  m_Type: 0
+  m_Type: 1
   m_PreserveAspect: 0
   m_FillCenter: 1
   m_FillMethod: 4
@@ -274,8 +274,8 @@ MonoBehaviour:
   targetWindow: {fileID: 0}
   button: {fileID: 4053410377438273366}
   background: {fileID: 3130052702940329927}
-  recessedSprite: {fileID: 21300000, guid: 8f621b84b2702464fb27216e9a004392, type: 3}
-  raisedSprite: {fileID: 21300000, guid: f8986fc8680daea44b32ace7ed0baebc, type: 3}
+  recessedSprite: {fileID: 21300000, guid: 60d7f11e57eef864cb7d84cb08496315, type: 3}
+  raisedSprite: {fileID: 21300000, guid: 314edb341459bfb4fa482f913004fdfa, type: 3}
   titleText: {fileID: 4002397362067041488}
   appId: 
   removeDuration: 0.12
