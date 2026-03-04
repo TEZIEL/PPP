@@ -1,5 +1,4 @@
 ﻿using UnityEngine;
-using PPP.BLUE.VN;
 
 public class WindowShortcutController : MonoBehaviour
 {
@@ -8,11 +7,8 @@ public class WindowShortcutController : MonoBehaviour
     [Header("Cooldown")]
     [SerializeField] private float actionCooldown = 0.32f;
 
-    [Header("VN Close Block")]
-    [SerializeField] private string vnAppId = "app.vn"; // VN AppId
-
     private float lastActionTime;
-    
+
     // ✅ 외부에서 잠깐 입력 막기(선택)
     private float shortcutLockUntil;
     public void LockForSeconds(float seconds)
@@ -20,51 +16,70 @@ public class WindowShortcutController : MonoBehaviour
         shortcutLockUntil = Mathf.Max(shortcutLockUntil, Time.unscaledTime + seconds);
     }
 
+    // ✅ 같은 프레임 중복 방지
+    private int _lastProcessedFrame = -1;
+    private string _lastProcessedAppId = null;
+
     private void Update()
     {
         if (Time.unscaledTime < shortcutLockUntil) return;
         if (windowManager == null) return;
 
-        // 포커스 창 없음 → 무시
+        // 
+
         string activeId = windowManager.ActiveAppId;
         if (string.IsNullOrEmpty(activeId)) return;
 
-        // 쿨타임
-        if (Time.unscaledTime - lastActionTime < actionCooldown)
-            return;
+        // ✅ 같은 appId를 같은 프레임에 또 처리하지 않기
+        if (_lastProcessedFrame == Time.frameCount && _lastProcessedAppId == activeId) return;
 
-        // --- 1 : 최소화 --- (항상 허용)
+        // 쿨타임
+        if (Time.unscaledTime - lastActionTime < actionCooldown) return;
+
+        // ✅ 활성 창이 애니 중이면 쇼트컷 무시
+        var windows = windowManager.GetOpenWindows();
+        if (windows != null && windows.TryGetValue(activeId, out var w) && w != null)
+        {
+            if (w.IsAnimating) return;
+        }
+
+        // --- 1 : 최소화 ---
         if (Input.GetKeyDown(KeyCode.Alpha1))
         {
+            MarkProcessed(activeId);
             windowManager.Minimize(activeId);
-            lastActionTime = Time.unscaledTime;
             return;
         }
 
-        // --- 2 : 핀 토글 --- (항상 허용)
+        // --- 2 : 핀 토글 ---
         if (Input.GetKeyDown(KeyCode.Alpha2))
         {
+            MarkProcessed(activeId);
             TogglePin(activeId);
-            lastActionTime = Time.unscaledTime;
             return;
         }
 
-
-        // --- 3 : 닫기 --- (VN + Drink모드일 때만 차단)
-        // ✅ 정상
+        // --- 3 : 닫기 ---
         if (Input.GetKeyDown(KeyCode.Alpha3))
         {
-            windowManager.RequestClose(activeId); // ✅ 정책 엔트리
-            lastActionTime = Time.unscaledTime;
+            MarkProcessed(activeId);
+            windowManager.RequestClose(activeId);
             return;
         }
+    }
+
+    private void MarkProcessed(string appId)
+    {
+        _lastProcessedFrame = Time.frameCount;
+        _lastProcessedAppId = appId;
+        lastActionTime = Time.unscaledTime;
     }
 
     private void TogglePin(string appId)
     {
         var windows = windowManager.GetOpenWindows();
+        if (windows == null) return;
         if (!windows.TryGetValue(appId, out var wc) || wc == null) return;
-
         wc.TogglePinFromShortcut();
     }
 }

@@ -29,6 +29,14 @@ public class WindowManager : MonoBehaviour, IVNHostOS
     private readonly Dictionary<string, VNWindowState> _lastStates = new();
     private readonly Dictionary<string, WindowController> openWindows = new();
 
+    [SerializeField] private float autoSaveDebounce = 0.35f;
+
+    private float _nextSaveAllowedTime = 0f;
+    private bool _saveQueued = false;
+    private Coroutine _saveCo;
+
+
+    [SerializeField] private bool logSaveOS = false;
     private string activeAppId;
     public string ActiveAppId => activeAppId;
     private OSSaveData cachedSave;
@@ -37,6 +45,15 @@ public class WindowManager : MonoBehaviour, IVNHostOS
 
     private bool isAnimating;
     public bool IsAnimating => isAnimating;
+
+    [SerializeField] private bool logSaveVerbose = false;
+
+    [System.Diagnostics.Conditional("UNITY_EDITOR")]
+    private void LogSave(string msg)
+    {
+        if (!logSaveVerbose) return;
+        Debug.Log(msg);
+    }
 
     private bool suppressAutoFocus;
     public void BeginBatch() => suppressAutoFocus = true;
@@ -283,36 +300,51 @@ public class WindowManager : MonoBehaviour, IVNHostOS
 
     public void RequestAutoSave()
     {
-        if (Time.unscaledTime < nextAutoSaveTime) return;
-        nextAutoSaveTime = Time.unscaledTime + autoSaveCooldown;
-        SaveOS();
+        _saveQueued = true;
+
+        if (_saveCo == null)
+            _saveCo = StartCoroutine(CoDebouncedSave());
     }
 
+    private IEnumerator CoDebouncedSave()
+    {
+        while (_saveQueued)
+        {
+            _saveQueued = false;
+
+            float now = Time.unscaledTime;
+            float wait = Mathf.Max(0f, _nextSaveAllowedTime - now);
+            if (wait > 0f) yield return new WaitForSecondsRealtime(wait);
+
+            _nextSaveAllowedTime = Time.unscaledTime + autoSaveDebounce;
+
+            // ✅ 여기서 딱 1번만 저장
+            SaveOS();
+        }
+
+        _saveCo = null;
+    }
 
     public void SaveOS()
     {
-        Debug.Log($"[OS SAVE] persistentDataPath={Application.persistentDataPath}");
-        var saveData = new OSSaveData();
+        var saveData = new PPP.OS.Save.OSSaveData();
 
-        // 1) windows/icons 먼저
         CollectWindows(saveData);
         CollectIcons(saveData);
 
-        // 2) ✅ subBlocks 채우기 (같은 saveData에!)
+        // ✅ 여기: "OSSaveData.subBlocks" 같은 정적 접근 금지
         saveData.subBlocks.Clear();
         foreach (var kv in subBlockJsonByKey)
         {
-            saveData.subBlocks.Add(new OSSubBlockData
+            saveData.subBlocks.Add(new PPP.OS.Save.OSSubBlockData
             {
                 key = kv.Key,
                 json = kv.Value ?? ""
             });
         }
 
-        OSSaveSystem.Save(saveData);
+        PPP.OS.Save.OSSaveSystem.Save(saveData);
         cachedSave = saveData;
-
-        Debug.Log($"[OS] SaveOS completed. subBlocks={saveData.subBlocks.Count}");
     }
 
 
