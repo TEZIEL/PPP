@@ -27,6 +27,7 @@ namespace PPP.BLUE.VN
         private bool lastMinimized;
         private int waitPointer = -1;   // 화면에 보여주고 '기다리는' 노드 인덱스
         private bool isWaiting;         // 지금 입력/선택 대기 상태인지
+        private List<VNNode> nodes = new List<VNNode>();
 
         private const string SAVE_KEY = "vn.state";
         private const string VN_STATE_KEY = "vn.state";
@@ -1563,6 +1564,26 @@ namespace PPP.BLUE.VN
                     arg = f.arg
                 });
             }
+        }
+
+
+        public void LoadScenario(string name)
+        {
+            string path = $"ScenarioJSON/{name}";
+
+            TextAsset json = Resources.Load<TextAsset>(path);
+
+            if (json == null)
+            {
+                Debug.LogError("Scenario not found: " + name);
+                return;
+            }
+
+            VNNodeList list = JsonUtility.FromJson<VNNodeList>(json.text);
+
+            nodes = list.nodes;
+
+            pointer = 0;
         }
 
         private VNScript BuildTestScript()
