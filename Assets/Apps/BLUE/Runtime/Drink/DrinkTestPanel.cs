@@ -47,6 +47,7 @@ namespace PPP.BLUE.VN
                 return;
             }
 
+            Debug.Log($"[DrinkPanel] Open requested order={orderId ?? ""}");
             runner?.StopAutoExternal("DrinkPanel Open:" + (orderId ?? string.Empty));
 
             // 혹시 남아있는 코루틴이 있으면 정리
@@ -81,6 +82,7 @@ namespace PPP.BLUE.VN
 
             if (root != null) root.SetActive(true);
             isOpen = true;
+            Debug.Log("[DrinkPanel] Opened");
 
             policy?.PushModal("DrinkPanel");
             policy?.EnterDrinkMode();
