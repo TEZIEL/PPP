@@ -36,7 +36,13 @@ namespace PPP.BLUE.VN
         private int lastStopIndex = 0; // 마지막으로 '멈춘' 노드(Say/Choice)의 인덱스
         private Dictionary<string, int> flags = new Dictionary<string, int>();
         private Dictionary<string, int> labels = new Dictionary<string, int>();
-        
+
+        private struct InlineCommand
+        {
+            public string name;
+            public string arg;
+            public int index;
+        }
 
         [System.Serializable]
         public class VNCallFrame
@@ -552,27 +558,29 @@ namespace PPP.BLUE.VN
 
         private void EmitSay(VNNode node)
         {
-            if (string.IsNullOrEmpty(node.text))
-                return;
-
             if (logToConsole)
-                Debug.Log($"[VN] {node.speakerId}: {node.text} (id={node.id})");
+                Debug.Log($"[VN] {node.speakerId}: {node.text}");
 
-            var tokens = VNInlineParser.Parse(node.text);
+            List<InlineCommand> cmds = ParseInlineCommands(node.text);
 
-            foreach (var t in tokens)
+            string clean = node.text;
+
+            foreach (var c in cmds)
             {
-                if (t.isCommand)
-                {
-                    ExecuteInlineCommand(t.name, t.arg);
-                }
-                else
-                {
-                    if (string.IsNullOrEmpty(t.text))
-                        continue;
+                string token = "[" + c.name + (c.arg != null ? " " + c.arg : "") + "]";
+                clean = clean.Replace(token, "");
+            }
 
-                    OnSay?.Invoke(node.speakerId, t.text, node.id);
-                }
+            OnSay?.Invoke(node.speakerId, clean, node.id);
+
+            StartCoroutine(RunInlineCommands(cmds));
+        }
+
+        private IEnumerator RunInlineCommands(List<InlineCommand> cmds)
+        {
+            foreach (var cmd in cmds)
+            {
+                yield return ExecuteInlineCommand(cmd);
             }
         }
 
@@ -1425,6 +1433,76 @@ namespace PPP.BLUE.VN
 
             if (logToConsole)
                 Debug.Log($"[VN] Return -> {pointer}");
+        }
+
+
+        private List<InlineCommand> ParseInlineCommands(string text)
+        {
+            List<InlineCommand> cmds = new List<InlineCommand>();
+
+            int i = 0;
+
+            while (i < text.Length)
+            {
+                if (text[i] == '[')
+                {
+                    int end = text.IndexOf(']', i);
+                    if (end > i)
+                    {
+                        string content = text.Substring(i + 1, end - i - 1);
+
+                        string[] parts = content.Split(' ');
+
+                        InlineCommand cmd = new InlineCommand
+                        {
+                            name = parts[0],
+                            arg = parts.Length > 1 ? parts[1] : null,
+                            index = i
+                        };
+
+                        cmds.Add(cmd);
+
+                        i = end + 1;
+                        continue;
+                    }
+                }
+
+                i++;
+            }
+
+            return cmds;
+        }
+
+        private IEnumerator ExecuteInlineCommand(InlineCommand cmd)
+        {
+            switch (cmd.name)
+            {
+                case "wait":
+
+                    if (float.TryParse(cmd.arg, out float t))
+                        yield return new WaitForSeconds(t);
+
+                    break;
+
+                case "sfx":
+
+                    Debug.Log("[VN] SFX " + cmd.arg);
+
+                    break;
+
+                case "speed":
+
+                    if (float.TryParse(cmd.arg, out float sp))
+                        typeSpeed = sp;
+
+                    break;
+
+                case "shake":
+
+                    Debug.Log("[VN] Shake");
+
+                    break;
+            }
         }
 
         private VNScript BuildTestScript()
