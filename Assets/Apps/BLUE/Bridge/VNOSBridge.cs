@@ -163,6 +163,12 @@ namespace PPP.BLUE.VN
         {
             Debug.Log($"[VNBridge] NotifyCloseRequested pending={closeRequestPending}");
             if (closeRequestPending) return;
+            if (policy != null && !policy.CanRequestClose())
+            {
+                Debug.Log("[VNBridge] Close request ignored (policy blocked).");
+                return;
+            }
+
             closeRequestPending = true;
 
             // ✅ Auto 즉시 중단

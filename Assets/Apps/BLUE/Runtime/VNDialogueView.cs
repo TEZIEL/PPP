@@ -34,10 +34,10 @@ namespace PPP.BLUE.VN
 
         private bool CanAcceptVNInput()
         {
-            // 1) 팝업/모달이면 입력 금지 (이미 위에서 막고 있지만 안전)
-            if (policy != null && policy.IsModalOpen) return false;
+            if (policy != null)
+                return policy.CanAcceptVNInput();
 
-            // 2) 브릿지가 있으면 “포커스/최소화”로 컷
+            // policy 미주입 시 보수적 폴백
             if (bridge != null)
             {
                 var st = bridge.GetWindowState();
@@ -113,8 +113,8 @@ namespace PPP.BLUE.VN
             if (runner == null) return;
             if (!runner.HasScript) return;
 
-            // ✅ 모달/드링크 중에는 진행 입력 금지
-            if (policy != null && (policy.IsModalOpen || policy.IsInDrinkMode))
+            // ✅ 상태 규칙표: 블로킹 모달(ClosePopup/Choice/Drink 등) 중에는 진행 입력 금지
+            if (policy != null && policy.IsBlockingModalState())
                 return;
 
             // ✅ 최소화 상태면 진행 입력 금지 (포커스는 "무시"한다)
