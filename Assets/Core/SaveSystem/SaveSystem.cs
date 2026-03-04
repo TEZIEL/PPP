@@ -10,27 +10,7 @@ public static class SaveSystem
         return Path.Combine(Application.persistentDataPath, FileName);
     }
 
-    public static void Save(SaveData data)
-    {
-        var json = JsonUtility.ToJson(data, true);
-        File.WriteAllText(GetPath(), json);
-        Debug.Log($"Saved to: {GetPath()}");
-    }
-
-    public static SaveData LoadOrCreate()
-    {
-        var path = GetPath();
-        if (!File.Exists(path))
-        {
-            var fresh = new SaveData();
-            Save(fresh);
-            return fresh;
-        }
-
-        var json = File.ReadAllText(path);
-        var loaded = JsonUtility.FromJson<SaveData>(json);
-        return loaded ?? new SaveData();
-    }
+   
 
 
 }
