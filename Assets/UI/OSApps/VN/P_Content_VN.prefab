@@ -1281,8 +1281,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   appId: VN
   hostBehaviour: {fileID: 0}
-  runner: {fileID: 0}
-  policy: {fileID: 0}
+  runner: {fileID: 5088717439015034517}
+  policy: {fileID: 5970636519023333258}
 --- !u!1 &3416875645459038597
 GameObject:
   m_ObjectHideFlags: 0

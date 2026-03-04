@@ -15,6 +15,7 @@ namespace PPP.BLUE.VN
         [SerializeField] private string startDayId = "day01";
         [SerializeField] private VNOSBridge bridge;
         public bool SaveAllowed { get; private set; }
+        [SerializeField] private float typeSpeed = 30f;
 
         [SerializeField] private VNRunner runner;
         private VNState state;
@@ -33,8 +34,36 @@ namespace PPP.BLUE.VN
         private const float AutoDelaySeconds = 0.35f;
         private int lastShownPointer = -1;
         private int lastStopIndex = 0; // 마지막으로 '멈춘' 노드(Say/Choice)의 인덱스
+        private Dictionary<string, int> flags = new Dictionary<string, int>();
+        private Dictionary<string, int> labels = new Dictionary<string, int>();
         
 
+        [System.Serializable]
+        public class VNCallFrame
+        {
+            public int returnPointer;
+            public string target;
+            public string arg;
+
+            
+        }
+
+        [System.Serializable]
+        public class VNRuntimeState
+        {
+            public int pointer;
+            public List<int> callStack = new List<int>();
+        }
+
+        public void DebugJump(string label)
+        {
+            DoJump(label);
+        }
+
+        public void SetFlag(string key, int value)
+        {
+            flags[key] = value;
+        }
 
         public void InjectBridge(VNOSBridge b)
         {
@@ -523,10 +552,28 @@ namespace PPP.BLUE.VN
 
         private void EmitSay(VNNode node)
         {
+            if (string.IsNullOrEmpty(node.text))
+                return;
+
             if (logToConsole)
                 Debug.Log($"[VN] {node.speakerId}: {node.text} (id={node.id})");
 
-            OnSay?.Invoke(node.speakerId, node.text, node.id);
+            var tokens = VNInlineParser.Parse(node.text);
+
+            foreach (var t in tokens)
+            {
+                if (t.isCommand)
+                {
+                    ExecuteInlineCommand(t.name, t.arg);
+                }
+                else
+                {
+                    if (string.IsNullOrEmpty(t.text))
+                        continue;
+
+                    OnSay?.Invoke(node.speakerId, t.text, node.id);
+                }
+            }
         }
 
         public void MarkSeen(string lineId)
@@ -705,12 +752,12 @@ namespace PPP.BLUE.VN
 
             st.pointer = savePointer;
 
-            st.callStack = new List<VNCallFrame>(callStack.Count);
+            st.callStack = new List<VNRunner.VNCallFrame>(callStack.Count);
             foreach (var frame in callStack)
             {
                 if (frame == null) continue;
 
-                st.callStack.Add(new VNCallFrame
+                st.callStack.Add(new VNRunner.VNCallFrame
                 {
                     returnPointer = frame.returnPointer,
                     target = frame.target,
@@ -851,7 +898,7 @@ namespace PPP.BLUE.VN
                     var frame = st.callStack[i];
                     if (frame == null) continue;
 
-                    var restored = new VNCallFrame
+                    var restored = new VNRunner.VNCallFrame
                     {
                         returnPointer = frame.returnPointer,
                         target = frame.target,
@@ -1217,7 +1264,7 @@ namespace PPP.BLUE.VN
                     var frame = st.callStack[i];
                     if (frame == null) continue;
 
-                    callStack.Push(new VNCallFrame
+                    callStack.Push(new VNRunner.VNCallFrame
                     {
                         returnPointer = frame.returnPointer,
                         target = frame.target,
@@ -1236,6 +1283,148 @@ namespace PPP.BLUE.VN
             }
 
             return true;
+        }
+
+        public VNRuntimeState CaptureState()
+        {
+            VNRuntimeState state = new VNRuntimeState();
+
+            state.pointer = pointer;
+
+            foreach (var f in callStack)
+                state.callStack.Add(f.returnPointer);
+
+            return state;
+        }
+
+        public void RestoreState(VNRuntimeState state)
+        {
+            pointer = state.pointer;
+
+            callStack.Clear();
+
+            foreach (var p in state.callStack)
+            {
+                callStack.Push(new VNRunner.VNCallFrame
+                {
+                    returnPointer = p
+                });
+            }
+
+            if (logToConsole)
+                Debug.Log($"[VN] Restore pointer={pointer} stack={callStack.Count}");
+        }
+
+
+        private void PushCall(string label, string arg = null)
+        {
+            var frame = new VNCallFrame
+            {
+                returnPointer = pointer + 1,
+                target = label,
+                arg = null
+            };
+
+            callStack.Push(frame);
+
+            if (logToConsole)
+                Debug.Log($"[VN] Call push -> {label} return={frame.returnPointer}");
+
+            pointer = labels[label];
+        }
+
+        private void PopReturn()
+        {
+            if (callStack.Count == 0)
+            {
+                Debug.LogError("[VN] Return but stack empty");
+                return;
+            }
+
+            var frame = callStack.Pop();
+
+            pointer = frame.returnPointer;
+
+            if (logToConsole)
+                Debug.Log($"[VN] Return -> {pointer}");
+        }
+
+
+
+        void ExecuteInlineCommand(string name, string arg)
+        {
+            switch (name)
+            {
+                case "wait":
+
+                    Debug.Log("[VN CMD] wait");
+                    StartCoroutine(WaitRoutine(0.5f));
+                    break;
+
+                case "speed":
+
+                    if (int.TryParse(arg, out int v))
+                    {
+                        typeSpeed = v;
+                        Debug.Log("[VN CMD] speed=" + v);
+                    }
+                    break;
+
+                case "sfx":
+
+                    Debug.Log("[VN CMD] sfx=" + arg);
+                    // TODO: AudioManager.Play(arg);
+                    break;
+
+                case "shake":
+
+                    Debug.Log("[VN CMD] shake");
+                    // TODO: CameraShake.Trigger();
+                    break;
+            }
+        }
+
+        System.Collections.IEnumerator WaitRoutine(float t)
+        {
+            yield return new WaitForSeconds(t);
+        }
+
+
+        private void DoCall(string label)
+        {
+            if (!labels.TryGetValue(label, out int target))
+            {
+                Debug.LogError($"[VN] Call label not found: {label}");
+                return;
+            }
+
+            VNCallFrame frame = new VNCallFrame
+            {
+                returnPointer = pointer + 1
+            };
+
+            callStack.Push(frame);
+
+            if (logToConsole)
+                Debug.Log($"[VN] Call -> {label} return={frame.returnPointer}");
+
+            pointer = target;
+        }
+
+        private void DoReturn()
+        {
+            if (callStack.Count == 0)
+            {
+                Debug.LogError("[VN] Return called but stack empty");
+                return;
+            }
+
+            var frame = callStack.Pop();
+
+            pointer = frame.returnPointer;
+
+            if (logToConsole)
+                Debug.Log($"[VN] Return -> {pointer}");
         }
 
         private VNScript BuildTestScript()

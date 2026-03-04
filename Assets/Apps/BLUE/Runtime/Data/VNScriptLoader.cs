@@ -68,13 +68,24 @@ namespace PPP.BLUE.VN
                         type = t,
                         speakerId = FirstNonEmpty(nodeDto.speakerId, nodeDto.speaker),
                         text = nodeDto.text ?? string.Empty,
-                        label = FirstNonEmpty(nodeDto.label, nodeDto.next),
+                        label = FirstNonEmpty(
+            nodeDto.arg,
+            FirstNonEmpty(
+                nodeDto.label,
+                FirstNonEmpty(
+                    nodeDto.next,
+                    nodeDto.arg1
+                )
+            )
+        ),
                         callTarget = FirstNonEmpty(nodeDto.target, nodeDto.arg2),
                         callArg = FirstNonEmpty(nodeDto.arg, nodeDto.arg1),
                         branches = ConvertBranches(nodeDto.branches),
                         choices = ConvertChoices(nodeDto.choices),
                     };
 
+                    Debug.Log("JSON PATH = " + path);
+                    Debug.Log($"DTO label={nodeDto.label} next={nodeDto.next} arg={nodeDto.arg} arg1={nodeDto.arg1}");
                     nodes.Add(node);
                 }
             }

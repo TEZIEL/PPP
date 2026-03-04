@@ -18,7 +18,7 @@ namespace PPP.BLUE.VN
         public int failCount;
         public string lastResult;
 
-        public List<VNCallFrame> callStack = new();
+        public List<VNRunner.VNCallFrame> callStack = new();
     }
 
     [Serializable]
