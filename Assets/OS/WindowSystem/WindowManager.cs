@@ -254,15 +254,6 @@ public class WindowManager : MonoBehaviour, IVNHostOS
     }
 
 
-    private bool TryGetSavedWindow(string appId, out OSWindowData wd)
-    {
-        wd = null;
-        if (cachedSave == null) return false;
-
-        wd = cachedSave.windows.Find(x => x.appId == appId);
-        return wd != null;
-    }
-
 
     private void InjectAllWindows()
     {
@@ -280,23 +271,13 @@ public class WindowManager : MonoBehaviour, IVNHostOS
             ic.Initialize(this, iconsRoot, desktopGridManager);
     }
 
-    public void ShowConfirmClose(string appId)
-    {
-        // TODO: 네 팝업 시스템 호출
-        Debug.Log($"[OS] Confirm close popup for {appId}");
-    }
-
+    
 
     private float nextAutoSaveTime;
     private const float autoSaveCooldown = 0.3f;
 
 
-    public void InternalRequestAutoSave()
-    {
-        RequestAutoSave(); // 네가 이미 가진 함수라면 이름 충돌 나니까
-        // 만약 동일 이름이면 내부용을 다른 이름으로 바꿔:
-        
-    }
+    
 
     public void RequestAutoSave()
     {
@@ -494,24 +475,6 @@ public class WindowManager : MonoBehaviour, IVNHostOS
         }
     }
 
-    private Vector2 ConvertToWindowsRootLocal(RectTransform from)
-    {
-        if (from == null) return Vector2.zero;
-
-        RectTransform parent = windowsRoot != null
-            ? windowsRoot
-            : (RectTransform)transform;
-
-        Vector2 screen = RectTransformUtility.WorldToScreenPoint(null, from.position);
-
-        RectTransformUtility.ScreenPointToLocalPointInRectangle(
-            parent,
-            screen,
-            null,
-            out var local);
-
-        return local;
-    }
 
 
     private void ApplyWindows(OSSaveData data)
@@ -629,11 +592,6 @@ public class WindowManager : MonoBehaviour, IVNHostOS
 
 
 
-    private VNOSBridge FindBridge(string appId)
-    {
-        if (!openWindows.TryGetValue(appId, out var wc) || wc == null) return null;
-        return wc.GetComponentInChildren<VNOSBridge>(true);
-    }
 
 
     public void Close(string appId)
@@ -773,25 +731,7 @@ public class WindowManager : MonoBehaviour, IVNHostOS
         return w.IsMinimized;
     }
 
-    public void MinimizeNoFocus(string appId)
-    {
-        if (!openWindows.TryGetValue(appId, out var target) || target == null)
-            return;
-
     
-        target.SetMinimized(true);
-        taskbarManager?.SetMinimized(appId, true);
-    }
-
-    public void RestoreNoFocus(string appId)
-    {
-        if (!openWindows.TryGetValue(appId, out var target) || target == null)
-            return;
-
-        target.SetMinimized(false);
-        taskbarManager?.SetMinimized(appId, false);
-    }
-
     public void OnWindowMoved(string appId, Vector2 anchoredPosition)
     {
         RequestAutoSave();
@@ -909,26 +849,6 @@ public class WindowManager : MonoBehaviour, IVNHostOS
 
 
 
-    private Vector2 GetTaskbarTargetInWindowsRoot(string appId, Vector2 fallback)
-    {
-        if (taskbarManager == null) return fallback;
-
-        var btnRect = taskbarManager.GetButtonRect(appId);
-        if (btnRect == null) return fallback;
-
-        // 버튼 월드 좌표 → windowsRoot 로컬 좌표 변환
-        Vector3 world = btnRect.TransformPoint(btnRect.rect.center);
-        Vector2 local;
-
-        RectTransformUtility.ScreenPointToLocalPointInRectangle(
-            windowsRoot,
-            RectTransformUtility.WorldToScreenPoint(null, world),
-            null,
-            out local
-        );
-
-        return local;
-    }
 
     private IEnumerator CoFinalizeSpawn(WindowController w)
     {
@@ -1032,25 +952,8 @@ public class WindowManager : MonoBehaviour, IVNHostOS
     }
 
 
-    private WindowController FindWindowByAppId(string appId)
-    {
-        // ✅ 너희가 이미 appId로 찾는 코드가 있을 거야:
-        // - Dictionary<string, WindowController> windowsByAppId
-        // - 열린 창 리스트에서 wc.AppId == appId 찾기
-        //
-        // 예시(리스트):
-        foreach (var wc in FindObjectsOfType<WindowController>(true))
-            if (wc != null && wc.AppId == appId) return wc;
+    
 
-        return null;
-    }
-
-    private bool IsWindowFocused(WindowController wc)
-    {
-        // ✅ 너희 포커스 시스템이 있으면 거기 사용
-        // 예: return focusedWindow == wc;
-        return true; // 포커스 무시하고 싶으면 true로 둬도 됨(단, minimized일 때는 위에서 false 처리됨)
-    }
 
     public void RequestClose(string appId)
     {
