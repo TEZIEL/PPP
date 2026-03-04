@@ -95,6 +95,8 @@ namespace PPP.BLUE.VN
         private readonly HashSet<string> seenLineIds = new();
         private readonly Stack<VNCallFrame> callStack = new();
         private VNCallFrame pendingCallResumeFrame;
+        private bool dispatchingRestoredCall;
+        public bool IsDispatchingRestoredCall => dispatchingRestoredCall;
         private VNSettings settings = VNSettings.Default();
 
         // VNRunner 메서드
@@ -773,7 +775,8 @@ namespace PPP.BLUE.VN
             if (logToConsole)
             {
                 var safe = st.settings ?? VNSettings.Default();
-                Debug.Log($"[VN] SaveState seen={st.seen?.Count ?? 0} auto={safe.auto} speed={safe.speed}");
+                var top = callStack.Count > 0 ? callStack.Peek() : null;
+                Debug.Log($"[VN] SaveState seen={st.seen?.Count ?? 0} auto={safe.auto} speed={safe.speed} pointer={st.pointer} callStack={callStack.Count} top={top?.target ?? "-"}/{top?.arg ?? "-"}");
             }
 
             bridge.SaveVN(VN_STATE_KEY, st);
@@ -939,7 +942,16 @@ namespace PPP.BLUE.VN
             if (logToConsole)
                 Debug.Log($"[VN] ResumePendingCall -> OnCall {frame.target} arg={frame.arg}");
 
+            if (string.Equals(frame.target, "Drink", StringComparison.OrdinalIgnoreCase))
+                Debug.Log($"[VN] Drink restore requested target={frame.target} arg={frame.arg}");
+
+            dispatchingRestoredCall = true;
             OnCall?.Invoke(frame.target ?? string.Empty, frame.arg ?? string.Empty);
+            dispatchingRestoredCall = false;
+
+            if (string.Equals(frame.target, "Drink", StringComparison.OrdinalIgnoreCase))
+                Debug.Log($"[VN] Drink restore opened target={frame.target} arg={frame.arg}");
+
             return true;
         }
 
@@ -1130,7 +1142,8 @@ namespace PPP.BLUE.VN
             if (logToConsole)
             {
                 var safe = st.settings ?? VNSettings.Default();
-                Debug.Log($"[VN] SaveState seen={st.seen?.Count ?? 0} auto={safe.auto} speed={safe.speed}");
+                var top = callStack.Count > 0 ? callStack.Peek() : null;
+                Debug.Log($"[VN] SaveState seen={st.seen?.Count ?? 0} auto={safe.auto} speed={safe.speed} pointer={st.pointer} callStack={callStack.Count} top={top?.target ?? "-"}/{top?.arg ?? "-"}");
             }
 
             bridge.SaveVN(key, st);
@@ -1144,8 +1157,11 @@ namespace PPP.BLUE.VN
             if (!SaveAllowed) return false;
             if (policy == null) return true;
 
-            // 데모 안전 정책: Choice/Drink/ClosePopup 같은 블로킹 모달 상태에서는 저장 금지
-            return !policy.IsBlockingModalState();
+            // Call(Drink) 저장/로드 복원 목표: Choice/ClosePopup은 막고 Drink는 허용
+            if (policy.IsChoiceWaiting) return false;
+            if (policy.IsClosePopupOpen) return false;
+
+            return true;
         }
 
         private bool LoadStateFromKey(string key)

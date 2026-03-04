@@ -103,6 +103,10 @@ namespace PPP.BLUE.VN
             if (!string.Equals(callTarget, "Drink", System.StringComparison.OrdinalIgnoreCase))
                 return;
 
+            bool fromRestore = runner != null && runner.IsDispatchingRestoredCall;
+            if (fromRestore)
+                Debug.Log($"[VN] Drink restore requested target={callTarget} arg={callArg}");
+
             drinkTestPanel?.Open(callArg);
         }
 
