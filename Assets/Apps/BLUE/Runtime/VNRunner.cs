@@ -485,6 +485,10 @@ namespace PPP.BLUE.VN
                                 return;
                             }
 
+                        case VNNodeType.Return:
+                            ReturnFromCall(node.callArg ?? string.Empty);
+                            return;
+
                         case VNNodeType.End:
                             Finish();
                             return;

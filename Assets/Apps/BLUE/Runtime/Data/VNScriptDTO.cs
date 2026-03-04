@@ -15,8 +15,13 @@ namespace PPP.BLUE.VN
         public string id;
         public string type;
         public string speakerId;
+        public string speaker;
         public string text;
         public string label;
+        public string target;
+        public string arg;
+        public string cond;
+        public string next;
         public string arg1;
         public string arg2;
         public VNBranchRuleDTO[] branches;
@@ -28,7 +33,9 @@ namespace PPP.BLUE.VN
     {
         public string choiceText;
         public string expr;
+        public string cond;
         public string jumpLabel;
+        public string next;
     }
 
     [Serializable]
@@ -36,5 +43,6 @@ namespace PPP.BLUE.VN
     {
         public string choiceText;
         public string jumpLabel;
+        public string next;
     }
 }

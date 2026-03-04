@@ -1,26 +1,20 @@
-id,type,speakerId,text,label,jumpLabel,arg1,arg2
+id,type,speaker,text,target,arg,label,cond,next
 lb.start,Label,,,,start,,
-t.001,Say,sys,CSV Import 테스트 시작.,,,,
-t.002,Say,sys,Call(Drink) -> Return -> Branch 테스트.,,,,
-
-t.call,Call,,,,,order001,Drink
-
-t.br,Branch,,,,route_great,lastDrink==1,Great
-t.br,Branch,,,,route_success,lastDrink==2,Success
-t.br,Branch,,,,route_fail,else,Fail
-
+t.001,Say,sys,CSV Import 테스트 시작.,,,,,
+t.002,Say,sys,Call(Drink) -> Return -> Branch 테스트.,,,,,
+t.call,Call,,,Drink,order001,,,
+t.br,Branch,,Great,,,,lastDrink==1,route_great
+t.br,Branch,,Success,,,,lastDrink==2,route_success
+t.br,Branch,,Fail,,,,else,route_fail
 lb.great,Label,,,,route_great,,
-t.g1,Say,sys,GREAT 루트.,,,,
-t.jg,Jump,,,,end,,
-
+t.g1,Say,sys,GREAT 루트.,,,,,
+t.jg,Jump,,,,,,,end
 lb.success,Label,,,,route_success,,
-t.s1,Say,sys,SUCCESS 루트.,,,,
-t.js,Jump,,,,end,,
-
+t.s1,Say,sys,SUCCESS 루트.,,,,,
+t.js,Jump,,,,,,,end
 lb.fail,Label,,,,route_fail,,
-t.f1,Say,sys,FAIL 루트.,,,,
-t.jf,Jump,,,,end,,
-
+t.f1,Say,sys,FAIL 루트.,,,,,
+t.jf,Jump,,,,,,,end
 lb.end,Label,,,,end,,
-t.end,Say,sys,day01 끝.,,,,
-end,End,,,,,,
+t.end,Say,sys,day01 끝.,,,,,
+end,End,,,,,,,,

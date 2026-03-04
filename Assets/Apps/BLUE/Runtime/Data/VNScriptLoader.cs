@@ -66,11 +66,11 @@ namespace PPP.BLUE.VN
                     {
                         id = nodeDto.id,
                         type = t,
-                        speakerId = nodeDto.speakerId ?? string.Empty,
+                        speakerId = FirstNonEmpty(nodeDto.speakerId, nodeDto.speaker),
                         text = nodeDto.text ?? string.Empty,
-                        label = nodeDto.label ?? string.Empty,
-                        callTarget = nodeDto.arg2 ?? string.Empty,
-                        callArg = nodeDto.arg1 ?? string.Empty,
+                        label = FirstNonEmpty(nodeDto.label, nodeDto.next),
+                        callTarget = FirstNonEmpty(nodeDto.target, nodeDto.arg2),
+                        callArg = FirstNonEmpty(nodeDto.arg, nodeDto.arg1),
                         branches = ConvertBranches(nodeDto.branches),
                         choices = ConvertChoices(nodeDto.choices),
                     };
@@ -83,6 +83,12 @@ namespace PPP.BLUE.VN
             var script = new VNScript(scriptId, nodes);
             Debug.Log($"[VN] Loaded scriptId={script.ScriptId} nodes={script.nodes.Count} labels={script.LabelCount}");
             return script;
+        }
+
+        private static string FirstNonEmpty(string primary, string fallback)
+        {
+            if (!string.IsNullOrWhiteSpace(primary)) return primary;
+            return fallback ?? string.Empty;
         }
 
         private static VNNode.BranchRule[] ConvertBranches(VNBranchRuleDTO[] branchDtos)
@@ -103,8 +109,8 @@ namespace PPP.BLUE.VN
 
                 branches[i] = new VNNode.BranchRule
                 {
-                    expr = branchDto.expr ?? string.Empty,
-                    jumpLabel = branchDto.jumpLabel ?? string.Empty,
+                    expr = FirstNonEmpty(branchDto.expr, branchDto.cond),
+                    jumpLabel = FirstNonEmpty(branchDto.jumpLabel, branchDto.next),
                     choiceText = branchDto.choiceText ?? string.Empty,
                 };
             }
@@ -131,7 +137,7 @@ namespace PPP.BLUE.VN
                 choices[i] = new VNNode.ChoiceOption
                 {
                     choiceText = choiceDto.choiceText ?? string.Empty,
-                    jumpLabel = choiceDto.jumpLabel ?? string.Empty,
+                    jumpLabel = FirstNonEmpty(choiceDto.jumpLabel, choiceDto.next),
                 };
             }
 

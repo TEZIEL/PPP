@@ -7,6 +7,7 @@ namespace PPP.BLUE.VN
         Label,
         Jump,
         Call,
+        Return,
         Branch,
         End,
     }
