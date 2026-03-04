@@ -559,22 +559,17 @@ namespace PPP.BLUE.VN
 
         private void EmitSay(VNNode node)
         {
+            var commands = ParseInlineCommands(node.text);
+
+            string cleanText = RemoveInlineCommands(node.text);
+
             if (logToConsole)
-                Debug.Log($"[VN] {node.speakerId}: {node.text}");
+                Debug.Log($"[VN] {node.speakerId}: {cleanText} (id={node.id})");
 
-            List<InlineCommand> cmds = ParseInlineCommands(node.text);
+            OnSay?.Invoke(node.speakerId, cleanText, node.id);
 
-            string clean = node.text;
-
-            foreach (var c in cmds)
-            {
-                string token = "[" + c.name + (c.arg != null ? " " + c.arg : "") + "]";
-                clean = clean.Replace(token, "");
-            }
-
-            OnSay?.Invoke(node.speakerId, clean, node.id);
-
-            StartCoroutine(RunInlineCommands(cmds));
+            foreach (var cmd in commands)
+                ExecuteInline(cmd);
         }
 
         private IEnumerator RunInlineCommands(List<InlineCommand> cmds)
@@ -1358,7 +1353,40 @@ namespace PPP.BLUE.VN
                 Debug.Log($"[VN] Return -> {pointer}");
         }
 
+        private void ExecuteInline(InlineCommand cmd)
+        {
+            switch (cmd.name)
+            {
+                case "wait":
 
+                    float t = 1f;
+
+                    if (cmd.arg != null)
+                        float.TryParse(cmd.arg, out t);
+
+                    StartCoroutine(WaitCommand(t));
+                    break;
+
+                case "speed":
+
+                    if (cmd.arg != null)
+                        float.TryParse(cmd.arg, out typeSpeed);
+
+                    break;
+
+                case "shake":
+
+                    Debug.Log("[VN] shake");
+
+                    break;
+
+                case "sfx":
+
+                    Debug.Log("[VN] sfx " + cmd.arg);
+
+                    break;
+            }
+        }
 
         void ExecuteInlineCommand(string name, string arg)
         {
@@ -1584,6 +1612,65 @@ namespace PPP.BLUE.VN
             nodes = list.nodes;
 
             pointer = 0;
+        }
+
+
+        
+        private void ExecuteInlineCommand(string cmd)
+        {
+            string[] parts = cmd.Split(' ');
+
+            string name = parts[0];
+
+            switch (name)
+            {
+                case "wait":
+                    {
+                        float t = 1f;
+
+                        if (parts.Length > 1)
+                            float.TryParse(parts[1], out t);
+
+                        StartCoroutine(WaitCommand(t));
+                        break;
+                    }
+
+                case "speed":
+                    {
+                        float s = 1f;
+
+                        if (parts.Length > 1)
+                            float.TryParse(parts[1], out s);
+
+                        typeSpeed = s;
+                        break;
+                    }
+
+                case "shake":
+                    {
+                        Debug.Log("[VN] shake command");
+                        break;
+                    }
+
+                case "sfx":
+                    {
+                        if (parts.Length > 1)
+                            Debug.Log("[VN] play sfx: " + parts[1]);
+                        break;
+                    }
+            }
+        }
+
+        private string RemoveInlineCommands(string text)
+        {
+            return System.Text.RegularExpressions.Regex.Replace(text, @"\[(.*?)\]", "");
+        }
+
+
+
+        private IEnumerator WaitCommand(float t)
+        {
+            yield return new WaitForSeconds(t);
         }
 
         private VNScript BuildTestScript()
