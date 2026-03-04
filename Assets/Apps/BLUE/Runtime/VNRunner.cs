@@ -1504,6 +1504,66 @@ namespace PPP.BLUE.VN
                     break;
             }
         }
+        public VNState ExportState()
+        {
+            VNState state = new VNState();
+
+            state.pointer = pointer;
+
+            // vars
+            state.vars.Clear();
+            foreach (var v in vars)
+            {
+                state.vars.Add(new VNIntVar
+                {
+                    key = v.Key,
+                    value = v.Value
+                });
+            }
+
+            // callstack
+            state.callStack.Clear();
+
+            foreach (var f in callStack)
+            {
+                state.callStack.Add(new VNRunner.VNCallFrame
+                {
+                    returnPointer = f.returnPointer,
+                    target = f.target,
+                    arg = f.arg
+                });
+            }
+
+            return state;
+        }
+
+
+        public void ImportState(VNState state)
+        {
+            if (state == null)
+                return;
+
+            pointer = state.pointer;
+
+            vars.Clear();
+
+            foreach (var v in state.vars)
+            {
+                vars[v.key] = v.value;
+            }
+
+            callStack.Clear();
+
+            foreach (var f in state.callStack)
+            {
+                callStack.Push(new VNRunner.VNCallFrame
+                {
+                    returnPointer = f.returnPointer,
+                    target = f.target,
+                    arg = f.arg
+                });
+            }
+        }
 
         private VNScript BuildTestScript()
         {

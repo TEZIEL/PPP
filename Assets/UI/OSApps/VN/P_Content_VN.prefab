@@ -744,6 +744,7 @@ MonoBehaviour:
   loadFromJsonOnStart: 1
   startDayId: day01
   bridge: {fileID: 8020622904635775800}
+  typeSpeed: 30
   runner: {fileID: 5088717439015034517}
   policy: {fileID: 5970636519023333258}
 --- !u!114 &2321816555586790909
@@ -1628,8 +1629,9 @@ GameObject:
   - component: {fileID: 6390739676074971978}
   - component: {fileID: 3270428569287385773}
   - component: {fileID: 4475488971317439487}
+  - component: {fileID: 381202695397277000}
   m_Layer: 0
-  m_Name: GameObject
+  m_Name: VNSaveManager
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -1692,6 +1694,19 @@ MonoBehaviour:
   m_FillOrigin: 0
   m_UseSpriteMesh: 0
   m_PixelsPerUnitMultiplier: 1
+--- !u!114 &381202695397277000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4214419901880762138}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 2d96e099f475d8b4ab394c6b68fa9809, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  vnRunner: {fileID: 5088717439015034517}
 --- !u!1 &4854630341823462367
 GameObject:
   m_ObjectHideFlags: 0

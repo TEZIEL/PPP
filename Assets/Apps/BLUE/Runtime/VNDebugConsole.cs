@@ -9,6 +9,7 @@ public class VNDebugConsole : MonoBehaviour
     [SerializeField] TMP_Text logText;
     [SerializeField] TMP_Text hudText;
     [SerializeField] VNRunner runner;
+    [SerializeField] private VNSaveManager saveManager;
 
     Dictionary<string, string> vars = new Dictionary<string, string>();
 
@@ -17,6 +18,7 @@ public class VNDebugConsole : MonoBehaviour
     List<string> dump = new List<string>();
     List<string> labels = new List<string>();
     HashSet<string> watchVars = new HashSet<string>();
+   
 
     string breakpointNode = null;
 
@@ -261,6 +263,39 @@ public class VNDebugConsole : MonoBehaviour
 
                 break;
 
+
+
+            case "save":
+
+                if (saveManager != null)
+                {
+                    saveManager.SaveGame();
+                    Print("Game Saved");
+                }
+                else
+                {
+                    Print("SaveManager missing");
+                }
+
+                break;
+
+
+            case "load":
+
+                if (saveManager != null)
+                {
+                    saveManager.LoadGame();
+                    Print("Game Loaded");
+                }
+                else
+                {
+                    Print("SaveManager missing");
+                }
+
+                break;
+
+
+
             case "help":
 
                 Print("Commands:");
@@ -279,6 +314,8 @@ public class VNDebugConsole : MonoBehaviour
                 Print("labels");
                 Print("clear");
                 Print("reset");
+                Print("save");
+                Print("load");
 
                 break;
 
