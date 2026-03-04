@@ -99,6 +99,16 @@ public class TaskbarButtonController : MonoBehaviour
         if (windowManager == null) return;
         if (targetWindow == null) return;
 
+        // ✅ 대상이 이미 비활성/파괴 중이면 클릭 무시
+        if (!targetWindow.gameObject.activeInHierarchy) return;
+
+        // ✅ 창 애니 중이면 무시 (동시성/레이스 방지)
+        if (targetWindow.IsAnimating) return;
+
+        // ✅ 태스크바가 변형 중이면 무시 (Remove/Reflow 중 클릭 방지)
+        var tb = GetComponentInParent<TaskbarManager>();
+        if (tb != null && tb.IsMutating) return;
+
         string id = !string.IsNullOrEmpty(targetWindow.AppId) ? targetWindow.AppId : appId;
         if (string.IsNullOrEmpty(id)) return;
 
