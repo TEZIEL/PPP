@@ -3,12 +3,6 @@ using System.Collections.Generic;
 
 namespace PPP.BLUE.VN
 {
-    public enum VNSkipMode
-    {
-        Off,
-        SeenOnly
-    }
-
     [Serializable]
     public sealed class VNState
     {
@@ -38,8 +32,6 @@ namespace PPP.BLUE.VN
     public sealed class VNSettings
     {
         public bool auto;
-        public bool skip;
-        public VNSkipMode skipMode;
         public float speed;
 
         public static VNSettings Default()
@@ -47,8 +39,6 @@ namespace PPP.BLUE.VN
             return new VNSettings
             {
                 auto = false,
-                skip = false,
-                skipMode = VNSkipMode.Off,
                 speed = 1f,
             };
         }

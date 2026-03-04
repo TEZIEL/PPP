@@ -161,15 +161,20 @@ namespace PPP.BLUE.VN
         // ✅ OS가 호출하는 함수
         public void NotifyCloseRequested()
         {
+            Debug.Log($"[VNBridge] NotifyCloseRequested pending={closeRequestPending}");
             if (closeRequestPending) return;
+            if (policy != null && !policy.CanRequestClose())
+            {
+                Debug.Log("[VNBridge] Close request ignored (policy blocked).");
+                return;
+            }
+
             closeRequestPending = true;
 
             // ✅ Auto 즉시 중단
             runner?.StopAutoExternal("CloseRequested");
 
-            // ✅ 모달 ON (진행/스페이스/오토 차단)
-            policy?.SetModalOpen(true);
-
+            // ClosePopup 모달 카운트는 VNClosePopupController.Show/Hide에서만 관리
             OnCloseRequested?.Invoke();
         }
 

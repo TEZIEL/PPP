@@ -216,7 +216,7 @@ namespace PPP.BLUE.VN
             // ----------------------------
             // 1) Policy 기반 Auto suspend/resume (modal/drink/minimized)
             // ----------------------------
-            bool blocked = (policy != null) && (policy.IsModalOpen || policy.IsInDrinkMode || nowMin);
+            bool blocked = IsBlockingModalState(nowMin);
 
             // 막힘이 "켜지는 순간" -> Auto 일시정지
             if (blocked && !lastBlocked)
@@ -246,26 +246,9 @@ namespace PPP.BLUE.VN
             // ----------------------------
             // 2) Hotkeys: blocked 중에는 무시
             // ----------------------------
-            if (Input.GetKeyDown(KeyCode.F1))
-            {
-                if (blocked)
-                {
-                    if (logToConsole) Debug.Log("[VN] Skip toggle ignored (blocked).");
-                }
-                else
-                {
-                    settings.skipMode =
-                        settings.skipMode == VNSkipMode.Off
-                            ? VNSkipMode.SeenOnly
-                            : VNSkipMode.Off;
-
-                    Debug.Log($"[VN] SkipMode={settings.skipMode}");
-                }
-            }
-
             if (Input.GetKeyDown(KeyCode.F2))
             {
-                if (blocked)
+                if (!CanToggleAuto())
                 {
                     if (logToConsole) Debug.Log("[VN] Auto toggle ignored (blocked).");
                 }
@@ -419,15 +402,6 @@ namespace PPP.BLUE.VN
                     switch (node.type)
                     {
                         case VNNodeType.Say:
-                            if (settings.skipMode == VNSkipMode.SeenOnly
-                                && !string.IsNullOrEmpty(node.id)
-                                && seenLineIds.Contains(node.id))
-                            {
-                                Debug.Log($"[VN] Skip: {node.id}");
-                                pointer++;
-                                continue;
-                            }
-
                             waitPointer = pointer;
                             isWaiting = true;
                             lastShownPointer = pointer;
@@ -745,8 +719,6 @@ namespace PPP.BLUE.VN
             st.settings = new VNSettings
             {
                 auto = settings.auto,
-                
-                skipMode = settings.skipMode,
                 speed = settings.speed
             };
 
@@ -793,7 +765,7 @@ namespace PPP.BLUE.VN
         private void SaveState(bool ignoreSaveAllowed)
         {
             SaveStateToKey(VN_STATE_KEY, ignoreSaveAllowed);
-            if (!ignoreSaveAllowed && !SaveAllowed) return;
+            if (!ignoreSaveAllowed && !CanPersistState()) return;
             if (bridge == null || script == null) return;
 
             var st = BuildState(); // CaptureState/BuildState 중 하나로 통일 추천
@@ -801,7 +773,7 @@ namespace PPP.BLUE.VN
             if (logToConsole)
             {
                 var safe = st.settings ?? VNSettings.Default();
-                Debug.Log($"[VN] SaveState seen={st.seen?.Count ?? 0} auto={safe.auto} skipMode={safe.skipMode} speed={safe.speed}");
+                Debug.Log($"[VN] SaveState seen={st.seen?.Count ?? 0} auto={safe.auto} speed={safe.speed}");
             }
 
             bridge.SaveVN(VN_STATE_KEY, st);
@@ -890,7 +862,7 @@ namespace PPP.BLUE.VN
             if (logToConsole)
             {
                 Debug.Log($"[VN] LoadState pointer={pointer} callStack={callStack.Count} target={pendingCallResumeFrame?.target ?? "-"} arg={pendingCallResumeFrame?.arg ?? "-"}");
-                Debug.Log($"[VN] LoadState seen={seenLineIds.Count} auto={settings.auto} skipMode={settings.skipMode} speed={settings.speed}");
+                Debug.Log($"[VN] LoadState seen={seenLineIds.Count} auto={settings.auto} speed={settings.speed}");
             }
 
             return true;
@@ -1041,14 +1013,23 @@ namespace PPP.BLUE.VN
         private bool CanAutoAdvance()
         {
             if (!settings.auto) return false;
-            if (!SaveAllowed) return false;
             if (!started) return false;
             if (policy == null) return false;
-            if (policy.IsModalOpen) return false;
-            if (policy.IsInDrinkMode) return false;
-            var ws = policy.GetWindowState(); // bridge 통해 받아옴
-            if (ws.IsMinimized) return false;
-            return true;
+
+            return policy.CanAutoAdvance(SaveAllowed);
+        }
+
+        private bool CanToggleAuto()
+        {
+            if (policy == null) return false;
+            return policy.CanToggleAuto();
+        }
+
+        private bool IsBlockingModalState(bool nowMin)
+        {
+            if (policy == null) return nowMin;
+            if (nowMin) return true;
+            return policy.IsBlockingModalState();
         }
 
         public void StopAutoExternal(string reason)
@@ -1141,7 +1122,7 @@ namespace PPP.BLUE.VN
 
         private void SaveStateToKey(string key, bool ignoreSaveAllowed)
         {
-            if (!ignoreSaveAllowed && !SaveAllowed) return;
+            if (!ignoreSaveAllowed && !CanPersistState()) return;
             if (bridge == null || script == null) return;
 
             var st = BuildState();
@@ -1149,13 +1130,22 @@ namespace PPP.BLUE.VN
             if (logToConsole)
             {
                 var safe = st.settings ?? VNSettings.Default();
-                Debug.Log($"[VN] SaveState seen={st.seen?.Count ?? 0} auto={safe.auto} skipMode={safe.skipMode} speed={safe.speed}");
+                Debug.Log($"[VN] SaveState seen={st.seen?.Count ?? 0} auto={safe.auto} speed={safe.speed}");
             }
 
             bridge.SaveVN(key, st);
 
             if (logToConsole)
                 Debug.Log($"[VN] SaveState -> key={key} scriptId={st.scriptId} pointer={st.pointer} vars={st.vars?.Count ?? 0}");
+        }
+
+        private bool CanPersistState()
+        {
+            if (!SaveAllowed) return false;
+            if (policy == null) return true;
+
+            // 데모 안전 정책: Choice/Drink/ClosePopup 같은 블로킹 모달 상태에서는 저장 금지
+            return !policy.IsBlockingModalState();
         }
 
         private bool LoadStateFromKey(string key)
