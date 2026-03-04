@@ -473,7 +473,7 @@ public class WindowController : MonoBehaviour,
             closeButton.onClick.AddListener(() =>
             {
                 if (!CanAcceptCommand()) return;   // ✅ 추가
-                owner?.Close(appId);
+                owner?.RequestClose(appId);
             });
 
         if (minimizeButton != null)
