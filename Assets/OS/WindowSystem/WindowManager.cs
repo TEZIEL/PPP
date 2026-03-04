@@ -706,23 +706,7 @@ public class WindowManager : MonoBehaviour, IVNHostOS
         PerformClose(window, appId);
     }
 
-    private void CloseInternal(string appId, WindowController window)
-    {
-        // window가 이미 Destroy 되었을 수도 있으니 가드(안전)
-        if (window == null) return;
-
-        window.PlayClose(() =>
-        {
-            taskbarManager?.Remove(appId);
-            openWindows.Remove(appId);
-
-            if (!suppressAutoFocus)
-                FocusNextTopWindow(excludedAppId: null);
-
-            Destroy(window.gameObject);
-            RequestAutoSave();
-        });
-    }
+    
 
     private void PerformClose(WindowController window, string appId)
     {
