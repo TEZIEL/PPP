@@ -126,17 +126,6 @@ namespace PPP.BLUE.VN
             return true;
         }
 
-        public bool CanToggleSkip()
-        {
-            if (IsBlockingModalState()) return false;
-
-            var st = GetWindowState();
-            if (st.IsMinimized) return false;
-            if (!st.IsFocused) return false;
-
-            return true;
-        }
-
         public bool CanToggleAuto()
         {
             if (IsBlockingModalState()) return false;

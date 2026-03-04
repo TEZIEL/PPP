@@ -246,23 +246,6 @@ namespace PPP.BLUE.VN
             // ----------------------------
             // 2) Hotkeys: blocked 중에는 무시
             // ----------------------------
-            if (Input.GetKeyDown(KeyCode.F1))
-            {
-                if (!CanToggleSkip())
-                {
-                    if (logToConsole) Debug.Log("[VN] Skip toggle ignored (blocked).");
-                }
-                else
-                {
-                    settings.skipMode =
-                        settings.skipMode == VNSkipMode.Off
-                            ? VNSkipMode.SeenOnly
-                            : VNSkipMode.Off;
-
-                    Debug.Log($"[VN] SkipMode={settings.skipMode}");
-                }
-            }
-
             if (Input.GetKeyDown(KeyCode.F2))
             {
                 if (!CanToggleAuto())
@@ -419,15 +402,6 @@ namespace PPP.BLUE.VN
                     switch (node.type)
                     {
                         case VNNodeType.Say:
-                            if (settings.skipMode == VNSkipMode.SeenOnly
-                                && !string.IsNullOrEmpty(node.id)
-                                && seenLineIds.Contains(node.id))
-                            {
-                                Debug.Log($"[VN] Skip: {node.id}");
-                                pointer++;
-                                continue;
-                            }
-
                             waitPointer = pointer;
                             isWaiting = true;
                             lastShownPointer = pointer;
@@ -745,8 +719,6 @@ namespace PPP.BLUE.VN
             st.settings = new VNSettings
             {
                 auto = settings.auto,
-                
-                skipMode = settings.skipMode,
                 speed = settings.speed
             };
 
@@ -801,7 +773,7 @@ namespace PPP.BLUE.VN
             if (logToConsole)
             {
                 var safe = st.settings ?? VNSettings.Default();
-                Debug.Log($"[VN] SaveState seen={st.seen?.Count ?? 0} auto={safe.auto} skipMode={safe.skipMode} speed={safe.speed}");
+                Debug.Log($"[VN] SaveState seen={st.seen?.Count ?? 0} auto={safe.auto} speed={safe.speed}");
             }
 
             bridge.SaveVN(VN_STATE_KEY, st);
@@ -890,7 +862,7 @@ namespace PPP.BLUE.VN
             if (logToConsole)
             {
                 Debug.Log($"[VN] LoadState pointer={pointer} callStack={callStack.Count} target={pendingCallResumeFrame?.target ?? "-"} arg={pendingCallResumeFrame?.arg ?? "-"}");
-                Debug.Log($"[VN] LoadState seen={seenLineIds.Count} auto={settings.auto} skipMode={settings.skipMode} speed={settings.speed}");
+                Debug.Log($"[VN] LoadState seen={seenLineIds.Count} auto={settings.auto} speed={settings.speed}");
             }
 
             return true;
@@ -1047,12 +1019,6 @@ namespace PPP.BLUE.VN
             return policy.CanAutoAdvance(SaveAllowed);
         }
 
-        private bool CanToggleSkip()
-        {
-            if (policy == null) return false;
-            return policy.CanToggleSkip();
-        }
-
         private bool CanToggleAuto()
         {
             if (policy == null) return false;
@@ -1164,7 +1130,7 @@ namespace PPP.BLUE.VN
             if (logToConsole)
             {
                 var safe = st.settings ?? VNSettings.Default();
-                Debug.Log($"[VN] SaveState seen={st.seen?.Count ?? 0} auto={safe.auto} skipMode={safe.skipMode} speed={safe.speed}");
+                Debug.Log($"[VN] SaveState seen={st.seen?.Count ?? 0} auto={safe.auto} speed={safe.speed}");
             }
 
             bridge.SaveVN(key, st);
