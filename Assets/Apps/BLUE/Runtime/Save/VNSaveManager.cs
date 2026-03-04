@@ -11,7 +11,7 @@ namespace PPP.BLUE.VN
 
         void Awake()
         {
-            savePath = Application.persistentDataPath + "/vn_save.json";
+            savePath = Path.Combine(Application.persistentDataPath, "save.json");
         }
 
         public void SaveGame()
@@ -22,20 +22,23 @@ namespace PPP.BLUE.VN
                 return;
             }
 
+            VNState state = vnRunner.ExportState();
+
             VNSaveBlock block = new VNSaveBlock();
-            block.state = vnRunner.ExportState();
+            block.state = state;
 
             string json = JsonUtility.ToJson(block, true);
+
             File.WriteAllText(savePath, json);
 
-            Debug.Log("VN Save complete");
+            Debug.Log("[VN] Game Saved");
         }
 
         public void LoadGame()
         {
             if (!File.Exists(savePath))
             {
-                Debug.Log("Save not found");
+                Debug.LogWarning("[VN] Save file not found");
                 return;
             }
 
@@ -45,7 +48,7 @@ namespace PPP.BLUE.VN
 
             vnRunner.ImportState(block.state);
 
-            Debug.Log("VN Load complete");
+            Debug.Log("[VN] Game Loaded");
         }
     }
 }

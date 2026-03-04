@@ -3,11 +3,8 @@ using System;
 namespace PPP.BLUE.VN
 {
     [Serializable]
-    public sealed class VNSaveBlock
+    public class VNSaveBlock
     {
         public VNState state;
     }
-
-
-    
-    }
+}

@@ -43,26 +43,28 @@ public class VNCSVImporter : AssetPostprocessor
         {
             if (string.IsNullOrWhiteSpace(lines[i])) continue;
 
-            string[] col = lines[i].Split(',');
+            List<string> col = ParseCSVLine(lines[i]);
 
             VNNode node = new VNNode();
 
-            node.id = col.Length > 0 ? col[0] : "";
+            node.id = col.Count > 0 ? col[0].Trim() : "";
 
-            if (col.Length > 1)
+            if (col.Count > 1)
             {
-                if (System.Enum.TryParse(col[1], true, out VNNodeType t))
+                if (System.Enum.TryParse(col[1].Trim(), true, out VNNodeType t))
                     node.type = t;
                 else
                     node.type = VNNodeType.Say;
             }
 
-            node.speakerId = col.Length > 2 ? col[2] : "";
-            node.text = col.Length > 3 ? col[3] : "";
-            node.label = col.Length > 4 ? col[4] : "";
+            node.speakerId = col.Count > 2 ? col[2].Trim() : "";
+            node.text = col.Count > 3 ? col[3].Trim() : "";
+            node.label = col.Count > 4 ? col[4].Trim() : "";
 
             nodes.Add(node);
         }
+
+
 
         VNNodeList list = new VNNodeList();
         list.nodes = nodes;
@@ -78,4 +80,38 @@ public class VNCSVImporter : AssetPostprocessor
 
         Debug.Log($"[VN] CSV ¡æ JSON generated: {jsonPath}");
     }
+
+
+    static List<string> ParseCSVLine(string line)
+    {
+        List<string> result = new List<string>();
+
+        bool inQuotes = false;
+        string current = "";
+
+        for (int i = 0; i < line.Length; i++)
+        {
+            char c = line[i];
+
+            if (c == '"')
+            {
+                inQuotes = !inQuotes;
+                continue;
+            }
+
+            if (c == ',' && !inQuotes)
+            {
+                result.Add(current);
+                current = "";
+                continue;
+            }
+
+            current += c;
+        }
+
+        result.Add(current);
+
+        return result;
+    }
+
 }

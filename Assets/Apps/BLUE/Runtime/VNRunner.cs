@@ -38,6 +38,11 @@ namespace PPP.BLUE.VN
         private Dictionary<string, int> flags = new Dictionary<string, int>();
         private Dictionary<string, int> labels = new Dictionary<string, int>();
 
+        public System.Action<string> OnEnterDrink;
+        public bool skipMode = false;
+        private string lastDrinkResult = "";
+
+
         private struct InlineCommand
         {
             public string name;
@@ -227,6 +232,12 @@ namespace PPP.BLUE.VN
 
         private void Update()
         {
+
+            if (skipMode)
+            {
+                SkipStep();
+            }
+
             if (!HasScript) return;
 
             // ----------------------------
@@ -280,6 +291,8 @@ namespace PPP.BLUE.VN
             }
 
             lastBlocked = blocked;
+
+
 
             // ----------------------------
             // 2) Hotkeys: blocked 중에는 무시
@@ -487,7 +500,7 @@ namespace PPP.BLUE.VN
                             }
                             else
                             {
-                                DoBranch(node);   // 기존 자동 분기
+                                DoBranch(node.label);   // 기존 자동 분기
                                 continue;
                             }
 
@@ -525,10 +538,14 @@ namespace PPP.BLUE.VN
                             ReturnFromCall(node.callArg ?? string.Empty);
                             return;
 
+                        
+
                         case VNNodeType.End:
                             Finish();
                             return;
 
+
+                        
                         default:
                             Debug.LogWarning($"[VNRunner] Unknown node type: {node.type}");
                             pointer++;
@@ -559,6 +576,13 @@ namespace PPP.BLUE.VN
 
         private void EmitSay(VNNode node)
         {
+
+            if (skipMode)
+            {
+                pointer++;
+                return;
+            }
+
             var commands = ParseInlineCommands(node.text);
 
             string cleanText = RemoveInlineCommands(node.text);
@@ -674,31 +698,27 @@ namespace PPP.BLUE.VN
             return true;
         }
 
-        private void DoBranch(VNNode node)
+        private void DoBranch(string condition)
         {
-            if (node.branches == null || node.branches.Length == 0)
+            string[] parts = condition.Split(':');
+
+            if (parts.Length < 2)
             {
-                Debug.LogWarning("[VNRunner] Branch has no rules. Skip.");
                 pointer++;
                 return;
             }
 
-            foreach (var r in node.branches)
-            {
-                if (r == null) continue;
+            string expected = parts[0];
+            string target = parts[1];
 
-                if (string.Equals(r.expr, "else", StringComparison.OrdinalIgnoreCase) || EvaluateExpr(r.expr))
-                {
-                    if (!string.IsNullOrEmpty(r.jumpLabel))
-                    {
-                        Debug.Log($"[VN] Branch -> {r.jumpLabel} (expr={r.expr})");
-                        DoJump(r.jumpLabel);
-                        return;
-                    }
-                }
+            if (lastDrinkResult == expected)
+            {
+                DoJump(target);
             }
-                        // 아무 조건도 못 맞추면 그냥 다음
-            pointer++;
+            else
+            {
+                pointer++;
+            }
         }
 
 
@@ -1429,6 +1449,12 @@ namespace PPP.BLUE.VN
 
         private void DoCall(string label)
         {
+            if (label.StartsWith("drink"))
+            {
+                EnterDrinkMode(label);
+                return;
+            }
+
             if (!labels.TryGetValue(label, out int target))
             {
                 Debug.LogError($"[VN] Call label not found: {label}");
@@ -1447,6 +1473,19 @@ namespace PPP.BLUE.VN
 
             pointer = target;
         }
+
+
+        public void ReturnFromDrink(string result)
+        {
+            if (logToConsole)
+                Debug.Log("[VN] Drink Result: " + result);
+
+            lastResult = result;
+
+            DoReturn();
+        }
+
+
 
         private void DoReturn()
         {
@@ -1615,7 +1654,15 @@ namespace PPP.BLUE.VN
         }
 
 
-        
+
+        private void EnterDrinkMode(string label)
+        {
+            if (logToConsole)
+                Debug.Log("[VN] Enter Drink Mode: " + label);
+
+            OnEnterDrink?.Invoke(label);
+        }
+
         private void ExecuteInlineCommand(string cmd)
         {
             string[] parts = cmd.Split(' ');
@@ -1672,6 +1719,75 @@ namespace PPP.BLUE.VN
         {
             yield return new WaitForSeconds(t);
         }
+
+        public void OnDrinkGreat()
+        {
+            runner.ReturnFromDrink("great");
+        }
+
+        public void OnDrinkSuccess()
+        {
+            runner.ReturnFromDrink("success");
+        }
+
+        public void OnDrinkFail()
+        {
+            runner.ReturnFromDrink("fail");
+        }
+
+
+        public void OnSkipButton()
+        {
+            runner.ToggleSkip();
+        }
+
+        public void ToggleSkip()
+        {
+            skipMode = !skipMode;
+
+            if (logToConsole)
+                Debug.Log("[VN] SkipMode: " + skipMode);
+        }
+
+        private void SkipStep()
+        {
+            if (pointer >= nodes.Count)
+                return;
+
+            VNNode node = nodes[pointer];
+
+            switch (node.type)
+            {
+                case VNNodeType.Say:
+
+                    pointer++;
+                    break;
+
+                case VNNodeType.Jump:
+
+                    DoJump(node.label);
+                    break;
+
+                case VNNodeType.Call:
+
+                    DoCall(node.label);
+                    break;
+
+                case VNNodeType.Return:
+
+                    DoReturn();
+                    break;
+
+                default:
+
+                    pointer++;
+                    break;
+            }
+        }
+
+        
+
+        
 
         private VNScript BuildTestScript()
         {
