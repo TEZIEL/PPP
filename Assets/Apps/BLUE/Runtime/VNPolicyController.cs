@@ -78,6 +78,7 @@ namespace PPP.BLUE.VN
 
         public void SetModalOpen(bool on)
         {
+            Debug.Log($"[VNPolicy] SetModalOpen({on})");
             if (on) PushModal("SetModalOpen(true)");
             else PopModal("SetModalOpen(false)");
         }
