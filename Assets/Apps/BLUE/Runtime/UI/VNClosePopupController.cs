@@ -37,8 +37,10 @@ namespace PPP.BLUE.VN
             btnExit?.onClick.AddListener(ForceExit);
 
             if (bridge != null)
+            {
                 bridge.OnCloseRequested -= Show; // 중복 방지
                 bridge.OnCloseRequested += Show;
+            }
         }
 
         private void OnDestroy()
@@ -49,8 +51,13 @@ namespace PPP.BLUE.VN
 
         public void Show()
         {
+            Debug.Log($"[VNClosePopup] Show requested isShowing={isShowing}");
             if (popupRoot == null) return;
-            if (isShowing) return;
+            if (isShowing)
+            {
+                Debug.Log("[VNClosePopup] Show ignored (already showing)");
+                return;
+            }
 
             isShowing = true;
 
@@ -59,6 +66,7 @@ namespace PPP.BLUE.VN
 
             popupRoot.SetActive(true);
 
+            Debug.Log("[VNClosePopup] PushModal reason=ClosePopup");
             policy?.PushModal("ClosePopup");
 
             // 🔥 Close 입력 잠금
@@ -69,12 +77,18 @@ namespace PPP.BLUE.VN
 
         public void Hide()
         {
+            Debug.Log($"[VNClosePopup] Hide requested isShowing={isShowing}");
             if (popupRoot == null) return;
-            if (!isShowing) return;
+            if (!isShowing)
+            {
+                Debug.Log("[VNClosePopup] Hide ignored (already hidden)");
+                return;
+            }
 
             isShowing = false;
             popupRoot.SetActive(false);
 
+            Debug.Log("[VNClosePopup] PopModal reason=ClosePopup");
             policy?.PopModal("ClosePopup");
 
             bridge?.ClearCloseRequestPending();
