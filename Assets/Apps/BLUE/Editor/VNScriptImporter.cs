@@ -63,14 +63,15 @@ namespace PPP.BLUE.VN.Editor
                 if (raw.StartsWith("#")) continue;
 
                 var row = ParseCsvLine(lines[i]);
-                string id = GetValue(row, map, "id");
-                string type = GetValue(row, map, "type");
-                string speakerId = GetValue(row, map, "speakerId");
-                string text = GetValue(row, map, "text");
-                string label = GetValue(row, map, "label");
-                string jumpLabel = GetValue(row, map, "jumpLabel");
-                string arg1 = GetValue(row, map, "arg1");
-                string arg2 = GetValue(row, map, "arg2");
+                string id = GetValueAny(row, map, "id");
+                string type = GetValueAny(row, map, "type");
+                string speaker = GetValueAny(row, map, "speaker", "speakerId");
+                string text = GetValueAny(row, map, "text");
+                string label = GetValueAny(row, map, "label");
+                string target = GetValueAny(row, map, "target", "arg2");
+                string arg = GetValueAny(row, map, "arg", "arg1");
+                string cond = GetValueAny(row, map, "cond", "arg1");
+                string next = GetValueAny(row, map, "next", "jumpLabel");
 
 
                 if (string.IsNullOrWhiteSpace(type))
@@ -93,9 +94,11 @@ namespace PPP.BLUE.VN.Editor
 
                     branchRules.Add(new VNBranchRuleDTO
                     {
-                        expr = arg1 ?? string.Empty,
-                        jumpLabel = jumpLabel ?? string.Empty,
-                        choiceText = arg2 ?? string.Empty,
+                        expr = cond ?? string.Empty,
+                        cond = cond ?? string.Empty,
+                        jumpLabel = next ?? string.Empty,
+                        next = next ?? string.Empty,
+                        choiceText = text ?? string.Empty,
                     });
 
                     continue;
@@ -116,7 +119,17 @@ namespace PPP.BLUE.VN.Editor
                       };
                    }
 
-                    // ✅ A안: Choice 줄에서는 옵션 추가하지 않는다
+                    // 최소 스키마(Choice 행 자체에 text/next를 두는 형태)도 허용
+                    if (!string.IsNullOrEmpty(text) || !string.IsNullOrEmpty(next))
+                    {
+                        choiceOptions.Add(new VNChoiceOptionDTO
+                        {
+                            choiceText = !string.IsNullOrEmpty(text) ? text : arg,
+                            jumpLabel = next ?? string.Empty,
+                            next = next ?? string.Empty,
+                        });
+                    }
+
                      continue;
                 }
                 
@@ -131,12 +144,13 @@ namespace PPP.BLUE.VN.Editor
     // A안 규칙:
     // - arg1 = 표시 텍스트 (너 지금 JSON에서도 arg1에 들어오고 있음)
     // - jumpLabel 컬럼 = 점프 라벨
-    var ct = !string.IsNullOrEmpty(arg1) ? arg1 : text;
+    var ct = !string.IsNullOrEmpty(arg) ? arg : text;
 
     choiceOptions.Add(new VNChoiceOptionDTO
     {
         choiceText = ct ?? string.Empty,
-        jumpLabel = jumpLabel ?? string.Empty,
+        jumpLabel = next ?? string.Empty,
+        next = next ?? string.Empty,
     });
 
     // ✅ nodes.Add(...) 절대 하지 말고 누적만 하고 끝
@@ -153,11 +167,16 @@ namespace PPP.BLUE.VN.Editor
                 {
                     id = id,
                     type = NormalizeType(normalizedType),
-                    speakerId = speakerId,
+                    speakerId = speaker,
+                    speaker = speaker,
                     text = text,
-                    label = ResolveLabel(normalizedType, label, jumpLabel),
-                    arg1 = arg1,
-                    arg2 = arg2,
+                    label = ResolveLabel(normalizedType, label, next),
+                    target = target,
+                    arg = arg,
+                    cond = cond,
+                    next = next,
+                    arg1 = arg,
+                    arg2 = target,
                 };
 
                 nodes.Add(node);
@@ -202,6 +221,9 @@ namespace PPP.BLUE.VN.Editor
                     return t.ToString();
                 }
             }
+
+            if (string.Equals(type, "ChoiceOption", StringComparison.OrdinalIgnoreCase))
+                return "ChoiceOption";
 
             return type;
         }
@@ -249,7 +271,7 @@ namespace PPP.BLUE.VN.Editor
 
         private static void ValidateRequiredColumns(Dictionary<string, int> map, string csvPath)
         {
-            string[] required = { "id", "type", "speakerId", "text", "label", "jumpLabel", "arg1", "arg2" };
+            string[] required = { "id", "type" };
             foreach (var col in required)
             {
                 if (!map.ContainsKey(col))
@@ -257,6 +279,19 @@ namespace PPP.BLUE.VN.Editor
                     throw new InvalidOperationException($"[VNScriptImporter] Missing required column '{col}' in {csvPath}");
                 }
             }
+        }
+
+        private static string GetValueAny(List<string> row, Dictionary<string, int> map, params string[] columns)
+        {
+            if (columns == null) return string.Empty;
+
+            for (int i = 0; i < columns.Length; i++)
+            {
+                var v = GetValue(row, map, columns[i]);
+                if (!string.IsNullOrEmpty(v)) return v;
+            }
+
+            return string.Empty;
         }
 
         private static string GetValue(List<string> row, Dictionary<string, int> map, string column)

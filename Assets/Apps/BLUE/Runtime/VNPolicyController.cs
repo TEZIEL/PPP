@@ -1,4 +1,5 @@
 ﻿using UnityEngine;
+using System.Collections.Generic;
 
 namespace PPP.BLUE.VN
 {
@@ -7,6 +8,8 @@ namespace PPP.BLUE.VN
         [Header("Refs")]
         [SerializeField] private VNOSBridge bridge;
 
+        private readonly Dictionary<string, int> modalReasonCounts = new();
+
         public VNWindowState GetWindowState()
             => bridge != null ? bridge.GetWindowState() : new VNWindowState(false, true);
 
@@ -14,6 +17,10 @@ namespace PPP.BLUE.VN
 
         private int modalCount;
         public bool IsModalOpen => modalCount > 0;
+
+        public bool IsClosePopupOpen => IsModalReasonOpen("ClosePopup");
+        public bool IsChoiceWaiting => IsModalReasonOpen("ChoicePanel");
+        public bool IsDrinkPanelOpen => IsModalReasonOpen("DrinkPanel") || IsInDrinkMode;
 
         // ✅ 정책: “닫기 차단”은 여기서 계산한다
         // 드링크 중에만 막고 싶으면 IsInDrinkMode만
@@ -63,6 +70,7 @@ namespace PPP.BLUE.VN
         public void PushModal(string reason)
         {
             modalCount++;
+            ChangeReasonCount(reason, +1);
             Debug.Log($"[VNPolicy] Modal++ ({reason}) count={modalCount}");
             // (선택) 모달도 닫기 차단에 포함시키는 정책이면 여기서 Sync
             // SyncBlockClose("PushModal");
@@ -71,6 +79,7 @@ namespace PPP.BLUE.VN
         public void PopModal(string reason)
         {
             modalCount = Mathf.Max(0, modalCount - 1);
+            ChangeReasonCount(reason, -1);
             Debug.Log($"[VNPolicy] Modal-- ({reason}) count={modalCount}");
             // (선택) 모달도 닫기 차단에 포함시키는 정책이면 여기서 Sync
             // SyncBlockClose("PopModal");
@@ -78,8 +87,74 @@ namespace PPP.BLUE.VN
 
         public void SetModalOpen(bool on)
         {
+            Debug.Log($"[VNPolicy] SetModalOpen({on})");
             if (on) PushModal("SetModalOpen(true)");
             else PopModal("SetModalOpen(false)");
+        }
+
+        public bool IsModalReasonOpen(string reason)
+        {
+            if (string.IsNullOrEmpty(reason)) return false;
+            return modalReasonCounts.TryGetValue(reason, out var c) && c > 0;
+        }
+
+        public bool IsBlockingModalState()
+        {
+            return IsClosePopupOpen || IsChoiceWaiting || IsDrinkPanelOpen || IsModalOpen;
+        }
+
+        public bool CanAcceptVNInput()
+        {
+            if (IsBlockingModalState()) return false;
+
+            var st = GetWindowState();
+            if (st.IsMinimized) return false;
+            if (!st.IsFocused) return false;
+
+            return true;
+        }
+
+        public bool CanAutoAdvance(bool saveAllowed)
+        {
+            if (!saveAllowed) return false;
+            if (IsBlockingModalState()) return false;
+
+            var st = GetWindowState();
+            if (st.IsMinimized) return false;
+            if (!st.IsFocused) return false;
+
+            return true;
+        }
+
+        public bool CanToggleAuto()
+        {
+            if (IsBlockingModalState()) return false;
+
+            var st = GetWindowState();
+            if (st.IsMinimized) return false;
+            if (!st.IsFocused) return false;
+
+            return true;
+        }
+
+        public bool CanRequestClose()
+        {
+            if (IsClosePopupOpen) return false;
+            if (IsDrinkPanelOpen) return false;
+            if (IsChoiceWaiting) return false;
+
+            return true;
+        }
+
+        private void ChangeReasonCount(string reason, int delta)
+        {
+            if (string.IsNullOrEmpty(reason) || delta == 0) return;
+
+            modalReasonCounts.TryGetValue(reason, out var current);
+            var next = Mathf.Max(0, current + delta);
+
+            if (next == 0) modalReasonCounts.Remove(reason);
+            else modalReasonCounts[reason] = next;
         }
     }
 }

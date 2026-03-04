@@ -1,0 +1,13 @@
+{
+  "scriptId": "day01.minimal.sample",
+  "nodes": [
+    { "id": "s.001", "type": "Say", "speaker": "sys", "text": "hello" },
+    { "id": "c.001", "type": "Call", "target": "Drink", "arg": "order001" },
+    { "id": "r.001", "type": "Return", "arg": "success" },
+    { "id": "b.001", "type": "Branch", "branches": [
+      { "choiceText": "Great", "cond": "lastDrink==1", "next": "route_great" },
+      { "choiceText": "Else", "cond": "else", "next": "route_else" }
+    ]},
+    { "id": "e.001", "type": "End" }
+  ]
+}
