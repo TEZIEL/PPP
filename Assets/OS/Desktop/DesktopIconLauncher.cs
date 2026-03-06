@@ -17,8 +17,6 @@ public class DesktopIconLauncher : MonoBehaviour, IPointerClickHandler
 
     [Header("Selection Visual (Optional)")]
     [SerializeField] private GameObject selectedVisual;
-    [SerializeField] private Image selectedVisualImage;
-    [SerializeField] private Color32 selectedColor = new Color32(128, 128, 184, 255);
 
     [Header("Double Click")]
     [SerializeField] private float doubleClickThreshold = 0.28f;
@@ -38,12 +36,6 @@ public class DesktopIconLauncher : MonoBehaviour, IPointerClickHandler
         if (iconLabel != null && appDef != null)
             iconLabel.text = appDef.DisplayName;
 
-        if (selectedVisualImage == null && selectedVisual != null)
-            selectedVisualImage = selectedVisual.GetComponent<Image>();
-
-        if (selectedVisualImage != null)
-            selectedVisualImage.color = selectedColor;
-
         if (selectedVisual != null)
             selectedVisual.SetActive(false);
     }
@@ -52,12 +44,6 @@ public class DesktopIconLauncher : MonoBehaviour, IPointerClickHandler
     {
         if (activeSelection == this)
             activeSelection = null;
-
-        if (selectedVisualImage == null && selectedVisual != null)
-            selectedVisualImage = selectedVisual.GetComponent<Image>();
-
-        if (selectedVisualImage != null)
-            selectedVisualImage.color = selectedColor;
 
         if (selectedVisual != null)
             selectedVisual.SetActive(false);
@@ -113,9 +99,6 @@ public class DesktopIconLauncher : MonoBehaviour, IPointerClickHandler
 
     private void SetSelectionVisual(bool selected)
     {
-        if (selectedVisualImage != null)
-            selectedVisualImage.color = selectedColor;
-
         if (selectedVisual == null) return;
         selectedVisual.SetActive(selected);
     }
