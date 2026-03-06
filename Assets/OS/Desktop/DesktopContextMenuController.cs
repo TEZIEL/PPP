@@ -66,6 +66,8 @@ public class DesktopContextMenuController : MonoBehaviour, IPointerClickHandler
         menuRoot.SetActive(true);
         menuRoot.transform.SetAsLastSibling();
 
+        view?.ResetTextVisualState();
+
 
         // ✅ pivot = 좌상단 (커서가 좌상단 꼭지점)
         menuPanelRect.pivot = new Vector2(0f, 1f);
@@ -110,6 +112,7 @@ public class DesktopContextMenuController : MonoBehaviour, IPointerClickHandler
 
     public void Hide()
     {
+        view?.ResetTextVisualState();
         if (menuRoot != null) menuRoot.SetActive(false);
     }
 
