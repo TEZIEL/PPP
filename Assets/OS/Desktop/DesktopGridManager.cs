@@ -203,13 +203,26 @@ public class DesktopGridManager : MonoBehaviour
         // 안정성: id 기준
         System.Array.Sort(icons, (a, b) => string.CompareOrdinal(a.GetId(), b.GetId()));
 
-        int count = Mathf.Min(icons.Length, slots.Count);
         Rect allowed = DesktopBounds.GetAllowedRect(iconsRoot);
+        int slotIndex = 0;
 
-        for (int i = 0; i < count; i++)
+        for (int i = 0; i < icons.Length; i++)
         {
-            RectTransform r = icons[i].GetRect();
-            r.anchoredPosition = DesktopBounds.ClampAnchoredPosition(slots[i], r, allowed);
+            var icon = icons[i];
+            if (icon == null) continue;
+            if (icon == optionIcon) continue;
+            if (slotIndex >= slots.Count) break;
+
+            RectTransform r = icon.GetRect();
+            r.anchoredPosition = DesktopBounds.ClampAnchoredPosition(slots[slotIndex], r, allowed);
+            slotIndex++;
+        }
+
+        if (optionIcon != null)
+        {
+            var optionRect = optionIcon.GetRect();
+            if (optionRect != null)
+                optionRect.anchoredPosition = DesktopBounds.ClampAnchoredPosition(optionInitialPosition, optionRect, allowed);
         }
 
         windowManager?.SaveOS();
