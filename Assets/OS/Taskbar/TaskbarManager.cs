@@ -21,7 +21,7 @@ public class TaskbarManager : MonoBehaviour
         if (buttonRoot == null) buttonRoot = (RectTransform)transform;
     }
 
-    public void Add(string appId, string displayName, WindowController window)
+    public void Add(string appId, string displayName, WindowController window, Sprite appIcon = null)
     {
         if (_isMutating) return;
         if (string.IsNullOrEmpty(appId)) return;
@@ -34,7 +34,7 @@ public class TaskbarManager : MonoBehaviour
         Transform root = buttonRoot != null ? buttonRoot : transform;
         var button = Instantiate(buttonPrefab, root);
 
-        button.Initialize(appId, displayName, windowManager, window);
+        button.Initialize(appId, displayName, windowManager, window, appIcon);
 
         buttons.Add(appId, button);
         SetState(appId, isActive: false, isMinimized: false);
