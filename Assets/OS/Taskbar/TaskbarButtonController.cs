@@ -15,8 +15,9 @@ public class TaskbarButtonController : MonoBehaviour
     [SerializeField] private Sprite recessedSprite;
     [SerializeField] private Sprite raisedSprite;
 
-    [Header("Label (Optional)")]
+    [Header("Label / Icon (Optional)")]
     [SerializeField] private TMPro.TMP_Text titleText; // 있으면 표시이름 표시
+    [SerializeField] private Image appIconImage; // 있으면 앱 아이콘 표시
 
     [Header("Debug/Identity")]
     [SerializeField] private string appId;
@@ -77,13 +78,21 @@ public class TaskbarButtonController : MonoBehaviour
     }
 
     // ✅ TaskbarManager.Add에서 호출 (표시이름까지 주입)
-    public void Initialize(string id, string displayName, WindowManager manager, WindowController window)
+    public void Initialize(string id, string displayName, WindowManager manager, WindowController window, Sprite appIcon = null)
     {
         appId = id;
         windowManager = manager;
         targetWindow = window;
 
         if (titleText != null) titleText.text = displayName;
+        SetAppIcon(appIcon);
+    }
+
+    public void SetAppIcon(Sprite icon)
+    {
+        if (appIconImage == null) return;
+        appIconImage.sprite = icon;
+        appIconImage.enabled = icon != null;
     }
 
     public void SetMinimizedVisual(bool minimized)
