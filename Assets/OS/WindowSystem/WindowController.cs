@@ -13,6 +13,7 @@ public class WindowController : MonoBehaviour,
 
     [Header("Title UI")]
     [SerializeField] private TMP_Text titleText; // ✅ 인스펙터에 타이틀바 TMP 연결
+    [SerializeField] private Image titleIconImage; // (옵션) 앱별 타이틀 아이콘
 
     [Header("Window Parts")]
     [SerializeField] private RectTransform windowRoot;
@@ -116,7 +117,7 @@ public class WindowController : MonoBehaviour,
         return !IsAnimating;
     }
 
-    public void Initialize(WindowManager wm, string id, RectTransform rootCanvas, string displayName)
+    public void Initialize(WindowManager wm, string id, RectTransform rootCanvas, string displayName, Sprite appIcon = null)
     {
         owner = wm;
         appId = id;
@@ -125,6 +126,15 @@ public class WindowController : MonoBehaviour,
         // ✅ 표시이름 주입
         if (titleText != null)
             titleText.text = displayName;
+
+        SetTitleIcon(appIcon);
+    }
+
+    public void SetTitleIcon(Sprite icon)
+    {
+        if (titleIconImage == null) return;
+        titleIconImage.sprite = icon;
+        titleIconImage.enabled = icon != null;
     }
 
     // (기존 Initialize 시그니처를 쓰는 곳이 많으면 오버로드로 유지)
