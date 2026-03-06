@@ -99,7 +99,9 @@ public class WindowManager : MonoBehaviour, IVNHostOS
             def.WindowPrefab,
             def.ContentPrefab,
             def.DefaultPos,
-            def.DefaultSize
+            def.DefaultSize,
+            def.WindowIconSprite,
+            def.TaskbarIconSprite
         );
     }
 
@@ -111,7 +113,9 @@ public class WindowManager : MonoBehaviour, IVNHostOS
     WindowController windowPrefab,
     GameObject contentPrefab,
     Vector2 defaultPos,
-    Vector2 defaultSize)
+    Vector2 defaultSize,
+    Sprite windowIcon = null,
+    Sprite taskbarIcon = null)
     {
         if (string.IsNullOrWhiteSpace(appId) || windowPrefab == null) return;
         if (openWindows.ContainsKey(appId)) return;
@@ -119,7 +123,7 @@ public class WindowManager : MonoBehaviour, IVNHostOS
         Transform parent = windowsRoot != null ? windowsRoot : transform;
         var spawned = Instantiate(windowPrefab, parent);
 
-        spawned.Initialize(this, appId, canvasRect, displayName);
+        spawned.Initialize(this, appId, canvasRect, displayName, windowIcon);
         spawned.InjectManager(this);
 
         // cachedSave가 비어있을 수 있으니 "필요 시 로드"
@@ -147,7 +151,7 @@ public class WindowManager : MonoBehaviour, IVNHostOS
         AttachContent(spawned, contentPrefab);
 
         openWindows.Add(appId, spawned);
-        taskbarManager?.Add(appId, displayName, spawned);
+        taskbarManager?.Add(appId, displayName, spawned, taskbarIcon);
         windowDefaults[appId] = new WindowDefault { pos = defaultPos, size = defaultSize };
 
         Focus(appId);

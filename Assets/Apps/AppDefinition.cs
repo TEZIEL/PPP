@@ -18,6 +18,10 @@ public class AppDefinition : ScriptableObject
     [Header("Desktop Icon")]
     [SerializeField] private Sprite iconSprite;
 
+    [Header("Window / Taskbar Icon (Optional)")]
+    [SerializeField] private Sprite windowIconSprite;
+    [SerializeField] private Sprite taskbarIconSprite;
+
     // ✅ 외부는 무조건 프로퍼티로 접근
     public string AppId => appId;
     public string DisplayName => displayName;
@@ -29,4 +33,8 @@ public class AppDefinition : ScriptableObject
     public Vector2 DefaultSize => defaultSize;
 
     public Sprite IconSprite => iconSprite;
+
+    // 개별 슬롯이 비어있으면 Desktop Icon을 공용 fallback으로 사용
+    public Sprite WindowIconSprite => windowIconSprite != null ? windowIconSprite : iconSprite;
+    public Sprite TaskbarIconSprite => taskbarIconSprite != null ? taskbarIconSprite : iconSprite;
 }
