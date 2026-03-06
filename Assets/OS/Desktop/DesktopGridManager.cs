@@ -17,6 +17,25 @@ public class DesktopGridManager : MonoBehaviour
     [SerializeField] private DesktopLayoutMode layoutMode = DesktopLayoutMode.Free;
     public DesktopLayoutMode LayoutMode => layoutMode;
 
+
+    [Header("Option Icon Initial Position")]
+    [SerializeField] private DesktopIconDraggable optionIcon;
+    [SerializeField] private Vector2 optionInitialPosition = new Vector2(864f, -282f);
+    [SerializeField] private bool applyOptionInitialPositionOnStart = true;
+
+
+
+    private void Start()
+    {
+        if (!applyOptionInitialPositionOnStart) return;
+        if (optionIcon == null) return;
+
+        var rect = optionIcon.GetRect();
+        if (rect == null) return;
+
+        rect.anchoredPosition = optionInitialPosition;
+    }
+
     public void ToggleLayoutMode()
     {
         layoutMode = (layoutMode == DesktopLayoutMode.Free) ? DesktopLayoutMode.Grid : DesktopLayoutMode.Free;
@@ -184,13 +203,26 @@ public class DesktopGridManager : MonoBehaviour
         // 안정성: id 기준
         System.Array.Sort(icons, (a, b) => string.CompareOrdinal(a.GetId(), b.GetId()));
 
-        int count = Mathf.Min(icons.Length, slots.Count);
         Rect allowed = DesktopBounds.GetAllowedRect(iconsRoot);
+        int slotIndex = 0;
 
-        for (int i = 0; i < count; i++)
+        for (int i = 0; i < icons.Length; i++)
         {
-            RectTransform r = icons[i].GetRect();
-            r.anchoredPosition = DesktopBounds.ClampAnchoredPosition(slots[i], r, allowed);
+            var icon = icons[i];
+            if (icon == null) continue;
+            if (icon == optionIcon) continue;
+            if (slotIndex >= slots.Count) break;
+
+            RectTransform r = icon.GetRect();
+            r.anchoredPosition = DesktopBounds.ClampAnchoredPosition(slots[slotIndex], r, allowed);
+            slotIndex++;
+        }
+
+        if (optionIcon != null)
+        {
+            var optionRect = optionIcon.GetRect();
+            if (optionRect != null)
+                optionRect.anchoredPosition = DesktopBounds.ClampAnchoredPosition(optionInitialPosition, optionRect, allowed);
         }
 
         windowManager?.SaveOS();
