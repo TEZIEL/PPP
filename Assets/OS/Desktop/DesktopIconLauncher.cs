@@ -1,4 +1,5 @@
-﻿using UnityEngine;
+﻿using System.Collections.Generic;
+using UnityEngine;
 using UnityEngine.EventSystems;
 using TMPro;
 
@@ -13,12 +14,17 @@ public class DesktopIconLauncher : MonoBehaviour, IPointerClickHandler
     [Header("Optional Label")]
     [SerializeField] private TMP_Text iconLabel;
 
+    [Header("Selection Visual (Optional)")]
+    [SerializeField] private GameObject selectedVisual;
+
     [Header("Double Click")]
     [SerializeField] private float doubleClickThreshold = 0.28f;
     [SerializeField] private float dragClickIgnoreSeconds = 0.15f;
 
     [Header("Cooldown")]
     [SerializeField] private float clickCooldownSeconds = 0.15f;
+
+    private static DesktopIconLauncher activeSelection;
 
     private float lastClickTime = -999f;
     private float nextAllowedTime = 0f;
@@ -28,6 +34,72 @@ public class DesktopIconLauncher : MonoBehaviour, IPointerClickHandler
         // 아이콘 라벨 자동 주입
         if (iconLabel != null && appDef != null)
             iconLabel.text = appDef.DisplayName;
+
+        if (selectedVisual != null)
+            selectedVisual.SetActive(false);
+    }
+
+    private void OnDisable()
+    {
+        if (activeSelection == this)
+            activeSelection = null;
+
+        if (selectedVisual != null)
+            selectedVisual.SetActive(false);
+    }
+
+    private void Update()
+    {
+        if (activeSelection == null) return;
+        if (!Input.GetMouseButtonDown(0)) return;
+
+        if (IsPointerOverAnyDesktopIcon()) return;
+
+        SetActiveSelection(null);
+    }
+
+    private static bool IsPointerOverAnyDesktopIcon()
+    {
+        var es = EventSystem.current;
+        if (es == null) return false;
+
+        var pointerData = new PointerEventData(es) { position = Input.mousePosition };
+        var results = new List<RaycastResult>(16);
+        es.RaycastAll(pointerData, results);
+
+        for (int i = 0; i < results.Count; i++)
+        {
+            var go = results[i].gameObject;
+            if (go == null) continue;
+
+            if (go.GetComponentInParent<DesktopIconLauncher>() != null)
+                return true;
+        }
+
+        return false;
+    }
+
+    private static void SetActiveSelection(DesktopIconLauncher target)
+    {
+        if (activeSelection == target)
+        {
+            activeSelection?.SetSelectionVisual(true);
+            return;
+        }
+
+        if (activeSelection != null)
+            activeSelection.SetSelectionVisual(false);
+
+        activeSelection = target;
+
+        if (activeSelection != null)
+            activeSelection.SetSelectionVisual(true);
+    }
+
+    private void SetSelectionVisual(bool selected)
+    {
+        if (selectedVisual == null) return;
+        selectedVisual.SetActive(selected);
     }
 
     private bool CanExecuteNow()
@@ -70,6 +142,8 @@ public class DesktopIconLauncher : MonoBehaviour, IPointerClickHandler
             lastClickTime = -999f;
             return;
         }
+
+        SetActiveSelection(this);
 
         float now = Time.unscaledTime;
 
