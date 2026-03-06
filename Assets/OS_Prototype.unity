@@ -548,6 +548,13 @@ MonoBehaviour:
   appDef: {fileID: 11400000, guid: eea90ec800afa1a4da617ffd3370ce38, type: 2}
   iconLabel: {fileID: 1089220975}
   selectedVisual: {fileID: 1750405321}
+  iconImage: {fileID: 111015592}
+  normalIconColor:
+    serializedVersion: 2
+    rgba: 4294967295
+  selectedIconColor:
+    serializedVersion: 2
+    rgba: 4290281600
   doubleClickThreshold: 0.28
   dragClickIgnoreSeconds: 0.15
   clickCooldownSeconds: 0.15
@@ -672,7 +679,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: -720, y: 438}
+  m_AnchoredPosition: {x: 864, y: -282}
   m_SizeDelta: {x: 96, y: 96}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &144184275
@@ -705,6 +712,13 @@ MonoBehaviour:
   appDef: {fileID: 0}
   iconLabel: {fileID: 2005672282}
   selectedVisual: {fileID: 2006215813}
+  iconImage: {fileID: 144184278}
+  normalIconColor:
+    serializedVersion: 2
+    rgba: 4294967295
+  selectedIconColor:
+    serializedVersion: 2
+    rgba: 4290281600
   doubleClickThreshold: 0.28
   dragClickIgnoreSeconds: 0.15
   clickCooldownSeconds: 0.15
@@ -1442,6 +1456,13 @@ MonoBehaviour:
   appDef: {fileID: 11400000, guid: a8aaefa934dfa3d4783b21e486fcbdd9, type: 2}
   iconLabel: {fileID: 1393233514}
   selectedVisual: {fileID: 578378744}
+  iconImage: {fileID: 436977166}
+  normalIconColor:
+    serializedVersion: 2
+    rgba: 4294967295
+  selectedIconColor:
+    serializedVersion: 2
+    rgba: 4290281600
   doubleClickThreshold: 0.28
   dragClickIgnoreSeconds: 0.15
   clickCooldownSeconds: 0.15
@@ -2863,6 +2884,13 @@ MonoBehaviour:
   appDef: {fileID: 11400000, guid: 149b7a0b3ce0e0e439d7284e8a831640, type: 2}
   iconLabel: {fileID: 177456836}
   selectedVisual: {fileID: 835060300}
+  iconImage: {fileID: 671535959}
+  normalIconColor:
+    serializedVersion: 2
+    rgba: 4294967295
+  selectedIconColor:
+    serializedVersion: 2
+    rgba: 4290281600
   doubleClickThreshold: 0.28
   dragClickIgnoreSeconds: 0.15
   clickCooldownSeconds: 0.15
@@ -3557,6 +3585,13 @@ MonoBehaviour:
   appDef: {fileID: 11400000, guid: 481e74a5c79cd9541b68a20bbb1e7ab0, type: 2}
   iconLabel: {fileID: 1404007222}
   selectedVisual: {fileID: 429631927}
+  iconImage: {fileID: 745577888}
+  normalIconColor:
+    serializedVersion: 2
+    rgba: 4294967295
+  selectedIconColor:
+    serializedVersion: 2
+    rgba: 4290281600
   doubleClickThreshold: 0.28
   dragClickIgnoreSeconds: 0.15
   clickCooldownSeconds: 0.15
@@ -4810,7 +4845,7 @@ MonoBehaviour:
   spacing: {x: 48, y: 48}
   fillTopToBottom: 1
   layoutMode: 0
-  optionIcon: {fileID: 0}
+  optionIcon: {fileID: 144184275}
   optionInitialPosition: {x: 864, y: -282}
   applyOptionInitialPositionOnStart: 1
 --- !u!1 &1246678028
@@ -6076,6 +6111,13 @@ MonoBehaviour:
   appDef: {fileID: 11400000, guid: 87ddc490f96202c4592131b87355f8af, type: 2}
   iconLabel: {fileID: 513344796}
   selectedVisual: {fileID: 1909823463}
+  iconImage: {fileID: 1419800265}
+  normalIconColor:
+    serializedVersion: 2
+    rgba: 4294967295
+  selectedIconColor:
+    serializedVersion: 2
+    rgba: 4290281600
   doubleClickThreshold: 0.28
   dragClickIgnoreSeconds: 0.15
   clickCooldownSeconds: 0.15
@@ -7896,6 +7938,13 @@ MonoBehaviour:
   appDef: {fileID: 11400000, guid: d0ba7716dc1a95c4689c4743764a41b2, type: 2}
   iconLabel: {fileID: 744598582}
   selectedVisual: {fileID: 1295979729}
+  iconImage: {fileID: 1795124176}
+  normalIconColor:
+    serializedVersion: 2
+    rgba: 4294967295
+  selectedIconColor:
+    serializedVersion: 2
+    rgba: 4290281600
   doubleClickThreshold: 0.28
   dragClickIgnoreSeconds: 0.15
   clickCooldownSeconds: 0.15
