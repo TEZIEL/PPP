@@ -18,6 +18,11 @@ public class DesktopIconLauncher : MonoBehaviour, IPointerClickHandler
     [Header("Selection Visual (Optional)")]
     [SerializeField] private GameObject selectedVisual;
 
+    [Header("Icon Tint (Optional)")]
+    [SerializeField] private Image iconImage;
+    [SerializeField] private Color32 normalIconColor = new Color32(0, 0, 0, 255);
+    [SerializeField] private Color32 selectedIconColor = new Color32(128, 128, 184, 255);
+
     [Header("Double Click")]
     [SerializeField] private float doubleClickThreshold = 0.28f;
     [SerializeField] private float dragClickIgnoreSeconds = 0.15f;
@@ -36,6 +41,9 @@ public class DesktopIconLauncher : MonoBehaviour, IPointerClickHandler
         if (iconLabel != null && appDef != null)
             iconLabel.text = appDef.DisplayName;
 
+        ResolveIconImageIfNeeded();
+        ApplyIconColor(false);
+
         if (selectedVisual != null)
             selectedVisual.SetActive(false);
     }
@@ -44,6 +52,9 @@ public class DesktopIconLauncher : MonoBehaviour, IPointerClickHandler
     {
         if (activeSelection == this)
             activeSelection = null;
+
+        ResolveIconImageIfNeeded();
+        ApplyIconColor(false);
 
         if (selectedVisual != null)
             selectedVisual.SetActive(false);
@@ -99,8 +110,36 @@ public class DesktopIconLauncher : MonoBehaviour, IPointerClickHandler
 
     private void SetSelectionVisual(bool selected)
     {
+        ApplyIconColor(selected);
+
         if (selectedVisual == null) return;
         selectedVisual.SetActive(selected);
+    }
+
+    private void ResolveIconImageIfNeeded()
+    {
+        if (iconImage != null) return;
+
+        var images = GetComponentsInChildren<Image>(includeInactive: true);
+        for (int i = 0; i < images.Length; i++)
+        {
+            var img = images[i];
+            if (img == null) continue;
+
+            if (selectedVisual != null && img.transform.IsChildOf(selectedVisual.transform))
+                continue;
+
+            iconImage = img;
+            return;
+        }
+    }
+
+    private void ApplyIconColor(bool selected)
+    {
+        ResolveIconImageIfNeeded();
+        if (iconImage == null) return;
+
+        iconImage.color = selected ? selectedIconColor : normalIconColor;
     }
 
     private bool CanExecuteNow()
