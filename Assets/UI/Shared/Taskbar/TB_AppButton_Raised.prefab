@@ -369,11 +369,11 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_IgnoreLayout: 0
-  m_MinWidth: 90
+  m_MinWidth: 160
   m_MinHeight: -1
-  m_PreferredWidth: 165
-  m_PreferredHeight: 42
-  m_FlexibleWidth: 1
+  m_PreferredWidth: 300
+  m_PreferredHeight: 48
+  m_FlexibleWidth: 0
   m_FlexibleHeight: -1
   m_LayoutPriority: 1
 --- !u!225 &976518558232057685
