@@ -17,6 +17,25 @@ public class DesktopGridManager : MonoBehaviour
     [SerializeField] private DesktopLayoutMode layoutMode = DesktopLayoutMode.Free;
     public DesktopLayoutMode LayoutMode => layoutMode;
 
+
+    [Header("Option Icon Initial Position")]
+    [SerializeField] private DesktopIconDraggable optionIcon;
+    [SerializeField] private Vector2 optionInitialPosition = new Vector2(864f, -282f);
+    [SerializeField] private bool applyOptionInitialPositionOnStart = true;
+
+
+
+    private void Start()
+    {
+        if (!applyOptionInitialPositionOnStart) return;
+        if (optionIcon == null) return;
+
+        var rect = optionIcon.GetRect();
+        if (rect == null) return;
+
+        rect.anchoredPosition = optionInitialPosition;
+    }
+
     public void ToggleLayoutMode()
     {
         layoutMode = (layoutMode == DesktopLayoutMode.Free) ? DesktopLayoutMode.Grid : DesktopLayoutMode.Free;
