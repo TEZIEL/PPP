@@ -323,32 +323,30 @@ namespace PPP.BLUE.VN
             lastBlocked = blocked;
 
 
-
-            // ----------------------------
-            // 2) Hotkeys
-            // ----------------------------
-            // Hold Skip: F1 누르고 있는 동안만 SkipStep 반복
             bool f1Held = Input.GetKey(KeyCode.F1);
+
             if (f1Held && !wasF1Held)
+            {
                 Debug.Log("[VN] F1 Hold Skip START");
+                ForceAutoOff("Hold Skip");
+            }
             else if (!f1Held && wasF1Held)
+            {
                 Debug.Log("[VN] F1 Hold Skip END");
+            }
+
             wasF1Held = f1Held;
 
             if (f1Held)
             {
-                SkipStep();
+                for (int i = 0; i < 12; i++)
+                    SkipStep();
             }
 
-            // ----------------------------
-            // 3) Skip loop: SkipMode는 대사 고속 진행 전용
-            // ----------------------------
-            if (skipMode)
+            if (Input.GetKeyDown(KeyCode.F2))
             {
-                Debug.Log("[VN] F2 Auto Toggle key pressed");
                 ToggleAutoFromInput("Hotkey F2");
             }
-
             // ----------------------------
             // 4) Safety: 조건 깨졌으면 코루틴 Auto 즉시 정지
             // ----------------------------
@@ -470,7 +468,7 @@ namespace PPP.BLUE.VN
 
         private bool CanRunSkipStep()
         {
-            if (!skipMode) return false;
+         
             if (!HasScript) return false;
             if (policy == null) return false;
             return VNInputGate.CanUseSkipOrAuto(policy);
@@ -1803,27 +1801,22 @@ namespace PPP.BLUE.VN
         private void SkipStep()
         {
             if (!CanRunSkipStep())
-            {
-                if (logToConsole) Debug.Log($"[VN] SkipStep blocked hasScript={HasScript} policy={(policy != null)} gate={(policy != null && VNInputGate.CanUseSkipOrAuto(policy))}");
                 return;
-            }
 
             if (dialogueView == null)
                 dialogueView = GetComponentInChildren<VNDialogueView>(true);
 
+            // 타이핑 중이면 바로 완료 + 다음 줄
             if (dialogueView?.TryCompleteCurrentLineForSkip() == true)
             {
-                if (logToConsole) Debug.Log("[VN] SkipStep completed current typing line");
+                if (SaveAllowed)
+                    Next();
                 return;
             }
 
             if (!SaveAllowed)
-            {
-                if (logToConsole) Debug.Log("[VN] SkipStep blocked (SaveAllowed false)");
                 return;
-            }
 
-            if (logToConsole) Debug.Log("[VN] SkipStep -> Next()");
             Next();
         }
 
