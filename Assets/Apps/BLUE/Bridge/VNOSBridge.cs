@@ -126,12 +126,10 @@ namespace PPP.BLUE.VN
 
         public bool ConsumeClosePermission()
         {
-            var canClose = CanCloseNow();
-            if (!canClose) return false;
+            if (!allowCloseOnce)
+                return false;
 
-            if (allowCloseOnce)
-                allowCloseOnce = false;
-
+            allowCloseOnce = false;
             return true;
         }
 

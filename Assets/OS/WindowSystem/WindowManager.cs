@@ -625,13 +625,6 @@ public class WindowManager : MonoBehaviour, IVNHostOS
         if (!openWindows.TryGetValue(appId, out var window) || window == null)
             return false;
 
-        // VN Drink 모드면 닫기 자체 무시(팝업도 금지)
-        if (IsVNInDrinkMode(appId))
-        {
-            Debug.Log($"[OS] {source} ignored (VN drink mode).");
-            return false;
-        }
-
         // 닫기 요청 시 포커스 확보
         EnsureFocused(appId);
 
@@ -665,10 +658,10 @@ public class WindowManager : MonoBehaviour, IVNHostOS
             return false;
         }
 
-        if (handler != null && !handler.ConsumeClosePermission())
+        if (handler != null)
         {
-            Debug.Log($"[OS] {source} consume failed appId={appId}.");
-            return false;
+            bool consumed = handler.ConsumeClosePermission();
+            Debug.Log($"[OS] {source} consumeClosePermission={consumed} appId={appId}");
         }
 
         PerformClose(window, appId);
@@ -844,20 +837,6 @@ public class WindowManager : MonoBehaviour, IVNHostOS
     {
         Debug.Log("[OS] RestoreAll disabled");
     }
-
-
-    private bool IsVNInDrinkMode(string appId)
-    {
-        // VN 앱만 검사하고 싶으면 appId 비교해도 됨(선택)
-        if (!openWindows.TryGetValue(appId, out var wc) || wc == null) return false;
-
-        var policy = wc.GetComponentInChildren<PPP.BLUE.VN.VNPolicyController>(true);
-        if (policy == null) return false;
-
-        return policy.IsInDrinkMode;
-    }
-
-
 
 
     private IEnumerator CoFinalizeSpawn(WindowController w)
