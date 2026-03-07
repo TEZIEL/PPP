@@ -1795,9 +1795,9 @@ namespace PPP.BLUE.VN
             ForceAutoOff("Skip Step (UI)");
             SkipStep();
 
-                SkipStep();
-                return;
-            }
+            if (logToConsole)
+                Debug.Log($"[VN] SkipStep triggered source={source}");
+        }
 
         private void SkipStep()
         {
@@ -1815,48 +1815,40 @@ namespace PPP.BLUE.VN
             Next();
         }
 
-        
-
-        
-
         private VNScript BuildTestScript()
         {
             var nodes = new List<VNNode>
-    {
-            new VNNode { id="t.001", type=VNNodeType.Say, speakerId="sys",
-            text="(Test) Dialogue -> Drink -> Branch. Press SPACE to continue." },
+            {
+                new VNNode { id="t.001", type=VNNodeType.Say, speakerId="sys", text="(Test) Dialogue -> Drink -> Branch. Press SPACE to continue." },
 
-        // ✅ Call 노드로 외부 Drink 패널을 연다.
-            new VNNode { id="t.call", type=VNNodeType.Call, callTarget="Drink", callArg="order001" },
+                // ✅ Call 노드로 외부 Drink 패널을 연다.
+                new VNNode { id="t.call", type=VNNodeType.Call, callTarget="Drink", callArg="order001" },
 
-        // 결과 버튼을 누르면 runner.ReturnFromCall(...)이 호출되고
-        // 그 직후 여기 Branch로 복귀한다.
-            new VNNode {
-                id="t.branch",
-                type=VNNodeType.Branch,
-                branches = new[]
-                {
-                // great는 success 포함 규칙이라 great>=2면 항상 route2로 가게 됨
-                new VNNode.BranchRule{ expr="lastDrink==1", jumpLabel="route2" },
-                new VNNode.BranchRule{ expr="lastDrink==3", jumpLabel="route3" },
-                new VNNode.BranchRule{ expr="else",         jumpLabel="route1" },
-                }
-            },
+                // 결과 버튼을 누르면 runner.ReturnFromCall(...)이 호출되고
+                // 그 직후 여기 Branch로 복귀한다.
+                new VNNode {
+                    id="t.branch",
+                    type=VNNodeType.Branch,
+                    branches = new[]
+                    {
+                        // great는 success 포함 규칙이라 great>=2면 항상 route2로 가게 됨
+                        new VNNode.BranchRule{ expr="lastDrink==1", jumpLabel="route2" },
+                        new VNNode.BranchRule{ expr="lastDrink==3", jumpLabel="route3" },
+                        new VNNode.BranchRule{ expr="else",         jumpLabel="route1" },
+                    }
+                },
 
-            new VNNode { id="t.r1", type=VNNodeType.Label, label="route1" },
-            new VNNode { id="t.r1s", type=VNNodeType.Say, speakerId="sys",
-                text="Route 1: Normal result (not enough Great, not enough Fail)." },
-            new VNNode { id="t.end1", type=VNNodeType.End },
+                new VNNode { id="t.r1", type=VNNodeType.Label, label="route1" },
+                new VNNode { id="t.r1s", type=VNNodeType.Say, speakerId="sys", text="Route 1: Normal result (not enough Great, not enough Fail)." },
+                new VNNode { id="t.end1", type=VNNodeType.End },
 
-            new VNNode { id="t.r2", type=VNNodeType.Label, label="route2" },
-            new VNNode { id="t.r2s", type=VNNodeType.Say, speakerId="sys",
-                text="Route 2: Great >= 2 (Excellent performance)." },
-            new VNNode { id="t.end2", type=VNNodeType.End },
+                new VNNode { id="t.r2", type=VNNodeType.Label, label="route2" },
+                new VNNode { id="t.r2s", type=VNNodeType.Say, speakerId="sys", text="Route 2: Great >= 2 (Excellent performance)." },
+                new VNNode { id="t.end2", type=VNNodeType.End },
 
-            new VNNode { id="t.r3", type=VNNodeType.Label, label="route3" },
-            new VNNode { id="t.r3s", type=VNNodeType.Say, speakerId="sys",
-                text="Route 3: Fail >= 2 (Too many mistakes)." },
-            new VNNode { id="t.end3", type=VNNodeType.End },
+                new VNNode { id="t.r3", type=VNNodeType.Label, label="route3" },
+                new VNNode { id="t.r3s", type=VNNodeType.Say, speakerId="sys", text="Route 3: Fail >= 2 (Too many mistakes)." },
+                new VNNode { id="t.end3", type=VNNodeType.End },
             };
 
             return new VNScript("test", nodes);
