@@ -52,6 +52,46 @@ namespace PPP.BLUE.VN
             cb?.Invoke();
         }
 
+
+        public void CompleteWithPreview(float previewRatio = 0.35f, int minVisibleChars = 3, string trailing = "…")
+        {
+            if (target == null) return;
+
+            if (co != null)
+            {
+                StopCoroutine(co);
+                co = null;
+            }
+
+            string full = fullTextCache ?? string.Empty;
+            if (full.Length == 0)
+            {
+                target.text = string.Empty;
+            }
+            else
+            {
+                int currentVisible = target.text != null ? target.text.Length : 0;
+                int ratioVisible = Mathf.CeilToInt(full.Length * Mathf.Clamp01(previewRatio));
+                int desiredVisible = Mathf.Max(currentVisible + 1, ratioVisible, Mathf.Max(1, minVisibleChars));
+                desiredVisible = Mathf.Clamp(desiredVisible, 1, full.Length);
+
+                if (desiredVisible < full.Length)
+                {
+                    target.text = full.Substring(0, desiredVisible) + (string.IsNullOrEmpty(trailing) ? "" : trailing);
+                }
+                else
+                {
+                    target.text = full;
+                }
+            }
+
+            IsTyping = false;
+
+            var cb = onCompletedCache;
+            onCompletedCache = null;
+            cb?.Invoke();
+        }
+
         public void SkipToEnd()
         {
             if (!IsTyping || target == null) return;
