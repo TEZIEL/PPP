@@ -22,8 +22,8 @@ namespace PPP.BLUE.VN
         public bool IsChoiceWaiting => IsModalReasonOpen("ChoicePanel");
         public bool IsDrinkPanelOpen => IsModalReasonOpen("DrinkPanel") || IsInDrinkMode;
 
-        // ✅ VN 앱은 평상시에도 OS 직접 종료를 막고, 항상 ClosePopup 경유로 닫는다.
-        public bool ShouldBlockClose => true;
+        // 닫기 차단 상태: Drink/Modal(Choice, ClosePopup 포함)
+        public bool ShouldBlockClose => IsDrinkPanelOpen || IsModalOpen;
 
         private void Awake()
         {
@@ -121,11 +121,8 @@ namespace PPP.BLUE.VN
 
         public bool CanRequestClose()
         {
-            if (IsClosePopupOpen) return false;
-            if (IsDrinkPanelOpen) return false;
-            if (IsChoiceWaiting) return false;
-
-            return true;
+            // ClosePopup이 열린 상태에서만 재요청 차단
+            return !IsClosePopupOpen;
         }
 
         private void ChangeReasonCount(string reason, int delta)
