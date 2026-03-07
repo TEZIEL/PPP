@@ -46,6 +46,7 @@ namespace PPP.BLUE.VN
         // that still reference old hold-skip variables.
         [SerializeField] private float holdSkipStepInterval = 0.02f;
         private float nextHoldSkipAllowedTime;
+        private bool wasF1Held;
 
         private string lastDrinkResult = "";
 
@@ -327,7 +328,14 @@ namespace PPP.BLUE.VN
             // 2) Hotkeys
             // ----------------------------
             // Hold Skip: F1 누르고 있는 동안만 SkipStep 반복
-            if (Input.GetKey(KeyCode.F1))
+            bool f1Held = Input.GetKey(KeyCode.F1);
+            if (f1Held && !wasF1Held)
+                Debug.Log("[VN] F1 Hold Skip START");
+            else if (!f1Held && wasF1Held)
+                Debug.Log("[VN] F1 Hold Skip END");
+            wasF1Held = f1Held;
+
+            if (f1Held)
             {
                 SkipStep();
             }
@@ -337,14 +345,8 @@ namespace PPP.BLUE.VN
             // ----------------------------
             if (skipMode)
             {
-                if (!CanRunSkipStep())
-                {
-                    if (logToConsole) Debug.Log("[VN] Skip loop paused (blocked). ");
-                }
-                else
-                {
-                    SkipStep();
-                }
+                Debug.Log("[VN] F2 Auto Toggle key pressed");
+                ToggleAutoFromInput("Hotkey F2");
             }
 
             // ----------------------------
@@ -1800,17 +1802,28 @@ namespace PPP.BLUE.VN
 
         private void SkipStep()
         {
-            if (!CanRunSkipStep()) return;
+            if (!CanRunSkipStep())
+            {
+                if (logToConsole) Debug.Log($"[VN] SkipStep blocked hasScript={HasScript} policy={(policy != null)} gate={(policy != null && VNInputGate.CanUseSkipOrAuto(policy))}");
+                return;
+            }
 
             if (dialogueView == null)
                 dialogueView = GetComponentInChildren<VNDialogueView>(true);
 
             if (dialogueView?.TryCompleteCurrentLineForSkip() == true)
+            {
+                if (logToConsole) Debug.Log("[VN] SkipStep completed current typing line");
                 return;
+            }
 
             if (!SaveAllowed)
+            {
+                if (logToConsole) Debug.Log("[VN] SkipStep blocked (SaveAllowed false)");
                 return;
+            }
 
+            if (logToConsole) Debug.Log("[VN] SkipStep -> Next()");
             Next();
         }
 
