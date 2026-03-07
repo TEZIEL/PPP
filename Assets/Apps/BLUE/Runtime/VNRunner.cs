@@ -40,6 +40,8 @@ namespace PPP.BLUE.VN
 
         public System.Action<string> OnEnterDrink;
         public bool skipMode = false;
+        [SerializeField] private float skipStepInterval = 0.12f;
+        private float nextSkipAllowedTime;
         private string lastDrinkResult = "";
 
 
@@ -239,9 +241,10 @@ namespace PPP.BLUE.VN
                 if (logToConsole) Debug.Log("[VN] Skip forced OFF (state changed)");
             }
 
-            if (skipMode)
+            if (skipMode && Time.unscaledTime >= nextSkipAllowedTime)
             {
                 SkipStep();
+                nextSkipAllowedTime = Time.unscaledTime + Mathf.Max(0.01f, skipStepInterval);
             }
 
             if (!HasScript) return;
@@ -1699,7 +1702,10 @@ namespace PPP.BLUE.VN
             skipMode = !skipMode;
 
             if (skipMode)
+            {
+                nextSkipAllowedTime = Time.unscaledTime;
                 ForceAutoOff("Skip On");
+            }
 
             if (logToConsole)
                 Debug.Log("[VN] SkipMode: " + skipMode);
@@ -1711,6 +1717,9 @@ namespace PPP.BLUE.VN
             if (policy == null || !VNInputGate.CanUseSkipOrAuto(policy)) return;
 
             if (GetComponentInChildren<VNDialogueView>(true)?.TryCompleteCurrentLineForSkip() == true)
+                return;
+
+            if (!SaveAllowed)
                 return;
 
             Next();
