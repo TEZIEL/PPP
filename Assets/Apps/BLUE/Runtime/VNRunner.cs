@@ -1786,11 +1786,10 @@ namespace PPP.BLUE.VN
         {
             if (!HasScript || policy == null || !VNInputGate.CanUseSkipOrAuto(policy))
             {
-                if (!HasScript || policy == null || !VNInputGate.CanUseSkipOrAuto(policy))
-                {
-                    if (logToConsole) Debug.Log($"[VN] SkipMode toggle ignored (blocked) source={source}");
-                    return;
-                }
+                if (logToConsole)
+                    Debug.Log($"[VN] SkipMode toggle ignored (blocked) source={source}");
+                return;
+            }
 
             ForceAutoOff("Skip Step (UI)");
             SkipStep();
