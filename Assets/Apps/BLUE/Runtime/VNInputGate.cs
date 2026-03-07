@@ -35,6 +35,20 @@ namespace PPP.BLUE.VN
         public static bool CanUseSkipOrAuto(VNPolicyController policy)
             => ResolveState(policy) == VNInputState.Dialogue;
 
+        public static bool CanAutoAdvanceInBackground(VNPolicyController policy)
+        {
+            if (policy == null) return false;
+
+            var st = policy.GetWindowState();
+            if (st.IsMinimized) return false;
+
+            if (policy.IsChoiceWaiting) return false;
+            if (policy.IsDrinkPanelOpen) return false;
+            if (policy.IsClosePopupOpen || policy.IsModalOpen) return false;
+
+            return true;
+        }
+
         public static bool CanSave(VNPolicyController policy)
         {
             if (policy == null) return false;
