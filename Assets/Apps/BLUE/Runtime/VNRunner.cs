@@ -330,12 +330,7 @@ namespace PPP.BLUE.VN
 
             if (f1Held && !wasF1Held)
             {
-                VNLog("[VN] F1 Hold Skip START");
                 ForceAutoOff("Hold Skip");
-            }
-            else if (!f1Held && wasF1Held)
-            {
-                VNLog("[VN] F1 Hold Skip END");
             }
 
             wasF1Held = f1Held;
@@ -495,7 +490,7 @@ namespace PPP.BLUE.VN
 
             if (policy != null && policy.GetWindowState().IsMinimized)
             {
-                if (logToConsole) VNLog("[VN] Next ignored (minimized).");
+                VNLog("[VN] Next ignored (minimized).");
                 return;
             }
 
@@ -531,7 +526,14 @@ namespace PPP.BLUE.VN
                         continue;
                     }
 
-                    
+                    if (skipMode && IsInteractionNodeForSkip(node))
+                    {
+                        lastStopIndex = pointer;
+                        waitPointer = pointer;
+                        isWaiting = true;
+                        MarkSaveAllowed(true, "Skip Interaction Stop");
+                        return;
+                    }
 
                     switch (node.type)
                     {
@@ -595,7 +597,7 @@ namespace PPP.BLUE.VN
                             }
 
                         case VNNodeType.Label:
-                            if (logToConsole) VNLog($"[VN] Label: {node.label} (idx {pointer})");
+                            VNLog($"[VN] Label: {node.label} (idx {pointer})");
                             pointer++;
                             continue; // ✅ 출력 없음 → 계속 진행
 
@@ -1826,11 +1828,19 @@ namespace PPP.BLUE.VN
                     }
                 }
 
-            // 저장 가능한 상태에서만 진행
-            if (!SaveAllowed)
-                return;
+                // 3) 진행 불가 상태면 중단
+                if (!SaveAllowed)
+                    break;
 
-            Next();
+                int beforePointer = pointer;
+                Next();
+
+                // End/Wait 등으로 실질 진행이 없으면 중단
+                if (pointer == beforePointer || !enabled)
+                    break;
+            }
+
+            skipMode = false;
         }
 
         private VNScript BuildTestScript()
