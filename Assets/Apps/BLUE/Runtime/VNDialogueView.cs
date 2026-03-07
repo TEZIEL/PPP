@@ -109,8 +109,7 @@ namespace PPP.BLUE.VN
 
             if (choicePanel == null)
             {
-                Debug.LogError("[VNDialogueView] choicePanel is NULL. Assign it in Inspector.");
-                runner.Next(); // 패널 없으면 안전하게 진행
+                Debug.LogError("[VN] ChoicePanel missing — cannot present choices");
                 return;
             }
 
