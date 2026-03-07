@@ -1,18 +1,10 @@
 using UnityEngine;
-using System.IO;
 
 namespace PPP.BLUE.VN
 {
     public class VNSaveManager : MonoBehaviour
     {
         public VNRunner vnRunner;
-
-        string savePath;
-
-        void Awake()
-        {
-            savePath = Path.Combine(Application.persistentDataPath, "save.json");
-        }
 
         public void SaveGame()
         {
@@ -22,33 +14,16 @@ namespace PPP.BLUE.VN
                 return;
             }
 
-            VNState state = vnRunner.ExportState();
-
-            VNSaveBlock block = new VNSaveBlock();
-            block.state = state;
-
-            string json = JsonUtility.ToJson(block, true);
-
-            File.WriteAllText(savePath, json);
-
-            Debug.Log("[VN] Game Saved");
+            if (vnRunner.TrySaveNow("VNSaveManager"))
+                Debug.Log("[VN] Game Saved (VN_SAVE.json)");
         }
 
         public void LoadGame()
         {
-            if (!File.Exists(savePath))
-            {
+            if (vnRunner.TryLoadNow("VNSaveManager"))
+                Debug.Log("[VN] Game Loaded (VN_SAVE.json)");
+            else
                 Debug.LogWarning("[VN] Save file not found");
-                return;
-            }
-
-            string json = File.ReadAllText(savePath);
-
-            VNSaveBlock block = JsonUtility.FromJson<VNSaveBlock>(json);
-
-            vnRunner.ImportState(block.state);
-
-            Debug.Log("[VN] Game Loaded");
         }
     }
 }

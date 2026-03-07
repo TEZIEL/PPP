@@ -96,7 +96,8 @@ namespace PPP.BLUE.VN
         public void MarkSaveBlocked() => SaveAllowed = false;
         public void MarkSaveAllowed(bool allowed, string reason)
         {
-            SaveAllowed = allowed;
+            bool gate = policy != null && policy.CanSaveDialogueState();
+            SaveAllowed = allowed && gate;
 
             if (logToConsole)
                 Debug.Log($"[VN] SaveAllowed {(SaveAllowed ? "TRUE" : "FALSE")} ({reason})");
@@ -232,6 +233,11 @@ namespace PPP.BLUE.VN
 
         private void Update()
         {
+            if (skipMode && (policy == null || !VNInputGate.CanUseSkipOrAuto(policy)))
+            {
+                skipMode = false;
+                if (logToConsole) Debug.Log("[VN] Skip forced OFF (state changed)");
+            }
 
             if (skipMode)
             {
@@ -311,7 +317,10 @@ namespace PPP.BLUE.VN
                     autoSuspendedByBlock = false; // 유저가 직접 토글했으니 자동재개 플래그 리셋
 
                     if (settings.auto)
+                    {
+                        skipMode = false; // Skip과 Auto 동시 활성 금지
                         TryStartAutoTimer();
+                    }
                     else
                     {
                         StopAutoTimer();
@@ -842,22 +851,6 @@ namespace PPP.BLUE.VN
         private void SaveState(bool ignoreSaveAllowed)
         {
             SaveStateToKey(VN_STATE_KEY, ignoreSaveAllowed);
-            if (!ignoreSaveAllowed && !CanPersistState()) return;
-            if (bridge == null || script == null) return;
-
-            var st = BuildState(); // CaptureState/BuildState 중 하나로 통일 추천
-
-            if (logToConsole)
-            {
-                var safe = st.settings ?? VNSettings.Default();
-                var top = callStack.Count > 0 ? callStack.Peek() : null;
-                Debug.Log($"[VN] SaveState seen={st.seen?.Count ?? 0} auto={safe.auto} speed={safe.speed} pointer={st.pointer} callStack={callStack.Count} top={top?.target ?? "-"}/{top?.arg ?? "-"}");
-            }
-
-            bridge.SaveVN(VN_STATE_KEY, st);
-
-            if (logToConsole)
-                Debug.Log($"[VN] SaveState -> key={VN_STATE_KEY} scriptId={st.scriptId} pointer={st.pointer} vars={st.vars?.Count ?? 0}");
         }
 
         public void DebugForceSave(string reason)
@@ -866,84 +859,30 @@ namespace PPP.BLUE.VN
             SaveStateToKey(VN_STATE_KEY_DBG, ignoreSaveAllowed: true);
         }
 
+        public bool TrySaveNow(string reason = "manual")
+        {
+            if (!CanPersistState())
+            {
+                Debug.Log($"[VN] Save skipped ({reason}) SaveAllowed={SaveAllowed}");
+                return false;
+            }
+
+            SaveStateToKey(VN_STATE_KEY, ignoreSaveAllowed: false);
+            return true;
+        }
+
+        public bool TryLoadNow(string reason = "manual")
+        {
+            bool ok = LoadStateFromKey(VN_STATE_KEY);
+            Debug.Log($"[VN] Load {(ok ? "ok" : "miss")} ({reason})");
+            return ok;
+        }
+
 
 
         private bool LoadState()
         {
             return LoadStateFromKey(VN_STATE_KEY);
-
-            if (bridge == null || script == null)
-                return false;
-
-            var st = bridge.LoadVN<VNState>(VN_STATE_KEY);
-            if (st == null)
-                return false;
-
-            if (!string.Equals(st.scriptId, script.ScriptId, StringComparison.Ordinal))
-                return false;
-
-            pointer = Mathf.Clamp(st.pointer, 0, script.nodes.Count - 1);
-            lastShownPointer = pointer;
-            lastStopIndex = pointer; // 같이 맞춰두면 안전
-
-            vars.Clear();
-            if (st.vars != null)
-            {
-                foreach (var kv in st.vars)
-                {
-                    if (!string.IsNullOrEmpty(kv.key))
-                        vars[kv.key] = kv.value;
-                }
-            }
-
-            st.seen ??= new List<string>();
-            st.settings ??= VNSettings.Default();
-
-            seenLineIds.Clear();
-            foreach (var lineId in st.seen)
-            {
-                if (string.IsNullOrEmpty(lineId)) continue;
-                seenLineIds.Add(lineId);
-            }
-
-            settings = st.settings;
-
-            greatCount = st.greatCount;
-            successCount = st.successCount;
-            failCount = st.failCount;
-            lastResult = st.lastResult;
-
-            callStack.Clear();
-            pendingCallResumeFrame = null;
-            if (st.callStack != null && st.callStack.Count > 0)
-            {
-                for (int i = st.callStack.Count - 1; i >= 0; i--)
-                {
-                    var frame = st.callStack[i];
-                    if (frame == null) continue;
-
-                    var restored = new VNRunner.VNCallFrame
-                    {
-                        returnPointer = frame.returnPointer,
-                        target = frame.target,
-                        arg = frame.arg,
-                    };
-
-                    callStack.Push(restored);
-                }
-
-                pendingCallResumeFrame = callStack.Peek();
-                isWaiting = true;
-                waitPointer = Mathf.Max(0, pendingCallResumeFrame.returnPointer - 1);
-            }
-
-            if (logToConsole)
-            {
-                Debug.Log($"[VN] LoadState pointer={pointer} callStack={callStack.Count} target={pendingCallResumeFrame?.target ?? "-"} arg={pendingCallResumeFrame?.arg ?? "-"}");
-                Debug.Log($"[VN] LoadState seen={seenLineIds.Count} auto={settings.auto} speed={settings.speed}");
-            }
-
-            return true;
         }
 
         public void DebugForceLoad(string reason)
@@ -1103,13 +1042,13 @@ namespace PPP.BLUE.VN
             if (!started) return false;
             if (policy == null) return false;
 
-            return policy.CanAutoAdvance(SaveAllowed);
+            return VNInputGate.CanUseSkipOrAuto(policy) && SaveAllowed;
         }
 
         private bool CanToggleAuto()
         {
             if (policy == null) return false;
-            return policy.CanToggleAuto();
+            return VNInputGate.CanUseSkipOrAuto(policy);
         }
 
         private bool IsBlockingModalState(bool nowMin)
@@ -1210,7 +1149,7 @@ namespace PPP.BLUE.VN
         private void SaveStateToKey(string key, bool ignoreSaveAllowed)
         {
             if (!ignoreSaveAllowed && !CanPersistState()) return;
-            if (bridge == null || script == null) return;
+            if (script == null) return;
 
             var st = BuildState();
 
@@ -1221,7 +1160,7 @@ namespace PPP.BLUE.VN
                 Debug.Log($"[VN] SaveState seen={st.seen?.Count ?? 0} auto={safe.auto} speed={safe.speed} pointer={st.pointer} callStack={callStack.Count} top={top?.target ?? "-"}/{top?.arg ?? "-"}");
             }
 
-            bridge.SaveVN(key, st);
+            VNFileSaveSystem.Save(key, st);
 
             if (logToConsole)
                 Debug.Log($"[VN] SaveState -> key={key} scriptId={st.scriptId} pointer={st.pointer} vars={st.vars?.Count ?? 0}");
@@ -1230,21 +1169,16 @@ namespace PPP.BLUE.VN
         private bool CanPersistState()
         {
             if (!SaveAllowed) return false;
-            if (policy == null) return true;
-
-            // Call(Drink) 저장/로드 복원 목표: Choice/ClosePopup은 막고 Drink는 허용
-            if (policy.IsChoiceWaiting) return false;
-            if (policy.IsClosePopupOpen) return false;
-
-            return true;
+            if (policy == null) return false;
+            return policy.CanSaveDialogueState();
         }
 
         private bool LoadStateFromKey(string key)
         {
-            if (bridge == null || script == null)
+            if (script == null)
                 return false;
 
-            var st = bridge.LoadVN<VNState>(key);
+            var st = VNFileSaveSystem.Load(key);
             if (st == null)
                 return false;
 
@@ -1722,17 +1656,17 @@ namespace PPP.BLUE.VN
 
         public void OnDrinkGreat()
         {
-            runner.ReturnFromDrink("great");
+            runner.ReturnFromCall("great");
         }
 
         public void OnDrinkSuccess()
         {
-            runner.ReturnFromDrink("success");
+            runner.ReturnFromCall("success");
         }
 
         public void OnDrinkFail()
         {
-            runner.ReturnFromDrink("fail");
+            runner.ReturnFromCall("fail");
         }
 
 
@@ -1743,7 +1677,16 @@ namespace PPP.BLUE.VN
 
         public void ToggleSkip()
         {
+            if (policy == null || !VNInputGate.CanUseSkipOrAuto(policy))
+            {
+                if (logToConsole) Debug.Log("[VN] Skip toggle ignored (blocked)");
+                return;
+            }
+
             skipMode = !skipMode;
+
+            if (skipMode)
+                ForceAutoOff("Skip On");
 
             if (logToConsole)
                 Debug.Log("[VN] SkipMode: " + skipMode);
@@ -1751,38 +1694,11 @@ namespace PPP.BLUE.VN
 
         private void SkipStep()
         {
-            if (pointer >= nodes.Count)
-                return;
+            if (!HasScript) return;
+            if (policy == null || !VNInputGate.CanUseSkipOrAuto(policy)) return;
 
-            VNNode node = nodes[pointer];
-
-            switch (node.type)
-            {
-                case VNNodeType.Say:
-
-                    pointer++;
-                    break;
-
-                case VNNodeType.Jump:
-
-                    DoJump(node.label);
-                    break;
-
-                case VNNodeType.Call:
-
-                    DoCall(node.label);
-                    break;
-
-                case VNNodeType.Return:
-
-                    DoReturn();
-                    break;
-
-                default:
-
-                    pointer++;
-                    break;
-            }
+            ForceAutoOff("Skip Step");
+            Next();
         }
 
         

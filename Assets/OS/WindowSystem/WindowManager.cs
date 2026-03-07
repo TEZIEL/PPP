@@ -930,7 +930,7 @@ public class WindowManager : MonoBehaviour, IVNHostOS
         // 1) 정상 상태 계산
         // ----------------------------
         bool minimized = wc.IsMinimized;
-        bool focused = !minimized;
+        bool focused = !minimized && activeAppId == appId;
 
         var state = new VNWindowState(focused, minimized);
 

@@ -105,36 +105,23 @@ namespace PPP.BLUE.VN
 
         public bool CanAcceptVNInput()
         {
-            if (IsBlockingModalState()) return false;
-
-            var st = GetWindowState();
-            if (st.IsMinimized) return false;
-            if (!st.IsFocused) return false;
-
-            return true;
+            return VNInputGate.CanRouteInput(this);
         }
 
         public bool CanAutoAdvance(bool saveAllowed)
         {
             if (!saveAllowed) return false;
-            if (IsBlockingModalState()) return false;
-
-            var st = GetWindowState();
-            if (st.IsMinimized) return false;
-            if (!st.IsFocused) return false;
-
-            return true;
+            return VNInputGate.CanUseSkipOrAuto(this);
         }
 
         public bool CanToggleAuto()
         {
-            if (IsBlockingModalState()) return false;
+            return VNInputGate.CanUseSkipOrAuto(this);
+        }
 
-            var st = GetWindowState();
-            if (st.IsMinimized) return false;
-            if (!st.IsFocused) return false;
-
-            return true;
+        public bool CanSaveDialogueState()
+        {
+            return VNInputGate.CanSave(this);
         }
 
         public bool CanRequestClose()
