@@ -2470,6 +2470,8 @@ MonoBehaviour:
   advanceClickArea: {fileID: 1154989184179664875}
   uiCamera: {fileID: 0}
   charsPerSecond: 40
+  skipPreviewRatio: 0.308
+  skipPreviewMinChars: 5
 --- !u!1 &7689263358937122676
 GameObject:
   m_ObjectHideFlags: 0
