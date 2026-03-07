@@ -307,25 +307,28 @@ namespace PPP.BLUE.VN
 
 
             // ----------------------------
-            // 2) Hotkeys: blocked 중에는 무시
+            // 2) Skip blocked safety + Hotkeys
             // ----------------------------
-            bool f1Down = Input.GetKeyDown(KeyCode.F1);
-            bool f1Held = Input.GetKey(KeyCode.F1);
-
-            if (f1Down)
+            if (skipMode && (policy == null || !VNInputGate.CanUseSkipOrAuto(policy)))
             {
-                nextHoldSkipAllowedTime = Time.unscaledTime;
-                TriggerSkipStep("F1 Down");
+                skipMode = false;
+                if (logToConsole) Debug.Log("[VN] SkipMode forced OFF (blocked)");
             }
-            else if (f1Held && Time.unscaledTime >= nextHoldSkipAllowedTime)
+
+            if (Input.GetKeyDown(KeyCode.F1))
             {
-                TriggerSkipStep("F1 Hold");
-                nextHoldSkipAllowedTime = Time.unscaledTime + Mathf.Max(0.01f, holdSkipStepInterval);
+                ToggleSkip();
             }
 
             if (Input.GetKeyDown(KeyCode.F2))
             {
                 ToggleAutoFromInput("Hotkey F2");
+            }
+
+            if (skipMode && Time.unscaledTime >= nextHoldSkipAllowedTime)
+            {
+                SkipStep();
+                nextHoldSkipAllowedTime = Time.unscaledTime + Mathf.Max(0.01f, holdSkipStepInterval);
             }
 
             // ----------------------------
@@ -1706,25 +1709,24 @@ namespace PPP.BLUE.VN
             runner.ToggleAutoFromInput("UI Button");
         }
 
-        private void TriggerSkipStep(string source)
+        public void ToggleSkip()
         {
             if (policy == null || !VNInputGate.CanUseSkipOrAuto(policy))
             {
-                if (logToConsole) Debug.Log($"[VN] Skip step ignored (blocked) source={source}");
+                if (logToConsole) Debug.Log("[VN] Skip toggle ignored (blocked)");
                 return;
             }
 
-            skipMode = false;
-            ForceAutoOff("Skip Step (F1)");
-            SkipStep();
+            skipMode = !skipMode;
+
+            if (skipMode)
+            {
+                nextHoldSkipAllowedTime = Time.unscaledTime;
+                ForceAutoOff("Skip On");
+            }
 
             if (logToConsole)
-                Debug.Log($"[VN] SkipStep triggered source={source}");
-        }
-
-        public void ToggleSkip()
-        {
-            TriggerSkipStep("UI Button");
+                Debug.Log("[VN] SkipMode: " + skipMode);
         }
 
         private void SkipStep()
