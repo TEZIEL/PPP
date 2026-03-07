@@ -326,24 +326,10 @@ namespace PPP.BLUE.VN
             // ----------------------------
             // 2) Hotkeys
             // ----------------------------
-            if (Input.GetKeyDown(KeyCode.F1))
+            // Hold Skip: F1 누르고 있는 동안만 SkipStep 반복
+            if (Input.GetKey(KeyCode.F1))
             {
-                ToggleSkip("Hotkey F1");
-            }
-
-            // ----------------------------
-            // 3) Skip loop: SkipMode는 대사 고속 진행 전용
-            // ----------------------------
-            if (skipMode)
-            {
-                if (!CanRunSkipStep())
-                {
-                    if (logToConsole) Debug.Log("[VN] Skip loop paused (blocked). ");
-                }
-                else
-                {
-                    SkipStep();
-                }
+                SkipStep();
             }
 
             // ----------------------------
@@ -1798,7 +1784,7 @@ namespace PPP.BLUE.VN
 
         public void ToggleSkip(string source = "UI Button")
         {
-            if (!skipMode)
+            if (!HasScript || policy == null || !VNInputGate.CanUseSkipOrAuto(policy))
             {
                 if (!HasScript || policy == null || !VNInputGate.CanUseSkipOrAuto(policy))
                 {
@@ -1806,16 +1792,12 @@ namespace PPP.BLUE.VN
                     return;
                 }
 
-                skipMode = true;
-                ForceAutoOff("SkipMode On");
-                if (logToConsole) Debug.Log("[VN] SkipMode: True");
+            ForceAutoOff("Skip Step (UI)");
+            SkipStep();
 
                 SkipStep();
                 return;
             }
-
-            ForceSkipOff("Toggle");
-        }
 
         private void SkipStep()
         {

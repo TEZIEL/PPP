@@ -217,7 +217,7 @@ namespace PPP.BLUE.VN
             if (lineCompleted) return false;
             if (typer == null || !typer.IsTyping) return false;
 
-            ForceCompleteLine();
+            typer.ForceComplete();
             lineCompleted = true;
             return true;
         }
