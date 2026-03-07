@@ -35,7 +35,7 @@ namespace PPP.BLUE.VN
         private bool CanAcceptVNInput()
         {
             if (policy != null)
-                return policy.CanAcceptVNInput();
+                return VNInputGate.CanRouteInput(policy);
 
             // policy 미주입 시 보수적 폴백
             if (bridge != null)
@@ -117,22 +117,17 @@ namespace PPP.BLUE.VN
             if (runner == null) return;
             if (!runner.HasScript) return;
 
-            // ✅ 상태 규칙표: 블로킹 모달(ClosePopup/Choice/Drink 등) 중에는 진행 입력 금지
-            if (policy != null && policy.IsBlockingModalState())
+            // InputGate를 통과한 입력만 대사 진행에 사용
+            if (policy != null && !VNInputGate.CanAdvanceDialogue(policy))
                 return;
 
-            // ✅ 최소화 상태면 진행 입력 금지 (포커스는 "무시"한다)
-            if (policy != null)
-            {
-                var st = policy.GetWindowState();
-                if (st.IsMinimized) return;
-            }
-
             // ✅ Next 입력
-            if (!Input.GetKeyDown(KeyCode.Space)) return;
+            bool pressedSpace = Input.GetKeyDown(KeyCode.Space);
+            bool clicked = Input.GetMouseButtonDown(0);
+            if (!pressedSpace && !clicked) return;
 
             // ✅ 유저 입력이면 무조건 Auto OFF (타이핑완료/Next 둘 다 포함)
-            runner.ForceAutoOff("User input (Space)");
+            runner.ForceAutoOff(pressedSpace ? "User input (Space)" : "User input (Click)");
 
             // ✅ 타이핑 중이면 "완성"만 하고 다음 라인으로 넘어가진 않음
             if (!lineCompleted && typer != null && typer.IsTyping)

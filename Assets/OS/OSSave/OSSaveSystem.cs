@@ -6,7 +6,7 @@ namespace PPP.OS.Save
     public static class OSSaveSystem
     {
         private static string SavePath =>
-            Path.Combine(Application.persistentDataPath, "os_save.json");
+            Path.Combine(Application.persistentDataPath, "OS_SAVE.json");
 
         public static void Save(OSSaveData data)
         {
@@ -14,7 +14,7 @@ namespace PPP.OS.Save
             {
                 string json = JsonUtility.ToJson(data, true);
                 File.WriteAllText(SavePath, json);
-                Debug.Log($"[OS SAVE] ¡æ {SavePath} (len={json.Length}) existsAfter={File.Exists(SavePath)}");
+                Debug.Log($"[OS SAVE] Â¡Ã¦ {SavePath} (len={json.Length}) existsAfter={File.Exists(SavePath)}");
             }
             catch (System.Exception e)
             {
