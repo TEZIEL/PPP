@@ -303,6 +303,11 @@ namespace PPP.BLUE.VN
             // ----------------------------
             // 2) Hotkeys: blocked 중에는 무시
             // ----------------------------
+            if (Input.GetKeyDown(KeyCode.F1))
+            {
+                ToggleSkip();
+            }
+
             if (Input.GetKeyDown(KeyCode.F2))
             {
                 if (!CanToggleAuto())
@@ -1148,7 +1153,12 @@ namespace PPP.BLUE.VN
 
         private void SaveStateToKey(string key, bool ignoreSaveAllowed)
         {
-            if (!ignoreSaveAllowed && !CanPersistState()) return;
+            if (!ignoreSaveAllowed && !CanPersistState())
+            {
+                if (logToConsole)
+                    Debug.Log($"[VN] SaveState skipped key={key} SaveAllowed={SaveAllowed} policyOk={(policy != null && policy.CanSaveDialogueState())}");
+                return;
+            }
             if (script == null) return;
 
             var st = BuildState();
