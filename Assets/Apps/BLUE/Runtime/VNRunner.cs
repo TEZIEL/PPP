@@ -330,6 +330,12 @@ namespace PPP.BLUE.VN
                 ToggleAutoFromInput("Hotkey F2");
             }
 
+            if (skipMode && Time.unscaledTime >= nextHoldSkipAllowedTime)
+            {
+                SkipStep();
+                nextHoldSkipAllowedTime = Time.unscaledTime + Mathf.Max(0.01f, holdSkipStepInterval);
+            }
+
             // ----------------------------
             // 3) Skip loop: SkipMode는 대사 고속 진행 전용
             // ----------------------------
