@@ -9,7 +9,7 @@ namespace PPP.BLUE.VN
     public sealed class VNRunner : MonoBehaviour
     {
         [Header("Debug")]
-        [SerializeField] private bool logToConsole = true;
+        [SerializeField] private bool logToConsole = false;
         [SerializeField] private VNScript testScript;
         [SerializeField] private bool loadFromJsonOnStart;
         [SerializeField] private string startDayId = "day01";
@@ -345,7 +345,8 @@ namespace PPP.BLUE.VN
 
             if (f1Held && VNInputGate.CanUseSkipOrAuto(policy))
             {
-               
+
+                for (int i = 0; i < 5; i++)
                     SkipStep();
             }
 
@@ -1825,19 +1826,31 @@ namespace PPP.BLUE.VN
             if (dialogueView == null)
                 dialogueView = GetComponentInChildren<VNDialogueView>(true);
 
-            // 현재 타이핑 중이면 즉시 완성
-            if (dialogueView?.TryCompleteCurrentLineForSkip() == true)
+            int steps = 0;
+            const int MAX = 50;
+
+            while (steps < MAX)
             {
-                MarkSaveAllowed(true, "Skip ForceComplete");
+                // 타이핑중이면 바로 완성
+                if (dialogueView?.TryCompleteCurrentLineForSkip() == true)
+                {
+                    MarkSaveAllowed(true, "Skip ForceComplete");
+                    steps++;
+                    continue;
+                }
+
+                if (!SaveAllowed)
+                    break;
+
+                int before = pointer;
+
                 Next();
-                return;
+
+                steps++;
+
+                if (pointer == before)
+                    break;
             }
-
-            // 저장 가능한 상태에서만 진행
-            if (!SaveAllowed)
-                return;
-
-            Next();
         }
 
         private VNScript BuildTestScript()
