@@ -747,6 +747,8 @@ MonoBehaviour:
   typeSpeed: 30
   runner: {fileID: 5088717439015034517}
   policy: {fileID: 5970636519023333258}
+  skipMode: 1
+  holdSkipStepInterval: 0.06
 --- !u!114 &2321816555586790909
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -2465,6 +2467,8 @@ MonoBehaviour:
   osBridge: {fileID: 8020622904635775800}
   bridge: {fileID: 8020622904635775800}
   drinkTestPanel: {fileID: 2646848395472061454}
+  advanceClickArea: {fileID: 1154989184179664875}
+  uiCamera: {fileID: 0}
   charsPerSecond: 40
 --- !u!1 &7689263358937122676
 GameObject:
@@ -2909,8 +2913,8 @@ MonoBehaviour:
       m_Calls: []
   m_text: New Text
   m_isRightToLeft: 0
-  m_fontAsset: {fileID: 11400000, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
-  m_sharedMaterial: {fileID: 2180264, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
+  m_fontAsset: {fileID: 11400000, guid: 35dedccab6a8e5948951f94ee33ffdf4, type: 2}
+  m_sharedMaterial: {fileID: 7718814860977298816, guid: 35dedccab6a8e5948951f94ee33ffdf4, type: 2}
   m_fontSharedMaterials: []
   m_fontMaterial: {fileID: 0}
   m_fontMaterials: []
