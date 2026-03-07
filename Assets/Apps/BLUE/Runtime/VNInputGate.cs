@@ -36,7 +36,18 @@ namespace PPP.BLUE.VN
             => ResolveState(policy) == VNInputState.Dialogue;
 
         public static bool CanSave(VNPolicyController policy)
-            => ResolveState(policy) == VNInputState.Dialogue;
+        {
+            if (policy == null) return false;
+
+            // Save 가능 여부는 "입력 포커스"와 분리해서 판단한다.
+            // 포커스가 잠시 벗어난 동안 타이핑 완료 콜백이 들어와도 SaveAllowed가
+            // 영구적으로 FALSE에 고정되지 않도록, modal/drink/choice만 차단한다.
+            if (policy.IsChoiceWaiting) return false;
+            if (policy.IsDrinkPanelOpen) return false;
+            if (policy.IsClosePopupOpen || policy.IsModalOpen) return false;
+
+            return true;
+        }
     }
 }
 
