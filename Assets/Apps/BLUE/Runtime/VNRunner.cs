@@ -40,7 +40,7 @@ namespace PPP.BLUE.VN
 
         public System.Action<string> OnEnterDrink;
         public bool skipMode = false;
-        [SerializeField] private float holdSkipStepInterval = 0.06f;
+        [SerializeField] private float holdSkipStepInterval = 0.02f;
         private float nextHoldSkipAllowedTime;
         private string lastDrinkResult = "";
 
@@ -261,31 +261,14 @@ namespace PPP.BLUE.VN
             lastMinimized = nowMin;
 
             // ----------------------------
-            // 1) Policy 기반 Auto suspend/resume (modal/drink/minimized)
+            // 1) Policy 기반 Auto 강제 OFF (modal/drink/minimized)
             // ----------------------------
             bool blocked = IsBlockingModalState(nowMin);
 
-            // 막힘이 "켜지는 순간" -> Auto 일시정지
+            // 막힘이 "켜지는 순간" -> Auto 강제 OFF
             if (blocked && !lastBlocked)
             {
-                if (settings.auto) autoSuspendedByBlock = true;
-
-                StopAutoTimer();
-                CancelAuto();
-
-                if (logToConsole) Debug.Log("[VN] Auto suspended by modal/drink/minimized");
-            }
-
-            // 막힘이 "꺼지는 순간" -> Auto 재개 (유저 의도가 ON일 때만)
-            if (!blocked && lastBlocked)
-            {
-                if (settings.auto && autoSuspendedByBlock)
-                {
-                    autoSuspendedByBlock = false;
-                    TryStartAutoTimer();
-
-                    if (logToConsole) Debug.Log("[VN] Auto resumed after modal/drink");
-                }
+                ForceAutoOff("Blocked by modal/drink/minimized");
             }
 
             lastBlocked = blocked;

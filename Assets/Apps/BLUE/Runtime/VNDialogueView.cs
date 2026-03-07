@@ -22,6 +22,10 @@ namespace PPP.BLUE.VN
         [Header("Typing")]
         [SerializeField] private float charsPerSecond = 40f;
 
+        [Header("Skip Preview")]
+        [SerializeField, Range(0.05f, 1f)] private float skipPreviewRatio = 0.2f;
+        [SerializeField] private int skipPreviewMinChars = 2;
+
         // 현재 라인의 풀텍스트 (SkipToEnd용)
         private string currentFullText = "";
         private bool lineCompleted = true; // true면 Next로 "다음 라인" 가능
@@ -218,7 +222,10 @@ namespace PPP.BLUE.VN
             if (lineCompleted) return false;
             if (typer == null || !typer.IsTyping) return false;
 
-            ForceCompleteLine();
+            // 일반 스킵은 "전체 문장 강제 출력" 대신 "부분 프리뷰 후 다음 줄" UX를 사용한다.
+            // (한 줄씩 훑어 지나가되, 근거 없이 통째로 점프하지 않도록 유지)
+            typer.CompleteWithPreview(skipPreviewRatio, skipPreviewMinChars, "...");
+            lineCompleted = true;
             return true;
         }
 
