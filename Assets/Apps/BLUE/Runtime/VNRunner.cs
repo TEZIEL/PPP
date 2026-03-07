@@ -21,6 +21,7 @@ namespace PPP.BLUE.VN
         private VNState state;
         private Coroutine autoCo;
         [SerializeField] private VNPolicyController policy;
+        private VNDialogueView dialogueView;
         // --- Auto suspend/resume by modal/drink ---
         private bool lastBlocked;                 // 지난 프레임에 입력/오토가 막혀있었나?
         private bool autoSuspendedByBlock;        // 막힘 때문에 Auto를 멈췄었나?
@@ -40,8 +41,6 @@ namespace PPP.BLUE.VN
 
         public System.Action<string> OnEnterDrink;
         public bool skipMode = false;
-        [SerializeField] private float holdSkipStepInterval = 0.02f;
-        private float nextHoldSkipAllowedTime;
         private string lastDrinkResult = "";
 
 
@@ -89,6 +88,7 @@ namespace PPP.BLUE.VN
             TryResolveBridge(silent: true);
 
             BindPolicy("Awake");
+            if (dialogueView == null) dialogueView = GetComponentInChildren<VNDialogueView>(true);
             skipMode = false; // 인스펙터 값과 무관하게 런타임 기본 OFF
 
             // ✅ 1프레임 뒤 재시도 (WindowManager가 AttachContent 후 wiring 끝난 뒤)
@@ -318,17 +318,11 @@ namespace PPP.BLUE.VN
 
 
             // ----------------------------
-            // 2) Skip blocked safety + Hotkeys
+            // 2) Hotkeys
             // ----------------------------
-            if (skipMode && (policy == null || !VNInputGate.CanUseSkipOrAuto(policy)))
-            {
-                skipMode = false;
-                if (logToConsole) Debug.Log("[VN] SkipMode forced OFF (blocked)");
-            }
-
             if (Input.GetKeyDown(KeyCode.F1))
             {
-                ToggleSkip();
+                ToggleSkip("Hotkey F1");
             }
 
             if (Input.GetKeyDown(KeyCode.F2))
@@ -343,7 +337,22 @@ namespace PPP.BLUE.VN
             }
 
             // ----------------------------
-            // 3) Safety: 조건 깨졌으면 코루틴 Auto 즉시 정지
+            // 3) Skip loop: SkipMode는 대사 고속 진행 전용
+            // ----------------------------
+            if (skipMode)
+            {
+                if (!CanRunSkipStep())
+                {
+                    if (logToConsole) Debug.Log("[VN] Skip loop paused (blocked). ");
+                }
+                else
+                {
+                    SkipStep();
+                }
+            }
+
+            // ----------------------------
+            // 4) Safety: 조건 깨졌으면 코루틴 Auto 즉시 정지
             // ----------------------------
             if (autoCo != null && !CanAutoAdvance())
                 StopAutoTimer();
@@ -427,6 +436,58 @@ namespace PPP.BLUE.VN
             return choices;
         }
 
+        private bool IsInteractionNodeForSkip(VNNode node)
+        {
+            if (node == null) return false;
+
+            if (node.type == VNNodeType.Choice) return true;
+
+            if (node.type == VNNodeType.Branch && node.branches != null && node.branches.Length > 0 &&
+                HasAnyChoiceText(node.branches))
+                return true;
+
+            if (node.type == VNNodeType.Call)
+                return true;
+
+            return false;
+        }
+
+        private string GetSkipStopReason(VNNode node)
+        {
+            if (node == null) return "Interaction Node";
+            if (node.type == VNNodeType.Call)
+            {
+                var target = node.callTarget ?? string.Empty;
+                if (target.IndexOf("drink", StringComparison.OrdinalIgnoreCase) >= 0)
+                    return "Drink Call";
+
+                return "Call Node";
+            }
+
+            if (node.type == VNNodeType.Choice || node.type == VNNodeType.Branch)
+                return "Choice Node";
+
+            return "Interaction Node";
+        }
+
+        private bool CanRunSkipStep()
+        {
+            if (!skipMode) return false;
+            if (!HasScript) return false;
+            if (policy == null) return false;
+            return VNInputGate.CanUseSkipOrAuto(policy);
+        }
+
+        private void ForceSkipOff(string reason)
+        {
+            if (!skipMode) return;
+
+            skipMode = false;
+
+            if (logToConsole)
+                Debug.Log($"[VN] SkipMode forced OFF ({reason})");
+        }
+
         public void Next()
         {
             if (TryResumePendingCallAfterLoad()) return;
@@ -470,6 +531,11 @@ namespace PPP.BLUE.VN
                     {
                         pointer++;
                         continue;
+                    }
+
+                    if (skipMode && IsInteractionNodeForSkip(node))
+                    {
+                        ForceSkipOff(GetSkipStopReason(node));
                     }
 
                     switch (node.type)
@@ -1720,32 +1786,35 @@ namespace PPP.BLUE.VN
             runner.ToggleAutoFromInput("UI Button");
         }
 
-        public void ToggleSkip()
+        public void ToggleSkip(string source = "UI Button")
         {
-            if (policy == null || !VNInputGate.CanUseSkipOrAuto(policy))
+            if (!skipMode)
             {
-                if (logToConsole) Debug.Log("[VN] Skip toggle ignored (blocked)");
+                if (!HasScript || policy == null || !VNInputGate.CanUseSkipOrAuto(policy))
+                {
+                    if (logToConsole) Debug.Log($"[VN] SkipMode toggle ignored (blocked) source={source}");
+                    return;
+                }
+
+                skipMode = true;
+                ForceAutoOff("SkipMode On");
+                if (logToConsole) Debug.Log("[VN] SkipMode: True");
+
+                SkipStep();
                 return;
             }
 
-            skipMode = !skipMode;
-
-            if (skipMode)
-            {
-                nextHoldSkipAllowedTime = Time.unscaledTime;
-                ForceAutoOff("Skip On");
-            }
-
-            if (logToConsole)
-                Debug.Log("[VN] SkipMode: " + skipMode);
+            ForceSkipOff("Toggle");
         }
 
         private void SkipStep()
         {
-            if (!HasScript) return;
-            if (policy == null || !VNInputGate.CanUseSkipOrAuto(policy)) return;
+            if (!CanRunSkipStep()) return;
 
-            if (GetComponentInChildren<VNDialogueView>(true)?.TryCompleteCurrentLineForSkip() == true)
+            if (dialogueView == null)
+                dialogueView = GetComponentInChildren<VNDialogueView>(true);
+
+            if (dialogueView?.TryCompleteCurrentLineForSkip() == true)
                 return;
 
             if (!SaveAllowed)
