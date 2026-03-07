@@ -18,11 +18,14 @@ namespace PPP.BLUE.VN
             if (runner == null || !runner.HasScript)
                 return;
 
+            if (Input.GetKeyDown(KeyCode.Alpha5))
+                Debug.Log($"[VNDBG] TrySaveNow(5) => {runner.TrySaveNow("DebugHotkey5")}");
+
             if (Input.GetKeyDown(KeyCode.Alpha6))
-            runner.DebugForceSave("6");
+                runner.DebugForceSave("6");
 
             if (Input.GetKeyDown(KeyCode.Alpha7))
-            runner.DebugForceLoad("7");
+                runner.DebugForceLoad("7");
 #endif
         }
     }

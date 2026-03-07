@@ -89,6 +89,7 @@ namespace PPP.BLUE.VN
             TryResolveBridge(silent: true);
 
             BindPolicy("Awake");
+            skipMode = false; // 인스펙터 값과 무관하게 런타임 기본 OFF
 
             // ✅ 1프레임 뒤 재시도 (WindowManager가 AttachContent 후 wiring 끝난 뒤)
             StartCoroutine(CoBindPolicyNextFrame());
@@ -235,18 +236,6 @@ namespace PPP.BLUE.VN
 
         private void Update()
         {
-            if (skipMode && (policy == null || !VNInputGate.CanUseSkipOrAuto(policy)))
-            {
-                skipMode = false;
-                if (logToConsole) Debug.Log("[VN] Skip forced OFF (state changed)");
-            }
-
-            if (skipMode && Time.unscaledTime >= nextSkipAllowedTime)
-            {
-                SkipStep();
-                nextSkipAllowedTime = Time.unscaledTime + Mathf.Max(0.01f, skipStepInterval);
-            }
-
             if (!HasScript) return;
 
             // ----------------------------
@@ -1699,16 +1688,13 @@ namespace PPP.BLUE.VN
                 return;
             }
 
-            skipMode = !skipMode;
-
-            if (skipMode)
-            {
-                nextSkipAllowedTime = Time.unscaledTime;
-                ForceAutoOff("Skip On");
-            }
+            // UX 정책: F1은 자동 연속 스킵이 아니라 1회 라인 진행으로 동작
+            skipMode = false;
+            ForceAutoOff("Skip Step (F1)");
+            SkipStep();
 
             if (logToConsole)
-                Debug.Log("[VN] SkipMode: " + skipMode);
+                Debug.Log("[VN] SkipStep triggered (one-shot)");
         }
 
         private void SkipStep()
