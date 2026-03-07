@@ -21,6 +21,7 @@ namespace PPP.BLUE.VN
         private VNState state;
         private Coroutine autoCo;
         [SerializeField] private VNPolicyController policy;
+        private VNDialogueView dialogueView;
         // --- Auto suspend/resume by modal/drink ---
         private bool lastBlocked;                 // 지난 프레임에 입력/오토가 막혀있었나?
         private bool autoSuspendedByBlock;        // 막힘 때문에 Auto를 멈췄었나?
@@ -40,8 +41,13 @@ namespace PPP.BLUE.VN
 
         public System.Action<string> OnEnterDrink;
         public bool skipMode = false;
+
+        // Legacy compatibility fields: kept to prevent compile breaks on partial merges
+        // that still reference old hold-skip variables.
         [SerializeField] private float holdSkipStepInterval = 0.02f;
         private float nextHoldSkipAllowedTime;
+        private bool wasF1Held;
+
         private string lastDrinkResult = "";
 
 
@@ -89,6 +95,7 @@ namespace PPP.BLUE.VN
             TryResolveBridge(silent: true);
 
             BindPolicy("Awake");
+            if (dialogueView == null) dialogueView = GetComponentInChildren<VNDialogueView>(true);
             skipMode = false; // 인스펙터 값과 무관하게 런타임 기본 OFF
 
             // ✅ 1프레임 뒤 재시도 (WindowManager가 AttachContent 후 wiring 끝난 뒤)
@@ -118,6 +125,30 @@ namespace PPP.BLUE.VN
         public void MarkSaveAllowed()
         {
             MarkSaveAllowed(true, "Typing End");
+        }
+
+        private void RefreshSaveAllowedFromPolicy(string reason)
+        {
+            if (policy == null) return;
+
+            bool gate = policy.CanSaveDialogueState();
+
+            if (SaveAllowed == gate) return;
+
+            SaveAllowed = gate;
+
+            if (logToConsole)
+                Debug.Log($"[VN] SaveAllowed {(SaveAllowed ? "TRUE" : "FALSE")} ({reason})");
+
+            if (SaveAllowed)
+            {
+                if (settings.auto)
+                    TryStartAutoTimer();
+            }
+            else
+            {
+                StopAutoTimer();
+            }
         }
 
 
@@ -166,6 +197,17 @@ namespace PPP.BLUE.VN
 
             if (LoadState())
                 GetComponentInChildren<VNDialogueView>(true)?.LockInputFrames(1);
+
+            // ✅ 시작 시 Auto는 항상 OFF로 강제(저장 상태가 ON이어도 시작 직후 자동 진행 방지)
+            if (settings.auto)
+            {
+                settings.auto = false;
+                StopAutoTimer();
+                CancelAuto();
+
+                if (logToConsole)
+                    Debug.Log("[VN] Auto forced OFF (Begin)");
+            }
 
             started = true;
             Next();
@@ -264,11 +306,18 @@ namespace PPP.BLUE.VN
             // 1) Policy 기반 Auto 강제 OFF (modal/drink/minimized)
             // ----------------------------
             bool blocked = IsBlockingModalState(nowMin);
+            bool wasBlocked = lastBlocked;
 
             // 막힘이 "켜지는 순간" -> Auto 강제 OFF
-            if (blocked && !lastBlocked)
+            if (blocked && !wasBlocked)
             {
                 ForceAutoOff("Blocked by modal/drink/minimized");
+            }
+
+            // ✅ 막힘이 풀리는 순간 Save gate를 재평가해서 Auto 재시작 가능 상태를 복구
+            if (!blocked && wasBlocked)
+            {
+                RefreshSaveAllowedFromPolicy("Unblocked");
             }
 
             lastBlocked = blocked;
@@ -276,24 +325,24 @@ namespace PPP.BLUE.VN
 
 
             // ----------------------------
-            // 2) Hotkeys: blocked 중에는 무시
+            // 2) Hotkeys
             // ----------------------------
-            bool f1Down = Input.GetKeyDown(KeyCode.F1);
+            // Hold Skip: F1 누르고 있는 동안만 SkipStep 반복
             bool f1Held = Input.GetKey(KeyCode.F1);
+            if (f1Held && !wasF1Held)
+                Debug.Log("[VN] F1 Hold Skip START");
+            else if (!f1Held && wasF1Held)
+                Debug.Log("[VN] F1 Hold Skip END");
+            wasF1Held = f1Held;
 
-            if (f1Down)
+            if (f1Held)
             {
-                nextHoldSkipAllowedTime = Time.unscaledTime;
-                TriggerSkipStep("F1 Down");
-            }
-            else if (f1Held && Time.unscaledTime >= nextHoldSkipAllowedTime)
-            {
-                TriggerSkipStep("F1 Hold");
-                nextHoldSkipAllowedTime = Time.unscaledTime + Mathf.Max(0.01f, holdSkipStepInterval);
+                SkipStep();
             }
 
             if (Input.GetKeyDown(KeyCode.F2))
             {
+                Debug.Log("[VN] F2 Auto Toggle key pressed");
                 ToggleAutoFromInput("Hotkey F2");
             }
 
@@ -382,6 +431,58 @@ namespace PPP.BLUE.VN
             return choices;
         }
 
+        private bool IsInteractionNodeForSkip(VNNode node)
+        {
+            if (node == null) return false;
+
+            if (node.type == VNNodeType.Choice) return true;
+
+            if (node.type == VNNodeType.Branch && node.branches != null && node.branches.Length > 0 &&
+                HasAnyChoiceText(node.branches))
+                return true;
+
+            if (node.type == VNNodeType.Call)
+                return true;
+
+            return false;
+        }
+
+        private string GetSkipStopReason(VNNode node)
+        {
+            if (node == null) return "Interaction Node";
+            if (node.type == VNNodeType.Call)
+            {
+                var target = node.callTarget ?? string.Empty;
+                if (target.IndexOf("drink", StringComparison.OrdinalIgnoreCase) >= 0)
+                    return "Drink Call";
+
+                return "Call Node";
+            }
+
+            if (node.type == VNNodeType.Choice || node.type == VNNodeType.Branch)
+                return "Choice Node";
+
+            return "Interaction Node";
+        }
+
+        private bool CanRunSkipStep()
+        {
+            if (!skipMode) return false;
+            if (!HasScript) return false;
+            if (policy == null) return false;
+            return VNInputGate.CanUseSkipOrAuto(policy);
+        }
+
+        private void ForceSkipOff(string reason)
+        {
+            if (!skipMode) return;
+
+            skipMode = false;
+
+            if (logToConsole)
+                Debug.Log($"[VN] SkipMode forced OFF ({reason})");
+        }
+
         public void Next()
         {
             if (TryResumePendingCallAfterLoad()) return;
@@ -425,6 +526,11 @@ namespace PPP.BLUE.VN
                     {
                         pointer++;
                         continue;
+                    }
+
+                    if (skipMode && IsInteractionNodeForSkip(node))
+                    {
+                        ForceSkipOff(GetSkipStopReason(node));
                     }
 
                     switch (node.type)
@@ -1001,7 +1107,7 @@ namespace PPP.BLUE.VN
             if (!started) return false;
             if (policy == null) return false;
 
-            return VNInputGate.CanUseSkipOrAuto(policy) && SaveAllowed;
+            return VNInputGate.CanAutoAdvanceInBackground(policy) && SaveAllowed;
         }
 
         private bool CanToggleAuto()
@@ -1024,6 +1130,9 @@ namespace PPP.BLUE.VN
 
             if (turnOn)
             {
+                // ✅ 모달/팝업 해제 직후 SaveAllowed가 stale FALSE로 남은 경우 복구
+                RefreshSaveAllowedFromPolicy("Auto Toggle On");
+
                 skipMode = false;
                 StopAutoTimer();
                 TryStartAutoTimer();
@@ -1672,83 +1781,82 @@ namespace PPP.BLUE.VN
             runner.ToggleAutoFromInput("UI Button");
         }
 
-        private void TriggerSkipStep(string source)
+        public void ToggleSkip(string source = "UI Button")
         {
-            if (policy == null || !VNInputGate.CanUseSkipOrAuto(policy))
+            if (!HasScript || policy == null || !VNInputGate.CanUseSkipOrAuto(policy))
             {
                 if (logToConsole) Debug.Log($"[VN] Skip step ignored (blocked) source={source}");
                 return;
             }
 
-            skipMode = false;
-            ForceAutoOff("Skip Step (F1)");
+            ForceAutoOff("Skip Step (UI)");
             SkipStep();
 
             if (logToConsole)
                 Debug.Log($"[VN] SkipStep triggered source={source}");
         }
 
-        public void ToggleSkip()
-        {
-            TriggerSkipStep("UI Button");
-        }
-
         private void SkipStep()
         {
-            if (!HasScript) return;
-            if (policy == null || !VNInputGate.CanUseSkipOrAuto(policy)) return;
-
-            if (GetComponentInChildren<VNDialogueView>(true)?.TryCompleteCurrentLineForSkip() == true)
+            if (!CanRunSkipStep())
+            {
+                if (logToConsole) Debug.Log($"[VN] SkipStep blocked hasScript={HasScript} policy={(policy != null)} gate={(policy != null && VNInputGate.CanUseSkipOrAuto(policy))}");
                 return;
+            }
+
+            if (dialogueView == null)
+                dialogueView = GetComponentInChildren<VNDialogueView>(true);
+
+            if (dialogueView?.TryCompleteCurrentLineForSkip() == true)
+            {
+                if (logToConsole) Debug.Log("[VN] SkipStep completed current typing line");
+                return;
+            }
 
             if (!SaveAllowed)
+            {
+                if (logToConsole) Debug.Log("[VN] SkipStep blocked (SaveAllowed false)");
                 return;
+            }
 
+            if (logToConsole) Debug.Log("[VN] SkipStep -> Next()");
             Next();
         }
-
-        
-
-        
 
         private VNScript BuildTestScript()
         {
             var nodes = new List<VNNode>
-    {
-            new VNNode { id="t.001", type=VNNodeType.Say, speakerId="sys",
-            text="(Test) Dialogue -> Drink -> Branch. Press SPACE to continue." },
+            {
+                new VNNode { id="t.001", type=VNNodeType.Say, speakerId="sys", text="(Test) Dialogue -> Drink -> Branch. Press SPACE to continue." },
 
-        // ✅ Call 노드로 외부 Drink 패널을 연다.
-            new VNNode { id="t.call", type=VNNodeType.Call, callTarget="Drink", callArg="order001" },
+                // ✅ Call 노드로 외부 Drink 패널을 연다.
+                new VNNode { id="t.call", type=VNNodeType.Call, callTarget="Drink", callArg="order001" },
 
-        // 결과 버튼을 누르면 runner.ReturnFromCall(...)이 호출되고
-        // 그 직후 여기 Branch로 복귀한다.
-            new VNNode {
-                id="t.branch",
-                type=VNNodeType.Branch,
-                branches = new[]
-                {
-                // great는 success 포함 규칙이라 great>=2면 항상 route2로 가게 됨
-                new VNNode.BranchRule{ expr="lastDrink==1", jumpLabel="route2" },
-                new VNNode.BranchRule{ expr="lastDrink==3", jumpLabel="route3" },
-                new VNNode.BranchRule{ expr="else",         jumpLabel="route1" },
-                }
-            },
+                // 결과 버튼을 누르면 runner.ReturnFromCall(...)이 호출되고
+                // 그 직후 여기 Branch로 복귀한다.
+                new VNNode {
+                    id="t.branch",
+                    type=VNNodeType.Branch,
+                    branches = new[]
+                    {
+                        // great는 success 포함 규칙이라 great>=2면 항상 route2로 가게 됨
+                        new VNNode.BranchRule{ expr="lastDrink==1", jumpLabel="route2" },
+                        new VNNode.BranchRule{ expr="lastDrink==3", jumpLabel="route3" },
+                        new VNNode.BranchRule{ expr="else",         jumpLabel="route1" },
+                    }
+                },
 
-            new VNNode { id="t.r1", type=VNNodeType.Label, label="route1" },
-            new VNNode { id="t.r1s", type=VNNodeType.Say, speakerId="sys",
-                text="Route 1: Normal result (not enough Great, not enough Fail)." },
-            new VNNode { id="t.end1", type=VNNodeType.End },
+                new VNNode { id="t.r1", type=VNNodeType.Label, label="route1" },
+                new VNNode { id="t.r1s", type=VNNodeType.Say, speakerId="sys", text="Route 1: Normal result (not enough Great, not enough Fail)." },
+                new VNNode { id="t.end1", type=VNNodeType.End },
 
-            new VNNode { id="t.r2", type=VNNodeType.Label, label="route2" },
-            new VNNode { id="t.r2s", type=VNNodeType.Say, speakerId="sys",
-                text="Route 2: Great >= 2 (Excellent performance)." },
-            new VNNode { id="t.end2", type=VNNodeType.End },
+                new VNNode { id="t.r2", type=VNNodeType.Label, label="route2" },
+                new VNNode { id="t.r2s", type=VNNodeType.Say, speakerId="sys", text="Route 2: Great >= 2 (Excellent performance)." },
+                new VNNode { id="t.end2", type=VNNodeType.End },
 
-            new VNNode { id="t.r3", type=VNNodeType.Label, label="route3" },
-            new VNNode { id="t.r3s", type=VNNodeType.Say, speakerId="sys",
-                text="Route 3: Fail >= 2 (Too many mistakes)." },
-            new VNNode { id="t.end3", type=VNNodeType.End },
+                new VNNode { id="t.r3", type=VNNodeType.Label, label="route3" },
+                new VNNode { id="t.r3s", type=VNNodeType.Say, speakerId="sys", text="Route 3: Fail >= 2 (Too many mistakes)." },
+                new VNNode { id="t.end3", type=VNNodeType.End },
             };
 
             return new VNScript("test", nodes);

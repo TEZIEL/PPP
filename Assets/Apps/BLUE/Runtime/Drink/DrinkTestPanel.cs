@@ -74,9 +74,20 @@ namespace PPP.BLUE.VN
         {
             isOpening = true;
 
-            // 다른 modal 완전 종료까지 대기
+            // 다른 modal 완전 종료까지 대기 (deadlock 안전장치 포함)
+            float modalWaitStart = Time.unscaledTime;
+            const float MODAL_WAIT_TIMEOUT = 3f;
+
             while (policy != null && policy.IsModalOpen)
+            {
+                if (Time.unscaledTime - modalWaitStart > MODAL_WAIT_TIMEOUT)
+                {
+                    Debug.LogWarning("[DrinkPanel] Modal wait timeout — forcing open");
+                    break;
+                }
+
                 yield return null;
+            }
 
             if (isOpen) { isOpening = false; openCo = null; yield break; }
 
