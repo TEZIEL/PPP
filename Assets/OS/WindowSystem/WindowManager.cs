@@ -600,49 +600,44 @@ public class WindowManager : MonoBehaviour, IVNHostOS
 
     public void Close(string appId)
     {
+        TryHandleClose(appId, "Close");
+    }
 
-        // 1.5) ✅ ExitLocked면 닫기 무시 (VN이 강제 잠금 걸어둔 상태)
+    private bool TryHandleClose(string appId, string source)
+    {
+        if (string.IsNullOrEmpty(appId)) return false;
+
+        // ✅ ExitLocked면 닫기 무시 (VN이 강제 잠금 걸어둔 상태)
         if (IsExitLocked(appId))
         {
-            Debug.Log("[OS] Close ignored (ExitLocked).");
-            return;
+            Debug.Log($"[OS] {source} ignored (ExitLocked).");
+            return false;
         }
-        // 0) Close 입력락
+
+        // Close 입력락
         if (IsCloseLocked())
         {
-            Debug.Log("[OS] Close ignored (close lock).");
-            return;
+            Debug.Log($"[OS] {source} ignored (close lock).");
+            return false;
         }
 
-        // 1) 대상 창 확인
+        // 대상 창 확인
         if (!openWindows.TryGetValue(appId, out var window) || window == null)
-            return;
+            return false;
 
-        // 2) ✅ VN Drink 모드면: 닫기 자체 무시(팝업도 금지)
-        if (IsVNInDrinkMode(appId))
-        {
-            Debug.Log("[OS] Close ignored (VN drink mode).");
-            return;
-        }
-
-        // 3) (선택) 닫기 요청 시 포커스 확보
+        // 닫기 요청 시 포커스 확보
         EnsureFocused(appId);
 
-        // 4) 브릿지 찾기
-        closeHandlers.TryGetValue(appId, out var handler); // handler: IVNCloseRequestHandler (or VNOSBridge)
+        // 브릿지 찾기
+        closeHandlers.TryGetValue(appId, out var handler);
 
-        Debug.Log(
-    $"[OS] Close() appId={appId} " +
-    $"handler={(handler == null ? "NULL" : handler.GetType().Name)} " +
-    $"canClose={(handler != null ? handler.CanCloseNow().ToString() : "N/A")}"
-);
+        bool canClose = handler == null || handler.CanCloseNow();
+        Debug.Log($"[OS] {source} appId={appId} handler={(handler == null ? "NULL" : handler.GetType().Name)} canClose={canClose}");
 
-        // 5) VN이 닫기를 막는 상태면: OS는 닫지 않고, VN에게 “닫기 요청”만 전달
-        if (handler != null && !handler.CanCloseNow())
+        if (!canClose)
         {
             Debug.Log("[OS] Close blocked by VN.");
 
-            // ✅ OnForceCloseRequested는 "VNOSBridge에만" 있으니까 캐스팅 필요
             if (handler is PPP.BLUE.VN.VNOSBridge bridge)
             {
                 void OnForce()
@@ -659,16 +654,20 @@ public class WindowManager : MonoBehaviour, IVNHostOS
                 bridge.OnForceCloseRequested += OnForce;
             }
 
-            // ✅ Notify는 인터페이스에 있으니 handler로 호출
-            handler.NotifyCloseRequested();
-            return;
+            handler?.NotifyCloseRequested();
+            return false;
         }
 
-        // 6) 검증 통과 → 실제 닫기
+        if (handler != null)
+        {
+            bool consumed = handler.ConsumeClosePermission();
+            Debug.Log($"[OS] {source} consumeClosePermission={consumed} appId={appId}");
+        }
+
         PerformClose(window, appId);
+        return true;
     }
 
-    
 
     private void PerformClose(WindowController window, string appId)
     {
@@ -840,20 +839,6 @@ public class WindowManager : MonoBehaviour, IVNHostOS
     }
 
 
-    private bool IsVNInDrinkMode(string appId)
-    {
-        // VN 앱만 검사하고 싶으면 appId 비교해도 됨(선택)
-        if (!openWindows.TryGetValue(appId, out var wc) || wc == null) return false;
-
-        var policy = wc.GetComponentInChildren<PPP.BLUE.VN.VNPolicyController>(true);
-        if (policy == null) return false;
-
-        return policy.IsInDrinkMode;
-    }
-
-
-
-
     private IEnumerator CoFinalizeSpawn(WindowController w)
     {
         yield return null; // 1프레임 대기 (Canvas/Layout 안정화)
@@ -961,47 +946,7 @@ public class WindowManager : MonoBehaviour, IVNHostOS
 
     public void RequestClose(string appId)
     {
-        if (string.IsNullOrEmpty(appId)) return;
-
-        if (!openWindows.TryGetValue(appId, out var window) || window == null)
-            return;
-
-        // (선택) VN drink mode면 무시 (팝업도 금지 정책이면 유지)
-        if (IsVNInDrinkMode(appId))
-        {
-            Debug.Log("[OS] Close ignored (VN drink mode).");
-            return;
-        }
-
-        closeHandlers.TryGetValue(appId, out var handler);
-
-        Debug.Log($"[OS] RequestClose() appId={appId} handler={(handler == null ? "NULL" : handler.GetType().Name)} canClose={(handler != null ? handler.CanCloseNow().ToString() : "N/A")}");
-
-        if (handler != null && !handler.CanCloseNow())
-        {
-            Debug.Log("[OS] Close blocked by VN.");
-
-            if (handler is PPP.BLUE.VN.VNOSBridge bridge)
-            {
-                void OnForce()
-                {
-                    bridge.OnForceCloseRequested -= OnForce;
-
-                    if (!openWindows.TryGetValue(appId, out var w2) || w2 == null)
-                        return;
-
-                    PerformClose(w2, appId); // ✅ 여기 2개 인자
-                }
-
-                bridge.OnForceCloseRequested -= OnForce;
-                bridge.OnForceCloseRequested += OnForce;
-            }
-
-            handler.NotifyCloseRequested();
-            return;
-        }
-
-        PerformClose(window, appId); // ✅ 여기 2개 인자
+        TryHandleClose(appId, "RequestClose");
     }
 
     public void SaveSubBlock(string key, object data)
