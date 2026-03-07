@@ -16,6 +16,8 @@ namespace PPP.BLUE.VN
         [SerializeField] private VNOSBridge osBridge;
         [SerializeField] private VNOSBridge bridge;
         [SerializeField] private DrinkTestPanel drinkTestPanel;
+        [SerializeField] private RectTransform advanceClickArea;
+        [SerializeField] private Camera uiCamera;
 
         [Header("Typing")]
         [SerializeField] private float charsPerSecond = 40f;
@@ -55,7 +57,20 @@ namespace PPP.BLUE.VN
             if (typer != null) typer.SetTarget(dialogueText);
             if (runner == null) runner = GetComponentInParent<VNRunner>(true);
             choicePanel = GetComponentInChildren<VNChoicePanel>(true); // 같은 윈도우 트리에서 찾기
+            if (advanceClickArea == null && dialogueText != null)
+                advanceClickArea = dialogueText.rectTransform;
             Debug.Log($"[VN_UI] bind runner={(runner ? runner.name : "NULL")} choicePanel={(choicePanel ? choicePanel.name : "NULL")}");
+        }
+
+        private bool IsPointerInsideAdvanceArea()
+        {
+            if (advanceClickArea == null)
+                return false;
+
+            return RectTransformUtility.RectangleContainsScreenPoint(
+                advanceClickArea,
+                Input.mousePosition,
+                uiCamera);
         }
 
         private void OnEnable()
@@ -125,6 +140,9 @@ namespace PPP.BLUE.VN
             bool pressedSpace = Input.GetKeyDown(KeyCode.Space);
             bool clicked = Input.GetMouseButtonDown(0);
             if (!pressedSpace && !clicked) return;
+
+            if (clicked && !IsPointerInsideAdvanceArea())
+                return;
 
             // ✅ 유저 입력이면 무조건 Auto OFF (타이핑완료/Next 둘 다 포함)
             runner.ForceAutoOff(pressedSpace ? "User input (Space)" : "User input (Click)");
