@@ -213,6 +213,15 @@ namespace PPP.BLUE.VN
             lineCompleted = true; // 안전하게 유지
         }
 
+        public bool TryCompleteCurrentLineForSkip()
+        {
+            if (lineCompleted) return false;
+            if (typer == null || !typer.IsTyping) return false;
+
+            ForceCompleteLine();
+            return true;
+        }
+
         private void HandleEnd()
         {
             // 엔드 처리 (지금은 비워도 됨)
