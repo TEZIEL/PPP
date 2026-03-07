@@ -24,7 +24,7 @@ namespace PPP.BLUE.VN
 
         [Header("Skip Preview")]
         [SerializeField, Range(0.05f, 1f)] private float skipPreviewRatio = 0.2f;
-        [SerializeField] private int skipPreviewMinChars = 1;
+        [SerializeField] private int skipPreviewMinChars = 2;
 
         // 현재 라인의 풀텍스트 (SkipToEnd용)
         private string currentFullText = "";
