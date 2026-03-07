@@ -132,12 +132,25 @@ namespace PPP.BLUE.VN
                 yield break;
             }
 
-            float interval = 1f / Mathf.Max(1f, charsPerSecond);
+            float charsPerFrame = charsPerSecond * Time.unscaledDeltaTime;
+            float accumulator = 0f;
+            int index = 0;
 
-            for (int i = 0; i < fullText.Length; i++)
+            while (index < fullText.Length)
             {
-                target.text += fullText[i];
-                yield return new WaitForSeconds(interval);
+                accumulator += charsPerSecond * Time.unscaledDeltaTime;
+
+                int emit = Mathf.FloorToInt(accumulator);
+                if (emit > 0)
+                {
+                    accumulator -= emit;
+
+                    int next = Mathf.Min(index + emit, fullText.Length);
+                    target.text = fullText.Substring(0, next);
+                    index = next;
+                }
+
+                yield return null;
             }
 
             co = null;

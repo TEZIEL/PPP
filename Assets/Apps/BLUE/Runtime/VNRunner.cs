@@ -29,6 +29,7 @@ namespace PPP.BLUE.VN
         private int waitPointer = -1;   // 화면에 보여주고 '기다리는' 노드 인덱스
         private bool isWaiting;         // 지금 입력/선택 대기 상태인지
         private List<VNNode> nodes = new List<VNNode>();
+        public bool IsSkipMode => skipMode;
 
         private const string SAVE_KEY = "vn.state";
         private const string VN_STATE_KEY = "vn.state";
@@ -110,15 +111,18 @@ namespace PPP.BLUE.VN
             SaveAllowed = allowed && gate;
 
             if (logToConsole)
-                Debug.Log($"[VN] SaveAllowed {(SaveAllowed ? "TRUE" : "FALSE")} ({reason})");
+                VNLog($"[VN] SaveAllowed {(SaveAllowed ? "TRUE" : "FALSE")} ({reason})");
 
-            if (SaveAllowed)
+            // 🔴 Skip 중에는 저장 금지
+            if (SaveAllowed && !skipMode)
             {
                 SaveState();
                 TryStartAutoTimer();
             }
             else
+            {
                 StopAutoTimer();
+            }
         }
 
         // ✅ 기존 호출 유지용(대부분 DialogueView가 runner.MarkSaveAllowed()로 호출하니까)
@@ -339,9 +343,9 @@ namespace PPP.BLUE.VN
 
             wasF1Held = f1Held;
 
-            if (f1Held)
+            if (f1Held && VNInputGate.CanUseSkipOrAuto(policy))
             {
-                for (int i = 0; i < 30; i++)
+               
                     SkipStep();
             }
 
@@ -500,9 +504,9 @@ namespace PPP.BLUE.VN
             }
 
             {
-                Debug.Log($"[VN] Next() id={GetInstanceID()} go={gameObject.name} pointer={pointer} started={started}");
-                Debug.Log($"[VN] Next() pointer={pointer} nodes={script?.nodes?.Count ?? -1} started={started}");
-                Debug.Log("[VN] SaveAllowed FALSE (Next)");
+                VNLog($"[VN] Next() id={GetInstanceID()} go={gameObject.name} pointer={pointer} started={started}");
+                VNLog($"[VN] Next() pointer={pointer} nodes={script?.nodes?.Count ?? -1} started={started}");
+                VNLog("[VN] SaveAllowed FALSE (Next)");
                 MarkSaveBlocked();
                 if (script == null || script.nodes == null)
                 {
@@ -524,28 +528,32 @@ namespace PPP.BLUE.VN
                     }
 
                     var node = script.nodes[pointer];
-                    Debug.Log($"[VN] node@{pointer} type={node?.type} label={node?.label}");
+                    VNLog($"[VN] node@{pointer} type={node?.type} label={node?.label}");
                     if (node == null)
                     {
                         pointer++;
                         continue;
                     }
 
-                    if (skipMode && IsInteractionNodeForSkip(node))
-                    {
-                        ForceSkipOff(GetSkipStopReason(node));
-                    }
+                    
 
                     switch (node.type)
                     {
                         case VNNodeType.Say:
-                            waitPointer = pointer;
-                            isWaiting = true;
+
                             lastShownPointer = pointer;
 
                             EmitSay(node);
                             pointer++;
-                            return;
+
+                            if (!skipMode)
+                            {
+                                waitPointer = pointer - 1;
+                                isWaiting = true;
+                                return;
+                            }
+
+                            continue;
 
                         case VNNodeType.Choice:
                             {
@@ -601,6 +609,8 @@ namespace PPP.BLUE.VN
 
                         case VNNodeType.Call:
                             {
+                               
+
                                 string target = node.callTarget ?? string.Empty;
                                 string arg = node.callArg ?? string.Empty;
 
@@ -637,6 +647,8 @@ namespace PPP.BLUE.VN
                             pointer++;
                             continue;
                     }
+
+                   
                 }
                 Debug.LogError($"[VNRunner] MAX_STEPS exceeded at pointer={pointer}. Possible infinite loop.");
 
@@ -649,8 +661,13 @@ namespace PPP.BLUE.VN
         }
 
 
+        private void VNLog(string msg)
+        {
+            if (!logToConsole) return;
+            if (skipMode) return;
 
-
+            Debug.Log(msg);
+        }
 
 
         public void SetScript(VNScript s)
@@ -1802,17 +1819,13 @@ namespace PPP.BLUE.VN
 
         private void SkipStep()
         {
-            // 정책 차단 (비포커스 / 최소화 / 모달 / 드링크 / 초이스)
-            if (policy == null || !VNInputGate.CanUseSkipOrAuto(policy))
-                return;
-
-            if (!HasScript)
+            if (!CanRunSkipStep())
                 return;
 
             if (dialogueView == null)
                 dialogueView = GetComponentInChildren<VNDialogueView>(true);
 
-            // 타이핑 중이면 즉시 완성
+            // 현재 타이핑 중이면 즉시 완성
             if (dialogueView?.TryCompleteCurrentLineForSkip() == true)
             {
                 MarkSaveAllowed(true, "Skip ForceComplete");
@@ -1820,11 +1833,10 @@ namespace PPP.BLUE.VN
                 return;
             }
 
-            // Save gate
+            // 저장 가능한 상태에서만 진행
             if (!SaveAllowed)
                 return;
 
-            // 다음 노드
             Next();
         }
 

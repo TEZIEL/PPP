@@ -193,6 +193,16 @@ namespace PPP.BLUE.VN
                 return;
             }
 
+            if (runner != null && runner.IsSkipMode)
+            {
+                dialogueText.text = currentFullText;
+                lineCompleted = true;
+
+                runner?.NotifyLineTypedEnd();
+                runner?.MarkSaveAllowed(true, "Skip Immediate");
+                return;
+            }
+
             // ✅ 타이핑 시작
             typer.StartTyping(currentFullText, onCompleted: () =>
             {
