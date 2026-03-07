@@ -40,8 +40,8 @@ namespace PPP.BLUE.VN
 
         public System.Action<string> OnEnterDrink;
         public bool skipMode = false;
-        [SerializeField] private float skipStepInterval = 0.12f;
-        private float nextSkipAllowedTime;
+        [SerializeField] private float holdSkipStepInterval = 0.06f;
+        private float nextHoldSkipAllowedTime;
         private string lastDrinkResult = "";
 
 
@@ -295,9 +295,18 @@ namespace PPP.BLUE.VN
             // ----------------------------
             // 2) Hotkeys: blocked 중에는 무시
             // ----------------------------
-            if (Input.GetKeyDown(KeyCode.F1))
+            bool f1Down = Input.GetKeyDown(KeyCode.F1);
+            bool f1Held = Input.GetKey(KeyCode.F1);
+
+            if (f1Down)
             {
-                ToggleSkip();
+                nextHoldSkipAllowedTime = Time.unscaledTime;
+                TriggerSkipStep("F1 Down");
+            }
+            else if (f1Held && Time.unscaledTime >= nextHoldSkipAllowedTime)
+            {
+                TriggerSkipStep("F1 Hold");
+                nextHoldSkipAllowedTime = Time.unscaledTime + Mathf.Max(0.01f, holdSkipStepInterval);
             }
 
             if (Input.GetKeyDown(KeyCode.F2))
@@ -1680,21 +1689,25 @@ namespace PPP.BLUE.VN
             runner.ToggleAutoFromInput("UI Button");
         }
 
-        public void ToggleSkip()
+        private void TriggerSkipStep(string source)
         {
             if (policy == null || !VNInputGate.CanUseSkipOrAuto(policy))
             {
-                if (logToConsole) Debug.Log("[VN] Skip toggle ignored (blocked)");
+                if (logToConsole) Debug.Log($"[VN] Skip step ignored (blocked) source={source}");
                 return;
             }
 
-            // UX 정책: F1은 자동 연속 스킵이 아니라 1회 라인 진행으로 동작
             skipMode = false;
             ForceAutoOff("Skip Step (F1)");
             SkipStep();
 
             if (logToConsole)
-                Debug.Log("[VN] SkipStep triggered (one-shot)");
+                Debug.Log($"[VN] SkipStep triggered source={source}");
+        }
+
+        public void ToggleSkip()
+        {
+            TriggerSkipStep("UI Button");
         }
 
         private void SkipStep()
