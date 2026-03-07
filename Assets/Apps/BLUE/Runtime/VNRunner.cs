@@ -590,13 +590,6 @@ namespace PPP.BLUE.VN
 
         private void EmitSay(VNNode node)
         {
-
-            if (skipMode)
-            {
-                pointer++;
-                return;
-            }
-
             var commands = ParseInlineCommands(node.text);
 
             string cleanText = RemoveInlineCommands(node.text);
