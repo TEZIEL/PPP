@@ -46,7 +46,7 @@ namespace PPP.BLUE.VN
 
         // Legacy compatibility fields: kept to prevent compile breaks on partial merges
         // that still reference old hold-skip variables.
-        [SerializeField] private float holdSkipStepInterval = 0.02f;
+        [SerializeField] private float holdSkipStepInterval = 0.1f;
         [SerializeField, Min(1)] private int skipBurstPerFrame = 20;
         private float nextHoldSkipAllowedTime;
         private bool wasF1Held;
@@ -337,9 +337,13 @@ namespace PPP.BLUE.VN
 
             wasF1Held = f1Held;
 
-            if (Input.GetKeyDown(KeyCode.F1) && VNInputGate.CanUseSkipOrAuto(policy))
+            if (f1Held && VNInputGate.CanUseSkipOrAuto(policy))
             {
-                SkipStep();
+                if (Time.time >= nextHoldSkipAllowedTime)
+                {
+                    SkipStep();
+                    nextHoldSkipAllowedTime = Time.time + holdSkipStepInterval;
+                }
             }
 
             if (Input.GetKeyDown(KeyCode.F2))
@@ -1806,10 +1810,9 @@ namespace PPP.BLUE.VN
 
             skipMode = true;
 
-            // 타이핑 중이면 완성만
+            // 타이핑 중이면 문장 완성
             if (dialogueView?.TryCompleteCurrentLineForSkip() == true)
             {
-                MarkSaveAllowed(true, "Skip ForceComplete");
                 skipMode = false;
                 return;
             }
@@ -1825,12 +1828,6 @@ namespace PPP.BLUE.VN
                     skipMode = false;
                     return;
                 }
-            }
-
-            if (!SaveAllowed)
-            {
-                skipMode = false;
-                return;
             }
 
             Next();
