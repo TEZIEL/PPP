@@ -340,14 +340,17 @@ namespace PPP.BLUE.VN
                 SkipStep();
             }
 
-            if (Input.GetKeyDown(KeyCode.F2))
+            // ----------------------------
+            // 3) Skip loop: SkipMode는 대사 고속 진행 전용
+            // ----------------------------
+            if (skipMode)
             {
                 Debug.Log("[VN] F2 Auto Toggle key pressed");
                 ToggleAutoFromInput("Hotkey F2");
             }
 
             // ----------------------------
-            // 3) Safety: 조건 깨졌으면 코루틴 Auto 즉시 정지
+            // 4) Safety: 조건 깨졌으면 코루틴 Auto 즉시 정지
             // ----------------------------
             if (autoCo != null && !CanAutoAdvance())
                 StopAutoTimer();
@@ -1785,9 +1788,11 @@ namespace PPP.BLUE.VN
         {
             if (!HasScript || policy == null || !VNInputGate.CanUseSkipOrAuto(policy))
             {
-                if (logToConsole) Debug.Log($"[VN] Skip step ignored (blocked) source={source}");
-                return;
-            }
+                if (!HasScript || policy == null || !VNInputGate.CanUseSkipOrAuto(policy))
+                {
+                    if (logToConsole) Debug.Log($"[VN] SkipMode toggle ignored (blocked) source={source}");
+                    return;
+                }
 
             ForceAutoOff("Skip Step (UI)");
             SkipStep();
