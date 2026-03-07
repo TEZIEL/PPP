@@ -280,6 +280,8 @@ namespace PPP.BLUE.VN
         {
             if (!HasScript) return;
 
+            if (policy != null && !VNInputGate.CanRouteInput(policy))
+                return;
             // ----------------------------
             // 0) Window state (minimized)
             // ----------------------------
@@ -339,7 +341,7 @@ namespace PPP.BLUE.VN
 
             if (f1Held)
             {
-                for (int i = 0; i < 12; i++)
+                for (int i = 0; i < 30; i++)
                     SkipStep();
             }
 
@@ -1800,23 +1802,29 @@ namespace PPP.BLUE.VN
 
         private void SkipStep()
         {
-            if (!CanRunSkipStep())
+            // 정책 차단 (비포커스 / 최소화 / 모달 / 드링크 / 초이스)
+            if (policy == null || !VNInputGate.CanUseSkipOrAuto(policy))
+                return;
+
+            if (!HasScript)
                 return;
 
             if (dialogueView == null)
                 dialogueView = GetComponentInChildren<VNDialogueView>(true);
 
-            // 타이핑 중이면 바로 완료 + 다음 줄
+            // 타이핑 중이면 즉시 완성
             if (dialogueView?.TryCompleteCurrentLineForSkip() == true)
             {
-                if (SaveAllowed)
-                    Next();
+                MarkSaveAllowed(true, "Skip ForceComplete");
+                Next();
                 return;
             }
 
+            // Save gate
             if (!SaveAllowed)
                 return;
 
+            // 다음 노드
             Next();
         }
 

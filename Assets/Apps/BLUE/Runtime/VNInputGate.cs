@@ -11,37 +11,63 @@ namespace PPP.BLUE.VN
 
     public static class VNInputGate
     {
+        // 입력 라우팅 자체가 가능한지 (포커스 + 최소화 체크)
         public static bool CanRouteInput(VNPolicyController policy)
         {
             if (policy == null) return false;
+
             var st = policy.GetWindowState();
+
             if (st.IsMinimized) return false;
             if (!st.IsFocused) return false;
+
             return true;
         }
 
+        // 현재 VN 입력 상태 해석
         public static VNInputState ResolveState(VNPolicyController policy)
         {
-            if (!CanRouteInput(policy)) return VNInputState.Blocked;
-            if (policy.IsChoiceWaiting) return VNInputState.Choice;
-            if (policy.IsDrinkPanelOpen) return VNInputState.Drink;
-            if (policy.IsClosePopupOpen || policy.IsModalOpen) return VNInputState.Popup;
+            if (policy == null) return VNInputState.Blocked;
+
+            if (!CanRouteInput(policy))
+                return VNInputState.Blocked;
+
+            if (policy.IsChoiceWaiting)
+                return VNInputState.Choice;
+
+            if (policy.IsDrinkPanelOpen)
+                return VNInputState.Drink;
+
+            if (policy.IsClosePopupOpen || policy.IsModalOpen)
+                return VNInputState.Popup;
+
             return VNInputState.Dialogue;
         }
 
+        // 일반 대사 진행 가능 여부 (Space / Click)
         public static bool CanAdvanceDialogue(VNPolicyController policy)
-            => ResolveState(policy) == VNInputState.Dialogue;
+        {
+            return ResolveState(policy) == VNInputState.Dialogue;
+        }
 
+        // Skip / Auto 사용 가능 여부
         public static bool CanUseSkipOrAuto(VNPolicyController policy)
-            => ResolveState(policy) == VNInputState.Dialogue;
+        {
+            return ResolveState(policy) == VNInputState.Dialogue;
+        }
 
+        // Auto 백그라운드 진행 허용 여부
+        // (AutoTimer가 돌아갈 수 있는 상태)
         public static bool CanAutoAdvanceInBackground(VNPolicyController policy)
         {
             if (policy == null) return false;
 
             var st = policy.GetWindowState();
+
+            // 최소화면 Auto 정지
             if (st.IsMinimized) return false;
 
+            // VN 상태 차단
             if (policy.IsChoiceWaiting) return false;
             if (policy.IsDrinkPanelOpen) return false;
             if (policy.IsClosePopupOpen || policy.IsModalOpen) return false;
@@ -49,13 +75,14 @@ namespace PPP.BLUE.VN
             return true;
         }
 
+        // Save 가능 여부
         public static bool CanSave(VNPolicyController policy)
         {
             if (policy == null) return false;
 
-            // Save 가능 여부는 "입력 포커스"와 분리해서 판단한다.
-            // 포커스가 잠시 벗어난 동안 타이핑 완료 콜백이 들어와도 SaveAllowed가
-            // 영구적으로 FALSE에 고정되지 않도록, modal/drink/choice만 차단한다.
+            // Save는 포커스와 분리
+            // 타이핑 완료 콜백 때문에 포커스 기반 차단은 하지 않음
+
             if (policy.IsChoiceWaiting) return false;
             if (policy.IsDrinkPanelOpen) return false;
             if (policy.IsClosePopupOpen || policy.IsModalOpen) return false;
@@ -64,4 +91,3 @@ namespace PPP.BLUE.VN
         }
     }
 }
-
