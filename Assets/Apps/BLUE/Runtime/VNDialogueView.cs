@@ -22,10 +22,6 @@ namespace PPP.BLUE.VN
         [Header("Typing")]
         [SerializeField] private float charsPerSecond = 40f;
 
-        [Header("Skip Preview")]
-        [SerializeField, Range(0.05f, 1f)] private float skipPreviewRatio = 0.2f;
-        [SerializeField] private int skipPreviewMinChars = 2;
-
         // 현재 라인의 풀텍스트 (SkipToEnd용)
         private string currentFullText = "";
         private bool lineCompleted = true; // true면 Next로 "다음 라인" 가능
