@@ -168,7 +168,7 @@ namespace PPP.BLUE.VN
 
         private void HandleSay(string speakerId, string text, string lineId)
         {
-            Debug.Log($"HandleSay called by {gameObject.name}");
+          
             inputLockFrames = 1;
 
             lineCompleted = false;
@@ -204,6 +204,7 @@ namespace PPP.BLUE.VN
             }
 
             // ✅ 타이핑 시작
+            lineCompleted = false;
             typer.StartTyping(currentFullText, onCompleted: () =>
             {
                 lineCompleted = true;

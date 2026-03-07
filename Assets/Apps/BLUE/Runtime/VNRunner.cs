@@ -42,12 +42,12 @@ namespace PPP.BLUE.VN
 
         public System.Action<string> OnEnterDrink;
         public bool skipMode = false;
-        private bool skipPreflightMode;
+        
 
         // Legacy compatibility fields: kept to prevent compile breaks on partial merges
         // that still reference old hold-skip variables.
         [SerializeField] private float holdSkipStepInterval = 0.02f;
-        [SerializeField, Min(1)] private int skipBurstPerFrame = 24;
+        [SerializeField, Min(1)] private int skipBurstPerFrame = 20;
         private float nextHoldSkipAllowedTime;
         private bool wasF1Held;
 
@@ -100,7 +100,7 @@ namespace PPP.BLUE.VN
             BindPolicy("Awake");
             if (dialogueView == null) dialogueView = GetComponentInChildren<VNDialogueView>(true);
             skipMode = false; // 인스펙터 값과 무관하게 런타임 기본 OFF
-            skipPreflightMode = false;
+            
 
             // ✅ 1프레임 뒤 재시도 (WindowManager가 AttachContent 후 wiring 끝난 뒤)
             StartCoroutine(CoBindPolicyNextFrame());
@@ -337,11 +337,9 @@ namespace PPP.BLUE.VN
 
             wasF1Held = f1Held;
 
-            if (f1Held && VNInputGate.CanUseSkipOrAuto(policy))
+            if (Input.GetKeyDown(KeyCode.F1) && VNInputGate.CanUseSkipOrAuto(policy))
             {
-
-                for (int i = 0; i < 5; i++)
-                    SkipStep();
+                SkipStep();
             }
 
             if (Input.GetKeyDown(KeyCode.F2))
@@ -442,9 +440,7 @@ namespace PPP.BLUE.VN
                 HasAnyChoiceText(node.branches))
                 return true;
 
-            if (node.type == VNNodeType.Call)
-                return true;
-
+           
             return false;
         }
 
@@ -480,8 +476,10 @@ namespace PPP.BLUE.VN
 
             skipMode = false;
 
-            VNLog($"[VN] SkipMode forced OFF ({reason})");
+            //VNLog($"[VN] SkipMode forced OFF ({reason})");
         }
+
+
 
         public void Next()
         {
@@ -496,165 +494,166 @@ namespace PPP.BLUE.VN
                 return;
             }
 
+            VNLog($"[VN] Next() id={GetInstanceID()} go={gameObject.name} pointer={pointer} started={started}");
+            VNLog($"[VN] Next() pointer={pointer} nodes={script?.nodes?.Count ?? -1} started={started}");
+            VNLog("[VN] SaveAllowed FALSE (Next)");
+            MarkSaveBlocked();
+
+            if (script == null || script.nodes == null)
             {
-                VNLog($"[VN] Next() id={GetInstanceID()} go={gameObject.name} pointer={pointer} started={started}");
-                VNLog($"[VN] Next() pointer={pointer} nodes={script?.nodes?.Count ?? -1} started={started}");
-                VNLog("[VN] SaveAllowed FALSE (Next)");
-                MarkSaveBlocked();
-                if (script == null || script.nodes == null)
-                {
-                    Debug.LogError("[VNRunner] No script loaded.");
-                    return;
-                }
+                Debug.LogError("[VNRunner] No script loaded.");
+                return;
+            }
 
-                // 무한루프 방지용 안전장치
-                const int MAX_STEPS = 1000;
-                int steps = 0;
+            // 끝까지 갔으면 종료
+            if (pointer < 0 || pointer >= script.nodes.Count)
+            {
+                Finish();
+                return;
+            }
 
-                while (steps++ < MAX_STEPS)
-                {
-                    // 끝까지 갔으면 End 취급
-                    if (pointer < 0 || pointer >= script.nodes.Count)
+            var node = script.nodes[pointer];
+
+            VNLog($"[VN] node@{pointer} type={node?.type} label={node?.label}");
+
+            if (node == null)
+            {
+                pointer++;
+                return;
+            }
+
+            if (skipMode && IsInteractionNodeForSkip(node))
+            {
+                lastStopIndex = pointer;
+                waitPointer = pointer;
+                isWaiting = true;
+                MarkSaveAllowed(true, "Skip Interaction Stop");
+                return;
+            }
+
+            switch (node.type)
+            {
+                case VNNodeType.Say:
+                    {
+                        lastShownPointer = pointer;
+
+                        EmitSay(node);
+                        pointer++;
+
+                        if (!skipMode)
+                        {
+                            waitPointer = pointer - 1;
+                            isWaiting = true;
+                            return;
+                        }
+
+                        return;
+                    }
+
+                case VNNodeType.Choice:
+                    {
+                        VNLog($"[VN] Choice hit id={node.id} choices={(node.choices == null ? -1 : node.choices.Length)} hasText={HasChoiceText(node.choices)}");
+
+                        if (node.choices != null && HasChoiceText(node.choices))
+                        {
+                            lastStopIndex = pointer;
+                            waitPointer = pointer;
+                            isWaiting = true;
+
+                            MarkSaveAllowed(true, "Choice Open");
+                            VNLog("[VN] OnChoice invoke");
+                            OnChoice?.Invoke(node.choices);
+                            return;
+                        }
+
+                        Debug.LogWarning("[VN] Choice skipped (no options or no text).");
+                        pointer++;
+                        return;
+                    }
+
+                case VNNodeType.Branch:
+                    {
+                        if (node.branches != null && node.branches.Length > 0 &&
+                            HasAnyChoiceText(node.branches))
+                        {
+                            lastStopIndex = pointer;
+                            waitPointer = pointer;
+                            isWaiting = true;
+
+                            MarkSaveAllowed(true, "Choice Open");
+                            OnChoice?.Invoke(ConvertChoiceRules(node.branches));
+                            pointer++;
+
+                            return;
+                        }
+                        else
+                        {
+                            DoBranch(node.label);
+                            return;
+                        }
+                    }
+
+                case VNNodeType.Label:
+                    {
+                        VNLog($"[VN] Label: {node.label} (idx {pointer})");
+                        pointer++;
+                        Next();
+                        return;
+                    }
+
+                case VNNodeType.Jump:
+                    {
+                        DoJump(node.label);
+                        return;
+                    }
+
+                case VNNodeType.Call:
+                    {
+                        string target = node.callTarget ?? string.Empty;
+                        string arg = node.callArg ?? string.Empty;
+
+                        StopAutoExternal("Call:" + target);
+
+                        isWaiting = true;
+                        waitPointer = pointer;
+                        lastStopIndex = pointer;
+
+                        callStack.Push(new VNCallFrame
+                        {
+                            returnPointer = pointer + 1,
+                            target = target,
+                            arg = arg,
+                        });
+
+                        OnCall?.Invoke(target, arg);
+
+                        pointer++;
+
+                        return;
+                    }
+
+                case VNNodeType.Return:
+                    {
+                        ReturnFromCall(node.callArg ?? string.Empty);
+                        return;
+                    }
+
+                case VNNodeType.End:
                     {
                         Finish();
                         return;
                     }
 
-                    var node = script.nodes[pointer];
-                    VNLog($"[VN] node@{pointer} type={node?.type} label={node?.label}");
-                    if (node == null)
+                default:
                     {
+                        Debug.LogWarning($"[VNRunner] Unknown node type: {node.type}");
                         pointer++;
-                        continue;
-                    }
-
-                    if ((skipMode || skipPreflightMode) && IsInteractionNodeForSkip(node))
-                    {
-                        lastStopIndex = pointer;
-                        waitPointer = pointer;
-                        isWaiting = true;
-                        MarkSaveAllowed(true, "Skip Interaction Stop");
                         return;
                     }
-
-                    switch (node.type)
-                    {
-                        case VNNodeType.Say:
-
-                            lastShownPointer = pointer;
-
-                            EmitSay(node);
-                            pointer++;
-
-                            if (!skipMode || skipPreflightMode)
-                            {
-                                waitPointer = pointer - 1;
-                                isWaiting = true;
-                                return;
-                            }
-
-                            continue;
-
-                        case VNNodeType.Choice:
-                            {
-                                VNLog($"[VN] Choice hit id={node.id} choices={(node.choices == null ? -1 : node.choices.Length)} hasText={HasChoiceText(node.choices)}");
-
-                                if (node.choices != null && HasChoiceText(node.choices))
-                                {
-                                    lastStopIndex = pointer;
-                                    waitPointer = pointer;
-                                    isWaiting = true;
-
-                                    MarkSaveAllowed(true, "Choice Open");
-                                    VNLog("[VN] OnChoice invoke");
-                                    OnChoice?.Invoke(node.choices);
-                                    return;
-                                }
-
-                                Debug.LogWarning("[VN] Choice skipped (no options or no text).");
-                                pointer++; // (너 코드에 이미 있을 가능성 높음)
-                                continue;
-                            }
-
-                            pointer++;
-                            continue;
-
-                        case VNNodeType.Branch:
-                            if (node.branches != null && node.branches.Length > 0 &&
-                                HasAnyChoiceText(node.branches))
-                            {
-                                lastStopIndex = pointer;
-                                waitPointer = pointer;  // ✅ “이 Branch에서 멈춤”
-                                isWaiting = true;
-
-                                MarkSaveAllowed(true, "Choice Open");
-                                OnChoice?.Invoke(ConvertChoiceRules(node.branches));
-                                pointer++;        // Branch 자체는 소비
-                                return;           // ✅ 여기서 멈춤(선택 기다림)
-                            }
-                            else
-                            {
-                                DoBranch(node.label);   // 기존 자동 분기
-                                continue;
-                            }
-
-                        case VNNodeType.Label:
-                            VNLog($"[VN] Label: {node.label} (idx {pointer})");
-                            pointer++;
-                            continue; // ✅ 출력 없음 → 계속 진행
-
-                        case VNNodeType.Jump:
-                            DoJump(node.label);
-                            continue; // ✅ 출력 없음 → 계속 진행
-
-                        case VNNodeType.Call:
-                            {
-                               
-
-                                string target = node.callTarget ?? string.Empty;
-                                string arg = node.callArg ?? string.Empty;
-
-                                StopAutoExternal("Call:" + target);
-                                isWaiting = true;
-                                waitPointer = pointer;
-                                lastStopIndex = pointer;
-
-                                callStack.Push(new VNCallFrame
-                                {
-                                    returnPointer = pointer + 1,
-                                    target = target,
-                                    arg = arg,
-                                });
-
-                                OnCall?.Invoke(target, arg);
-                                return;
-                            }
-
-                        case VNNodeType.Return:
-                            ReturnFromCall(node.callArg ?? string.Empty);
-                            return;
-
-                        
-
-                        case VNNodeType.End:
-                            Finish();
-                            return;
-
-
-                        
-                        default:
-                            Debug.LogWarning($"[VNRunner] Unknown node type: {node.type}");
-                            pointer++;
-                            continue;
-                    }
-
-                   
-                }
-                Debug.LogError($"[VNRunner] MAX_STEPS exceeded at pointer={pointer}. Possible infinite loop.");
-
-                Finish();
             }
         }
+
+
         public void OnAdvance()
         {
             
@@ -1806,46 +1805,39 @@ namespace PPP.BLUE.VN
                 dialogueView = GetComponentInChildren<VNDialogueView>(true);
 
             skipMode = true;
-            skipPreflightMode = true;
 
-            int stepBudget = Mathf.Max(1, skipBurstPerFrame);
-
-            for (int i = 0; i < stepBudget; i++)
+            // 타이핑 중이면 완성만
+            if (dialogueView?.TryCompleteCurrentLineForSkip() == true)
             {
-                // 1) 타이핑 중이면 즉시 완성
-                if (dialogueView?.TryCompleteCurrentLineForSkip() == true)
-                {
-                    MarkSaveAllowed(true, "Skip ForceComplete");
-                    continue;
-                }
-
-                // 2) Choice/Call/Interaction 직전 멈춤 (실행하지 않음)
-                if (script != null && script.nodes != null &&
-                    pointer >= 0 && pointer < script.nodes.Count)
-                {
-                    var nextNode = script.nodes[pointer];
-                    if (IsInteractionNodeForSkip(nextNode))
-                    {
-                        ForceSkipOff(GetSkipStopReason(nextNode));
-                        break;
-                    }
-                }
-
-                // 3) 진행 불가 상태면 중단
-                if (!SaveAllowed)
-                    break;
-
-                int beforePointer = pointer;
-                Next();
-
-                // End/Wait 등으로 실질 진행이 없으면 중단
-                if (pointer == beforePointer || !enabled)
-                    break;
+                MarkSaveAllowed(true, "Skip ForceComplete");
+                skipMode = false;
+                return;
             }
 
-            skipPreflightMode = false;
+            if (script != null && script.nodes != null &&
+                pointer >= 0 && pointer < script.nodes.Count)
+            {
+                var nextNode = script.nodes[pointer];
+
+                if (IsInteractionNodeForSkip(nextNode))
+                {
+                    ForceSkipOff(GetSkipStopReason(nextNode));
+                    skipMode = false;
+                    return;
+                }
+            }
+
+            if (!SaveAllowed)
+            {
+                skipMode = false;
+                return;
+            }
+
+            Next();
+
             skipMode = false;
         }
+
 
         private VNScript BuildTestScript()
         {
