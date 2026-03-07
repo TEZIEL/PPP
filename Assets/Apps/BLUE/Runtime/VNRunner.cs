@@ -120,6 +120,30 @@ namespace PPP.BLUE.VN
             MarkSaveAllowed(true, "Typing End");
         }
 
+        private void RefreshSaveAllowedFromPolicy(string reason)
+        {
+            if (policy == null) return;
+
+            bool gate = policy.CanSaveDialogueState();
+
+            if (SaveAllowed == gate) return;
+
+            SaveAllowed = gate;
+
+            if (logToConsole)
+                Debug.Log($"[VN] SaveAllowed {(SaveAllowed ? "TRUE" : "FALSE")} ({reason})");
+
+            if (SaveAllowed)
+            {
+                if (settings.auto)
+                    TryStartAutoTimer();
+            }
+            else
+            {
+                StopAutoTimer();
+            }
+        }
+
 
         public event Action<string, string, string> OnSay; // speakerId, text, lineId
         public event Action OnEnd;
@@ -166,6 +190,17 @@ namespace PPP.BLUE.VN
 
             if (LoadState())
                 GetComponentInChildren<VNDialogueView>(true)?.LockInputFrames(1);
+
+            // ✅ 시작 시 Auto는 항상 OFF로 강제(저장 상태가 ON이어도 시작 직후 자동 진행 방지)
+            if (settings.auto)
+            {
+                settings.auto = false;
+                StopAutoTimer();
+                CancelAuto();
+
+                if (logToConsole)
+                    Debug.Log("[VN] Auto forced OFF (Begin)");
+            }
 
             started = true;
             Next();
@@ -264,11 +299,18 @@ namespace PPP.BLUE.VN
             // 1) Policy 기반 Auto 강제 OFF (modal/drink/minimized)
             // ----------------------------
             bool blocked = IsBlockingModalState(nowMin);
+            bool wasBlocked = lastBlocked;
 
             // 막힘이 "켜지는 순간" -> Auto 강제 OFF
-            if (blocked && !lastBlocked)
+            if (blocked && !wasBlocked)
             {
                 ForceAutoOff("Blocked by modal/drink/minimized");
+            }
+
+            // ✅ 막힘이 풀리는 순간 Save gate를 재평가해서 Auto 재시작 가능 상태를 복구
+            if (!blocked && wasBlocked)
+            {
+                RefreshSaveAllowedFromPolicy("Unblocked");
             }
 
             lastBlocked = blocked;
@@ -1001,7 +1043,7 @@ namespace PPP.BLUE.VN
             if (!started) return false;
             if (policy == null) return false;
 
-            return VNInputGate.CanUseSkipOrAuto(policy) && SaveAllowed;
+            return VNInputGate.CanAutoAdvanceInBackground(policy) && SaveAllowed;
         }
 
         private bool CanToggleAuto()
@@ -1024,6 +1066,9 @@ namespace PPP.BLUE.VN
 
             if (turnOn)
             {
+                // ✅ 모달/팝업 해제 직후 SaveAllowed가 stale FALSE로 남은 경우 복구
+                RefreshSaveAllowedFromPolicy("Auto Toggle On");
+
                 skipMode = false;
                 StopAutoTimer();
                 TryStartAutoTimer();
