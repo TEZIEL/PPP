@@ -19,6 +19,7 @@ namespace PPP.BLUE.VN
     public interface IVNCloseRequestHandler
     {
         bool CanCloseNow();
+        bool ConsumeClosePermission();
         void NotifyCloseRequested();
     }
 
