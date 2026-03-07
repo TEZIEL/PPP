@@ -42,6 +42,7 @@ namespace PPP.BLUE.VN
 
         public System.Action<string> OnEnterDrink;
         public bool skipMode = false;
+        private bool skipPreflightMode;
 
         // Legacy compatibility fields: kept to prevent compile breaks on partial merges
         // that still reference old hold-skip variables.
@@ -99,6 +100,7 @@ namespace PPP.BLUE.VN
             BindPolicy("Awake");
             if (dialogueView == null) dialogueView = GetComponentInChildren<VNDialogueView>(true);
             skipMode = false; // 인스펙터 값과 무관하게 런타임 기본 OFF
+            skipPreflightMode = false;
 
             // ✅ 1프레임 뒤 재시도 (WindowManager가 AttachContent 후 wiring 끝난 뒤)
             StartCoroutine(CoBindPolicyNextFrame());
@@ -526,7 +528,7 @@ namespace PPP.BLUE.VN
                         continue;
                     }
 
-                    if (skipMode && IsInteractionNodeForSkip(node))
+                    if ((skipMode || skipPreflightMode) && IsInteractionNodeForSkip(node))
                     {
                         lastStopIndex = pointer;
                         waitPointer = pointer;
@@ -544,7 +546,7 @@ namespace PPP.BLUE.VN
                             EmitSay(node);
                             pointer++;
 
-                            if (!skipMode)
+                            if (!skipMode || skipPreflightMode)
                             {
                                 waitPointer = pointer - 1;
                                 isWaiting = true;
@@ -1804,6 +1806,7 @@ namespace PPP.BLUE.VN
                 dialogueView = GetComponentInChildren<VNDialogueView>(true);
 
             skipMode = true;
+            skipPreflightMode = true;
 
             int stepBudget = Mathf.Max(1, skipBurstPerFrame);
 
@@ -1840,6 +1843,7 @@ namespace PPP.BLUE.VN
                     break;
             }
 
+            skipPreflightMode = false;
             skipMode = false;
         }
 
