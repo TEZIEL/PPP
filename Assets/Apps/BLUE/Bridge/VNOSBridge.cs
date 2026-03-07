@@ -171,8 +171,8 @@ namespace PPP.BLUE.VN
 
             closeRequestPending = true;
 
-            // ✅ Auto 즉시 중단
-            runner?.StopAutoExternal("CloseRequested");
+            // ✅ Close 요청 시 Auto 상태 자체를 OFF로 전환 (취소 후 1회 토글 복귀 보장)
+            runner?.ForceAutoOff("CloseRequested");
 
             // ClosePopup 모달 카운트는 VNClosePopupController.Show/Hide에서만 관리
             OnCloseRequested?.Invoke();
