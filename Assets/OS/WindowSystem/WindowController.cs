@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections;
+using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
@@ -68,6 +69,14 @@ public class WindowController : MonoBehaviour,
     private Coroutine moveScaleRoutine;
 
     public bool IsAnimating { get; private set; }
+
+    [Header("Focus")]
+    [SerializeField] private PPP.BLUE.VN.VNPolicyController vnPolicy;
+
+    private static readonly List<RaycastResult> focusRaycastResults = new();
+    private static int cachedRaycastFrame = -1;
+    private static GameObject cachedTopRaycastHit;
+    private int lastFocusHandledFrame = -1;
 
 
     private bool TryBeginAnim()
@@ -149,6 +158,13 @@ public class WindowController : MonoBehaviour,
             canvasGroup = windowRoot.GetComponent<CanvasGroup>();
             if (canvasGroup == null)
                 canvasGroup = windowRoot.gameObject.AddComponent<CanvasGroup>();
+        }
+
+        if (vnPolicy == null)
+        {
+            vnPolicy = GetComponentInChildren<PPP.BLUE.VN.VNPolicyController>(true);
+            if (vnPolicy == null)
+                vnPolicy = GetComponentInParent<PPP.BLUE.VN.VNPolicyController>(true);
         }
 
         HookButtons();
@@ -235,8 +251,68 @@ public class WindowController : MonoBehaviour,
     // =========================
     public void OnPointerDown(PointerEventData e)
     {
-        if (IsAnimating) return;  // ✅ 추가
-        owner?.Focus(appId);
+        TryFocusFromPointerDown(e != null ? e.pointerPressRaycast.gameObject : gameObject);
+    }
+
+    private void Update()
+    {
+        if (!Input.GetMouseButtonDown(0)) return;
+        TryFocusFromPointerDown(GetTopRaycastHitObject());
+    }
+
+    private void TryFocusFromPointerDown(GameObject hitObject)
+    {
+        if (!CanAcceptCommand()) return;
+        if (lastFocusHandledFrame == Time.frameCount) return;
+        if (owner == null || windowRoot == null) return;
+        if (hitObject == null) return;
+
+        Transform hit = hitObject.transform;
+        if (!hit.IsChildOf(windowRoot)) return;
+        if (ShouldSkipFocusForModalHit(hit)) return;
+
+        owner.Focus(appId);
+        lastFocusHandledFrame = Time.frameCount;
+    }
+
+    private GameObject GetTopRaycastHitObject()
+    {
+        if (cachedRaycastFrame == Time.frameCount)
+            return cachedTopRaycastHit;
+
+        cachedRaycastFrame = Time.frameCount;
+        cachedTopRaycastHit = null;
+
+        var es = EventSystem.current;
+        if (es == null) return null;
+
+        var data = new PointerEventData(es) { position = Input.mousePosition };
+        focusRaycastResults.Clear();
+        es.RaycastAll(data, focusRaycastResults);
+
+        if (focusRaycastResults.Count > 0)
+            cachedTopRaycastHit = focusRaycastResults[0].gameObject;
+
+        return cachedTopRaycastHit;
+    }
+
+    private bool ShouldSkipFocusForModalHit(Transform hit)
+    {
+        if (hit == null || vnPolicy == null) return false;
+
+        if (vnPolicy.IsModalReasonOpen("ClosePopup") &&
+            hit.GetComponentInParent<PPP.BLUE.VN.VNClosePopupController>(true) != null)
+            return true;
+
+        if (vnPolicy.IsModalReasonOpen("ChoicePanel") &&
+            hit.GetComponentInParent<PPP.BLUE.VN.VNChoicePanel>(true) != null)
+            return true;
+
+        if (vnPolicy.IsModalReasonOpen("DrinkPanel") &&
+            hit.GetComponentInParent<PPP.BLUE.VN.DrinkTestPanel>(true) != null)
+            return true;
+
+        return false;
     }
 
     private bool TryGetPointerLocal(PointerEventData eventData, out Vector2 localPoint)
