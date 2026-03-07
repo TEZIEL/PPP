@@ -87,6 +87,7 @@ namespace PPP.BLUE.VN
             TryResolveBridge(silent: true);
 
             BindPolicy("Awake");
+            skipMode = false; // 인스펙터 값과 무관하게 런타임 기본 OFF
 
             // ✅ 1프레임 뒤 재시도 (WindowManager가 AttachContent 후 wiring 끝난 뒤)
             StartCoroutine(CoBindPolicyNextFrame());
@@ -233,17 +234,6 @@ namespace PPP.BLUE.VN
 
         private void Update()
         {
-            if (skipMode && (policy == null || !VNInputGate.CanUseSkipOrAuto(policy)))
-            {
-                skipMode = false;
-                if (logToConsole) Debug.Log("[VN] Skip forced OFF (state changed)");
-            }
-
-            if (skipMode)
-            {
-                SkipStep();
-            }
-
             if (!HasScript) return;
 
             // ----------------------------
@@ -310,28 +300,7 @@ namespace PPP.BLUE.VN
 
             if (Input.GetKeyDown(KeyCode.F2))
             {
-                if (!CanToggleAuto())
-                {
-                    if (logToConsole) Debug.Log("[VN] Auto toggle ignored (blocked).");
-                }
-                else
-                {
-                    settings.auto = !settings.auto;
-                    Debug.Log($"[VN] Auto={(settings.auto ? "On" : "Off")}");
-
-                    autoSuspendedByBlock = false; // 유저가 직접 토글했으니 자동재개 플래그 리셋
-
-                    if (settings.auto)
-                    {
-                        skipMode = false; // Skip과 Auto 동시 활성 금지
-                        TryStartAutoTimer();
-                    }
-                    else
-                    {
-                        StopAutoTimer();
-                        CancelAuto();
-                    }
-                }
+                ToggleAutoFromInput("Hotkey F2");
             }
 
             // ----------------------------
@@ -859,14 +828,12 @@ namespace PPP.BLUE.VN
 
         public bool TrySaveNow(string reason = "manual")
         {
-            if (!CanPersistState())
-            {
-                Debug.Log($"[VN] Save skipped ({reason}) SaveAllowed={SaveAllowed}");
-                return false;
-            }
+            bool canPersist = CanPersistState();
+            if (!canPersist && logToConsole)
+                Debug.Log($"[VN] Save requested ({reason}) but blocked; delegating to SaveStateToKey for detailed reason.");
 
             SaveStateToKey(VN_STATE_KEY, ignoreSaveAllowed: false);
-            return true;
+            return canPersist;
         }
 
         public bool TryLoadNow(string reason = "manual")
@@ -1047,6 +1014,34 @@ namespace PPP.BLUE.VN
         {
             if (policy == null) return false;
             return VNInputGate.CanUseSkipOrAuto(policy);
+        }
+
+        private void ToggleAutoFromInput(string source)
+        {
+            if (!CanToggleAuto())
+            {
+                if (logToConsole) Debug.Log("[VN] Auto toggle ignored (blocked).");
+                return;
+            }
+
+            bool turnOn = !settings.auto;
+            settings.auto = turnOn;
+            autoSuspendedByBlock = false;
+
+            if (turnOn)
+            {
+                skipMode = false;
+                StopAutoTimer();
+                TryStartAutoTimer();
+            }
+            else
+            {
+                StopAutoTimer();
+                CancelAuto();
+            }
+
+            if (logToConsole)
+                Debug.Log($"[VN] Auto={(settings.auto ? "On" : "Off")} ({source})");
         }
 
         private bool IsBlockingModalState(bool nowMin)
@@ -1678,6 +1673,11 @@ namespace PPP.BLUE.VN
             runner.ToggleSkip();
         }
 
+        public void OnAutoButton()
+        {
+            runner.ToggleAutoFromInput("UI Button");
+        }
+
         public void ToggleSkip()
         {
             if (policy == null || !VNInputGate.CanUseSkipOrAuto(policy))
@@ -1686,13 +1686,13 @@ namespace PPP.BLUE.VN
                 return;
             }
 
-            skipMode = !skipMode;
-
-            if (skipMode)
-                ForceAutoOff("Skip On");
+            // UX 정책: F1은 자동 연속 스킵이 아니라 1회 라인 진행으로 동작
+            skipMode = false;
+            ForceAutoOff("Skip Step (F1)");
+            SkipStep();
 
             if (logToConsole)
-                Debug.Log("[VN] SkipMode: " + skipMode);
+                Debug.Log("[VN] SkipStep triggered (one-shot)");
         }
 
         private void SkipStep()
@@ -1700,7 +1700,12 @@ namespace PPP.BLUE.VN
             if (!HasScript) return;
             if (policy == null || !VNInputGate.CanUseSkipOrAuto(policy)) return;
 
-            ForceAutoOff("Skip Step");
+            if (GetComponentInChildren<VNDialogueView>(true)?.TryCompleteCurrentLineForSkip() == true)
+                return;
+
+            if (!SaveAllowed)
+                return;
+
             Next();
         }
 
