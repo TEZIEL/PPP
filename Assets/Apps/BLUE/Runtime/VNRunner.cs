@@ -40,6 +40,8 @@ namespace PPP.BLUE.VN
 
         public System.Action<string> OnEnterDrink;
         public bool skipMode = false;
+        [SerializeField] private float skipStepInterval = 0.12f;
+        private float nextSkipAllowedTime;
         private string lastDrinkResult = "";
 
 
