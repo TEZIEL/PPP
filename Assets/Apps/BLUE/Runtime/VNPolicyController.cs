@@ -22,11 +22,8 @@ namespace PPP.BLUE.VN
         public bool IsChoiceWaiting => IsModalReasonOpen("ChoicePanel");
         public bool IsDrinkPanelOpen => IsModalReasonOpen("DrinkPanel") || IsInDrinkMode;
 
-        // ✅ 정책: “닫기 차단”은 여기서 계산한다
-        // 드링크 중에만 막고 싶으면 IsInDrinkMode만
-        public bool ShouldBlockClose => IsInDrinkMode;
-        // 더 안전하게 가려면 아래로 교체:
-        // public bool ShouldBlockClose => IsInDrinkMode || IsModalOpen;
+        // ✅ 정책 기준 고정: Drink 또는 Blocking Modal 상태면 닫기 차단
+        public bool ShouldBlockClose => IsInDrinkMode || IsBlockingModalState();
 
         private void Awake()
         {
@@ -39,14 +36,14 @@ namespace PPP.BLUE.VN
 
         private void Start()
         {
-            // ✅ 기본은 닫기 허용(=BlockClose false)
-            SyncBlockClose("Start");
+            RefreshClosePolicy("Start");
         }
 
-        private void SyncBlockClose(string reason)
+        private void RefreshClosePolicy(string reason)
         {
-            bridge?.RequestBlockClose(ShouldBlockClose);
-            Debug.Log($"[VNPolicy] SyncBlockClose({reason}) => {ShouldBlockClose}");
+            var shouldBlock = ShouldBlockClose;
+            bridge?.RequestBlockClose(shouldBlock);
+            Debug.Log($"[VNPolicy] RefreshClosePolicy({reason}) shouldBlock={shouldBlock} drink={IsInDrinkMode} blockingModal={IsBlockingModalState()}");
         }
 
         public void EnterDrinkMode()
@@ -55,7 +52,7 @@ namespace PPP.BLUE.VN
             PushModal("DrinkMode"); // 네 설계대로: 드링크는 모달 점유
             Debug.Log("[VNPolicy] EnterDrinkMode");
 
-            SyncBlockClose("EnterDrinkMode");
+            RefreshClosePolicy("EnterDrinkMode");
         }
 
         public void ExitDrinkMode()
@@ -64,7 +61,7 @@ namespace PPP.BLUE.VN
             PopModal("DrinkMode");
             Debug.Log("[VNPolicy] ExitDrinkMode");
 
-            SyncBlockClose("ExitDrinkMode");
+            RefreshClosePolicy("ExitDrinkMode");
         }
 
         public void PushModal(string reason)
@@ -72,8 +69,7 @@ namespace PPP.BLUE.VN
             modalCount++;
             ChangeReasonCount(reason, +1);
             Debug.Log($"[VNPolicy] Modal++ ({reason}) count={modalCount}");
-            // (선택) 모달도 닫기 차단에 포함시키는 정책이면 여기서 Sync
-            // SyncBlockClose("PushModal");
+            RefreshClosePolicy("PushModal");
         }
 
         public void PopModal(string reason)
@@ -81,8 +77,7 @@ namespace PPP.BLUE.VN
             modalCount = Mathf.Max(0, modalCount - 1);
             ChangeReasonCount(reason, -1);
             Debug.Log($"[VNPolicy] Modal-- ({reason}) count={modalCount}");
-            // (선택) 모달도 닫기 차단에 포함시키는 정책이면 여기서 Sync
-            // SyncBlockClose("PopModal");
+            RefreshClosePolicy("PopModal");
         }
 
         public void SetModalOpen(bool on)
