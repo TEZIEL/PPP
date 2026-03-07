@@ -3,6 +3,10 @@
   "WorkspaceRootPath": "C:\\Users\\123\\PPP\\",
   "Documents": [
     {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|C:\\Users\\123\\PPP\\Assets\\OS\\WindowSystem\\WindowManager.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:Assets\\OS\\WindowSystem\\WindowManager.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
       "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|C:\\Users\\123\\PPP\\Assets\\Apps\\BLUE\\Runtime\\VNRunner.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
       "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:Assets\\Apps\\BLUE\\Runtime\\VNRunner.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
@@ -49,10 +53,6 @@
     {
       "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|C:\\Users\\123\\PPP\\Assets\\Apps\\BLUE\\Runtime\\TMPFocusFix.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
       "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:Assets\\Apps\\BLUE\\Runtime\\TMPFocusFix.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|C:\\Users\\123\\PPP\\Assets\\OS\\WindowSystem\\WindowManager.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:Assets\\OS\\WindowSystem\\WindowManager.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
       "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|C:\\Users\\123\\PPP\\Assets\\Apps\\BLUE\\Runtime\\Data\\VNScriptLoader.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
@@ -258,24 +258,84 @@
       "DocumentGroups": [
         {
           "DockedWidth": 200,
-          "SelectedChildIndex": 1,
+          "SelectedChildIndex": 4,
           "Children": [
             {
               "$type": "Document",
-              "DocumentIndex": 3,
-              "Title": "VNCSVImporter.cs",
-              "DocumentMoniker": "C:\\Users\\123\\PPP\\Assets\\Data\\Dialogue\\VNCSVImporter.cs",
-              "RelativeDocumentMoniker": "Assets\\Data\\Dialogue\\VNCSVImporter.cs",
-              "ToolTip": "C:\\Users\\123\\PPP\\Assets\\Data\\Dialogue\\VNCSVImporter.cs",
-              "RelativeToolTip": "Assets\\Data\\Dialogue\\VNCSVImporter.cs",
-              "ViewState": "AgIAAAAAAAAAAAAAAAAAADwAAAA1AAAAAAAAAA==",
+              "DocumentIndex": 2,
+              "Title": "VNSaveBlock.cs",
+              "DocumentMoniker": "C:\\Users\\123\\PPP\\Assets\\Apps\\BLUE\\Runtime\\VNSaveBlock.cs",
+              "RelativeDocumentMoniker": "Assets\\Apps\\BLUE\\Runtime\\VNSaveBlock.cs",
+              "ToolTip": "C:\\Users\\123\\PPP\\Assets\\Apps\\BLUE\\Runtime\\VNSaveBlock.cs",
+              "RelativeToolTip": "Assets\\Apps\\BLUE\\Runtime\\VNSaveBlock.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAkAAAABAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-03-04T07:40:41.334Z",
-              "EditorCaption": ""
+              "WhenOpened": "2026-03-04T07:09:12.536Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 3,
+              "Title": "VNSaveManager.cs",
+              "DocumentMoniker": "C:\\Users\\123\\PPP\\Assets\\Apps\\BLUE\\Runtime\\Save\\VNSaveManager.cs",
+              "RelativeDocumentMoniker": "Assets\\Apps\\BLUE\\Runtime\\Save\\VNSaveManager.cs",
+              "ToolTip": "C:\\Users\\123\\PPP\\Assets\\Apps\\BLUE\\Runtime\\Save\\VNSaveManager.cs",
+              "RelativeToolTip": "Assets\\Apps\\BLUE\\Runtime\\Save\\VNSaveManager.cs",
+              "ViewState": "AgIAABkAAAAAAAAAAAAIwDUAAAABAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-03-04T07:15:27.93Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 6,
+              "Title": "VNNodeList.cs",
+              "DocumentMoniker": "C:\\Users\\123\\PPP\\Assets\\Data\\Dialogue\\VNNodeList.cs",
+              "RelativeDocumentMoniker": "Assets\\Data\\Dialogue\\VNNodeList.cs",
+              "ToolTip": "C:\\Users\\123\\PPP\\Assets\\Data\\Dialogue\\VNNodeList.cs",
+              "RelativeToolTip": "Assets\\Data\\Dialogue\\VNNodeList.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAYAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-03-04T07:41:08.329Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 7,
+              "Title": "VNNode.cs",
+              "DocumentMoniker": "C:\\Users\\123\\PPP\\Assets\\Apps\\BLUE\\Runtime\\VNNode.cs",
+              "RelativeDocumentMoniker": "Assets\\Apps\\BLUE\\Runtime\\VNNode.cs",
+              "ToolTip": "C:\\Users\\123\\PPP\\Assets\\Apps\\BLUE\\Runtime\\VNNode.cs",
+              "RelativeToolTip": "Assets\\Apps\\BLUE\\Runtime\\VNNode.cs",
+              "ViewState": "AgIAAAYAAAAAAAAAAAAAABgAAAARAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-02-23T06:34:47.714Z"
             },
             {
               "$type": "Document",
               "DocumentIndex": 0,
+              "Title": "WindowManager.cs",
+              "DocumentMoniker": "C:\\Users\\123\\PPP\\Assets\\OS\\WindowSystem\\WindowManager.cs",
+              "RelativeDocumentMoniker": "Assets\\OS\\WindowSystem\\WindowManager.cs",
+              "ToolTip": "C:\\Users\\123\\PPP\\Assets\\OS\\WindowSystem\\WindowManager.cs",
+              "RelativeToolTip": "Assets\\OS\\WindowSystem\\WindowManager.cs",
+              "ViewState": "AgIAAFYBAAAAAAAAAAD4v2QBAABPAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-02-16T03:17:36.11Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 5,
+              "Title": "VNNodeType.cs",
+              "DocumentMoniker": "C:\\Users\\123\\PPP\\Assets\\Apps\\BLUE\\Runtime\\VNNodeType.cs",
+              "RelativeDocumentMoniker": "Assets\\Apps\\BLUE\\Runtime\\VNNodeType.cs",
+              "ToolTip": "C:\\Users\\123\\PPP\\Assets\\Apps\\BLUE\\Runtime\\VNNodeType.cs",
+              "RelativeToolTip": "Assets\\Apps\\BLUE\\Runtime\\VNNodeType.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAA4AAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-02-23T06:34:31.63Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 1,
               "Title": "VNRunner.cs",
               "DocumentMoniker": "C:\\Users\\123\\PPP\\Assets\\Apps\\BLUE\\Runtime\\VNRunner.cs",
               "RelativeDocumentMoniker": "Assets\\Apps\\BLUE\\Runtime\\VNRunner.cs",
@@ -289,71 +349,18 @@
             {
               "$type": "Document",
               "DocumentIndex": 4,
-              "Title": "VNNodeType.cs",
-              "DocumentMoniker": "C:\\Users\\123\\PPP\\Assets\\Apps\\BLUE\\Runtime\\VNNodeType.cs",
-              "RelativeDocumentMoniker": "Assets\\Apps\\BLUE\\Runtime\\VNNodeType.cs",
-              "ToolTip": "C:\\Users\\123\\PPP\\Assets\\Apps\\BLUE\\Runtime\\VNNodeType.cs",
-              "RelativeToolTip": "Assets\\Apps\\BLUE\\Runtime\\VNNodeType.cs",
-              "ViewState": "AgIAAAAAAAAAAAAAAAAAAA4AAAAAAAAAAAAAAA==",
+              "Title": "VNCSVImporter.cs",
+              "DocumentMoniker": "C:\\Users\\123\\PPP\\Assets\\Data\\Dialogue\\VNCSVImporter.cs",
+              "RelativeDocumentMoniker": "Assets\\Data\\Dialogue\\VNCSVImporter.cs",
+              "ToolTip": "C:\\Users\\123\\PPP\\Assets\\Data\\Dialogue\\VNCSVImporter.cs",
+              "RelativeToolTip": "Assets\\Data\\Dialogue\\VNCSVImporter.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAADwAAAA1AAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-02-23T06:34:31.63Z",
-              "EditorCaption": ""
+              "WhenOpened": "2026-03-04T07:40:41.334Z"
             },
             {
               "$type": "Document",
-              "DocumentIndex": 1,
-              "Title": "VNSaveBlock.cs",
-              "DocumentMoniker": "C:\\Users\\123\\PPP\\Assets\\Apps\\BLUE\\Runtime\\VNSaveBlock.cs",
-              "RelativeDocumentMoniker": "Assets\\Apps\\BLUE\\Runtime\\VNSaveBlock.cs",
-              "ToolTip": "C:\\Users\\123\\PPP\\Assets\\Apps\\BLUE\\Runtime\\VNSaveBlock.cs",
-              "RelativeToolTip": "Assets\\Apps\\BLUE\\Runtime\\VNSaveBlock.cs",
-              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAkAAAABAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-03-04T07:09:12.536Z",
-              "EditorCaption": ""
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 2,
-              "Title": "VNSaveManager.cs",
-              "DocumentMoniker": "C:\\Users\\123\\PPP\\Assets\\Apps\\BLUE\\Runtime\\Save\\VNSaveManager.cs",
-              "RelativeDocumentMoniker": "Assets\\Apps\\BLUE\\Runtime\\Save\\VNSaveManager.cs",
-              "ToolTip": "C:\\Users\\123\\PPP\\Assets\\Apps\\BLUE\\Runtime\\Save\\VNSaveManager.cs",
-              "RelativeToolTip": "Assets\\Apps\\BLUE\\Runtime\\Save\\VNSaveManager.cs",
-              "ViewState": "AgIAABkAAAAAAAAAAAAIwDUAAAABAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-03-04T07:15:27.93Z",
-              "EditorCaption": ""
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 5,
-              "Title": "VNNodeList.cs",
-              "DocumentMoniker": "C:\\Users\\123\\PPP\\Assets\\Data\\Dialogue\\VNNodeList.cs",
-              "RelativeDocumentMoniker": "Assets\\Data\\Dialogue\\VNNodeList.cs",
-              "ToolTip": "C:\\Users\\123\\PPP\\Assets\\Data\\Dialogue\\VNNodeList.cs",
-              "RelativeToolTip": "Assets\\Data\\Dialogue\\VNNodeList.cs",
-              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAYAAAAAAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-03-04T07:41:08.329Z",
-              "EditorCaption": ""
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 6,
-              "Title": "VNNode.cs",
-              "DocumentMoniker": "C:\\Users\\123\\PPP\\Assets\\Apps\\BLUE\\Runtime\\VNNode.cs",
-              "RelativeDocumentMoniker": "Assets\\Apps\\BLUE\\Runtime\\VNNode.cs",
-              "ToolTip": "C:\\Users\\123\\PPP\\Assets\\Apps\\BLUE\\Runtime\\VNNode.cs",
-              "RelativeToolTip": "Assets\\Apps\\BLUE\\Runtime\\VNNode.cs",
-              "ViewState": "AgIAAAYAAAAAAAAAAAAAABgAAAARAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-02-23T06:34:47.714Z",
-              "EditorCaption": ""
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 7,
+              "DocumentIndex": 8,
               "Title": "VNInlineParser.cs",
               "DocumentMoniker": "C:\\Users\\123\\PPP\\Assets\\Apps\\BLUE\\Runtime\\VNInlineParser.cs",
               "RelativeDocumentMoniker": "Assets\\Apps\\BLUE\\Runtime\\VNInlineParser.cs",
@@ -361,12 +368,11 @@
               "RelativeToolTip": "Assets\\Apps\\BLUE\\Runtime\\VNInlineParser.cs",
               "ViewState": "AgIAACgAAAAAAAAAAAAIwEQAAAABAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-03-04T06:43:45.329Z",
-              "EditorCaption": ""
+              "WhenOpened": "2026-03-04T06:43:45.329Z"
             },
             {
               "$type": "Document",
-              "DocumentIndex": 8,
+              "DocumentIndex": 9,
               "Title": "VNDebugConsole.cs",
               "DocumentMoniker": "C:\\Users\\123\\PPP\\Assets\\Apps\\BLUE\\Runtime\\VNDebugConsole.cs",
               "RelativeDocumentMoniker": "Assets\\Apps\\BLUE\\Runtime\\VNDebugConsole.cs",
@@ -374,12 +380,11 @@
               "RelativeToolTip": "Assets\\Apps\\BLUE\\Runtime\\VNDebugConsole.cs",
               "ViewState": "AgIAAAQBAAAAAAAAAAAAACAAAAAIAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-03-04T05:30:10.52Z",
-              "EditorCaption": ""
+              "WhenOpened": "2026-03-04T05:30:10.52Z"
             },
             {
               "$type": "Document",
-              "DocumentIndex": 9,
+              "DocumentIndex": 10,
               "Title": "TaskbarManager.cs",
               "DocumentMoniker": "C:\\Users\\123\\PPP\\Assets\\OS\\Taskbar\\TaskbarManager.cs",
               "RelativeDocumentMoniker": "Assets\\OS\\Taskbar\\TaskbarManager.cs",
@@ -387,12 +392,11 @@
               "RelativeToolTip": "Assets\\OS\\Taskbar\\TaskbarManager.cs",
               "ViewState": "AgIAAFUAAAAAAAAAAAAIwFoAAAA/AAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-02-22T04:42:58.765Z",
-              "EditorCaption": ""
+              "WhenOpened": "2026-02-22T04:42:58.765Z"
             },
             {
               "$type": "Document",
-              "DocumentIndex": 10,
+              "DocumentIndex": 11,
               "Title": "VNState.cs",
               "DocumentMoniker": "C:\\Users\\123\\PPP\\Assets\\Apps\\BLUE\\Runtime\\Save\\VNState.cs",
               "RelativeDocumentMoniker": "Assets\\Apps\\BLUE\\Runtime\\Save\\VNState.cs",
@@ -400,12 +404,11 @@
               "RelativeToolTip": "Assets\\Apps\\BLUE\\Runtime\\Save\\VNState.cs",
               "ViewState": "AgIAABEAAAAAAAAAAAAIwC0AAAABAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-02-24T05:10:06.014Z",
-              "EditorCaption": ""
+              "WhenOpened": "2026-02-24T05:10:06.014Z"
             },
             {
               "$type": "Document",
-              "DocumentIndex": 11,
+              "DocumentIndex": 12,
               "Title": "TMPFocusFix.cs",
               "DocumentMoniker": "C:\\Users\\123\\PPP\\Assets\\Apps\\BLUE\\Runtime\\TMPFocusFix.cs",
               "RelativeDocumentMoniker": "Assets\\Apps\\BLUE\\Runtime\\TMPFocusFix.cs",
@@ -413,21 +416,7 @@
               "RelativeToolTip": "Assets\\Apps\\BLUE\\Runtime\\TMPFocusFix.cs",
               "ViewState": "AgIAAAAAAAAAAAAAAAAAAAsAAAABAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-03-04T05:38:59.916Z",
-              "EditorCaption": ""
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 12,
-              "Title": "WindowManager.cs",
-              "DocumentMoniker": "C:\\Users\\123\\PPP\\Assets\\OS\\WindowSystem\\WindowManager.cs",
-              "RelativeDocumentMoniker": "Assets\\OS\\WindowSystem\\WindowManager.cs",
-              "ToolTip": "C:\\Users\\123\\PPP\\Assets\\OS\\WindowSystem\\WindowManager.cs",
-              "RelativeToolTip": "Assets\\OS\\WindowSystem\\WindowManager.cs",
-              "ViewState": "AgIAAH8CAAAAAAAAAAD4v5kCAAAAAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-02-16T03:17:36.11Z",
-              "EditorCaption": ""
+              "WhenOpened": "2026-03-04T05:38:59.916Z"
             },
             {
               "$type": "Document",
@@ -439,8 +428,7 @@
               "RelativeToolTip": "Assets\\OS\\WindowSystem\\WindowController.cs",
               "ViewState": "AgIAAM0BAAAAAAAAAAD4v9IBAAAYAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-02-22T01:08:25.462Z",
-              "EditorCaption": ""
+              "WhenOpened": "2026-02-22T01:08:25.462Z"
             },
             {
               "$type": "Document",
@@ -452,8 +440,7 @@
               "RelativeToolTip": "Assets\\Apps\\BLUE\\Runtime\\Data\\VNScriptLoader.cs",
               "ViewState": "AgIAAEAAAAAAAAAAAAAIwFYAAAA1AAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-02-24T01:24:27.803Z",
-              "EditorCaption": ""
+              "WhenOpened": "2026-02-24T01:24:27.803Z"
             },
             {
               "$type": "Document",
@@ -465,8 +452,7 @@
               "RelativeToolTip": "Assets\\Apps\\BLUE\\Runtime\\VNDialogueView.cs",
               "ViewState": "AgIAAF4AAAAAAAAAAAD4v3IAAAAsAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-02-23T07:01:40.857Z",
-              "EditorCaption": ""
+              "WhenOpened": "2026-02-23T07:01:40.857Z"
             },
             {
               "$type": "Document",
@@ -478,8 +464,7 @@
               "RelativeToolTip": "Assets\\OS\\Desktop\\ShowDesktopController.cs",
               "ViewState": "AgIAAC8AAAAAAAAAAAAIwEIAAAANAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-02-15T04:01:38.039Z",
-              "EditorCaption": ""
+              "WhenOpened": "2026-02-15T04:01:38.039Z"
             },
             {
               "$type": "Document",
@@ -491,8 +476,7 @@
               "RelativeToolTip": "Assets\\OS\\Taskbar\\TaskbarButtonController.cs",
               "ViewState": "AgIAAFoAAAAAAAAAAAAIwH8AAAAFAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-02-16T09:33:12.72Z",
-              "EditorCaption": ""
+              "WhenOpened": "2026-02-16T09:33:12.72Z"
             },
             {
               "$type": "Document",
@@ -504,8 +488,7 @@
               "RelativeToolTip": "Assets\\OS\\WindowSystem\\WindowShortcutController.cs",
               "ViewState": "AgIAAAkAAAAAAAAAAAAAABsAAAALAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-02-15T09:22:17.896Z",
-              "EditorCaption": ""
+              "WhenOpened": "2026-02-15T09:22:17.896Z"
             },
             {
               "$type": "Document",
@@ -517,8 +500,7 @@
               "RelativeToolTip": "Assets\\Core\\Managers\\Bootstrap.cs",
               "ViewState": "AgIAAAAAAAAAAAAAAAAAAAUAAAADAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-03-04T01:35:32.29Z",
-              "EditorCaption": ""
+              "WhenOpened": "2026-03-04T01:35:32.29Z"
             },
             {
               "$type": "Document",
@@ -530,8 +512,7 @@
               "RelativeToolTip": "Assets\\Core\\SaveSystem\\SaveSystem.cs",
               "ViewState": "AgIAAAcAAAAAAAAAAAAIwAwAAAADAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-03-04T01:22:40.381Z",
-              "EditorCaption": ""
+              "WhenOpened": "2026-03-04T01:22:40.381Z"
             },
             {
               "$type": "Document",
@@ -543,8 +524,7 @@
               "RelativeToolTip": "Assets\\Apps\\BLUE\\Bridge\\VNOSBridge.cs",
               "ViewState": "AgIAAK0AAAAAAAAAAAD4v7kAAAAFAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-02-23T06:21:15.923Z",
-              "EditorCaption": ""
+              "WhenOpened": "2026-02-23T06:21:15.923Z"
             },
             {
               "$type": "Document",
@@ -556,8 +536,7 @@
               "RelativeToolTip": "Assets\\OS\\OSSave\\OSSaveSystem.cs",
               "ViewState": "AgIAAAsAAAAAAAAAAAAIwCcAAAAAAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-02-16T00:58:11.32Z",
-              "EditorCaption": ""
+              "WhenOpened": "2026-02-16T00:58:11.32Z"
             },
             {
               "$type": "Document",
@@ -569,8 +548,7 @@
               "RelativeToolTip": "Assets\\OS\\OSSave\\OSSaveData.cs",
               "ViewState": "AgIAABMAAAAAAAAAAAAIwB8AAAAAAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-02-16T00:54:54.429Z",
-              "EditorCaption": ""
+              "WhenOpened": "2026-02-16T00:54:54.429Z"
             },
             {
               "$type": "Document",
@@ -582,8 +560,7 @@
               "RelativeToolTip": "Assets\\OS\\OSSave\\SaveDebugController.cs",
               "ViewState": "AgIAAA4AAAAAAAAAAAAqwCYAAAAAAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-02-16T00:58:30.099Z",
-              "EditorCaption": ""
+              "WhenOpened": "2026-02-16T00:58:30.099Z"
             },
             {
               "$type": "Document",
@@ -595,8 +572,7 @@
               "RelativeToolTip": "Assets\\Core\\SaveSystem\\SaveData.cs",
               "ViewState": "AgIAAAAAAAAAAAAAAAAAABAAAAAAAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-03-04T01:22:29.798Z",
-              "EditorCaption": ""
+              "WhenOpened": "2026-03-04T01:22:29.798Z"
             },
             {
               "$type": "Document",
@@ -619,8 +595,7 @@
               "RelativeToolTip": "Assets\\Core\\OSState\\OSState.cs",
               "ViewState": "AgIAAAkAAAAAAAAAAAAIwCUAAAAAAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-02-22T03:07:34.615Z",
-              "EditorCaption": ""
+              "WhenOpened": "2026-02-22T03:07:34.615Z"
             },
             {
               "$type": "Document",
@@ -632,8 +607,7 @@
               "RelativeToolTip": "Assets\\Apps\\AppDefinition.cs",
               "ViewState": "AgIAAAYAAAAAAAAAAABIwBMAAAAAAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-02-22T03:35:38.175Z",
-              "EditorCaption": ""
+              "WhenOpened": "2026-02-22T03:35:38.175Z"
             },
             {
               "$type": "Document",
