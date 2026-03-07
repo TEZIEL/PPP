@@ -106,7 +106,7 @@ namespace PPP.BLUE.VN
         public bool CanAutoAdvance(bool saveAllowed)
         {
             if (!saveAllowed) return false;
-            return VNInputGate.CanUseSkipOrAuto(this);
+            return VNInputGate.CanAutoAdvanceInBackground(this);
         }
 
         public bool CanToggleAuto()

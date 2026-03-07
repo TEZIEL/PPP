@@ -191,6 +191,17 @@ namespace PPP.BLUE.VN
             if (LoadState())
                 GetComponentInChildren<VNDialogueView>(true)?.LockInputFrames(1);
 
+            // ✅ 시작 시 Auto는 항상 OFF로 강제(저장 상태가 ON이어도 시작 직후 자동 진행 방지)
+            if (settings.auto)
+            {
+                settings.auto = false;
+                StopAutoTimer();
+                CancelAuto();
+
+                if (logToConsole)
+                    Debug.Log("[VN] Auto forced OFF (Begin)");
+            }
+
             started = true;
             Next();
         }
@@ -1035,7 +1046,7 @@ namespace PPP.BLUE.VN
             if (!started) return false;
             if (policy == null) return false;
 
-            return VNInputGate.CanUseSkipOrAuto(policy) && SaveAllowed;
+            return VNInputGate.CanAutoAdvanceInBackground(policy) && SaveAllowed;
         }
 
         private bool CanToggleAuto()
