@@ -41,6 +41,12 @@ namespace PPP.BLUE.VN
 
         public System.Action<string> OnEnterDrink;
         public bool skipMode = false;
+
+        // Legacy compatibility fields: kept to prevent compile breaks on partial merges
+        // that still reference old hold-skip variables.
+        [SerializeField] private float holdSkipStepInterval = 0.02f;
+        private float nextHoldSkipAllowedTime;
+
         private string lastDrinkResult = "";
 
 
@@ -325,15 +331,19 @@ namespace PPP.BLUE.VN
                 ToggleSkip("Hotkey F1");
             }
 
-            if (Input.GetKeyDown(KeyCode.F2))
+            // ----------------------------
+            // 3) Skip loop: SkipMode는 대사 고속 진행 전용
+            // ----------------------------
+            if (skipMode)
             {
-                ToggleAutoFromInput("Hotkey F2");
-            }
-
-            if (skipMode && Time.unscaledTime >= nextHoldSkipAllowedTime)
-            {
-                SkipStep();
-                nextHoldSkipAllowedTime = Time.unscaledTime + Mathf.Max(0.01f, holdSkipStepInterval);
+                if (!CanRunSkipStep())
+                {
+                    if (logToConsole) Debug.Log("[VN] Skip loop paused (blocked). ");
+                }
+                else
+                {
+                    SkipStep();
+                }
             }
 
             // ----------------------------
