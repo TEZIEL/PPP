@@ -42,6 +42,7 @@ public class WindowManager : MonoBehaviour, IVNHostOS
     private OSSaveData cachedSave;
 
     [SerializeField] private bool logWindowState = false; // 필요할 때만 Inspector에서 켜기
+    [SerializeField] private bool logWindowLifecycle = true;
 
     private bool isAnimating;
     public bool IsAnimating => isAnimating;
@@ -65,6 +66,13 @@ public class WindowManager : MonoBehaviour, IVNHostOS
     }
     private bool IsCloseLocked() => Time.unscaledTime < closeLockUntil;
 
+
+    private void LogWindowLifecycle(string evt, string appId, string extra = null)
+    {
+        if (!logWindowLifecycle) return;
+        var suffix = string.IsNullOrEmpty(extra) ? string.Empty : $" {extra}";
+        Debug.Log($"[OS] Window {evt} appId={appId}{suffix}");
+    }
 
     public void SetMinimized(string appId, bool minimized)
     {
@@ -151,6 +159,7 @@ public class WindowManager : MonoBehaviour, IVNHostOS
         AttachContent(spawned, contentPrefab);
 
         openWindows.Add(appId, spawned);
+        LogWindowLifecycle("open", appId);
         taskbarManager?.Add(appId, displayName, spawned, taskbarIcon);
         windowDefaults[appId] = new WindowDefault { pos = defaultPos, size = defaultSize };
 
@@ -516,6 +525,7 @@ public class WindowManager : MonoBehaviour, IVNHostOS
         w.PlayMinimize(target, () =>
         {
             w.SetMinimized(true);
+            LogWindowLifecycle("minimize", appId);
             taskbarManager?.SetMinimized(appId, true);
 
             if (!suppressAutoFocus)
@@ -547,6 +557,7 @@ public class WindowManager : MonoBehaviour, IVNHostOS
             : w.GetWindowRoot().anchoredPosition;
 
         w.SetMinimized(false);
+        LogWindowLifecycle("restore", appId);
         taskbarManager?.SetMinimized(appId, false);
 
 
@@ -671,6 +682,7 @@ public class WindowManager : MonoBehaviour, IVNHostOS
 
     private void PerformClose(WindowController window, string appId)
     {
+        LogWindowLifecycle("close", appId);
         window.PlayClose(() =>
         {
             taskbarManager?.Remove(appId);
@@ -693,7 +705,12 @@ public class WindowManager : MonoBehaviour, IVNHostOS
         if (!openWindows.TryGetValue(appId, out var target) || target == null)
             return;
 
+        var prevActive = activeAppId;
         activeAppId = appId;
+
+        if (!string.IsNullOrEmpty(prevActive) && prevActive != appId)
+            LogWindowLifecycle("unfocus", prevActive, $"next={appId}");
+        LogWindowLifecycle("focus", appId);
 
         // ✅ 최소화 상태면 포커스 시 복원
         if (target.IsMinimized)
