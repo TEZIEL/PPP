@@ -46,6 +46,7 @@ namespace PPP.BLUE.VN
         // Legacy compatibility fields: kept to prevent compile breaks on partial merges
         // that still reference old hold-skip variables.
         [SerializeField] private float holdSkipStepInterval = 0.02f;
+        [SerializeField, Min(1)] private int skipBurstPerFrame = 24;
         private float nextHoldSkipAllowedTime;
         private bool wasF1Held;
 
@@ -110,8 +111,7 @@ namespace PPP.BLUE.VN
             bool gate = policy != null && policy.CanSaveDialogueState();
             SaveAllowed = allowed && gate;
 
-            if (logToConsole)
-                VNLog($"[VN] SaveAllowed {(SaveAllowed ? "TRUE" : "FALSE")} ({reason})");
+            VNLog($"[VN] SaveAllowed {(SaveAllowed ? "TRUE" : "FALSE")} ({reason})");
 
             // 🔴 Skip 중에는 저장 금지
             if (SaveAllowed && !skipMode)
@@ -141,8 +141,7 @@ namespace PPP.BLUE.VN
 
             SaveAllowed = gate;
 
-            if (logToConsole)
-                Debug.Log($"[VN] SaveAllowed {(SaveAllowed ? "TRUE" : "FALSE")} ({reason})");
+            VNLog($"[VN] SaveAllowed {(SaveAllowed ? "TRUE" : "FALSE")} ({reason})");
 
             if (SaveAllowed)
             {
@@ -197,7 +196,7 @@ namespace PPP.BLUE.VN
         {
             if (started) return;
             if (script == null) { Debug.LogError("[VNRunner] No script loaded."); return; }
-            Debug.Log($"[VN] Begin() id={GetInstanceID()} go={gameObject.name} started={started}");
+            VNLog($"[VN] Begin() id={GetInstanceID()} go={gameObject.name} started={started}");
 
             if (LoadState())
                 GetComponentInChildren<VNDialogueView>(true)?.LockInputFrames(1);
@@ -209,8 +208,7 @@ namespace PPP.BLUE.VN
                 StopAutoTimer();
                 CancelAuto();
 
-                if (logToConsole)
-                    Debug.Log("[VN] Auto forced OFF (Begin)");
+                VNLog("[VN] Auto forced OFF (Begin)");
             }
 
             started = true;
@@ -302,8 +300,7 @@ namespace PPP.BLUE.VN
                     StopAutoTimer();
                     CancelAuto();
 
-                    if (logToConsole)
-                        Debug.Log("[VN] Auto forced OFF (Window minimized)");
+                    VNLog("[VN] Auto forced OFF (Window minimized)");
                 }
             }
             lastMinimized = nowMin;
@@ -333,12 +330,12 @@ namespace PPP.BLUE.VN
 
             if (f1Held && !wasF1Held)
             {
-                Debug.Log("[VN] F1 Hold Skip START");
+                VNLog("[VN] F1 Hold Skip START");
                 ForceAutoOff("Hold Skip");
             }
             else if (!f1Held && wasF1Held)
             {
-                Debug.Log("[VN] F1 Hold Skip END");
+                VNLog("[VN] F1 Hold Skip END");
             }
 
             wasF1Held = f1Held;
@@ -369,8 +366,7 @@ namespace PPP.BLUE.VN
 
             TryStartAutoTimer();
 
-            if (logToConsole)
-                Debug.Log("[VN] AutoTimer Start (TypingEnd)");
+            VNLog("[VN] AutoTimer Start (TypingEnd)");
         }
 
 
@@ -487,8 +483,7 @@ namespace PPP.BLUE.VN
 
             skipMode = false;
 
-            if (logToConsole)
-                Debug.Log($"[VN] SkipMode forced OFF ({reason})");
+            VNLog($"[VN] SkipMode forced OFF ({reason})");
         }
 
         public void Next()
@@ -500,7 +495,7 @@ namespace PPP.BLUE.VN
 
             if (policy != null && policy.GetWindowState().IsMinimized)
             {
-                if (logToConsole) Debug.Log("[VN] Next ignored (minimized).");
+                if (logToConsole) VNLog("[VN] Next ignored (minimized).");
                 return;
             }
 
@@ -558,7 +553,7 @@ namespace PPP.BLUE.VN
 
                         case VNNodeType.Choice:
                             {
-                                Debug.Log($"[VN] Choice hit id={node.id} choices={(node.choices == null ? -1 : node.choices.Length)} hasText={HasChoiceText(node.choices)}");
+                                VNLog($"[VN] Choice hit id={node.id} choices={(node.choices == null ? -1 : node.choices.Length)} hasText={HasChoiceText(node.choices)}");
 
                                 if (node.choices != null && HasChoiceText(node.choices))
                                 {
@@ -567,7 +562,7 @@ namespace PPP.BLUE.VN
                                     isWaiting = true;
 
                                     MarkSaveAllowed(true, "Choice Open");
-                                    Debug.Log("[VN] OnChoice invoke");
+                                    VNLog("[VN] OnChoice invoke");
                                     OnChoice?.Invoke(node.choices);
                                     return;
                                 }
@@ -600,7 +595,7 @@ namespace PPP.BLUE.VN
                             }
 
                         case VNNodeType.Label:
-                            if (logToConsole) Debug.Log($"[VN] Label: {node.label} (idx {pointer})");
+                            if (logToConsole) VNLog($"[VN] Label: {node.label} (idx {pointer})");
                             pointer++;
                             continue; // ✅ 출력 없음 → 계속 진행
 
@@ -684,8 +679,7 @@ namespace PPP.BLUE.VN
 
             string cleanText = RemoveInlineCommands(node.text);
 
-            if (logToConsole)
-                Debug.Log($"[VN] {node.speakerId}: {cleanText} (id={node.id})");
+            VNLog($"[VN] {node.speakerId}: {cleanText} (id={node.id})");
 
             OnSay?.Invoke(node.speakerId, cleanText, node.id);
 
@@ -707,7 +701,7 @@ namespace PPP.BLUE.VN
 
             if (seenLineIds.Add(lineId))
             {
-                Debug.Log($"[VN] Seen + {lineId} (total={seenLineIds.Count})");
+                VNLog($"[VN] Seen + {lineId} (total={seenLineIds.Count})");
             }
         }
 
@@ -840,16 +834,14 @@ namespace PPP.BLUE.VN
                 }
             }
 
-            if (logToConsole)
-                Debug.Log($"[VN] Jump -> {label} (idx {idx}) from nodeId={script?.nodes?[pointer]?.id} curIdx={pointer}");
+            VNLog($"[VN] Jump -> {label} (idx {idx}) from nodeId={script?.nodes?[pointer]?.id} curIdx={pointer}");
 
             pointer = idx + 1;
         }
 
         private void Finish()
         {
-            if (logToConsole)
-                Debug.Log("[VN] End");
+            VNLog("[VN] End");
 
             OnEnd?.Invoke();
             enabled = false; // 1단계에서는 그냥 멈춤
@@ -943,7 +935,7 @@ namespace PPP.BLUE.VN
 
         public void DebugForceSave(string reason)
         {
-            Debug.Log($"[VNDBG] ForceSave (debug slot) reason={reason}");
+            VNLog($"[VNDBG] ForceSave (debug slot) reason={reason}");
             SaveStateToKey(VN_STATE_KEY_DBG, ignoreSaveAllowed: true);
         }
 
@@ -960,7 +952,7 @@ namespace PPP.BLUE.VN
         public bool TryLoadNow(string reason = "manual")
         {
             bool ok = LoadStateFromKey(VN_STATE_KEY);
-            Debug.Log($"[VN] Load {(ok ? "ok" : "miss")} ({reason})");
+            VNLog($"[VN] Load {(ok ? "ok" : "miss")} ({reason})");
             return ok;
         }
 
@@ -973,7 +965,7 @@ namespace PPP.BLUE.VN
 
         public void DebugForceLoad(string reason)
         {
-            Debug.Log($"[VNDBG] ForceLoad (debug slot) reason={reason}");
+            VNLog($"[VNDBG] ForceLoad (debug slot) reason={reason}");
 
             if (LoadStateFromKey(VN_STATE_KEY_DBG))
                 GetComponentInChildren<VNDialogueView>(true)?.LockInputFrames(1);
@@ -1014,7 +1006,7 @@ namespace PPP.BLUE.VN
 
             settings.speed = 2.5f;
 
-            Debug.Log($"[VN] TestSpeed25 -> speed={settings.speed}");
+            VNLog($"[VN] TestSpeed25 -> speed={settings.speed}");
         }
 
         public void SetSpeed(float v)
@@ -1024,7 +1016,7 @@ namespace PPP.BLUE.VN
                 settings = VNSettings.Default();
 
             settings.speed = v;
-            Debug.Log($"[VN] SetSpeed -> {settings.speed}");
+            VNLog($"[VN] SetSpeed -> {settings.speed}");
         }
 
         private bool TryResumePendingCallAfterLoad()
@@ -1039,18 +1031,17 @@ namespace PPP.BLUE.VN
             isWaiting = true;
             waitPointer = Mathf.Max(0, frame.returnPointer - 1);
 
-            if (logToConsole)
-                Debug.Log($"[VN] ResumePendingCall -> OnCall {frame.target} arg={frame.arg}");
+            VNLog($"[VN] ResumePendingCall -> OnCall {frame.target} arg={frame.arg}");
 
             if (string.Equals(frame.target, "Drink", StringComparison.OrdinalIgnoreCase))
-                Debug.Log($"[VN] Drink restore requested target={frame.target} arg={frame.arg}");
+                VNLog($"[VN] Drink restore requested target={frame.target} arg={frame.arg}");
 
             dispatchingRestoredCall = true;
             OnCall?.Invoke(frame.target ?? string.Empty, frame.arg ?? string.Empty);
             dispatchingRestoredCall = false;
 
             if (string.Equals(frame.target, "Drink", StringComparison.OrdinalIgnoreCase))
-                Debug.Log($"[VN] Drink restore opened target={frame.target} arg={frame.arg}");
+                VNLog($"[VN] Drink restore opened target={frame.target} arg={frame.arg}");
 
             return true;
         }
@@ -1071,8 +1062,7 @@ namespace PPP.BLUE.VN
             isWaiting = false;
             waitPointer = -1;
 
-            if (logToConsole)
-                Debug.Log($"[VN] ReturnFromCall target={frame.target} arg={frame.arg} result={result} -> pointer={pointer}");
+            VNLog($"[VN] ReturnFromCall target={frame.target} arg={frame.arg} result={result} -> pointer={pointer}");
 
             Next();
         }
@@ -1116,8 +1106,7 @@ namespace PPP.BLUE.VN
                 failCount++;
             }
 
-            if (logToConsole)
-                Debug.Log($"[VN] DrinkResult = {result} (great={greatCount}, success={successCount}, fail={failCount})");
+            VNLog($"[VN] DrinkResult = {result} (great={greatCount}, success={successCount}, fail={failCount})");
         }
 
 
@@ -1141,7 +1130,7 @@ namespace PPP.BLUE.VN
         {
             if (!CanToggleAuto())
             {
-                if (logToConsole) Debug.Log("[VN] Auto toggle ignored (blocked).");
+                if (logToConsole) VNLog("[VN] Auto toggle ignored (blocked).");
                 return;
             }
 
@@ -1164,8 +1153,7 @@ namespace PPP.BLUE.VN
                 CancelAuto();
             }
 
-            if (logToConsole)
-                Debug.Log($"[VN] Auto={(settings.auto ? "On" : "Off")} ({source})");
+            VNLog($"[VN] Auto={(settings.auto ? "On" : "Off")} ({source})");
         }
 
         private bool IsBlockingModalState(bool nowMin)
@@ -1178,7 +1166,7 @@ namespace PPP.BLUE.VN
         public void StopAutoExternal(string reason)
         {
             StopAutoTimer();
-            if (logToConsole) Debug.Log($"[VN] AutoTimer Stop ({reason})");
+            if (logToConsole) VNLog($"[VN] AutoTimer Stop ({reason})");
         }
 
         private void TryStartAutoTimer()
@@ -1196,14 +1184,13 @@ namespace PPP.BLUE.VN
                 StopCoroutine(autoCo);
                 autoCo = null;
 
-                if (logToConsole)
-                    Debug.Log("[VN] AutoTimer Stopped");
+                VNLog("[VN] AutoTimer Stopped");
             }
         }
 
         private IEnumerator CoAutoNext()
         {
-            if (logToConsole) Debug.Log($"[VN] AutoTimer Start ({AutoDelaySeconds:0.00}s)");
+            if (logToConsole) VNLog($"[VN] AutoTimer Start ({AutoDelaySeconds:0.00}s)");
 
             yield return new WaitForSeconds(AutoDelaySeconds);
 
@@ -1212,7 +1199,7 @@ namespace PPP.BLUE.VN
             // ✅ 발사 직전 재검사 (SaveAllowed FALSE, 모달 ON, 드링크 ON이면 여기서 차단)
             if (!CanAutoAdvance()) yield break;
 
-            if (logToConsole) Debug.Log("[VN] AutoNext");
+            if (logToConsole) VNLog("[VN] AutoNext");
             Next();
         }
 
@@ -1226,7 +1213,7 @@ namespace PPP.BLUE.VN
             StopAutoTimer();
             CancelAuto();
 
-            if (logToConsole) Debug.Log($"[VN] Auto forced OFF ({reason})");
+            if (logToConsole) VNLog($"[VN] Auto forced OFF ({reason})");
         }
 
 
@@ -1241,7 +1228,7 @@ namespace PPP.BLUE.VN
         {
             if (policy != null)
             {
-                if (logToConsole) Debug.Log($"[VN] policy bind=OK({policy.name}) from={from}");
+                if (logToConsole) VNLog($"[VN] policy bind=OK({policy.name}) from={from}");
                 return;
             }
 
@@ -1258,8 +1245,7 @@ namespace PPP.BLUE.VN
                     policy = appRoot.GetComponentInChildren<VNPolicyController>(true);
             }
 
-            if (logToConsole)
-                Debug.Log($"[VN] policy bind={(policy != null ? $"OK({policy.name})" : "NULL")} from={from}");
+            VNLog($"[VN] policy bind={(policy != null ? $"OK({policy.name})" : "NULL")} from={from}");
         }
 
 
@@ -1267,8 +1253,7 @@ namespace PPP.BLUE.VN
         {
             if (!ignoreSaveAllowed && !CanPersistState())
             {
-                if (logToConsole)
-                    Debug.Log($"[VN] SaveState skipped key={key} SaveAllowed={SaveAllowed} policyOk={(policy != null && policy.CanSaveDialogueState())}");
+                VNLog($"[VN] SaveState skipped key={key} SaveAllowed={SaveAllowed} policyOk={(policy != null && policy.CanSaveDialogueState())}");
                 return;
             }
             if (script == null) return;
@@ -1279,13 +1264,12 @@ namespace PPP.BLUE.VN
             {
                 var safe = st.settings ?? VNSettings.Default();
                 var top = callStack.Count > 0 ? callStack.Peek() : null;
-                Debug.Log($"[VN] SaveState seen={st.seen?.Count ?? 0} auto={safe.auto} speed={safe.speed} pointer={st.pointer} callStack={callStack.Count} top={top?.target ?? "-"}/{top?.arg ?? "-"}");
+                VNLog($"[VN] SaveState seen={st.seen?.Count ?? 0} auto={safe.auto} speed={safe.speed} pointer={st.pointer} callStack={callStack.Count} top={top?.target ?? "-"}/{top?.arg ?? "-"}");
             }
 
             VNFileSaveSystem.Save(key, st);
 
-            if (logToConsole)
-                Debug.Log($"[VN] SaveState -> key={key} scriptId={st.scriptId} pointer={st.pointer} vars={st.vars?.Count ?? 0}");
+            VNLog($"[VN] SaveState -> key={key} scriptId={st.scriptId} pointer={st.pointer} vars={st.vars?.Count ?? 0}");
         }
 
         private bool CanPersistState()
@@ -1359,7 +1343,7 @@ namespace PPP.BLUE.VN
 
             if (logToConsole)
             {
-                Debug.Log($"[VN] LoadState <- key={key} pointer={pointer} callStack={callStack.Count} target={pendingCallResumeFrame?.target ?? "-"} arg={pendingCallResumeFrame?.arg ?? "-"}");
+                VNLog($"[VN] LoadState <- key={key} pointer={pointer} callStack={callStack.Count} target={pendingCallResumeFrame?.target ?? "-"} arg={pendingCallResumeFrame?.arg ?? "-"}");
             }
 
             return true;
@@ -1391,8 +1375,7 @@ namespace PPP.BLUE.VN
                 });
             }
 
-            if (logToConsole)
-                Debug.Log($"[VN] Restore pointer={pointer} stack={callStack.Count}");
+            VNLog($"[VN] Restore pointer={pointer} stack={callStack.Count}");
         }
 
 
@@ -1407,8 +1390,7 @@ namespace PPP.BLUE.VN
 
             callStack.Push(frame);
 
-            if (logToConsole)
-                Debug.Log($"[VN] Call push -> {label} return={frame.returnPointer}");
+            VNLog($"[VN] Call push -> {label} return={frame.returnPointer}");
 
             pointer = labels[label];
         }
@@ -1425,8 +1407,7 @@ namespace PPP.BLUE.VN
 
             pointer = frame.returnPointer;
 
-            if (logToConsole)
-                Debug.Log($"[VN] Return -> {pointer}");
+            VNLog($"[VN] Return -> {pointer}");
         }
 
         private void ExecuteInline(InlineCommand cmd)
@@ -1452,13 +1433,13 @@ namespace PPP.BLUE.VN
 
                 case "shake":
 
-                    Debug.Log("[VN] shake");
+                    VNLog("[VN] shake");
 
                     break;
 
                 case "sfx":
 
-                    Debug.Log("[VN] sfx " + cmd.arg);
+                    VNLog("[VN] sfx " + cmd.arg);
 
                     break;
             }
@@ -1470,7 +1451,7 @@ namespace PPP.BLUE.VN
             {
                 case "wait":
 
-                    Debug.Log("[VN CMD] wait");
+                    VNLog("[VN CMD] wait");
                     StartCoroutine(WaitRoutine(0.5f));
                     break;
 
@@ -1479,19 +1460,19 @@ namespace PPP.BLUE.VN
                     if (int.TryParse(arg, out int v))
                     {
                         typeSpeed = v;
-                        Debug.Log("[VN CMD] speed=" + v);
+                        VNLog("[VN CMD] speed=" + v);
                     }
                     break;
 
                 case "sfx":
 
-                    Debug.Log("[VN CMD] sfx=" + arg);
+                    VNLog("[VN CMD] sfx=" + arg);
                     // TODO: AudioManager.Play(arg);
                     break;
 
                 case "shake":
 
-                    Debug.Log("[VN CMD] shake");
+                    VNLog("[VN CMD] shake");
                     // TODO: CameraShake.Trigger();
                     break;
             }
@@ -1524,8 +1505,7 @@ namespace PPP.BLUE.VN
 
             callStack.Push(frame);
 
-            if (logToConsole)
-                Debug.Log($"[VN] Call -> {label} return={frame.returnPointer}");
+            VNLog($"[VN] Call -> {label} return={frame.returnPointer}");
 
             pointer = target;
         }
@@ -1533,8 +1513,7 @@ namespace PPP.BLUE.VN
 
         public void ReturnFromDrink(string result)
         {
-            if (logToConsole)
-                Debug.Log("[VN] Drink Result: " + result);
+            VNLog("[VN] Drink Result: " + result);
 
             lastResult = result;
 
@@ -1555,8 +1534,7 @@ namespace PPP.BLUE.VN
 
             pointer = frame.returnPointer;
 
-            if (logToConsole)
-                Debug.Log($"[VN] Return -> {pointer}");
+            VNLog($"[VN] Return -> {pointer}");
         }
 
 
@@ -1610,7 +1588,7 @@ namespace PPP.BLUE.VN
 
                 case "sfx":
 
-                    Debug.Log("[VN] SFX " + cmd.arg);
+                    VNLog("[VN] SFX " + cmd.arg);
 
                     break;
 
@@ -1623,7 +1601,7 @@ namespace PPP.BLUE.VN
 
                 case "shake":
 
-                    Debug.Log("[VN] Shake");
+                    VNLog("[VN] Shake");
 
                     break;
             }
@@ -1713,8 +1691,7 @@ namespace PPP.BLUE.VN
 
         private void EnterDrinkMode(string label)
         {
-            if (logToConsole)
-                Debug.Log("[VN] Enter Drink Mode: " + label);
+            VNLog("[VN] Enter Drink Mode: " + label);
 
             OnEnterDrink?.Invoke(label);
         }
@@ -1751,14 +1728,14 @@ namespace PPP.BLUE.VN
 
                 case "shake":
                     {
-                        Debug.Log("[VN] shake command");
+                        VNLog("[VN] shake command");
                         break;
                     }
 
                 case "sfx":
                     {
                         if (parts.Length > 1)
-                            Debug.Log("[VN] play sfx: " + parts[1]);
+                            VNLog("[VN] play sfx: " + parts[1]);
                         break;
                     }
             }
@@ -1806,16 +1783,14 @@ namespace PPP.BLUE.VN
         {
             if (!HasScript || policy == null || !VNInputGate.CanUseSkipOrAuto(policy))
             {
-                if (logToConsole)
-                    Debug.Log($"[VN] SkipMode toggle ignored (blocked) source={source}");
+                VNLog($"[VN] SkipMode toggle ignored (blocked) source={source}");
                 return;
             }
 
             ForceAutoOff("Skip Step (UI)");
             SkipStep();
 
-            if (logToConsole)
-                Debug.Log($"[VN] SkipStep triggered source={source}");
+            VNLog($"[VN] SkipStep triggered source={source}");
         }
 
         private void SkipStep()
@@ -1826,31 +1801,36 @@ namespace PPP.BLUE.VN
             if (dialogueView == null)
                 dialogueView = GetComponentInChildren<VNDialogueView>(true);
 
-            int steps = 0;
-            const int MAX = 50;
+            skipMode = true;
 
-            while (steps < MAX)
+            int stepBudget = Mathf.Max(1, skipBurstPerFrame);
+
+            for (int i = 0; i < stepBudget; i++)
             {
-                // 타이핑중이면 바로 완성
+                // 1) 타이핑 중이면 즉시 완성
                 if (dialogueView?.TryCompleteCurrentLineForSkip() == true)
                 {
                     MarkSaveAllowed(true, "Skip ForceComplete");
-                    steps++;
                     continue;
                 }
 
-                if (!SaveAllowed)
-                    break;
+                // 2) Choice/Call/Interaction 직전 멈춤 (실행하지 않음)
+                if (script != null && script.nodes != null &&
+                    pointer >= 0 && pointer < script.nodes.Count)
+                {
+                    var nextNode = script.nodes[pointer];
+                    if (IsInteractionNodeForSkip(nextNode))
+                    {
+                        ForceSkipOff(GetSkipStopReason(nextNode));
+                        break;
+                    }
+                }
 
-                int before = pointer;
+            // 저장 가능한 상태에서만 진행
+            if (!SaveAllowed)
+                return;
 
-                Next();
-
-                steps++;
-
-                if (pointer == before)
-                    break;
-            }
+            Next();
         }
 
         private VNScript BuildTestScript()
