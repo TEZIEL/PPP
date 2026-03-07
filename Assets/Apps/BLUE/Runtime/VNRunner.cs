@@ -9,7 +9,7 @@ namespace PPP.BLUE.VN
     public sealed class VNRunner : MonoBehaviour
     {
         [Header("Debug")]
-        [SerializeField] private bool logToConsole = true;
+        [SerializeField] private bool logToConsole = false;
         [SerializeField] private VNScript testScript;
         [SerializeField] private bool loadFromJsonOnStart;
         [SerializeField] private string startDayId = "day01";
@@ -339,7 +339,8 @@ namespace PPP.BLUE.VN
 
             if (f1Held && VNInputGate.CanUseSkipOrAuto(policy))
             {
-               
+
+                for (int i = 0; i < 5; i++)
                     SkipStep();
             }
 
