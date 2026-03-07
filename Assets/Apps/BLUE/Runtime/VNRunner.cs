@@ -331,9 +331,19 @@ namespace PPP.BLUE.VN
                 ToggleSkip("Hotkey F1");
             }
 
-            if (Input.GetKeyDown(KeyCode.F2))
+            // ----------------------------
+            // 3) Skip loop: SkipMode는 대사 고속 진행 전용
+            // ----------------------------
+            if (skipMode)
             {
-                ToggleAutoFromInput("Hotkey F2");
+                if (!CanRunSkipStep())
+                {
+                    if (logToConsole) Debug.Log("[VN] Skip loop paused (blocked). ");
+                }
+                else
+                {
+                    SkipStep();
+                }
             }
 
             // ----------------------------
