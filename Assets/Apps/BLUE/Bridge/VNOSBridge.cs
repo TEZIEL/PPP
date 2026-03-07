@@ -119,18 +119,20 @@ namespace PPP.BLUE.VN
 
         public bool CanCloseNow()
         {
-            // ExitLocked면 무조건 금지
             if (ExitLocked) return false;
+            if (!BlockClose) return true;
+            return allowCloseOnce;
+        }
 
-            // ✅ 허용 토큰이 있을 때만 1회 통과
+        public bool ConsumeClosePermission()
+        {
+            var canClose = CanCloseNow();
+            if (!canClose) return false;
+
             if (allowCloseOnce)
-            {
                 allowCloseOnce = false;
-                return true;
-            }
 
-            // ✅ 그 외는 무조건 막힘 (BlockClose 값이 뭐든 상관없게)
-            return false;
+            return true;
         }
 
 
