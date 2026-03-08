@@ -43,6 +43,13 @@ namespace PPP.BLUE.VN
             }
         }
 
+
+        private void OnEnable()
+        {
+            if (popupRoot != null && !isShowing)
+                popupRoot.SetActive(false);
+        }
+
         private void OnDestroy()
         {
             if (bridge != null)
