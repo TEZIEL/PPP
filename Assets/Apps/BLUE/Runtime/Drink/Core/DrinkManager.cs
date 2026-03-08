@@ -17,6 +17,7 @@ namespace PPP.BLUE.VN
         [SerializeField] private VNRunner runner;
         [SerializeField] private DrinkDatabaseLoader databaseLoader;
         [SerializeField] private DrinkPanelUI panelUI;
+        [SerializeField] private GameObject panelToCloseOnProvide;
 
         [Header("UI")]
         [SerializeField] private Button provideButton;
@@ -146,7 +147,14 @@ namespace PPP.BLUE.VN
 
             panelUI?.ShowResult(result, producedName);
             LogResult(result);
+
+            if (runner != null)
+                runner.SetVar("lastDrink", MapResultToLastDrinkValue(normalized));
+
             runner?.ReturnFromCall(normalized);
+
+            if (panelToCloseOnProvide != null)
+                panelToCloseOnProvide.SetActive(false);
         }
 
         private IEnumerator CoResetIngredients()
@@ -180,6 +188,18 @@ namespace PPP.BLUE.VN
 
             isResetInProgress = false;
             UpdateProvideButtonState();
+        }
+
+        private static int MapResultToLastDrinkValue(string result)
+        {
+            if (string.Equals(result, "PERFECT", StringComparison.OrdinalIgnoreCase) ||
+                string.Equals(result, "GREAT", StringComparison.OrdinalIgnoreCase))
+                return 1;
+
+            if (string.Equals(result, "SUCCESS", StringComparison.OrdinalIgnoreCase))
+                return 2;
+
+            return 3;
         }
 
         private string NormalizeResultForRunner(string result)
