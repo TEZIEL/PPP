@@ -15,7 +15,7 @@ namespace PPP.BLUE.VN.DrinkSystem
         {
             var db = new DrinkDatabase();
             TryLoadDrinks(db);
-            TryLoadRequests(db);
+            LoadRequests(db);
             TryLoadIngredients(db);
             return db;
         }
@@ -65,7 +65,7 @@ namespace PPP.BLUE.VN.DrinkSystem
             }
         }
 
-        private void TryLoadRequests(DrinkDatabase db)
+        private void LoadRequests(DrinkDatabase db)
         {
             if (requestsJson == null || string.IsNullOrWhiteSpace(requestsJson.text))
                 return;
@@ -98,8 +98,10 @@ namespace PPP.BLUE.VN.DrinkSystem
                 }
 
                 if (!string.IsNullOrEmpty(request.requestID))
-                    db.requests.Add(request);
+                    db.requests[request.requestID] = request;
             }
+
+            Debug.Log($"[DrinkDB] Loaded {db.requests.Count} requests");
         }
 
         private void TryLoadIngredients(DrinkDatabase db)
