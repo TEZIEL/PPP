@@ -12,6 +12,7 @@ namespace PPP.BLUE.VN
         [SerializeField] private WindowShortcutController shortcutController;
 
         [SerializeField] private GameObject popupRoot;
+        [SerializeField] private CanvasGroup popupCanvasGroup;
         [SerializeField] private TMP_Text messageText;
 
         [SerializeField] private Button btnCancel;
@@ -31,7 +32,8 @@ namespace PPP.BLUE.VN
             if (policy == null) policy = GetComponentInParent<VNPolicyController>(true);
             if (policy == null) policy = GetComponentInChildren<VNPolicyController>(true);
 
-            if (popupRoot != null) popupRoot.SetActive(false);
+            EnsureCanvasGroup();
+            SetPopupVisible(false);
 
             btnCancel?.onClick.AddListener(Hide);
             btnExit?.onClick.AddListener(ForceExit);
@@ -41,6 +43,13 @@ namespace PPP.BLUE.VN
                 bridge.OnCloseRequested -= Show; // 중복 방지
                 bridge.OnCloseRequested += Show;
             }
+        }
+
+        private void OnEnable()
+        {
+            EnsureCanvasGroup();
+            if (!isShowing)
+                SetPopupVisible(false);
         }
 
         private void OnDestroy()
@@ -64,14 +73,13 @@ namespace PPP.BLUE.VN
             if (messageText != null)
                 messageText.text = defaultMessage;
 
-            popupRoot.SetActive(true);
+            SetPopupVisible(true);
+            Debug.Log("[UI] ClosePopup show");
 
             Debug.Log("[VNClosePopup] PushModal reason=ClosePopup");
             policy?.PushModal("ClosePopup");
 
-            // 🔥 Close 입력 잠금
             shortcutController?.LockForSeconds(0.25f);
-
             UnityEngine.EventSystems.EventSystem.current?.SetSelectedGameObject(null);
         }
 
@@ -86,34 +94,57 @@ namespace PPP.BLUE.VN
             }
 
             isShowing = false;
-            popupRoot.SetActive(false);
+            SetPopupVisible(false);
+            Debug.Log("[UI] ClosePopup hide");
 
             Debug.Log("[VNClosePopup] PopModal reason=ClosePopup");
             policy?.PopModal("ClosePopup");
 
             bridge?.ClearCloseRequestPending();
-
-            // 🔥 재입력 방지
             shortcutController?.LockForSeconds(0.15f);
-
             UnityEngine.EventSystems.EventSystem.current?.SetSelectedGameObject(null);
         }
 
         public void OnCloseCancel()
         {
-            Hide(); // 이미 내부에서 modal off + clearPending 처리함
+            Hide();
         }
 
         public void OnCloseConfirm()
         {
-            bridge?.RequestForceClose(); // OS에 강제 닫기 요청
-            Hide();                      // 팝업 닫기
+            bridge?.RequestForceClose();
+            Hide();
         }
 
         private void ForceExit()
         {
             bridge?.RequestForceClose();
             Hide();
+        }
+
+        private void EnsureCanvasGroup()
+        {
+            if (popupRoot == null)
+                return;
+
+            if (popupCanvasGroup == null)
+                popupCanvasGroup = popupRoot.GetComponent<CanvasGroup>();
+
+            if (popupCanvasGroup == null)
+                popupCanvasGroup = popupRoot.AddComponent<CanvasGroup>();
+
+            if (!popupRoot.activeSelf)
+                popupRoot.SetActive(true);
+        }
+
+        private void SetPopupVisible(bool visible)
+        {
+            if (popupCanvasGroup == null)
+                return;
+
+            popupCanvasGroup.alpha = visible ? 1f : 0f;
+            popupCanvasGroup.interactable = visible;
+            popupCanvasGroup.blocksRaycasts = visible;
         }
     }
 }
