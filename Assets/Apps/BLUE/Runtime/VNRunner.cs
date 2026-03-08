@@ -17,18 +17,15 @@ namespace PPP.BLUE.VN
         public bool SaveAllowed { get; private set; }
         [SerializeField] private float typeSpeed = 30f;
 
-        [SerializeField] private VNRunner runner;
         private VNState state;
         private Coroutine autoCo;
         [SerializeField] private VNPolicyController policy;
-        private VNDialogueView dialogueView;
         // --- Auto suspend/resume by modal/drink ---
         private bool lastBlocked;                 // 지난 프레임에 입력/오토가 막혀있었나?
         private bool autoSuspendedByBlock;        // 막힘 때문에 Auto를 멈췄었나?
         private bool lastMinimized;
         private int waitPointer = -1;   // 화면에 보여주고 '기다리는' 노드 인덱스
         private bool isWaiting;         // 지금 입력/선택 대기 상태인지
-        private List<VNNode> nodes = new List<VNNode>();
         public bool IsSkipMode => skipMode;
 
         private const string SAVE_KEY = "vn.state";
@@ -38,9 +35,7 @@ namespace PPP.BLUE.VN
         private int lastShownPointer = -1;
         private int lastStopIndex = 0; // 마지막으로 '멈춘' 노드(Say/Choice)의 인덱스
         private Dictionary<string, int> flags = new Dictionary<string, int>();
-        private Dictionary<string, int> labels = new Dictionary<string, int>();
 
-        public System.Action<string> OnEnterDrink;
         public bool skipMode = false;
         
 
@@ -103,7 +98,6 @@ namespace PPP.BLUE.VN
             TryResolveBridge(silent: true);
 
             BindPolicy("Awake");
-            if (dialogueView == null) dialogueView = GetComponentInChildren<VNDialogueView>(true);
             skipMode = false; // 인스펙터 값과 무관하게 런타임 기본 OFF
             
 
@@ -210,8 +204,7 @@ namespace PPP.BLUE.VN
             if (script == null) { Debug.LogError("[VNRunner] No script loaded."); return; }
             VNLog($"[VN] Begin() id={GetInstanceID()} go={gameObject.name} started={started}");
 
-            if (LoadState())
-                GetComponentInChildren<VNDialogueView>(true)?.LockInputFrames(1);
+            LoadState();
 
             // ✅ 시작 시 Auto는 항상 OFF로 강제(저장 상태가 ON이어도 시작 직후 자동 진행 방지)
             if (settings.auto)
@@ -450,9 +443,10 @@ namespace PPP.BLUE.VN
         {
             if (node == null) return false;
 
-
-           
-            return false;
+            return node.type == VNNodeType.Choice
+                || node.type == VNNodeType.Branch
+                || node.type == VNNodeType.Call
+                || node.type == VNNodeType.Switch;
         }
 
         private string GetSkipStopReason(VNNode node)
@@ -715,7 +709,6 @@ namespace PPP.BLUE.VN
             }
 
             Debug.Log("[VN_TEST] Branch resolved route=" + node.label);
-            DoBranch(node.label);
         }
 
         private bool StartExternalCall(string target, string arg)
@@ -756,8 +749,6 @@ namespace PPP.BLUE.VN
                 if (!string.IsNullOrWhiteSpace(target))
                     externalCallTargetSet.Add(target.Trim());
             }
-
-            DoBranch(node.label);
         }
 
         private bool IsExternalCallTargetAllowed(string target)
@@ -795,6 +786,9 @@ namespace PPP.BLUE.VN
 
         private void EmitSay(VNNode node)
         {
+            if (node == null)
+                return;
+
             var commands = ParseInlineCommands(node.text);
 
             string cleanText = RemoveInlineCommands(node.text);
@@ -804,14 +798,8 @@ namespace PPP.BLUE.VN
             OnSay?.Invoke(node.speakerId, cleanText, node.id);
 
             foreach (var cmd in commands)
-                ExecuteInline(cmd);
-        }
-
-        private IEnumerator RunInlineCommands(List<InlineCommand> cmds)
-        {
-            foreach (var cmd in cmds)
             {
-                yield return ExecuteInlineCommand(cmd);
+                ExecuteInlineCommand(cmd);
             }
         }
 
@@ -966,7 +954,6 @@ namespace PPP.BLUE.VN
 
             OnEnd?.Invoke();
             started = false;
-            enabled = false; // 1단계에서는 그냥 멈춤
         }
 
 
@@ -1089,8 +1076,7 @@ namespace PPP.BLUE.VN
         {
             VNLog($"[VNDBG] ForceLoad (debug slot) reason={reason}");
 
-            if (LoadStateFromKey(VN_STATE_KEY_DBG))
-                GetComponentInChildren<VNDialogueView>(true)?.LockInputFrames(1);
+            LoadStateFromKey(VN_STATE_KEY_DBG);
         }
 
 
@@ -1248,6 +1234,11 @@ namespace PPP.BLUE.VN
         {
             if (policy == null) return false;
             return VNInputGate.CanUseSkipOrAuto(policy);
+        }
+
+        public void ToggleAutoFromInput()
+        {
+            ToggleAutoFromInput("UI Button");
         }
 
         private void ToggleAutoFromInput(string source)
@@ -1474,18 +1465,6 @@ namespace PPP.BLUE.VN
             return true;
         }
 
-        public VNRuntimeState CaptureState()
-        {
-            VNRuntimeState state = new VNRuntimeState();
-
-            state.pointer = pointer;
-
-            foreach (var f in callStack)
-                state.callStack.Add(f.returnPointer);
-
-            return state;
-        }
-
         public void RestoreState(VNRuntimeState state)
         {
             pointer = state.pointer;
@@ -1504,38 +1483,7 @@ namespace PPP.BLUE.VN
         }
 
 
-        private void PushCall(string label, string arg = null)
-        {
-            var frame = new VNCallFrame
-            {
-                returnPointer = pointer + 1,
-                target = label,
-                arg = null
-            };
-
-            callStack.Push(frame);
-
-            VNLog($"[VN] Call push -> {label} return={frame.returnPointer}");
-
-            pointer = labels[label];
-        }
-
-        private void PopReturn()
-        {
-            if (callStack.Count == 0)
-            {
-                Debug.LogError("[VN] Return but stack empty");
-                return;
-            }
-
-            var frame = callStack.Pop();
-
-            pointer = frame.returnPointer;
-
-            VNLog($"[VN] Return -> {pointer}");
-        }
-
-        private void ExecuteInline(InlineCommand cmd)
+        private void ExecuteInlineCommand(InlineCommand cmd)
         {
             switch (cmd.name)
             {
@@ -1570,102 +1518,13 @@ namespace PPP.BLUE.VN
             }
         }
 
-        void ExecuteInlineCommand(string name, string arg)
-        {
-            switch (name)
-            {
-                case "wait":
-
-                    VNLog("[VN CMD] wait");
-                    StartCoroutine(WaitRoutine(0.5f));
-                    break;
-
-                case "speed":
-
-                    if (int.TryParse(arg, out int v))
-                    {
-                        typeSpeed = v;
-                        VNLog("[VN CMD] speed=" + v);
-                    }
-                    break;
-
-                case "sfx":
-
-                    VNLog("[VN CMD] sfx=" + arg);
-                    // TODO: AudioManager.Play(arg);
-                    break;
-
-                case "shake":
-
-                    VNLog("[VN CMD] shake");
-                    // TODO: CameraShake.Trigger();
-                    break;
-            }
-        }
-
-        System.Collections.IEnumerator WaitRoutine(float t)
-        {
-            yield return new WaitForSeconds(t);
-        }
-
-
-        private void DoCall(string label)
-        {
-            if (label.StartsWith("drink"))
-            {
-                EnterDrinkMode(label);
-                return;
-            }
-
-            if (!labels.TryGetValue(label, out int target))
-            {
-                Debug.LogError($"[VN] Call label not found: {label}");
-                return;
-            }
-
-            VNCallFrame frame = new VNCallFrame
-            {
-                returnPointer = pointer + 1
-            };
-
-            callStack.Push(frame);
-
-            VNLog($"[VN] Call -> {label} return={frame.returnPointer}");
-
-            pointer = target;
-        }
-
-
-        public void ReturnFromDrink(string result)
-        {
-            VNLog("[VN] Drink Result: " + result);
-
-            lastResult = result;
-
-            DoReturn();
-        }
-
-
-
-        private void DoReturn()
-        {
-            if (callStack.Count == 0)
-            {
-                Debug.LogError("[VN] Return called but stack empty");
-                return;
-            }
-
-            var frame = callStack.Pop();
-
-            pointer = frame.returnPointer;
-
-            VNLog($"[VN] Return -> {pointer}");
-        }
-
 
         private List<InlineCommand> ParseInlineCommands(string text)
         {
             List<InlineCommand> cmds = new List<InlineCommand>();
+
+            if (string.IsNullOrEmpty(text))
+                return cmds;
 
             int i = 0;
 
@@ -1700,69 +1559,6 @@ namespace PPP.BLUE.VN
             return cmds;
         }
 
-        private IEnumerator ExecuteInlineCommand(InlineCommand cmd)
-        {
-            switch (cmd.name)
-            {
-                case "wait":
-
-                    if (float.TryParse(cmd.arg, out float t))
-                        yield return new WaitForSeconds(t);
-
-                    break;
-
-                case "sfx":
-
-                    VNLog("[VN] SFX " + cmd.arg);
-
-                    break;
-
-                case "speed":
-
-                    if (float.TryParse(cmd.arg, out float sp))
-                        typeSpeed = sp;
-
-                    break;
-
-                case "shake":
-
-                    VNLog("[VN] Shake");
-
-                    break;
-            }
-        }
-        public VNState ExportState()
-        {
-            VNState state = new VNState();
-
-            state.pointer = pointer;
-
-            // vars
-            state.vars.Clear();
-            foreach (var v in vars)
-            {
-                state.vars.Add(new VNIntVar
-                {
-                    key = v.Key,
-                    value = v.Value
-                });
-            }
-
-            // callstack
-            state.callStack.Clear();
-
-            foreach (var f in callStack)
-            {
-                state.callStack.Add(new VNRunner.VNCallFrame
-                {
-                    returnPointer = f.returnPointer,
-                    target = f.target,
-                    arg = f.arg
-                });
-            }
-
-            return state;
-        }
 
 
         public void ImportState(VNState state)
@@ -1793,81 +1589,11 @@ namespace PPP.BLUE.VN
         }
 
 
-        public void LoadScenario(string name)
-        {
-            string path = $"ScenarioJSON/{name}";
-
-            TextAsset json = Resources.Load<TextAsset>(path);
-
-            if (json == null)
-            {
-                Debug.LogError("Scenario not found: " + name);
-                return;
-            }
-
-            VNNodeList list = JsonUtility.FromJson<VNNodeList>(json.text);
-
-            nodes = list.nodes;
-
-            pointer = 0;
-        }
-
-
-
-        private void EnterDrinkMode(string label)
-        {
-            VNLog("[VN] Enter Drink Mode: " + label);
-
-            OnEnterDrink?.Invoke(label);
-        }
-
-        private void ExecuteInlineCommand(string cmd)
-        {
-            string[] parts = cmd.Split(' ');
-
-            string name = parts[0];
-
-            switch (name)
-            {
-                case "wait":
-                    {
-                        float t = 1f;
-
-                        if (parts.Length > 1)
-                            float.TryParse(parts[1], out t);
-
-                        StartCoroutine(WaitCommand(t));
-                        break;
-                    }
-
-                case "speed":
-                    {
-                        float s = 1f;
-
-                        if (parts.Length > 1)
-                            float.TryParse(parts[1], out s);
-
-                        typeSpeed = s;
-                        break;
-                    }
-
-                case "shake":
-                    {
-                        VNLog("[VN] shake command");
-                        break;
-                    }
-
-                case "sfx":
-                    {
-                        if (parts.Length > 1)
-                            VNLog("[VN] play sfx: " + parts[1]);
-                        break;
-                    }
-            }
-        }
-
         private string RemoveInlineCommands(string text)
         {
+            if (string.IsNullOrEmpty(text))
+                return string.Empty;
+
             return System.Text.RegularExpressions.Regex.Replace(text, @"\[(.*?)\]", "");
         }
 
@@ -1878,47 +1604,18 @@ namespace PPP.BLUE.VN
             yield return new WaitForSeconds(t);
         }
 
-        public void OnDrinkGreat()
-        {
-            runner.ReturnFromCall("great");
-            runner.Next();
-        }
-
-        public void OnDrinkSuccess()
-        {
-            runner.ReturnFromCall("success");
-            runner.Next();
-        }
-
-        public void OnDrinkFail()
-        {
-            runner.ReturnFromCall("fail");
-            runner.Next();
-        }
-
-
-        public void OnSkipButton()
-        {
-            runner.ToggleSkip();
-        }
-
-        public void OnAutoButton()
-        {
-            runner.ToggleAutoFromInput("UI Button");
-        }
-
-        public void ToggleSkip(string source = "UI Button")
+        public void ToggleSkip()
         {
             if (!HasScript || policy == null || !VNInputGate.CanUseSkipOrAuto(policy))
             {
-                VNLog($"[VN] SkipMode toggle ignored (blocked) source={source}");
+                VNLog("[VN] SkipMode toggle ignored (blocked)");
                 return;
             }
 
             ForceAutoOff("Skip Step (UI)");
             SkipStep();
 
-            VNLog($"[VN] SkipStep triggered source={source}");
+            VNLog("[VN] SkipStep triggered");
         }
 
         private void SkipStep()
@@ -1926,17 +1623,7 @@ namespace PPP.BLUE.VN
             if (!CanRunSkipStep())
                 return;
 
-            if (dialogueView == null)
-                dialogueView = GetComponentInChildren<VNDialogueView>(true);
-
             skipMode = true;
-
-            // 타이핑 중이면 문장 완성
-            if (dialogueView?.TryCompleteCurrentLineForSkip() == true)
-            {
-                skipMode = false;
-                return;
-            }
 
             if (script != null && script.nodes != null &&
                 pointer >= 0 && pointer < script.nodes.Count)
