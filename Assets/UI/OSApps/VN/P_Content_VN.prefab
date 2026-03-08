@@ -1956,6 +1956,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   parentArea: {fileID: 7551348740662702333}
+  pinToggleButton: {fileID: 8657123684315957331}
+  pinStateVarKey: 
 --- !u!1 &2442471978888153780
 GameObject:
   m_ObjectHideFlags: 0
@@ -4071,6 +4073,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   parentArea: {fileID: 7551348740662702333}
+  pinToggleButton: {fileID: 5615515203433212443}
+  pinStateVarKey: 
 --- !u!1 &4854630341823462367
 GameObject:
   m_ObjectHideFlags: 0
