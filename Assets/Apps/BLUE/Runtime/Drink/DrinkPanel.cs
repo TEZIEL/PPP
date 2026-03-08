@@ -14,6 +14,7 @@ namespace PPP.BLUE.VN
         [SerializeField] private WindowShortcutController shortcutController;
         [SerializeField] private WindowManager windowManager;
         [SerializeField] private DrinkManager drinkManager;
+        [SerializeField] private RectTransform drinkGridRoot;
 
         private Coroutine openCo;
         private bool isOpen;
@@ -24,8 +25,20 @@ namespace PPP.BLUE.VN
 
         private void Awake()
         {
+            EnsureDragMove(root != null ? root.GetComponent<RectTransform>() : null);
+            EnsureDragMove(drinkGridRoot);
+
             if (root != null)
                 root.SetActive(false);
+        }
+
+        private static void EnsureDragMove(RectTransform target)
+        {
+            if (target == null)
+                return;
+
+            if (target.GetComponent<UIDragMove>() == null)
+                target.gameObject.AddComponent<UIDragMove>();
         }
 
         private void OnEnable()
@@ -47,6 +60,8 @@ namespace PPP.BLUE.VN
 
         public void Open(string requestId)
         {
+            Debug.Log("[DrinkPanel] Open");
+
             if (IsOpenOrOpening)
             {
                 Debug.Log("[DrinkPanel] Open ignored (already open/opening)");

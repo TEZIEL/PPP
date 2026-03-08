@@ -56,6 +56,8 @@ namespace PPP.BLUE.VN
         private string pendingNormalizedResult = "FAIL";
         private string pendingDrinkName = "Unknown Drink";
         private bool hasPendingProvide;
+        private bool resultLocked;
+        private bool confirmCompleted;
 
         private void Awake()
         {
@@ -99,6 +101,7 @@ namespace PPP.BLUE.VN
         public void HideConfirmPanel()
         {
             hasPendingProvide = false;
+            confirmCompleted = false;
             if (confirmPanel != null)
                 confirmPanel.SetActive(false);
         }
@@ -110,6 +113,9 @@ namespace PPP.BLUE.VN
 
         public void AddIngredient(string ingredientID)
         {
+            if (resultLocked)
+                return;
+
             if (isResetInProgress || isProvided || IsConfirmOpen())
                 return;
 
@@ -180,6 +186,9 @@ namespace PPP.BLUE.VN
 
         public void OnMakeDrink()
         {
+            if (resultLocked)
+                return;
+
             if (isResetInProgress || isProvided || totalCount <= 0)
                 return;
 
@@ -190,11 +199,22 @@ namespace PPP.BLUE.VN
             if (confirmPanel != null)
                 confirmPanel.SetActive(true);
 
+            resultLocked = true;
+            SetIngredientButtonsInteractable(false);
+            if (provideButton != null)
+                provideButton.interactable = false;
+
             LogDrink("MakeDrink result=" + result);
         }
 
         public void OnRemakeDrink()
         {
+            resultLocked = false;
+            confirmCompleted = false;
+            SetIngredientButtonsInteractable(true);
+            if (provideButton != null)
+                provideButton.interactable = true;
+
             if (confirmPanel != null)
                 confirmPanel.SetActive(false);
 
@@ -204,8 +224,13 @@ namespace PPP.BLUE.VN
 
         public void OnConfirmProvide()
         {
+            if (confirmCompleted)
+                return;
+
             if (!hasPendingProvide)
                 return;
+
+            confirmCompleted = true;
 
             isProvided = true;
             SetAllIngredientButtonsInteractable(false);
@@ -266,6 +291,8 @@ namespace PPP.BLUE.VN
             isResetInProgress = true;
             isProvided = false;
             hasPendingProvide = false;
+            resultLocked = false;
+            confirmCompleted = false;
 
             SetAllIngredientButtonsInteractable(false);
             if (provideButton != null)
