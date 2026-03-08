@@ -752,6 +752,8 @@ namespace PPP.BLUE.VN
                 if (!string.IsNullOrWhiteSpace(target))
                     externalCallTargetSet.Add(target.Trim());
             }
+
+            DoBranch(node.label);
         }
 
         private bool IsExternalCallTargetAllowed(string target)
