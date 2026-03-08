@@ -388,6 +388,12 @@ namespace PPP.BLUE.VN
 
         public void Choose(string jumpLabel)
         {
+            if (!enabled || !started)
+                return;
+
+            if (!isWaiting)
+                return;
+
             DoJump(jumpLabel);
             Next();
         }
@@ -739,6 +745,12 @@ namespace PPP.BLUE.VN
 
         private bool StartExternalCall(string target, string arg)
         {
+            if (skipMode)
+            {
+                VNLog("[VN] Skip disabled due to ExternalCall");
+                skipMode = false;
+            }
+
             Debug.Log("[VN_TEST] ExternalCall target=" + target + " arg=" + arg);
             if (string.IsNullOrWhiteSpace(target) || !IsExternalCallTargetAllowed(target))
             {
@@ -1193,9 +1205,16 @@ namespace PPP.BLUE.VN
         public void ReturnFromCall(string result)
         {
             Debug.Log("[VN] ReturnFromCall result=" + result);
+
+            if (callStack == null)
+            {
+                Debug.LogError("[VN] callStack null");
+                return;
+            }
+
             if (callStack.Count == 0)
             {
-                Debug.LogWarning("[VN] ReturnFromCall ignored (callStack empty)");
+                Debug.LogError("[VN] CallStack desync detected");
                 return;
             }
 
@@ -1401,7 +1420,17 @@ namespace PPP.BLUE.VN
                 VNLog($"[VN] SaveState skipped key={key} SaveAllowed={SaveAllowed} policyOk={(policy != null && policy.CanSaveDialogueState())}");
                 return;
             }
-            if (script == null) return;
+            if (script == null)
+            {
+                Debug.LogError("[VN] Save blocked: script null");
+                return;
+            }
+
+            if (pointer < 0)
+            {
+                Debug.LogError("[VN] Save blocked: pointer invalid");
+                return;
+            }
 
             var st = BuildState();
 
@@ -1485,6 +1514,8 @@ namespace PPP.BLUE.VN
                 pendingCallResumeFrame = callStack.Peek();
                 isWaiting = true;
                 waitPointer = Mathf.Max(0, pendingCallResumeFrame.returnPointer - 1);
+
+                VNLog("[VN] Restoring pending external call");
             }
 
             if (logToConsole)
