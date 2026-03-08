@@ -577,6 +577,7 @@ namespace PPP.BLUE.VN
                     {
                         ResolveBranchNode(node);
                         Debug.Log("[VN] Branch auto resolved -> pointer=" + pointer);
+                        Next();
                         return;
                     }
 
