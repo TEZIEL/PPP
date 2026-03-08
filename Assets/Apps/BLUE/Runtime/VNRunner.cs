@@ -539,6 +539,9 @@ namespace PPP.BLUE.VN
             {
                 case VNNodeType.Say:
                     {
+                        if (TryHandleDrinkCommand(node))
+                            return;
+
                         lastShownPointer = pointer;
 
                         EmitSay(node);
@@ -615,21 +618,7 @@ namespace PPP.BLUE.VN
                     {
                         string target = node.callTarget ?? string.Empty;
                         string arg = node.callArg ?? string.Empty;
-
-                        StopAutoExternal("Call:" + target);
-
-                        isWaiting = true;
-                        waitPointer = pointer;
-                        lastStopIndex = pointer;
-
-                        callStack.Push(new VNCallFrame
-                        {
-                            returnPointer = pointer + 1,
-                            target = target,
-                            arg = arg,
-                        });
-
-                        OnCall?.Invoke(target, arg);
+                        StartExternalCall(target, arg);
 
                         pointer++;
 
@@ -657,6 +646,44 @@ namespace PPP.BLUE.VN
             }
         }
 
+
+
+        private bool TryHandleDrinkCommand(VNNode node)
+        {
+            if (node == null)
+                return false;
+
+            string text = (node.text ?? string.Empty).Trim();
+            if (!text.StartsWith("DRINK ", StringComparison.OrdinalIgnoreCase))
+                return false;
+
+            string requestId = text.Substring(6).Trim();
+            if (string.IsNullOrEmpty(requestId))
+                return false;
+
+            lastStopIndex = pointer;
+            StartExternalCall("Drink", requestId);
+            pointer++;
+            return true;
+        }
+
+        private void StartExternalCall(string target, string arg)
+        {
+            StopAutoExternal("Call:" + target);
+
+            isWaiting = true;
+            waitPointer = pointer;
+            lastStopIndex = pointer;
+
+            callStack.Push(new VNCallFrame
+            {
+                returnPointer = pointer + 1,
+                target = target,
+                arg = arg,
+            });
+
+            OnCall?.Invoke(target, arg);
+        }
 
         public void OnAdvance()
         {

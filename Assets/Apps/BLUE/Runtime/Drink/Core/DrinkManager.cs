@@ -29,6 +29,9 @@ namespace PPP.BLUE.VN
         [Header("Request")]
         [SerializeField] private string currentRequestId;
 
+        [Header("Debug")]
+        [SerializeField] private bool debugDrinkSystem = true;
+
         private readonly Dictionary<string, int> currentIngredients = new Dictionary<string, int>(StringComparer.Ordinal);
         private int totalCount;
 
@@ -80,6 +83,7 @@ namespace PPP.BLUE.VN
             if (string.Equals(ingredientID, ArtheonIngredient, StringComparison.Ordinal))
             {
                 ToggleArtheon();
+                LogDrink($"modifier toggled artheon={artheonEnabled}");
                 return;
             }
 
@@ -95,6 +99,9 @@ namespace PPP.BLUE.VN
             currentIngredients[ingredientID] += 1;
             panelUI?.FillNextSlot(totalCount, ingredientID);
             totalCount++;
+
+            LogDrink($"ingredient added={ingredientID}");
+            LogDrink($"total={totalCount} artheon={artheonEnabled}");
 
             RefreshUi();
 
@@ -120,7 +127,15 @@ namespace PPP.BLUE.VN
             if (provideButton != null)
                 provideButton.interactable = false;
 
+            LogRecipe("validation started");
             string drinkId = recipeValidator.ValidateRecipe(currentIngredients, artheonEnabled, out bool blockedByArtheon);
+            if (string.IsNullOrEmpty(drinkId))
+                LogRecipe("unknown");
+            else
+                LogRecipe($"matched drinkID={drinkId}");
+
+            LogRequest(currentRequest);
+
             string result = blockedByArtheon ? "FAIL" : requestEvaluator.Evaluate(drinkId, currentRequest);
             string normalized = NormalizeResultForRunner(result);
 
@@ -130,6 +145,7 @@ namespace PPP.BLUE.VN
                 producedName = WarmPrefix + produced.name;
 
             panelUI?.ShowResult(result, producedName);
+            LogResult(result);
             runner?.ReturnFromCall(normalized);
         }
 
@@ -147,6 +163,7 @@ namespace PPP.BLUE.VN
             currentIngredients.Clear();
             totalCount = 0;
             artheonEnabled = false;
+            LogDrink("reset started total=0 artheon=false");
             panelUI?.ClearGridAnimated(this);
             RefreshUi();
 
@@ -208,6 +225,38 @@ namespace PPP.BLUE.VN
                 return;
 
             provideButton.interactable = !isResetInProgress && !isProvided && totalCount > 0;
+        }
+
+        private void LogDrink(string message)
+        {
+            if (!debugDrinkSystem) return;
+            Debug.Log($"[Drink] {message}");
+        }
+
+        private void LogRecipe(string message)
+        {
+            if (!debugDrinkSystem) return;
+            Debug.Log($"[Recipe] {message}");
+        }
+
+        private void LogRequest(DrinkRequest request)
+        {
+            if (!debugDrinkSystem) return;
+
+            string requestId = request != null ? request.requestID : "(null)";
+            string requestType = request != null ? request.type.ToString() : "(null)";
+            string expectedDrink = request != null ? request.drinkID : string.Empty;
+            string expectedTags = request != null && request.tags != null && request.tags.Count > 0
+                ? string.Join(",", request.tags)
+                : "(none)";
+
+            Debug.Log($"[Request] requestID={requestId} requestType={requestType} expectedDrink={expectedDrink} expectedTags={expectedTags}");
+        }
+
+        private void LogResult(string result)
+        {
+            if (!debugDrinkSystem) return;
+            Debug.Log($"[Result] {result}");
         }
 
         private void SetIngredientButtonsInteractable(bool interactable)
