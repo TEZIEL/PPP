@@ -13,6 +13,7 @@ namespace PPP.BLUE.VN
         [SerializeField] private VNPolicyController policy;
         [SerializeField] private WindowShortcutController shortcutController;
         [SerializeField] private WindowManager windowManager;
+        [SerializeField] private DrinkManager drinkManager;
 
         [Header("Buttons")]
         [SerializeField] private Button btnFail;
@@ -48,6 +49,8 @@ namespace PPP.BLUE.VN
             }
 
             Debug.Log($"[DrinkPanel] Open requested order={orderId ?? ""}");
+            drinkManager?.SetRequest(orderId);
+            drinkManager?.ResetIngredients();
             runner?.StopAutoExternal("DrinkPanel Open:" + (orderId ?? string.Empty));
 
             // 혹시 남아있는 코루틴이 있으면 정리
