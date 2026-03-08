@@ -25,6 +25,7 @@ namespace PPP.BLUE.VN
         [SerializeField] private Button provideButton;
         [SerializeField] private Button resetButton;
         [SerializeField] private IngredientButton[] ingredientButtons;
+        [SerializeField] private Selectable[] gridInteractables = Array.Empty<Selectable>();
 
         [Header("Confirm Dialog")]
         [SerializeField] private GameObject confirmPanel;
@@ -200,9 +201,7 @@ namespace PPP.BLUE.VN
                 confirmPanel.SetActive(true);
 
             resultLocked = true;
-            SetIngredientButtonsInteractable(false);
-            if (provideButton != null)
-                provideButton.interactable = false;
+            SetInteractionLocked(true);
 
             LogDrink("MakeDrink result=" + result);
         }
@@ -211,9 +210,7 @@ namespace PPP.BLUE.VN
         {
             resultLocked = false;
             confirmCompleted = false;
-            SetIngredientButtonsInteractable(true);
-            if (provideButton != null)
-                provideButton.interactable = true;
+            SetInteractionLocked(false);
 
             if (confirmPanel != null)
                 confirmPanel.SetActive(false);
@@ -440,6 +437,31 @@ namespace PPP.BLUE.VN
                 if (ingredientButtons[i] != null)
                     ingredientButtons[i].SetInteractable(interactable);
             }
+        }
+
+        public void SetInteractionLocked(bool locked)
+        {
+            bool interactable = !locked;
+
+            SetAllIngredientButtonsInteractable(interactable);
+
+            for (int i = 0; i < gridInteractables.Length; i++)
+            {
+                if (gridInteractables[i] != null)
+                    gridInteractables[i].interactable = interactable;
+            }
+
+            if (provideButton != null)
+                provideButton.interactable = interactable;
+
+            if (resetButton != null)
+                resetButton.interactable = interactable;
+
+            if (confirmProvideButton != null)
+                confirmProvideButton.interactable = locked;
+
+            if (confirmRemakeButton != null)
+                confirmRemakeButton.interactable = locked;
         }
     }
 }

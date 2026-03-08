@@ -242,7 +242,6 @@ namespace PPP.BLUE.VN
             // 일단 간단히는 Next() 구조를 조금 바꿔야 함.
         }
 
-        public event Action<VNNode.ChoiceOption[]> OnChoice;
         public event Action<string, string> OnCall; // callTarget, callArg
 
         private void Start()
@@ -386,72 +385,6 @@ namespace PPP.BLUE.VN
             StopAutoTimer();
         }
 
-        public void Choose(string jumpLabel)
-        {
-            if (!enabled || !started)
-                return;
-
-            if (!isWaiting)
-                return;
-
-            DoJump(jumpLabel);
-            Next();
-        }
-
-        private static bool HasChoiceText(VNNode.ChoiceOption[] choices)
-        {
-            if (choices == null || choices.Length == 0)
-            {
-                return false;
-            }
-
-            for (int i = 0; i < choices.Length; i++)
-            {
-                var choice = choices[i];
-                if (choice != null && !string.IsNullOrEmpty(choice.choiceText))
-                {
-                    return true;
-                }
-            }
-
-            return false;
-        }
-
-        private bool HasAnyChoiceText(VNNode.BranchRule[] rules)
-        {
-            foreach (var r in rules)
-                if (r != null && !string.IsNullOrEmpty(r.choiceText))
-                    return true;
-            return false;
-        }
-
-        private static VNNode.ChoiceOption[] ConvertChoiceRules(VNNode.BranchRule[] rules)
-        {
-            if (rules == null || rules.Length == 0)
-            {
-                return Array.Empty<VNNode.ChoiceOption>();
-            }
-
-            var choices = new VNNode.ChoiceOption[rules.Length];
-            for (int i = 0; i < rules.Length; i++)
-            {
-            
-                var rule = rules[i];
-                if (rule == null)
-                {
-                    continue;
-                }
-
-                choices[i] = new VNNode.ChoiceOption
-                {
-                    choiceText = rule.choiceText,
-                    jumpLabel = rule.jumpLabel,
-                };
-            }
-
-            return choices;
-        }
-
         private bool IsInteractionNodeForSkip(VNNode node)
         {
             if (node == null) return false;
@@ -530,6 +463,8 @@ namespace PPP.BLUE.VN
 
             while (true)
             {
+                int previousPointer = pointer;
+
                 if (pointer < 0 || pointer >= script.nodes.Count)
                 {
                     Finish();
@@ -542,6 +477,11 @@ namespace PPP.BLUE.VN
                 if (node == null)
                 {
                     pointer++;
+                    if (pointer == previousPointer)
+                    {
+                        pointer++;
+                    }
+
                     continue;
                 }
 
@@ -575,34 +515,31 @@ namespace PPP.BLUE.VN
 
                     case VNNodeType.Choice:
                         {
-                            if (node.choices != null && node.choices.Length > 0)
-                            {
-                                for (int i = 0; i < node.choices.Length; i++)
-                                {
-                                    var choice = node.choices[i];
-                                    if (choice == null || string.IsNullOrEmpty(choice.jumpLabel))
-                                        continue;
-
-                                    DoJump(choice.jumpLabel);
-                                    VNLog("[VN] Choice auto resolved -> pointer=" + pointer);
-                                    return;
-                                }
-                            }
-
+                            Debug.LogWarning("[VN] Choice node encountered but Choice system is disabled.");
                             pointer++;
-                            return;
+                            continue;
                         }
 
                     case VNNodeType.Branch:
                         {
                             ResolveBranchNode(node);
                             VNLog("[VN] Branch auto resolved -> pointer=" + pointer);
+                            if (pointer == previousPointer)
+                            {
+                                pointer++;
+                            }
+
                             continue;
                         }
 
                     case VNNodeType.Switch:
                         {
                             ResolveSwitchNode(node);
+                            if (pointer == previousPointer)
+                            {
+                                pointer++;
+                            }
+
                             continue;
                         }
 
@@ -610,6 +547,11 @@ namespace PPP.BLUE.VN
                         {
                             VNLog($"[VN] Label: {node.label} (idx {pointer})");
                             pointer++;
+                            if (pointer == previousPointer)
+                            {
+                                pointer++;
+                            }
+
                             continue;
                         }
 
@@ -620,6 +562,12 @@ namespace PPP.BLUE.VN
                                 VNLog("[VN] Jump failed -> pointer++");
                                 pointer++;
                             }
+
+                            if (pointer == previousPointer)
+                            {
+                                pointer++;
+                            }
+
                             continue;
                         }
 
@@ -631,6 +579,11 @@ namespace PPP.BLUE.VN
                             if (!StartExternalCall(target, arg))
                             {
                                 pointer++;
+                                if (pointer == previousPointer)
+                                {
+                                    pointer++;
+                                }
+
                                 continue;
                             }
 
@@ -643,12 +596,22 @@ namespace PPP.BLUE.VN
                         {
                             if (callStack.Count == 0)
                             {
-                                Debug.LogWarning("[VN] Return ignored (empty callStack)");
+                                Debug.LogError("Return without callStack");
                                 pointer++;
+                                if (pointer == previousPointer)
+                                {
+                                    pointer++;
+                                }
+
                                 continue;
                             }
 
                             ReturnFromCall(node.callArg ?? string.Empty);
+                            if (pointer == previousPointer)
+                            {
+                                pointer++;
+                            }
+
                             continue;
                         }
 
@@ -662,12 +625,16 @@ namespace PPP.BLUE.VN
                         {
                             Debug.LogWarning($"[VNRunner] Unknown node type: {node.type}");
                             pointer++;
+                            if (pointer == previousPointer)
+                            {
+                                pointer++;
+                            }
+
                             continue;
                         }
                 }
             }
         }
-
 
 
 
@@ -982,6 +949,7 @@ namespace PPP.BLUE.VN
                 if (!script.TryGetLabelIndex(label, out idx))
                 {
                     Debug.LogError($"[VN] Label not found: '{label}' nodeId={script?.nodes?[pointer]?.id} curIdx={pointer} labels={script.LabelCount} dump={script.DumpLabels()}");
+                    pointer++;
                     return false;
                 }
             }
@@ -1717,6 +1685,9 @@ namespace PPP.BLUE.VN
 
         private List<InlineCommand> ParseInlineCommands(string text)
         {
+            if (string.IsNullOrEmpty(text))
+                return new List<InlineCommand>();
+
             List<InlineCommand> cmds = new List<InlineCommand>();
 
             int i = 0;
