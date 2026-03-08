@@ -697,12 +697,14 @@ namespace PPP.BLUE.VN
 
                     if (string.Equals(rule.expr, "else", StringComparison.OrdinalIgnoreCase))
                     {
+                        Debug.Log("[VN_TEST] Branch resolved route=" + rule.jumpLabel);
                         DoJump(rule.jumpLabel);
                         return;
                     }
 
                     if (EvaluateExpr(rule.expr))
                     {
+                        Debug.Log("[VN_TEST] Branch resolved route=" + rule.jumpLabel);
                         DoJump(rule.jumpLabel);
                         return;
                     }
@@ -712,11 +714,13 @@ namespace PPP.BLUE.VN
                 return;
             }
 
+            Debug.Log("[VN_TEST] Branch resolved route=" + node.label);
             DoBranch(node.label);
         }
 
         private bool StartExternalCall(string target, string arg)
         {
+            Debug.Log("[VN_TEST] ExternalCall target=" + target + " arg=" + arg);
             if (string.IsNullOrWhiteSpace(target) || !IsExternalCallTargetAllowed(target))
             {
                 Debug.LogError($"[VN] Unknown external call target: '{target}'");
@@ -957,6 +961,7 @@ namespace PPP.BLUE.VN
 
         private void Finish()
         {
+            Debug.Log("[VN_TEST] VN Finished script=" + (script?.scriptId ?? string.Empty));
             VNLog("[VN] End");
 
             OnEnd?.Invoke();
@@ -1179,6 +1184,8 @@ namespace PPP.BLUE.VN
             pointer = frame.returnPointer;
             isWaiting = false;
             waitPointer = -1;
+
+            Debug.Log("[VN_TEST] ReturnFromCall result=" + result + " pointer=" + pointer);
 
             VNLog($"[VN] ReturnFromCall target={frame.target} arg={frame.arg} result={result} -> pointer={pointer}");
         }

@@ -217,6 +217,7 @@ namespace PPP.BLUE.VN
 
             LogDrink("ConfirmProvide result=" + pendingResult);
             LogResult(pendingResult);
+            Debug.Log("[VN_TEST] Drink result=" + pendingResult + " request=" + currentRequestId);
 
             policy?.ExitDrinkMode();
             policy?.PopModal("DrinkPanel");

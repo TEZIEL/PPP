@@ -54,6 +54,7 @@ namespace PPP.BLUE.VN
             }
 
             Debug.Log($"[DrinkPanel] Open requested requestId={requestId ?? ""}");
+            Debug.Log("[VN_TEST] DrinkPanel Open request=" + (requestId ?? string.Empty));
 
             drinkManager?.SetRequest(requestId);
             drinkManager?.HideConfirmPanel();
