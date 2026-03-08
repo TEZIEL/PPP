@@ -539,6 +539,9 @@ namespace PPP.BLUE.VN
             {
                 case VNNodeType.Say:
                     {
+                        if (TryHandleDrinkCommand(node))
+                            return;
+
                         lastShownPointer = pointer;
 
                         EmitSay(node);
@@ -615,21 +618,7 @@ namespace PPP.BLUE.VN
                     {
                         string target = node.callTarget ?? string.Empty;
                         string arg = node.callArg ?? string.Empty;
-
-                        StopAutoExternal("Call:" + target);
-
-                        isWaiting = true;
-                        waitPointer = pointer;
-                        lastStopIndex = pointer;
-
-                        callStack.Push(new VNCallFrame
-                        {
-                            returnPointer = pointer + 1,
-                            target = target,
-                            arg = arg,
-                        });
-
-                        OnCall?.Invoke(target, arg);
+                        StartExternalCall(target, arg);
 
                         pointer++;
 
@@ -657,6 +646,44 @@ namespace PPP.BLUE.VN
             }
         }
 
+
+
+        private bool TryHandleDrinkCommand(VNNode node)
+        {
+            if (node == null)
+                return false;
+
+            string text = (node.text ?? string.Empty).Trim();
+            if (!text.StartsWith("DRINK ", StringComparison.OrdinalIgnoreCase))
+                return false;
+
+            string requestId = text.Substring(6).Trim();
+            if (string.IsNullOrEmpty(requestId))
+                return false;
+
+            lastStopIndex = pointer;
+            StartExternalCall("Drink", requestId);
+            pointer++;
+            return true;
+        }
+
+        private void StartExternalCall(string target, string arg)
+        {
+            StopAutoExternal("Call:" + target);
+
+            isWaiting = true;
+            waitPointer = pointer;
+            lastStopIndex = pointer;
+
+            callStack.Push(new VNCallFrame
+            {
+                returnPointer = pointer + 1,
+                target = target,
+                arg = arg,
+            });
+
+            OnCall?.Invoke(target, arg);
+        }
 
         public void OnAdvance()
         {
@@ -1056,6 +1083,7 @@ namespace PPP.BLUE.VN
 
         public void ReturnFromCall(string result)
         {
+            Debug.Log("[VN] ReturnFromCall result=" + result);
             if (callStack.Count == 0)
             {
                 Debug.LogWarning("[VN] ReturnFromCall ignored (callStack empty)");
@@ -1079,7 +1107,8 @@ namespace PPP.BLUE.VN
             if (string.IsNullOrEmpty(result))
                 return;
 
-            if (string.Equals(result, "great", StringComparison.OrdinalIgnoreCase))
+            if (string.Equals(result, "great", StringComparison.OrdinalIgnoreCase) ||
+                string.Equals(result, "perfect", StringComparison.OrdinalIgnoreCase))
             {
                 SetVar("lastDrink", 1);
             }
@@ -1099,10 +1128,10 @@ namespace PPP.BLUE.VN
         {
             lastResult = result;
 
-            if (result == "great")
+            if (result == "great" || result == "perfect")
             {
                 greatCount++;
-                successCount++; // great는 success 포함 규칙
+                successCount++; // great/perfect는 success 포함 규칙
             }
             else if (result == "success")
             {
