@@ -94,6 +94,11 @@ namespace PPP.BLUE.VN
 
         private void Update()
         {
+            if (runner != null && runner.IsWaiting && runner.CallStackCount > 0)
+            {
+                return;
+            }
+
             if (!CanAcceptVNInput()) return;
             if (inputLockFrames > 0) { inputLockFrames--; return; }
             if (runner == null) return;

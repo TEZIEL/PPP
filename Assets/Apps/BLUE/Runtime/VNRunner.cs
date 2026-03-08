@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Collections;
 using UnityEngine;
 using PPP.BLUE.VN;
+using System.Text.RegularExpressions;
 
 namespace PPP.BLUE.VN
 {
@@ -28,6 +29,8 @@ namespace PPP.BLUE.VN
         private bool lastMinimized;
         private int waitPointer = -1;   // 화면에 보여주고 '기다리는' 노드 인덱스
         private bool isWaiting;         // 지금 입력/선택 대기 상태인지
+        public bool IsWaiting => isWaiting;
+
         private List<VNNode> nodes = new List<VNNode>();
         public bool IsSkipMode => skipMode;
 
@@ -42,7 +45,13 @@ namespace PPP.BLUE.VN
 
         public System.Action<string> OnEnterDrink;
         public bool skipMode = false;
-        
+
+       
+
+        public int CallStackCount
+        {
+            get { return callStack != null ? callStack.Count : 0; }
+        }
 
         // Legacy compatibility fields: kept to prevent compile breaks on partial merges
         // that still reference old hold-skip variables.
@@ -786,6 +795,8 @@ namespace PPP.BLUE.VN
         {
             if (!logToConsole) return;
             if (skipMode) return;
+            if (!Application.isEditor)
+                return;
 
             Debug.Log(msg);
         }
@@ -1195,6 +1206,11 @@ namespace PPP.BLUE.VN
             if (callStack.Count == 0)
             {
                 Debug.LogError("[VN] CallStack desync detected");
+
+                // 🔴 waiting 상태 복구
+                isWaiting = false;
+                waitPointer = -1;
+
                 return;
             }
 
@@ -1204,6 +1220,9 @@ namespace PPP.BLUE.VN
             pointer = frame.returnPointer;
             isWaiting = false;
             waitPointer = -1;
+
+            // 🔴 ExternalCall 복귀 후 자동 진행
+            Next();
 
             Debug.Log("[VN_TEST] ReturnFromCall result=" + result + " pointer=" + pointer);
 
@@ -1903,7 +1922,10 @@ namespace PPP.BLUE.VN
 
         private string RemoveInlineCommands(string text)
         {
-            return System.Text.RegularExpressions.Regex.Replace(text, @"\[(.*?)\]", "");
+            if (string.IsNullOrEmpty(text))
+                return string.Empty;
+
+            return Regex.Replace(text, @"\[[^\]]+\]", "");
         }
 
 

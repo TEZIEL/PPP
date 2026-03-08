@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.IO;
 using UnityEngine;
@@ -97,7 +97,7 @@ namespace PPP.BLUE.VN.DrinkSystem
                 var request = new DrinkRequest
                 {
                     drinkID = GetString(rawRequest, "drinkID"),
-                    category = GetString(rawRequest, "category"),
+                    category = "",   
                     likedDrink = GetString(rawRequest, "likedDrink"),
                     dislikedDrink = GetString(rawRequest, "dislikedDrink")
                 };
@@ -109,9 +109,16 @@ namespace PPP.BLUE.VN.DrinkSystem
                     request.requestID = GetString(rawRequest, "requestID");
 
                 string typeStr = GetString(rawRequest, "type");
+                // 🔴 CATEGORY_OR_TAG alias 처리
                 if (string.Equals(typeStr, "CATEGORY_OR_TAG", StringComparison.OrdinalIgnoreCase))
                 {
-                    typeStr = nameof(DrinkRequestType.CATEGORY_REQUEST);
+                    bool hasCategory = rawRequest.TryGetValue("category", out object categoryCheck) && categoryCheck != null;
+                    bool hasTags = rawRequest.TryGetValue("tags", out object tagsCheck) && tagsCheck != null;
+
+                    if (hasCategory)
+                        typeStr = nameof(DrinkRequestType.CATEGORY_REQUEST);
+                    else if (hasTags)
+                        typeStr = nameof(DrinkRequestType.TAG_REQUEST);
                 }
 
                 if (Enum.TryParse(typeStr, true, out DrinkRequestType parsedType))
@@ -121,6 +128,19 @@ namespace PPP.BLUE.VN.DrinkSystem
                 {
                     for (int t = 0; t < tags.Count; t++)
                         request.tags.Add(tags[t]?.ToString() ?? string.Empty);
+                }
+
+                // 🔴 category 배열/문자열 처리
+                if (rawRequest.TryGetValue("category", out object categoryObj))
+                {
+                    if (categoryObj is List<object> list && list.Count > 0)
+                    {
+                        request.category = list[0]?.ToString() ?? "";
+                    }
+                    else if (categoryObj is string s)
+                    {
+                        request.category = s;
+                    }
                 }
 
                 if (!string.IsNullOrEmpty(request.requestID))
