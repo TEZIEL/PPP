@@ -1,31 +1,36 @@
 using System;
 using System.Collections.Generic;
+using System.IO;
 using UnityEngine;
 
 namespace PPP.BLUE.VN.DrinkSystem
 {
     public sealed class DrinkDatabaseLoader : MonoBehaviour
     {
-        [Header("JSON Assets")]
-        [SerializeField] private TextAsset drinksJson;
-        [SerializeField] private TextAsset requestsJson;
-        [SerializeField] private TextAsset ingredientsJson;
+        private const string DataRelativePath = "Apps/BLUE/Runtime/Drink/Data";
+        private const string DrinksFileName = "drinks.json";
+        private const string RequestsFileName = "requests.json";
+        private const string IngredientsFileName = "ingredients.json";
 
         public DrinkDatabase LoadDatabase()
         {
             var db = new DrinkDatabase();
-            TryLoadDrinks(db);
-            LoadRequests(db);
-            TryLoadIngredients(db);
+
+            string basePath = Path.Combine(Application.dataPath, DataRelativePath);
+            TryLoadDrinks(db, Path.Combine(basePath, DrinksFileName));
+            LoadRequests(db, Path.Combine(basePath, RequestsFileName));
+            TryLoadIngredients(db, Path.Combine(basePath, IngredientsFileName));
+
             return db;
         }
 
-        private void TryLoadDrinks(DrinkDatabase db)
+        private void TryLoadDrinks(DrinkDatabase db, string drinksPath)
         {
-            if (drinksJson == null || string.IsNullOrWhiteSpace(drinksJson.text))
+            string json = ReadJsonFile(drinksPath);
+            if (string.IsNullOrWhiteSpace(json))
                 return;
 
-            if (!(MiniJson.Deserialize(drinksJson.text) is Dictionary<string, object> root) ||
+            if (!(MiniJson.Deserialize(json) is Dictionary<string, object> root) ||
                 !root.TryGetValue("drinks", out object drinksObj) || !(drinksObj is List<object> drinks))
                 return;
 
@@ -63,14 +68,17 @@ namespace PPP.BLUE.VN.DrinkSystem
                 if (!string.IsNullOrEmpty(drink.id))
                     db.drinks.Add(drink);
             }
+
+            Debug.Log($"[DrinkDB] drinks loaded = {db.drinks.Count}");
         }
 
-        private void LoadRequests(DrinkDatabase db)
+        private void LoadRequests(DrinkDatabase db, string requestsPath)
         {
-            if (requestsJson == null || string.IsNullOrWhiteSpace(requestsJson.text))
+            string json = ReadJsonFile(requestsPath);
+            if (string.IsNullOrWhiteSpace(json))
                 return;
 
-            if (!(MiniJson.Deserialize(requestsJson.text) is Dictionary<string, object> root) ||
+            if (!(MiniJson.Deserialize(json) is Dictionary<string, object> root) ||
                 !root.TryGetValue("requests", out object requestsObj) || !(requestsObj is List<object> requests))
                 return;
 
@@ -101,15 +109,16 @@ namespace PPP.BLUE.VN.DrinkSystem
                     db.requests[request.requestID] = request;
             }
 
-            Debug.Log($"[DrinkDB] Loaded {db.requests.Count} requests");
+            Debug.Log($"[DrinkDB] requests loaded = {db.requests.Count}");
         }
 
-        private void TryLoadIngredients(DrinkDatabase db)
+        private void TryLoadIngredients(DrinkDatabase db, string ingredientsPath)
         {
-            if (ingredientsJson == null || string.IsNullOrWhiteSpace(ingredientsJson.text))
+            string json = ReadJsonFile(ingredientsPath);
+            if (string.IsNullOrWhiteSpace(json))
                 return;
 
-            if (!(MiniJson.Deserialize(ingredientsJson.text) is Dictionary<string, object> root) ||
+            if (!(MiniJson.Deserialize(json) is Dictionary<string, object> root) ||
                 !root.TryGetValue("ingredients", out object ingredientsObj) || !(ingredientsObj is List<object> ingredients))
                 return;
 
@@ -119,6 +128,17 @@ namespace PPP.BLUE.VN.DrinkSystem
                 if (!string.IsNullOrEmpty(value))
                     db.ingredients.Add(value);
             }
+        }
+
+        private static string ReadJsonFile(string path)
+        {
+            if (!File.Exists(path))
+            {
+                Debug.LogError($"[DrinkDB] File not found: {path}");
+                return string.Empty;
+            }
+
+            return File.ReadAllText(path);
         }
 
         private static string GetString(Dictionary<string, object> data, string key)
