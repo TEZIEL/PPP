@@ -111,7 +111,8 @@ namespace PPP.BLUE.VN
         public void MarkSaveAllowed(bool allowed, string reason)
         {
             bool gate = policy != null && policy.CanSaveDialogueState();
-            SaveAllowed = allowed && gate;
+            bool callActive = callStack.Count > 0;
+            SaveAllowed = allowed && gate && !callActive;
 
             VNLog($"[VN] SaveAllowed {(SaveAllowed ? "TRUE" : "FALSE")} ({reason})");
 
@@ -138,10 +139,12 @@ namespace PPP.BLUE.VN
             if (policy == null) return;
 
             bool gate = policy.CanSaveDialogueState();
+            bool callActive = callStack.Count > 0;
+            bool nextAllowed = gate && !callActive;
 
-            if (SaveAllowed == gate) return;
+            if (SaveAllowed == nextAllowed) return;
 
-            SaveAllowed = gate;
+            SaveAllowed = nextAllowed;
 
             VNLog($"[VN] SaveAllowed {(SaveAllowed ? "TRUE" : "FALSE")} ({reason})");
 
@@ -609,6 +612,7 @@ namespace PPP.BLUE.VN
                 case VNNodeType.Return:
                     {
                         ReturnFromCall(node.callArg ?? string.Empty);
+                        Next();
                         return;
                     }
 
@@ -1115,8 +1119,6 @@ namespace PPP.BLUE.VN
             waitPointer = -1;
 
             VNLog($"[VN] ReturnFromCall target={frame.target} arg={frame.arg} result={result} -> pointer={pointer}");
-
-            Next();
         }
 
         private void ApplyCallResult(string result)
@@ -1329,6 +1331,7 @@ namespace PPP.BLUE.VN
         {
             if (!SaveAllowed) return false;
             if (policy == null) return false;
+            if (callStack.Count > 0) return false;
             return policy.CanSaveDialogueState();
         }
 
@@ -1809,16 +1812,19 @@ namespace PPP.BLUE.VN
         public void OnDrinkGreat()
         {
             runner.ReturnFromCall("great");
+            runner.Next();
         }
 
         public void OnDrinkSuccess()
         {
             runner.ReturnFromCall("success");
+            runner.Next();
         }
 
         public void OnDrinkFail()
         {
             runner.ReturnFromCall("fail");
+            runner.Next();
         }
 
 
