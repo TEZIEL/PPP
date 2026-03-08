@@ -439,6 +439,13 @@ namespace PPP.BLUE.VN
                 return;
             }
 
+            // 🔴 External Call 중 VN 진행 차단
+            if (callStack != null && callStack.Count > 0 && pointer == waitPointer)
+            {
+                VNLog("[VN] Next blocked (ExternalCall waiting)");
+                return;
+            }
+
             if (TryResumePendingCallAfterLoad()) return;
 
             isWaiting = false;
@@ -957,6 +964,11 @@ namespace PPP.BLUE.VN
             VNLog($"[VN] Jump -> {label} (idx {idx}) from nodeId={script?.nodes?[pointer]?.id} curIdx={pointer}");
 
             pointer = idx + 1;
+            // 🔴 Jump 루프 감지 가드 (로그만)
+            if (pointer == idx)
+            {
+                Debug.LogWarning($"[VN] Jump loop detected. label={label} idx={idx}");
+            }
             return true;
         }
 
