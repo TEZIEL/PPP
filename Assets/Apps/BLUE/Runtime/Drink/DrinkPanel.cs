@@ -67,6 +67,24 @@ namespace PPP.BLUE.VN
             openCo = StartCoroutine(CoOpenSafe());
         }
 
+        public void OnDrinkGreat()
+        {
+            runner?.ReturnFromCall("great");
+            runner?.Next();
+        }
+
+        public void OnDrinkSuccess()
+        {
+            runner?.ReturnFromCall("success");
+            runner?.Next();
+        }
+
+        public void OnDrinkFail()
+        {
+            runner?.ReturnFromCall("fail");
+            runner?.Next();
+        }
+
         private void OnDisable()
         {
             if (runner != null && callSubscribed)
