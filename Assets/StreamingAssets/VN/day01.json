@@ -1,576 +1,144 @@
 {
     "scriptId": "day01",
     "nodes": [
-        {
-            "id": "lb.start",
-            "type": "Label",
-            "speakerId": "",
-            "speaker": "",
-            "text": "",
-            "label": "start",
-            "target": "",
-            "arg": "",
-            "cond": "",
-            "next": "",
-            "arg1": "",
-            "arg2": "",
-            "branches": [],
-            "choices": []
-        },
-        {
-            "id": "t.001",
-            "type": "Say",
-            "speakerId": "sys",
-            "speaker": "sys",
-            "text": "CSV Import 테스트 시작.",
-            "label": "",
-            "target": "",
-            "arg": "",
-            "cond": "",
-            "next": "",
-            "arg1": "",
-            "arg2": "",
-            "branches": [],
-            "choices": []
-        },
-            {
-                "id": "t.002",
-                "type": "Say",
-                "speakerId": "sys",
-                "speaker": "sys",
-                "text": "Call(Drink) -> Return -> Branch 테스트.",
-                "label": "",
-                "target": "",
-                "arg": "",
-                "cond": "",
-                "next": "",
-                "arg1": "",
-                "arg2": "",
-                "branches": [],
-                "choices": []
-            },
-
-            {
-                "id": "t.002",
-                "type": "Say",
-                "speakerId": "sys",
-                "speaker": "sys",
-                "text": "Call(DrSDFink) -> Return -> Branch 테스트.",
-                "label": "",
-                "target": "",
-                "arg": "",
-                "cond": "",
-                "next": "",
-                "arg1": "",
-                "arg2": "",
-                "branches": [],
-                "choices": []
-            },
-
-            {
-                "id": "t.002",
-                "type": "Say",
-                "speakerId": "sys",
-                "speaker": "sys",
-                "text": "Call(Drink) -> Return -> BranFDSFSch 테스트.",
-                "label": "",
-                "target": "",
-                "arg": "",
-                "cond": "",
-                "next": "",
-                "arg1": "",
-                "arg2": "",
-                "branches": [],
-                "choices": []
-            },
-
-            {
-                "id": "t.002",
-                "type": "Say",
-                "speakerId": "sys",
-                "speaker": "sys",
-                "text": "Call(Drink) -> RetuSDFSDFrn -> Branch 테스트.",
-                "label": "",
-                "target": "",
-                "arg": "",
-                "cond": "",
-                "next": "",
-                "arg1": "",
-                "arg2": "",
-                "branches": [],
-                "choices": []
-            },
-            {
-                "id": "t.002",
-                "type": "Say",
-                "speakerId": "sys",
-                "speaker": "sys",
-                "text": "CalSDFSDFl(Drink) -> Return -> Branch 테스트.",
-                "label": "",
-                "target": "",
-                "arg": "",
-                "cond": "",
-                "next": "",
-                "arg1": "",
-                "arg2": "",
-                "branches": [],
-                "choices": []
-            },
-            {
-                "id": "t.002",
-                "type": "Say",
-                "speakerId": "sys",
-                "speaker": "sys",
-                "text": "Call(Drink) -> Return -> Branch SDFSDF테스트.",
-                "label": "",
-                "target": "",
-                "arg": "",
-                "cond": "",
-                "next": "",
-                "arg1": "",
-                "arg2": "",
-                "branches": [],
-                "choices": []
-            },
-            {
-                "id": "t.002",
-                "type": "Say",
-                "speakerId": "sys",
-                "speaker": "sys",
-                "text": "Call(Drink) -> RetSDFSurn -> Branch 테스트.",
-                "label": "",
-                "target": "",
-                "arg": "",
-                "cond": "",
-                "next": "",
-                "arg1": "",
-                "arg2": "",
-                "branches": [],
-                "choices": []
-            },
-            {
-                "id": "t.002",
-                "type": "Say",
-                "speakerId": "sys",
-                "speaker": "sys",
-                "text": "CallSDFSDFSD(Drink) -> Return -> BranchSDFSDFSDF 테스트.",
-                "label": "",
-                "target": "",
-                "arg": "",
-                "cond": "",
-                "next": "",
-                "arg1": "",
-                "arg2": "",
-                "branches": [],
-                "choices": []
-            },
-            {
-                "id": "t.002",
-                "type": "Say",
-                "speakerId": "sys",
-                "speaker": "sys",
-                "text": "Call(Drink) -> RSDFSDFSDFturn -> BraSDFSDFSDnch 테스트.",
-                "label": "",
-                "target": "",
-                "arg": "",
-                "cond": "",
-                "next": "",
-                "arg1": "",
-                "arg2": "",
-                "branches": [],
-                "choices": []
-            },
-            {
-                "id": "t.002",
-                "type": "Say",
-                "speakerId": "sys",
-                "speaker": "sys",
-                "text": "Call(DSDFSFDSFrink) -> RSDFSDFSDFeturn -> BranSDFSDFSDFch 테스트.",
-                "label": "",
-                "target": "",
-                "arg": "",
-                "cond": "",
-                "next": "",
-                "arg1": "",
-                "arg2": "",
-                "branches": [],
-                "choices": []
-            },
-            {
-                "id": "t.002",
-                "type": "Say",
-                "speakerId": "sys",
-                "speaker": "sys",
-                "text": "Call(Drink) -> ReturnSDFSFSD -> Branch 테스SDFSDFSDF트.",
-                "label": "",
-                "target": "",
-                "arg": "",
-                "cond": "",
-                "next": "",
-                "arg1": "",
-                "arg2": "",
-                "branches": [],
-                "choices": []
-            },
-            {
-                "id": "t.002",
-                "type": "Say",
-                "speakerId": "sys",
-                "speaker": "sys",
-                "text": "Call(Drink) -> Return -> Branch SDFSDFSD테스트.",
-                "label": "",
-                "target": "",
-                "arg": "",
-                "cond": "",
-                "next": "",
-                "arg1": "",
-                "arg2": "",
-                "branches": [],
-                "choices": []
-            },
-            {
-                "id": "t.002",
-                "type": "Say",
-                "speakerId": "sys",
-                "speaker": "sys",
-                "text": "CallSDFSFSDF(Drink) -> ReSDFSDFturn -> Branch 테스트.",
-                "label": "",
-                "target": "",
-                "arg": "",
-                "cond": "",
-                "next": "",
-                "arg1": "",
-                "arg2": "",
-                "branches": [],
-                "choices": []
-            },
-            {
-                "id": "t.002",
-                "type": "Say",
-                "speakerId": "sys",
-                "speaker": "sys",
-                "text": "Call(DrSDFSDFink) -> Return SDFSFSDFSD -> Branch 테SDFSDFSDF스트.",
-                "label": "",
-                "target": "",
-                "arg": "",
-                "cond": "",
-                "next": "",
-                "arg1": "",
-                "arg2": "",
-                "branches": [],
-                "choices": []
-            },
-            {
-                "id": "t.002",
-                "type": "Say",
-                "speakerId": "sys",
-                "speaker": "sys",
-                "text": "Call(DrFSDFSDFSDink) -> ReFSDFSDFturn -> BranSDFSDFSDch 테스트.",
-                "label": "",
-                "target": "",
-                "arg": "",
-                "cond": "",
-                "next": "",
-                "arg1": "",
-                "arg2": "",
-                "branches": [],
-                "choices": []
-            },
-            {
-                "id": "t.002",
-                "type": "Say",
-                "speakerId": "sys",
-                "speaker": "sys",
-                "text": "Cal5464564l(Drink) -> Re655546turn -> Branch 테45654645스트.",
-                "label": "",
-                "target": "",
-                "arg": "",
-                "cond": "",
-                "next": "",
-                "arg1": "",
-                "arg2": "",
-                "branches": [],
-                "choices": []
-            },
-            {
-                "id": "t.002",
-                "type": "Say",
-                "speakerId": "sys",
-                "speaker": "sys",
-                "text": "Cal123123l(Drink) -> ReAASDturn -> BranASDASDch ASD테스트.",
-                "label": "",
-                "target": "",
-                "arg": "",
-                "cond": "",
-                "next": "",
-                "arg1": "",
-                "arg2": "",
-                "branches": [],
-                "choices": []
-            },
-            {
-                "id": "t.002",
-                "type": "Say",
-                "speakerId": "sys",
-                "speaker": "sys",
-                "text": "Call(Drin213123k) -> Ret123123urn -> BrSDASDAanch 테스트.",
-                "label": "",
-                "target": "",
-                "arg": "",
-                "cond": "",
-                "next": "",
-                "arg1": "",
-                "arg2": "",
-                "branches": [],
-                "choices": []
-            },
-
-
-        {
-            "id": "t.call",
-            "type": "Call",
-            "speakerId": "",
-            "speaker": "",
-            "text": "",
-            "label": "",
-            "target": "Drink",
-            "arg": "order001",
-            "cond": "",
-            "next": "",
-            "arg1": "order001",
-            "arg2": "Drink",
-            "branches": [],
-            "choices": []
-        },
-        {
-            "id": "t.br",
-            "type": "Branch",
-            "speakerId": "",
-            "speaker": "",
-            "text": "",
-            "label": "",
-            "target": "",
-            "arg": "",
-            "cond": "",
-            "next": "",
-            "arg1": "",
-            "arg2": "",
-            "branches": [
-                {
-                    "choiceText": "Great",
-                    "expr": "lastDrink==1",
-                    "cond": "lastDrink==1",
-                    "jumpLabel": "route_great",
-                    "next": "route_great"
-                },
-                {
-                    "choiceText": "Success",
-                    "expr": "lastDrink==2",
-                    "cond": "lastDrink==2",
-                    "jumpLabel": "route_success",
-                    "next": "route_success"
-                },
-                {
-                    "choiceText": "Fail",
-                    "expr": "else",
-                    "cond": "else",
-                    "jumpLabel": "route_fail",
-                    "next": "route_fail"
-                }
-            ],
-            "choices": []
-        },
-        {
-            "id": "lb.great",
-            "type": "Label",
-            "speakerId": "",
-            "speaker": "",
-            "text": "",
-            "label": "route_great",
-            "target": "",
-            "arg": "",
-            "cond": "",
-            "next": "",
-            "arg1": "",
-            "arg2": "",
-            "branches": [],
-            "choices": []
-        },
-        {
-            "id": "t.g1",
-            "type": "Say",
-            "speakerId": "sys",
-            "speaker": "sys",
-            "text": "GREAT 루트.",
-            "label": "",
-            "target": "",
-            "arg": "",
-            "cond": "",
-            "next": "",
-            "arg1": "",
-            "arg2": "",
-            "branches": [],
-            "choices": []
-        },
-        {
-            "id": "t.jg",
-            "type": "Jump",
-            "speakerId": "",
-            "speaker": "",
-            "text": "",
-            "label": "end",
-            "target": "",
-            "arg": "",
-            "cond": "",
-            "next": "end",
-            "arg1": "",
-            "arg2": "",
-            "branches": [],
-            "choices": []
-        },
-        {
-            "id": "lb.success",
-            "type": "Label",
-            "speakerId": "",
-            "speaker": "",
-            "text": "",
-            "label": "route_success",
-            "target": "",
-            "arg": "",
-            "cond": "",
-            "next": "",
-            "arg1": "",
-            "arg2": "",
-            "branches": [],
-            "choices": []
-        },
-        {
-            "id": "t.s1",
-            "type": "Say",
-            "speakerId": "sys",
-            "speaker": "sys",
-            "text": "SUCCESS 루트.",
-            "label": "",
-            "target": "",
-            "arg": "",
-            "cond": "",
-            "next": "",
-            "arg1": "",
-            "arg2": "",
-            "branches": [],
-            "choices": []
-        },
-        {
-            "id": "t.js",
-            "type": "Jump",
-            "speakerId": "",
-            "speaker": "",
-            "text": "",
-            "label": "end",
-            "target": "",
-            "arg": "",
-            "cond": "",
-            "next": "end",
-            "arg1": "",
-            "arg2": "",
-            "branches": [],
-            "choices": []
-        },
-        {
-            "id": "lb.fail",
-            "type": "Label",
-            "speakerId": "",
-            "speaker": "",
-            "text": "",
-            "label": "route_fail",
-            "target": "",
-            "arg": "",
-            "cond": "",
-            "next": "",
-            "arg1": "",
-            "arg2": "",
-            "branches": [],
-            "choices": []
-        },
-        {
-            "id": "t.f1",
-            "type": "Say",
-            "speakerId": "sys",
-            "speaker": "sys",
-            "text": "FAIL 루트.",
-            "label": "",
-            "target": "",
-            "arg": "",
-            "cond": "",
-            "next": "",
-            "arg1": "",
-            "arg2": "",
-            "branches": [],
-            "choices": []
-        },
-        {
-            "id": "t.jf",
-            "type": "Jump",
-            "speakerId": "",
-            "speaker": "",
-            "text": "",
-            "label": "end",
-            "target": "",
-            "arg": "",
-            "cond": "",
-            "next": "end",
-            "arg1": "",
-            "arg2": "",
-            "branches": [],
-            "choices": []
-        },
-        {
-            "id": "lb.end",
-            "type": "Label",
-            "speakerId": "",
-            "speaker": "",
-            "text": "",
-            "label": "end",
-            "target": "",
-            "arg": "",
-            "cond": "",
-            "next": "",
-            "arg1": "",
-            "arg2": "",
-            "branches": [],
-            "choices": []
-        },
-        {
-            "id": "t.end",
-            "type": "Say",
-            "speakerId": "sys",
-            "speaker": "sys",
-            "text": "day01 끝.",
-            "label": "",
-            "target": "",
-            "arg": "",
-            "cond": "",
-            "next": "",
-            "arg1": "",
-            "arg2": "",
-            "branches": [],
-            "choices": []
-        },
-        {
-            "id": "end",
-            "type": "End",
-            "speakerId": "",
-            "speaker": "",
-            "text": "",
-            "label": "",
-            "target": "",
-            "arg": "",
-            "cond": "",
-            "next": "",
-            "arg1": "",
-            "arg2": "",
-            "branches": [],
-            "choices": []
-        }
+  
+      {
+        "id": "lb.start",
+        "type": "Label",
+        "label": "start"
+      },
+  
+      {
+        "id": "t.001",
+        "type": "Say",
+        "speaker": "세나",
+        "text": "안녕, 이건 테스트 스크립트야."
+      },
+  
+      {
+        "id": "t.002",
+        "type": "Say",
+        "speaker": "세나",
+        "text": "짧은 테스트지만 잘 부탁해."
+      },
+  
+      {
+        "id": "t.003",
+        "type": "Say",
+        "speaker": "멜리온",
+        "text": "뭔가 마시고 싶다며?"
+      },
+  
+      {
+        "id": "t.004",
+        "type": "Say",
+        "speaker": "세나",
+        "text": "카페라떼 하나만 부탁해."
+      },
+  
+      {
+        "id": "t.call",
+        "type": "Call",
+        "target": "Drink",
+        "arg": "REQ_TEST_LATTE"
+      },
+  
+      {
+        "id": "t.branch",
+        "type": "Branch",
+        "branches": [
+          {
+            "choiceText": "Perfect",
+            "cond": "lastDrink==1",
+            "next": "route_great"
+          },
+          {
+            "choiceText": "Success",
+            "cond": "lastDrink==2",
+            "next": "route_success"
+          },
+          {
+            "choiceText": "Fail",
+            "cond": "else",
+            "next": "route_fail"
+          }
+        ]
+      },
+  
+      {
+        "id": "lb.great",
+        "type": "Label",
+        "label": "route_great"
+      },
+  
+      {
+        "id": "t.g1",
+        "type": "Say",
+        "speaker": "세나",
+        "text": "정확해."
+      },
+  
+      {
+        "id": "t.g2",
+        "type": "Jump",
+        "next": "end"
+      },
+  
+      {
+        "id": "lb.success",
+        "type": "Label",
+        "label": "route_success"
+      },
+  
+      {
+        "id": "t.s1",
+        "type": "Say",
+        "speaker": "세나",
+        "text": "잘 마실게."
+      },
+  
+      {
+        "id": "t.s2",
+        "type": "Jump",
+        "next": "end"
+      },
+  
+      {
+        "id": "lb.fail",
+        "type": "Label",
+        "label": "route_fail"
+      },
+  
+      {
+        "id": "t.f1",
+        "type": "Say",
+        "speaker": "세나",
+        "text": "이건 내가 부탁한 게 아닌데."
+      },
+  
+      {
+        "id": "t.f2",
+        "type": "Jump",
+        "next": "end"
+      },
+  
+      {
+        "id": "lb.end",
+        "type": "Label",
+        "label": "end"
+      },
+  
+      {
+        "id": "t.end",
+        "type": "Say",
+        "speaker": "sys",
+        "text": "Drink 테스트 종료."
+      },
+  
+      {
+        "id": "end",
+        "type": "End"
+      }
+  
     ]
-}
+  }
