@@ -112,7 +112,7 @@ namespace PPP.BLUE.VN
 
         public void ProvideDrink()
         {
-            if (isResetInProgress || isProvided)
+            if (isResetInProgress || isProvided || totalCount <= 0)
                 return;
 
             isProvided = true;
@@ -157,13 +157,12 @@ namespace PPP.BLUE.VN
             if (resetCooldownSeconds > 0f)
                 yield return new WaitForSeconds(resetCooldownSeconds);
 
-            SetIngredientButtonsInteractable(true);
-            if (provideButton != null)
-                provideButton.interactable = true;
+            SetAllIngredientButtonsInteractable(true);
             if (resetButton != null)
                 resetButton.interactable = true;
 
             isResetInProgress = false;
+            UpdateProvideButtonState();
         }
 
         private string NormalizeResultForRunner(string result)
@@ -178,6 +177,7 @@ namespace PPP.BLUE.VN
         private void RefreshUi()
         {
             panelUI?.UpdateTotalCount(totalCount, MaxIngredients);
+            UpdateProvideButtonState();
 
             for (int i = 0; i < ingredientButtons.Length; i++)
             {
@@ -200,6 +200,14 @@ namespace PPP.BLUE.VN
         {
             artheonEnabled = !artheonEnabled;
             RefreshUi();
+        }
+
+        private void UpdateProvideButtonState()
+        {
+            if (provideButton == null)
+                return;
+
+            provideButton.interactable = !isResetInProgress && !isProvided && totalCount > 0;
         }
 
         private void SetIngredientButtonsInteractable(bool interactable)
