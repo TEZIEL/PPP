@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 
 namespace PPP.BLUE.VN
 {
@@ -25,6 +26,11 @@ namespace PPP.BLUE.VN
         // Choice
         public ChoiceOption[] choices;
 
+        // Switch
+        public string switchVar;
+        public Dictionary<string, string> switchCases;
+        public string switchDefault;
+
         [Serializable]
         public sealed class BranchRule
         {
@@ -42,7 +48,7 @@ namespace PPP.BLUE.VN
 
         public override string ToString()
         {
-            return $"[{type}] id={id} speaker={speakerId} label={label} callTarget={callTarget} callArg={callArg} text={text}";
+            return $"[{type}] id={id} speaker={speakerId} label={label} callTarget={callTarget} callArg={callArg} switchVar={switchVar} switchDefault={switchDefault} text={text}";
         }
     }
 }

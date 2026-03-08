@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections;
 using TMPro;
 using UnityEngine;
@@ -11,10 +11,11 @@ namespace PPP.BLUE.VN
         [SerializeField] private float charsPerSecond = 40f;
 
         public bool IsTyping { get; private set; }
-        
+
         private Coroutine co;
         private string fullTextCache = "";
         private Action onCompletedCache;
+        private int typingToken = 0;
 
         public void SetTarget(TMP_Text t) => target = t;
 
@@ -26,42 +27,36 @@ namespace PPP.BLUE.VN
                 return;
             }
 
-            StopTyping(); // 기존 타이핑 정리
+            CancelTyping();
             fullTextCache = fullText ?? "";
             onCompletedCache = onCompleted;
 
-            co = StartCoroutine(CoType(fullTextCache));
+            typingToken++;
+            int token = typingToken;
+            co = StartCoroutine(CoType(fullTextCache, token));
         }
 
         public void ForceComplete()
         {
-            if (target == null) return;
+            if (target == null)
+                return;
 
-            if (co != null)
-            {
-                StopCoroutine(co);
-                co = null;
-            }
+            CancelTyping();
 
             target.text = fullTextCache;
             IsTyping = false;
 
-            // ✅ 콜백은 한 번만 호출되게 null 처리
             var cb = onCompletedCache;
             onCompletedCache = null;
             cb?.Invoke();
         }
 
-
         public void CompleteWithPreview(float previewRatio = 0.35f, int minVisibleChars = 3, string trailing = "…")
         {
-            if (target == null) return;
+            if (target == null)
+                return;
 
-            if (co != null)
-            {
-                StopCoroutine(co);
-                co = null;
-            }
+            CancelTyping();
 
             string full = fullTextCache ?? string.Empty;
             if (full.Length == 0)
@@ -94,50 +89,60 @@ namespace PPP.BLUE.VN
 
         public void SkipToEnd()
         {
-            if (!IsTyping || target == null) return;
+            if (!IsTyping || target == null)
+                return;
 
-            // 코루틴 종료하고 전체 텍스트 즉시 출력
-            StopCoroutine(co);
-            co = null;
+            CancelTyping();
+            target.text = fullTextCache;
             IsTyping = false;
 
-            // 이미 코루틴에서 target.text를 누적했을 수 있으니,
-            // 마지막 fullText를 저장하는 방식도 가능하지만, 여기선 간단히 처리:
-            // => SkipToEnd를 부르는 쪽에서 "현재 풀텍스트"를 다시 Set하는 방식이 더 안전함
+            var cb = onCompletedCache;
+            onCompletedCache = null;
+            cb?.Invoke();
         }
 
         public void StopTyping()
         {
-            if (co != null)
-            {
-                StopCoroutine(co);
-                co = null;
-            }
+            CancelTyping();
             IsTyping = false;
             onCompletedCache = null;
             fullTextCache = "";
         }
 
-        private IEnumerator CoType(string fullText)
+        private void CancelTyping()
+        {
+            typingToken++;
+            co = null;
+            IsTyping = false;
+        }
+
+        private IEnumerator CoType(string fullText, int token)
         {
             IsTyping = true;
             target.text = "";
 
             if (fullText.Length == 0)
             {
+                if (token != typingToken)
+                    yield break;
+
                 IsTyping = false;
+                co = null;
+
                 var cb0 = onCompletedCache;
                 onCompletedCache = null;
                 cb0?.Invoke();
                 yield break;
             }
 
-            float charsPerFrame = charsPerSecond * Time.unscaledDeltaTime;
             float accumulator = 0f;
             int index = 0;
 
             while (index < fullText.Length)
             {
+                if (token != typingToken)
+                    yield break;
+
                 accumulator += charsPerSecond * Time.unscaledDeltaTime;
 
                 int emit = Mathf.FloorToInt(accumulator);
@@ -152,6 +157,9 @@ namespace PPP.BLUE.VN
 
                 yield return null;
             }
+
+            if (token != typingToken)
+                yield break;
 
             co = null;
             IsTyping = false;
