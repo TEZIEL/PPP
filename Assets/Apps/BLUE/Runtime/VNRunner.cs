@@ -507,134 +507,211 @@ namespace PPP.BLUE.VN
                 return;
             }
 
-            // 끝까지 갔으면 종료
-            if (pointer < 0 || pointer >= script.nodes.Count)
+            while (true)
             {
-                Finish();
-                return;
+                if (pointer < 0 || pointer >= script.nodes.Count)
+                {
+                    Finish();
+                    return;
+                }
+
+                var node = script.nodes[pointer];
+                VNLog($"[VN] node@{pointer} type={node?.type} label={node?.label}");
+
+                if (node == null)
+                {
+                    pointer++;
+                    continue;
+                }
+
+                if (skipMode && IsInteractionNodeForSkip(node))
+                {
+                    lastStopIndex = pointer;
+                    waitPointer = pointer;
+                    isWaiting = true;
+                    MarkSaveAllowed(true, "Skip Interaction Stop");
+                    return;
+                }
+
+                switch (node.type)
+                {
+                    case VNNodeType.Say:
+                        {
+                            lastShownPointer = pointer;
+
+                            EmitSay(node);
+                            pointer++;
+
+                            if (!skipMode)
+                            {
+                                waitPointer = pointer - 1;
+                                isWaiting = true;
+                                return;
+                            }
+
+                            return;
+                        }
+
+                    case VNNodeType.Choice:
+                        {
+                            if (node.choices != null && node.choices.Length > 0)
+                            {
+                                for (int i = 0; i < node.choices.Length; i++)
+                                {
+                                    var choice = node.choices[i];
+                                    if (choice == null || string.IsNullOrEmpty(choice.jumpLabel))
+                                        continue;
+
+                                    DoJump(choice.jumpLabel);
+                                    Debug.Log("[VN] Choice auto resolved -> pointer=" + pointer);
+                                    return;
+                                }
+                            }
+
+                            pointer++;
+                            return;
+                        }
+
+                    case VNNodeType.Branch:
+                        {
+                            ResolveBranchNode(node);
+                            Debug.Log("[VN] Branch auto resolved -> pointer=" + pointer);
+                            continue;
+                        }
+
+                    case VNNodeType.Switch:
+                        {
+                            ResolveSwitchNode(node);
+                            continue;
+                        }
+
+                    case VNNodeType.Label:
+                        {
+                            VNLog($"[VN] Label: {node.label} (idx {pointer})");
+                            pointer++;
+                            continue;
+                        }
+
+                    case VNNodeType.Jump:
+                        {
+                            DoJump(node.label);
+                            continue;
+                        }
+
+                    case VNNodeType.Call:
+                        {
+                            string target = node.callTarget ?? string.Empty;
+                            string arg = node.callArg ?? string.Empty;
+                            StartExternalCall(target, arg);
+
+                            pointer++;
+
+                            return;
+                        }
+
+                    case VNNodeType.Return:
+                        {
+                            ReturnFromCall(node.callArg ?? string.Empty);
+                            continue;
+                        }
+
+                    case VNNodeType.End:
+                        {
+                            Finish();
+                            return;
+                        }
+
+                    default:
+                        {
+                            Debug.LogWarning($"[VNRunner] Unknown node type: {node.type}");
+                            pointer++;
+                            continue;
+                        }
+                }
             }
+        }
 
-            var node = script.nodes[pointer];
 
-            VNLog($"[VN] node@{pointer} type={node?.type} label={node?.label}");
 
+
+        private void ResolveSwitchNode(VNNode node)
+        {
             if (node == null)
             {
                 pointer++;
                 return;
             }
 
-            if (skipMode && IsInteractionNodeForSkip(node))
+            string value = GetVar(node.switchVar, 0).ToString();
+
+            if (node.switchCases != null && node.switchCases.TryGetValue(value, out var next) && !string.IsNullOrEmpty(next))
             {
-                lastStopIndex = pointer;
-                waitPointer = pointer;
-                isWaiting = true;
-                MarkSaveAllowed(true, "Skip Interaction Stop");
+                DoJump(next);
                 return;
             }
 
-            switch (node.type)
+            if (!string.IsNullOrEmpty(node.switchDefault))
             {
-                case VNNodeType.Say:
-                    {
-                        lastShownPointer = pointer;
-
-                        EmitSay(node);
-                        pointer++;
-
-                        if (!skipMode)
-                        {
-                            waitPointer = pointer - 1;
-                            isWaiting = true;
-                            return;
-                        }
-
-                        return;
-                    }
-
-                case VNNodeType.Choice:
-                    {
-                        // Choice UI 미사용 프로젝트: 첫 번째 유효 점프로 자동 분기
-                        if (node.choices != null && node.choices.Length > 0)
-                        {
-                            for (int i = 0; i < node.choices.Length; i++)
-                            {
-                                var choice = node.choices[i];
-                                if (choice == null || string.IsNullOrEmpty(choice.jumpLabel))
-                                    continue;
-
-                                DoJump(choice.jumpLabel);
-                                Debug.Log("[VN] Choice auto resolved -> pointer=" + pointer);
-                                return;
-                            }
-                        }
-
-                        pointer++;
-                        return;
-                    }
-
-                case VNNodeType.Branch:
-                    {
-                        ResolveBranchNode(node);
-                        Debug.Log("[VN] Branch auto resolved -> pointer=" + pointer);
-                        Next();
-                        return;
-                    }
-
-                case VNNodeType.Switch:
-                    {
-                        ResolveSwitchNode(node);
-                        return;
-                    }
-
-                case VNNodeType.Label:
-                    {
-                        VNLog($"[VN] Label: {node.label} (idx {pointer})");
-                        pointer++;
-                        Next();
-                        return;
-                    }
-
-                case VNNodeType.Jump:
-                    {
-                        DoJump(node.label);
-                        Next();
-                        return;
-                    }
-
-                case VNNodeType.Call:
-                    {
-                        string target = node.callTarget ?? string.Empty;
-                        string arg = node.callArg ?? string.Empty;
-                        StartExternalCall(target, arg);
-
-                        pointer++;
-
-                        return;
-                    }
-
-                case VNNodeType.Return:
-                    {
-                        ReturnFromCall(node.callArg ?? string.Empty);
-                        Next();
-                        return;
-                    }
-
-                case VNNodeType.End:
-                    {
-                        Finish();
-                        return;
-                    }
-
-                default:
-                    {
-                        Debug.LogWarning($"[VNRunner] Unknown node type: {node.type}");
-                        pointer++;
-                        return;
-                    }
+                DoJump(node.switchDefault);
+                return;
             }
+
+            pointer++;
         }
 
+        private void ResolveBranchNode(VNNode node)
+        {
+            if (node == null)
+            {
+                pointer++;
+                return;
+            }
+
+            if (node.branches != null && node.branches.Length > 0)
+            {
+                for (int i = 0; i < node.branches.Length; i++)
+                {
+                    var rule = node.branches[i];
+                    if (rule == null)
+                        continue;
+
+                    if (string.Equals(rule.expr, "else", StringComparison.OrdinalIgnoreCase))
+                    {
+                        DoJump(rule.jumpLabel);
+                        return;
+                    }
+
+                    if (EvaluateExpr(rule.expr))
+                    {
+                        DoJump(rule.jumpLabel);
+                        return;
+                    }
+                }
+
+                pointer++;
+                return;
+            }
+
+            DoBranch(node.label);
+        }
+
+        private void StartExternalCall(string target, string arg)
+        {
+            StopAutoExternal("Call:" + target);
+
+            isWaiting = true;
+            waitPointer = pointer;
+            lastStopIndex = pointer;
+
+            callStack.Push(new VNCallFrame
+            {
+                returnPointer = pointer + 1,
+                target = target,
+                arg = arg,
+            });
+
+            OnCall?.Invoke(target, arg);
+        }
 
 
 

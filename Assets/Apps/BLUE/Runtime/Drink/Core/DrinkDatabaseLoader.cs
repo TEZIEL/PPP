@@ -89,7 +89,7 @@ namespace PPP.BLUE.VN.DrinkSystem
 
                 var request = new DrinkRequest
                 {
-                    requestID = GetString(rawRequest, "ID"),
+                    requestID = GetString(rawRequest, "requestID"),
                     drinkID = GetString(rawRequest, "drinkID"),
                     category = GetString(rawRequest, "category"),
                     likedDrink = GetString(rawRequest, "likedDrink"),
