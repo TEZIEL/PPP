@@ -144,6 +144,11 @@ namespace PPP.BLUE.VN
             StartCoroutine(CoResetIngredients());
         }
 
+        public void ResetDrink()
+        {
+            ResetIngredients();
+        }
+
         public string EvaluateCurrentDrink()
         {
             EvaluateCurrentDrinkInternal(out string result, out string normalized, out string drinkName);
@@ -183,6 +188,9 @@ namespace PPP.BLUE.VN
         {
             if (confirmPanel != null)
                 confirmPanel.SetActive(false);
+
+            ResetDrink();
+            LogDrink("Remake requested");
         }
 
         public void OnConfirmProvide()
@@ -201,7 +209,14 @@ namespace PPP.BLUE.VN
             LogDrink("ConfirmProvide result=" + pendingResult);
             LogResult(pendingResult);
 
-            runner?.ReturnFromCall(pendingNormalizedResult);
+            if (runner != null)
+            {
+                runner.ReturnFromCall(pendingResult);
+            }
+            else
+            {
+                Debug.LogError("[Drink] VNRunner reference missing");
+            }
 
             if (confirmPanel != null)
                 confirmPanel.SetActive(false);

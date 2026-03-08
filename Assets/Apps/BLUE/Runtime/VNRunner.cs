@@ -1083,6 +1083,7 @@ namespace PPP.BLUE.VN
 
         public void ReturnFromCall(string result)
         {
+            Debug.Log("[VN] ReturnFromCall result=" + result);
             if (callStack.Count == 0)
             {
                 Debug.LogWarning("[VN] ReturnFromCall ignored (callStack empty)");
