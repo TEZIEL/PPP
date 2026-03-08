@@ -676,7 +676,7 @@ namespace PPP.BLUE.VN
                         {
                             if (callStack.Count == 0)
                             {
-                                Debug.LogWarning("[VN] Return ignored (empty callStack)");
+                                Debug.LogError("Return without callStack");
                                 pointer++;
                                 if (pointer == previousPointer)
                                 {
