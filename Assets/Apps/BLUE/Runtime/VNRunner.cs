@@ -1079,7 +1079,8 @@ namespace PPP.BLUE.VN
             if (string.IsNullOrEmpty(result))
                 return;
 
-            if (string.Equals(result, "great", StringComparison.OrdinalIgnoreCase))
+            if (string.Equals(result, "great", StringComparison.OrdinalIgnoreCase) ||
+                string.Equals(result, "perfect", StringComparison.OrdinalIgnoreCase))
             {
                 SetVar("lastDrink", 1);
             }
@@ -1099,10 +1100,10 @@ namespace PPP.BLUE.VN
         {
             lastResult = result;
 
-            if (result == "great")
+            if (result == "great" || result == "perfect")
             {
                 greatCount++;
-                successCount++; // great는 success 포함 규칙
+                successCount++; // great/perfect는 success 포함 규칙
             }
             else if (result == "success")
             {
