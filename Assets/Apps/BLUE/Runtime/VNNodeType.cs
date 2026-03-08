@@ -9,6 +9,7 @@ namespace PPP.BLUE.VN
         Call,
         Return,
         Branch,
+        Switch,
         End,
     }
 }

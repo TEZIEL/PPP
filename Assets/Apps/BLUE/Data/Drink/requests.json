@@ -1,0 +1,40 @@
+{
+  "requests": [
+    {
+      "requestID": "REQ_COLA_EXACT",
+      "type": "EXACT_DRINK",
+      "drinkID": "DRINK_COLA",
+      "category": "",
+      "tags": [],
+      "likedDrink": "",
+      "dislikedDrink": ""
+    },
+    {
+      "requestID": "REQ_SODA",
+      "type": "CATEGORY_REQUEST",
+      "drinkID": "",
+      "category": "CATEGORY_SODA",
+      "tags": [],
+      "likedDrink": "DRINK_COLA",
+      "dislikedDrink": ""
+    },
+    {
+      "requestID": "REQ_ANY",
+      "type": "ANY_DRINK",
+      "drinkID": "",
+      "category": "",
+      "tags": [],
+      "likedDrink": "DRINK_COLA",
+      "dislikedDrink": "DRINK_MORVION_COLA"
+    },
+    {
+      "requestID": "REQ_INTENTIONAL_FAIL",
+      "type": "INTENTIONAL_FAIL",
+      "drinkID": "DRINK_COLA",
+      "category": "",
+      "tags": [],
+      "likedDrink": "",
+      "dislikedDrink": ""
+    }
+  ]
+}
