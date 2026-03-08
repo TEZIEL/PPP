@@ -749,6 +749,10 @@ namespace PPP.BLUE.VN
                 if (!string.IsNullOrWhiteSpace(target))
                     externalCallTargetSet.Add(target.Trim());
             }
+<<<<<<< Updated upstream
+=======
+
+>>>>>>> Stashed changes
         }
 
         private bool IsExternalCallTargetAllowed(string target)
@@ -949,7 +953,7 @@ namespace PPP.BLUE.VN
 
         private void Finish()
         {
-            Debug.Log("[VN_TEST] VN Finished script=" + (script?.scriptId ?? string.Empty));
+            Debug.Log("[VN_TEST] VN Finished script=" + (script?.ScriptId ?? string.Empty));
             VNLog("[VN] End");
 
             OnEnd?.Invoke();
