@@ -477,8 +477,17 @@ namespace PPP.BLUE.VN
                 return;
             }
 
+            int safety = 0;
+
             while (true)
             {
+                if (++safety > 1000)
+                {
+                    Debug.LogError("[VN] Safety break triggered. Possible infinite loop.");
+                    Finish();
+                    return;
+                }
+
                 int previousPointer = pointer;
 
                 if (pointer < 0 || pointer >= script.nodes.Count)
@@ -974,7 +983,7 @@ namespace PPP.BLUE.VN
 
             VNLog($"[VN] Jump -> {label} (idx {idx}) from nodeId={script?.nodes?[pointer]?.id} curIdx={pointer}");
 
-            pointer = idx + 1;
+            pointer = idx;
             // 🔴 Jump 루프 감지 가드 (로그만)
             if (pointer == idx)
             {
@@ -2008,9 +2017,14 @@ namespace PPP.BLUE.VN
                 }
             }
 
-            Next();
-
-            skipMode = false;
+            try
+            {
+                Next();
+            }
+            finally
+            {
+                skipMode = false;
+            }
         }
 
 
