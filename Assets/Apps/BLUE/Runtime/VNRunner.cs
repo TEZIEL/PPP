@@ -438,11 +438,6 @@ namespace PPP.BLUE.VN
         {
             if (node == null) return false;
 
-            if (node.type == VNNodeType.Choice) return true;
-
-            if (node.type == VNNodeType.Branch && node.branches != null && node.branches.Length > 0 &&
-                HasAnyChoiceText(node.branches))
-                return true;
 
            
             return false;
@@ -539,6 +534,9 @@ namespace PPP.BLUE.VN
             {
                 case VNNodeType.Say:
                     {
+                        if (TryHandleDrinkCommand(node))
+                            return;
+
                         lastShownPointer = pointer;
 
                         EmitSay(node);
@@ -556,45 +554,31 @@ namespace PPP.BLUE.VN
 
                 case VNNodeType.Choice:
                     {
-                        VNLog($"[VN] Choice hit id={node.id} choices={(node.choices == null ? -1 : node.choices.Length)} hasText={HasChoiceText(node.choices)}");
-
-                        if (node.choices != null && HasChoiceText(node.choices))
+                        // Choice UI 미사용 프로젝트: 첫 번째 유효 점프로 자동 분기
+                        if (node.choices != null && node.choices.Length > 0)
                         {
-                            lastStopIndex = pointer;
-                            waitPointer = pointer;
-                            isWaiting = true;
+                            for (int i = 0; i < node.choices.Length; i++)
+                            {
+                                var choice = node.choices[i];
+                                if (choice == null || string.IsNullOrEmpty(choice.jumpLabel))
+                                    continue;
 
-                            MarkSaveAllowed(true, "Choice Open");
-                            VNLog("[VN] OnChoice invoke");
-                            OnChoice?.Invoke(node.choices);
-                            return;
+                                DoJump(choice.jumpLabel);
+                                Debug.Log("[VN] Choice auto resolved -> pointer=" + pointer);
+                                return;
+                            }
                         }
 
-                        Debug.LogWarning("[VN] Choice skipped (no options or no text).");
                         pointer++;
                         return;
                     }
 
                 case VNNodeType.Branch:
                     {
-                        if (node.branches != null && node.branches.Length > 0 &&
-                            HasAnyChoiceText(node.branches))
-                        {
-                            lastStopIndex = pointer;
-                            waitPointer = pointer;
-                            isWaiting = true;
-
-                            MarkSaveAllowed(true, "Choice Open");
-                            OnChoice?.Invoke(ConvertChoiceRules(node.branches));
-                            pointer++;
-
-                            return;
-                        }
-                        else
-                        {
-                            DoBranch(node.label);
-                            return;
-                        }
+                        ResolveBranchNode(node);
+                        Debug.Log("[VN] Branch auto resolved -> pointer=" + pointer);
+                        Next();
+                        return;
                     }
 
                 case VNNodeType.Label:
@@ -615,21 +599,7 @@ namespace PPP.BLUE.VN
                     {
                         string target = node.callTarget ?? string.Empty;
                         string arg = node.callArg ?? string.Empty;
-
-                        StopAutoExternal("Call:" + target);
-
-                        isWaiting = true;
-                        waitPointer = pointer;
-                        lastStopIndex = pointer;
-
-                        callStack.Push(new VNCallFrame
-                        {
-                            returnPointer = pointer + 1,
-                            target = target,
-                            arg = arg,
-                        });
-
-                        OnCall?.Invoke(target, arg);
+                        StartExternalCall(target, arg);
 
                         pointer++;
 
@@ -657,6 +627,80 @@ namespace PPP.BLUE.VN
             }
         }
 
+
+
+        private void ResolveBranchNode(VNNode node)
+        {
+            if (node == null)
+            {
+                pointer++;
+                return;
+            }
+
+            if (node.branches != null && node.branches.Length > 0)
+            {
+                for (int i = 0; i < node.branches.Length; i++)
+                {
+                    var rule = node.branches[i];
+                    if (rule == null)
+                        continue;
+
+                    if (string.Equals(rule.expr, "else", StringComparison.OrdinalIgnoreCase))
+                    {
+                        DoJump(rule.jumpLabel);
+                        return;
+                    }
+
+                    if (EvaluateExpr(rule.expr))
+                    {
+                        DoJump(rule.jumpLabel);
+                        return;
+                    }
+                }
+
+                pointer++;
+                return;
+            }
+
+            DoBranch(node.label);
+        }
+
+        private bool TryHandleDrinkCommand(VNNode node)
+        {
+            if (node == null)
+                return false;
+
+            string text = (node.text ?? string.Empty).Trim();
+            if (!text.StartsWith("DRINK ", StringComparison.OrdinalIgnoreCase))
+                return false;
+
+            string requestId = text.Substring(6).Trim();
+            if (string.IsNullOrEmpty(requestId))
+                return false;
+
+            lastStopIndex = pointer;
+            StartExternalCall("Drink", requestId);
+            pointer++;
+            return true;
+        }
+
+        private void StartExternalCall(string target, string arg)
+        {
+            StopAutoExternal("Call:" + target);
+
+            isWaiting = true;
+            waitPointer = pointer;
+            lastStopIndex = pointer;
+
+            callStack.Push(new VNCallFrame
+            {
+                returnPointer = pointer + 1,
+                target = target,
+                arg = arg,
+            });
+
+            OnCall?.Invoke(target, arg);
+        }
 
         public void OnAdvance()
         {
@@ -1056,6 +1100,7 @@ namespace PPP.BLUE.VN
 
         public void ReturnFromCall(string result)
         {
+            Debug.Log("[VN] ReturnFromCall result=" + result);
             if (callStack.Count == 0)
             {
                 Debug.LogWarning("[VN] ReturnFromCall ignored (callStack empty)");
@@ -1079,7 +1124,8 @@ namespace PPP.BLUE.VN
             if (string.IsNullOrEmpty(result))
                 return;
 
-            if (string.Equals(result, "great", StringComparison.OrdinalIgnoreCase))
+            if (string.Equals(result, "great", StringComparison.OrdinalIgnoreCase) ||
+                string.Equals(result, "perfect", StringComparison.OrdinalIgnoreCase))
             {
                 SetVar("lastDrink", 1);
             }
@@ -1099,10 +1145,10 @@ namespace PPP.BLUE.VN
         {
             lastResult = result;
 
-            if (result == "great")
+            if (result == "great" || result == "perfect")
             {
                 greatCount++;
-                successCount++; // great는 success 포함 규칙
+                successCount++; // great/perfect는 success 포함 규칙
             }
             else if (result == "success")
             {

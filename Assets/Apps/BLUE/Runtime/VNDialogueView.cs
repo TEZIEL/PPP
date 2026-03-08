@@ -9,13 +9,11 @@ namespace PPP.BLUE.VN
         [SerializeField] private VNRunner runner;
         [SerializeField] private VNTextTyper typer;
         [SerializeField] private VNPolicyController policy;
-        [SerializeField] private VNChoicePanel choicePanel;
 
         [SerializeField] private TMP_Text nameText;
         [SerializeField] private TMP_Text dialogueText;
         [SerializeField] private VNOSBridge osBridge;
         [SerializeField] private VNOSBridge bridge;
-        [SerializeField] private DrinkTestPanel drinkTestPanel;
         [SerializeField] private RectTransform advanceClickArea;
         [SerializeField] private Camera uiCamera;
 
@@ -56,10 +54,9 @@ namespace PPP.BLUE.VN
             if (bridge == null) bridge = GetComponentInChildren<VNOSBridge>(true);
             if (typer != null) typer.SetTarget(dialogueText);
             if (runner == null) runner = GetComponentInParent<VNRunner>(true);
-            choicePanel = GetComponentInChildren<VNChoicePanel>(true); // 같은 윈도우 트리에서 찾기
             if (advanceClickArea == null && dialogueText != null)
                 advanceClickArea = dialogueText.rectTransform;
-            Debug.Log($"[VN_UI] bind runner={(runner ? runner.name : "NULL")} choicePanel={(choicePanel ? choicePanel.name : "NULL")}");
+            Debug.Log($"[VN_UI] bind runner={(runner ? runner.name : "NULL")}");
         }
 
         private bool IsPointerInsideAdvanceArea()
@@ -82,8 +79,6 @@ namespace PPP.BLUE.VN
 
             runner.OnSay += HandleSay;
             runner.OnEnd += HandleEnd;
-            runner.OnChoice += HandleChoice;
-            runner.OnCall += HandleCall;
             subscribed = true;
         }
 
@@ -94,34 +89,7 @@ namespace PPP.BLUE.VN
 
             runner.OnSay -= HandleSay;
             runner.OnEnd -= HandleEnd;
-            runner.OnChoice -= HandleChoice;
-            runner.OnCall -= HandleCall;
             subscribed = false;
-        }
-
-        private void HandleChoice(VNNode.ChoiceOption[] choices)
-        {
-            Debug.Log($"[VN_UI] HandleChoice choices={choices?.Length ?? -1}");
-
-            if (choicePanel == null)
-            {
-                Debug.LogError("[VN] ChoicePanel missing — cannot present choices");
-                return;
-            }
-
-            choicePanel.Open(choices);
-        }
-
-        private void HandleCall(string callTarget, string callArg)
-        {
-            if (!string.Equals(callTarget, "Drink", System.StringComparison.OrdinalIgnoreCase))
-                return;
-
-            bool fromRestore = runner != null && runner.IsDispatchingRestoredCall;
-            if (fromRestore)
-                Debug.Log($"[VN] Drink restore requested target={callTarget} arg={callArg}");
-
-            drinkTestPanel?.Open(callArg);
         }
 
         private void Update()
