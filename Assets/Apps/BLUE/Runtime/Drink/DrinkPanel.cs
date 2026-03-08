@@ -9,11 +9,12 @@ namespace PPP.BLUE.VN
     {
         [Header("Refs")]
         [SerializeField] private GameObject root;
-        [SerializeField] private VNRunner runner;
         [SerializeField] private VNPolicyController policy;
         [SerializeField] private WindowShortcutController shortcutController;
         [SerializeField] private WindowManager windowManager;
         [SerializeField] private DrinkManager drinkManager;
+
+        private VNRunner Runner => GetComponentInParent<VNRunner>(true);
 
         private Coroutine openCo;
         private bool isOpen;
@@ -30,6 +31,7 @@ namespace PPP.BLUE.VN
 
         private void OnEnable()
         {
+            var runner = Runner;
             if (runner == null || callSubscribed)
                 return;
 
@@ -59,7 +61,7 @@ namespace PPP.BLUE.VN
             drinkManager?.SetRequest(requestId);
             drinkManager?.HideConfirmPanel();
             drinkManager?.ResetIngredients();
-            runner?.StopAutoExternal("DrinkPanel Open:" + (requestId ?? string.Empty));
+            Runner?.StopAutoExternal("DrinkPanel Open:" + (requestId ?? string.Empty));
 
             if (openCo != null)
                 StopCoroutine(openCo);
@@ -69,24 +71,25 @@ namespace PPP.BLUE.VN
 
         public void OnDrinkGreat()
         {
-            runner?.ReturnFromCall("great");
-            runner?.Next();
+            Runner?.ReturnFromCall("great");
+            Runner?.Next();
         }
 
         public void OnDrinkSuccess()
         {
-            runner?.ReturnFromCall("success");
-            runner?.Next();
+            Runner?.ReturnFromCall("success");
+            Runner?.Next();
         }
 
         public void OnDrinkFail()
         {
-            runner?.ReturnFromCall("fail");
-            runner?.Next();
+            Runner?.ReturnFromCall("fail");
+            Runner?.Next();
         }
 
         private void OnDisable()
         {
+            var runner = Runner;
             if (runner != null && callSubscribed)
             {
                 runner.OnCall -= HandleVNCall;

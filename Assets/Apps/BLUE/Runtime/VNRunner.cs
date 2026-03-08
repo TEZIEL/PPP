@@ -571,8 +571,11 @@ namespace PPP.BLUE.VN
                                     if (choice == null || string.IsNullOrEmpty(choice.jumpLabel))
                                         continue;
 
-                                    DoJump(choice.jumpLabel);
-                                    Debug.Log("[VN] Choice auto resolved -> pointer=" + pointer);
+                                    if (DoJump(choice.jumpLabel))
+                                        VNLog("[VN] Choice auto resolved -> pointer=" + pointer);
+                                    else
+                                        pointer++;
+
                                     return;
                                 }
                             }
@@ -584,7 +587,7 @@ namespace PPP.BLUE.VN
                     case VNNodeType.Branch:
                         {
                             ResolveBranchNode(node);
-                            Debug.Log("[VN] Branch auto resolved -> pointer=" + pointer);
+                            VNLog("[VN] Branch auto resolved -> pointer=" + pointer);
                             continue;
                         }
 
@@ -603,7 +606,9 @@ namespace PPP.BLUE.VN
 
                     case VNNodeType.Jump:
                         {
-                            DoJump(node.label);
+                            if (!DoJump(node.label))
+                                pointer++;
+
                             continue;
                         }
 
@@ -625,6 +630,12 @@ namespace PPP.BLUE.VN
 
                     case VNNodeType.Return:
                         {
+                            if (callStack.Count == 0)
+                            {
+                                pointer++;
+                                continue;
+                            }
+
                             ReturnFromCall(node.callArg ?? string.Empty);
                             continue;
                         }
@@ -692,14 +703,18 @@ namespace PPP.BLUE.VN
                     if (string.Equals(rule.expr, "else", StringComparison.OrdinalIgnoreCase))
                     {
                         Debug.Log("[VN_TEST] Branch resolved route=" + rule.jumpLabel);
-                        DoJump(rule.jumpLabel);
+                        if (!DoJump(rule.jumpLabel))
+                            pointer++;
+
                         return;
                     }
 
                     if (EvaluateExpr(rule.expr))
                     {
                         Debug.Log("[VN_TEST] Branch resolved route=" + rule.jumpLabel);
-                        DoJump(rule.jumpLabel);
+                        if (!DoJump(rule.jumpLabel))
+                            pointer++;
+
                         return;
                     }
                 }
@@ -749,10 +764,6 @@ namespace PPP.BLUE.VN
                 if (!string.IsNullOrWhiteSpace(target))
                     externalCallTargetSet.Add(target.Trim());
             }
-<<<<<<< Updated upstream
-=======
-
->>>>>>> Stashed changes
         }
 
         private bool IsExternalCallTargetAllowed(string target)
@@ -793,9 +804,11 @@ namespace PPP.BLUE.VN
             if (node == null)
                 return;
 
-            var commands = ParseInlineCommands(node.text);
+            string text = node.text ?? string.Empty;
 
-            string cleanText = RemoveInlineCommands(node.text);
+            var commands = ParseInlineCommands(text);
+
+            string cleanText = RemoveInlineCommands(text);
 
             VNLog($"[VN] {node.speakerId}: {cleanText} (id={node.id})");
 
@@ -926,13 +939,16 @@ namespace PPP.BLUE.VN
 
 
 
-        private void DoJump(string label)
+        private bool DoJump(string label)
         {
             if (string.IsNullOrEmpty(label))
             {
                 Debug.LogError($"[VN] Jump label is empty. nodeId={script?.nodes?[pointer]?.id} idx={pointer}");
-                return;
+                return false;
             }
+
+            if (script == null)
+                return false;
 
             if (!script.TryGetLabelIndex(label, out var idx))
             {
@@ -942,13 +958,14 @@ namespace PPP.BLUE.VN
                 if (!script.TryGetLabelIndex(label, out idx))
                 {
                     Debug.LogError($"[VN] Label not found: '{label}' nodeId={script?.nodes?[pointer]?.id} curIdx={pointer} labels={script.LabelCount} dump={script.DumpLabels()}");
-                    return;
+                    return false;
                 }
             }
 
             VNLog($"[VN] Jump -> {label} (idx {idx}) from nodeId={script?.nodes?[pointer]?.id} curIdx={pointer}");
 
             pointer = idx + 1;
+            return true;
         }
 
         private void Finish()
@@ -1402,6 +1419,9 @@ namespace PPP.BLUE.VN
         private bool LoadStateFromKey(string key)
         {
             if (script == null)
+                return false;
+
+            if (script?.nodes == null || script.nodes.Count == 0)
                 return false;
 
             var st = VNFileSaveSystem.Load(key);

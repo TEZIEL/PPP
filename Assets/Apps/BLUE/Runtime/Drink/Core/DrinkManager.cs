@@ -15,7 +15,6 @@ namespace PPP.BLUE.VN
         private const string WarmPrefix = "따뜻한 ";
 
         [Header("Runtime")]
-        [SerializeField] private VNRunner runner;
         [SerializeField] private VNPolicyController policy;
         [SerializeField] private DrinkDatabaseLoader databaseLoader;
         [SerializeField] private DrinkPanelUI panelUI;
@@ -40,6 +39,8 @@ namespace PPP.BLUE.VN
 
         [Header("Debug")]
         [SerializeField] private bool debugDrinkSystem = true;
+
+        private VNRunner Runner => GetComponentInParent<VNRunner>(true);
 
         private readonly Dictionary<string, int> currentIngredients = new Dictionary<string, int>(StringComparer.Ordinal);
         private int totalCount;
@@ -212,8 +213,8 @@ namespace PPP.BLUE.VN
             if (provideButton != null)
                 provideButton.interactable = false;
 
-            if (runner != null)
-                runner.SetVar("lastDrink", MapResultToLastDrinkValue(pendingNormalizedResult));
+            if (Runner != null)
+                Runner.SetVar("lastDrink", MapResultToLastDrinkValue(pendingNormalizedResult));
 
             LogDrink("ConfirmProvide result=" + pendingResult);
             LogResult(pendingResult);
@@ -222,10 +223,10 @@ namespace PPP.BLUE.VN
             policy?.ExitDrinkMode();
             policy?.PopModal("DrinkPanel");
 
-            if (runner != null)
+            if (Runner != null)
             {
-                runner.ReturnFromCall(pendingResult);
-                runner.Next();
+                Runner.ReturnFromCall(pendingResult);
+                Runner.Next();
             }
             else
             {
