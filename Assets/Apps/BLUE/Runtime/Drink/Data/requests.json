@@ -1,7 +1,7 @@
 {
   "requests": [
     {
-      "id": "REQ_LATTE",
+      "id": "REQ_TEST_LATTE",
       "type": "EXACT_DRINK",
       "drinkID": "DRINK_CAFE_LATTE"
     },

@@ -595,6 +595,7 @@ namespace PPP.BLUE.VN
                 case VNNodeType.Jump:
                     {
                         DoJump(node.label);
+                        Next();
                         return;
                     }
 
