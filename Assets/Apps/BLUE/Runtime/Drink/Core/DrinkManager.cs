@@ -16,6 +16,7 @@ namespace PPP.BLUE.VN
 
         [Header("Runtime")]
         [SerializeField] private VNRunner runner;
+        [SerializeField] private VNPolicyController policy;
         [SerializeField] private DrinkDatabaseLoader databaseLoader;
         [SerializeField] private DrinkPanelUI panelUI;
         [SerializeField] private GameObject panelToCloseOnProvide;
@@ -62,6 +63,9 @@ namespace PPP.BLUE.VN
             recipeValidator = new DrinkRecipeValidator(database);
             requestEvaluator = new DrinkRequestEvaluator(database);
             currentRequest = database.FindRequest(currentRequestId);
+
+            if (policy == null)
+                policy = GetComponentInParent<VNPolicyController>(true);
 
             if (provideButton != null)
                 provideButton.onClick.AddListener(OnMakeDrink);
@@ -213,6 +217,9 @@ namespace PPP.BLUE.VN
 
             LogDrink("ConfirmProvide result=" + pendingResult);
             LogResult(pendingResult);
+
+            policy?.ExitDrinkMode();
+            policy?.PopModal("DrinkPanel");
 
             if (runner != null)
             {
