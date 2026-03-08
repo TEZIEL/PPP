@@ -757,7 +757,7 @@ namespace PPP.BLUE.VN
                     externalCallTargetSet.Add(target.Trim());
             }
 
-            DoBranch(node.label);
+          
         }
 
         private bool IsExternalCallTargetAllowed(string target)
@@ -961,7 +961,7 @@ namespace PPP.BLUE.VN
 
         private void Finish()
         {
-            Debug.Log("[VN_TEST] VN Finished script=" + (script?.scriptId ?? string.Empty));
+            Debug.Log("[VN_TEST] VN Finished script=" + (script?.ScriptId ?? string.Empty));
             VNLog("[VN] End");
 
             OnEnd?.Invoke();
