@@ -584,13 +584,31 @@ namespace PPP.BLUE.VN
                         {
                             if (node.choices != null && node.choices.Length > 0)
                             {
+                                VNChoice selectedChoice = null;
                                 for (int i = 0; i < node.choices.Length; i++)
                                 {
                                     var choice = node.choices[i];
                                     if (choice == null || string.IsNullOrEmpty(choice.jumpLabel))
                                         continue;
 
-                                    DoJump(choice.jumpLabel);
+                                    selectedChoice = choice;
+                                    break;
+                                }
+
+                                if (selectedChoice != null)
+                                {
+                                    if (!DoJump(selectedChoice.jumpLabel))
+                                    {
+                                        Debug.LogError($"[VNRunner] Choice jump label not found: {selectedChoice.jumpLabel}");
+                                        pointer++;
+                                        if (pointer == previousPointer)
+                                        {
+                                            pointer++;
+                                        }
+
+                                        continue;
+                                    }
+
                                     VNLog("[VN] Choice auto resolved -> pointer=" + pointer);
                                     return;
                                 }
