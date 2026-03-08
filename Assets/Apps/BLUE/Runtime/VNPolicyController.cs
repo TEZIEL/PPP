@@ -8,6 +8,10 @@ namespace PPP.BLUE.VN
         [Header("Refs")]
         [SerializeField] private VNOSBridge bridge;
 
+        [Header("Debug")]
+        [SerializeField] private bool debugModalTracing = false;
+        [SerializeField, Min(1)] private int modalWarningThreshold = 8;
+
         private readonly Dictionary<string, int> modalReasonCounts = new();
 
         public VNWindowState GetWindowState()
@@ -68,6 +72,14 @@ namespace PPP.BLUE.VN
             modalCount++;
             ChangeReasonCount(reason, +1);
             Debug.Log($"[VNPolicy] Modal++ ({reason}) count={modalCount}");
+
+            if (debugModalTracing)
+            {
+                Debug.Log($"[VNPolicy][Debug] PushModal caller={reason} count={modalCount}");
+                if (modalCount >= modalWarningThreshold)
+                    Debug.LogWarning($"[VNPolicy][Debug] Modal count high: {modalCount} (caller={reason})");
+            }
+
             RefreshClosePolicy("PushModal");
         }
 
@@ -76,6 +88,10 @@ namespace PPP.BLUE.VN
             modalCount = Mathf.Max(0, modalCount - 1);
             ChangeReasonCount(reason, -1);
             Debug.Log($"[VNPolicy] Modal-- ({reason}) count={modalCount}");
+
+            if (debugModalTracing)
+                Debug.Log($"[VNPolicy][Debug] PopModal caller={reason} count={modalCount}");
+
             RefreshClosePolicy("PopModal");
         }
 
