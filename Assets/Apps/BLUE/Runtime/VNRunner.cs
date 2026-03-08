@@ -53,6 +53,11 @@ namespace PPP.BLUE.VN
 
         private string lastDrinkResult = "";
 
+        [Header("External Call")]
+        [SerializeField] private string[] allowedExternalCallTargets = { "Drink" };
+
+        private readonly HashSet<string> externalCallTargetSet = new(StringComparer.OrdinalIgnoreCase);
+
 
         private struct InlineCommand
         {
@@ -104,6 +109,8 @@ namespace PPP.BLUE.VN
 
             // ✅ 1프레임 뒤 재시도 (WindowManager가 AttachContent 후 wiring 끝난 뒤)
             StartCoroutine(CoBindPolicyNextFrame());
+
+            RebuildExternalCallTargetSet();
         }
 
 
@@ -245,6 +252,8 @@ namespace PPP.BLUE.VN
             if (bridge != null)               
 
             StartCoroutine(CoBindPolicyNextFrame());
+
+            RebuildExternalCallTargetSet();
 
             if (testScript != null)
                 SetScript(testScript);
@@ -485,6 +494,12 @@ namespace PPP.BLUE.VN
 
         public void Next()
         {
+            if (!started)
+            {
+                VNLog("[VN] Next ignored (not started).");
+                return;
+            }
+
             if (TryResumePendingCallAfterLoad()) return;
 
             isWaiting = false;
@@ -602,7 +617,12 @@ namespace PPP.BLUE.VN
                         {
                             string target = node.callTarget ?? string.Empty;
                             string arg = node.callArg ?? string.Empty;
-                            StartExternalCall(target, arg);
+
+                            if (!StartExternalCall(target, arg))
+                            {
+                                pointer++;
+                                continue;
+                            }
 
                             pointer++;
 
@@ -695,8 +715,14 @@ namespace PPP.BLUE.VN
             DoBranch(node.label);
         }
 
-        private void StartExternalCall(string target, string arg)
+        private bool StartExternalCall(string target, string arg)
         {
+            if (string.IsNullOrWhiteSpace(target) || !IsExternalCallTargetAllowed(target))
+            {
+                Debug.LogError($"[VN] Unknown external call target: '{target}'");
+                return false;
+            }
+
             StopAutoExternal("Call:" + target);
 
             isWaiting = true;
@@ -711,106 +737,34 @@ namespace PPP.BLUE.VN
             });
 
             OnCall?.Invoke(target, arg);
+            return true;
         }
 
-
-
-        private void ResolveSwitchNode(VNNode node)
+        private void RebuildExternalCallTargetSet()
         {
-            if (node == null)
-            {
-                pointer++;
+            externalCallTargetSet.Clear();
+            if (allowedExternalCallTargets == null)
                 return;
-            }
 
-            string value = GetVar(node.switchVar, 0).ToString();
-
-            if (node.switchCases != null && node.switchCases.TryGetValue(value, out var next) && !string.IsNullOrEmpty(next))
+            for (int i = 0; i < allowedExternalCallTargets.Length; i++)
             {
-                DoJump(next);
-                return;
-            }
-
-            if (!string.IsNullOrEmpty(node.switchDefault))
-            {
-                DoJump(node.switchDefault);
-                return;
-            }
-
-            pointer++;
-        }
-
-        private void ResolveBranchNode(VNNode node)
-        {
-            if (node == null)
-            {
-                pointer++;
-                return;
-            }
-
-            if (node.branches != null && node.branches.Length > 0)
-            {
-                for (int i = 0; i < node.branches.Length; i++)
-                {
-                    var rule = node.branches[i];
-                    if (rule == null)
-                        continue;
-
-                    if (string.Equals(rule.expr, "else", StringComparison.OrdinalIgnoreCase))
-                    {
-                        DoJump(rule.jumpLabel);
-                        return;
-                    }
-
-                    if (EvaluateExpr(rule.expr))
-                    {
-                        DoJump(rule.jumpLabel);
-                        return;
-                    }
-                }
-
-                pointer++;
-                return;
+                var target = allowedExternalCallTargets[i];
+                if (!string.IsNullOrWhiteSpace(target))
+                    externalCallTargetSet.Add(target.Trim());
             }
 
             DoBranch(node.label);
         }
 
-        private bool TryHandleDrinkCommand(VNNode node)
+        private bool IsExternalCallTargetAllowed(string target)
         {
-            if (node == null)
+            if (string.IsNullOrWhiteSpace(target))
                 return false;
 
-            string text = (node.text ?? string.Empty).Trim();
-            if (!text.StartsWith("DRINK ", StringComparison.OrdinalIgnoreCase))
-                return false;
+            if (externalCallTargetSet.Count == 0)
+                RebuildExternalCallTargetSet();
 
-            string requestId = text.Substring(6).Trim();
-            if (string.IsNullOrEmpty(requestId))
-                return false;
-
-            lastStopIndex = pointer;
-            StartExternalCall("Drink", requestId);
-            pointer++;
-            return true;
-        }
-
-        private void StartExternalCall(string target, string arg)
-        {
-            StopAutoExternal("Call:" + target);
-
-            isWaiting = true;
-            waitPointer = pointer;
-            lastStopIndex = pointer;
-
-            callStack.Push(new VNCallFrame
-            {
-                returnPointer = pointer + 1,
-                target = target,
-                arg = arg,
-            });
-
-            OnCall?.Invoke(target, arg);
+            return externalCallTargetSet.Contains(target.Trim());
         }
 
         public void OnAdvance()
@@ -1006,6 +960,7 @@ namespace PPP.BLUE.VN
             VNLog("[VN] End");
 
             OnEnd?.Invoke();
+            started = false;
             enabled = false; // 1단계에서는 그냥 멈춤
         }
 
