@@ -584,6 +584,12 @@ namespace PPP.BLUE.VN
                         return;
                     }
 
+                case VNNodeType.Switch:
+                    {
+                        ResolveSwitchNode(node);
+                        return;
+                    }
+
                 case VNNodeType.Label:
                     {
                         VNLog($"[VN] Label: {node.label} (idx {pointer})");
@@ -633,6 +639,32 @@ namespace PPP.BLUE.VN
         }
 
 
+
+
+        private void ResolveSwitchNode(VNNode node)
+        {
+            if (node == null)
+            {
+                pointer++;
+                return;
+            }
+
+            string value = GetVar(node.switchVar, 0).ToString();
+
+            if (node.switchCases != null && node.switchCases.TryGetValue(value, out var next) && !string.IsNullOrEmpty(next))
+            {
+                DoJump(next);
+                return;
+            }
+
+            if (!string.IsNullOrEmpty(node.switchDefault))
+            {
+                DoJump(node.switchDefault);
+                return;
+            }
+
+            pointer++;
+        }
 
         private void ResolveBranchNode(VNNode node)
         {
