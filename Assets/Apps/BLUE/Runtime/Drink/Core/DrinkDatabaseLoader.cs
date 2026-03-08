@@ -53,10 +53,17 @@ namespace PPP.BLUE.VN.DrinkSystem
                         drink.ingredients[pair.Key] = ToInt(pair.Value);
                 }
 
-                if (rawDrink.TryGetValue("category", out object categoryObj) && categoryObj is List<object> categories)
+                if (rawDrink.TryGetValue("category", out object categoryObj))
                 {
-                    for (int c = 0; c < categories.Count; c++)
-                        drink.category.Add(categories[c]?.ToString() ?? string.Empty);
+                    if (categoryObj is List<object> categories)
+                    {
+                        for (int c = 0; c < categories.Count; c++)
+                            drink.category.Add(categories[c]?.ToString() ?? string.Empty);
+                    }
+                    else
+                    {
+                        drink.category.Add(categoryObj?.ToString() ?? string.Empty);
+                    }
                 }
 
                 if (rawDrink.TryGetValue("tags", out object tagsObj) && tagsObj is List<object> tags)
@@ -89,14 +96,27 @@ namespace PPP.BLUE.VN.DrinkSystem
 
                 var request = new DrinkRequest
                 {
-                    requestID = GetString(rawRequest, "ID"),
                     drinkID = GetString(rawRequest, "drinkID"),
                     category = GetString(rawRequest, "category"),
                     likedDrink = GetString(rawRequest, "likedDrink"),
                     dislikedDrink = GetString(rawRequest, "dislikedDrink")
                 };
 
-                if (Enum.TryParse(GetString(rawRequest, "type"), true, out DrinkRequestType parsedType))
+                request.requestID = GetString(rawRequest, "requestID");
+                if (string.IsNullOrEmpty(request.requestID))
+                    request.requestID = GetString(rawRequest, "id");
+                if (string.IsNullOrEmpty(request.requestID))
+                    request.requestID = GetString(rawRequest, "ID");
+
+                string typeStr = GetString(rawRequest, "type");
+                if (string.Equals(typeStr, "CATEGORY_OR_TAG", StringComparison.OrdinalIgnoreCase))
+                {
+                    bool hasCategory = rawRequest.TryGetValue("category", out object categoryObj) && HasAnyValue(categoryObj);
+                    bool hasTags = rawRequest.TryGetValue("tags", out object tagsObj) && HasAnyValue(tagsObj);
+                    typeStr = hasCategory && !hasTags ? nameof(DrinkRequestType.CATEGORY_REQUEST) : nameof(DrinkRequestType.TAG_REQUEST);
+                }
+
+                if (Enum.TryParse(typeStr, true, out DrinkRequestType parsedType))
                     request.type = parsedType;
 
                 if (rawRequest.TryGetValue("tags", out object tagsObj) && tagsObj is List<object> tags)
@@ -124,10 +144,34 @@ namespace PPP.BLUE.VN.DrinkSystem
 
             for (int i = 0; i < ingredients.Count; i++)
             {
-                var value = ingredients[i]?.ToString();
+                string value = null;
+                if (ingredients[i] is Dictionary<string, object> obj)
+                {
+                    if (obj.TryGetValue("id", out object idObj))
+                        value = idObj?.ToString();
+                }
+                else
+                {
+                    value = ingredients[i]?.ToString();
+                }
+
                 if (!string.IsNullOrEmpty(value))
                     db.ingredients.Add(value);
             }
+        }
+
+        private static bool HasAnyValue(object value)
+        {
+            if (value == null)
+                return false;
+
+            if (value is string s)
+                return !string.IsNullOrWhiteSpace(s);
+
+            if (value is List<object> list)
+                return list.Count > 0;
+
+            return true;
         }
 
         private static string ReadJsonFile(string path)
