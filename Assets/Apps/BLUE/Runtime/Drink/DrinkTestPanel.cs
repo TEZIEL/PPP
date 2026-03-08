@@ -1,6 +1,7 @@
 ﻿using UnityEngine;
 using UnityEngine.UI;
 using UnityEngine.EventSystems;
+using System;
 using System.Collections;
 
 namespace PPP.BLUE.VN
@@ -13,6 +14,7 @@ namespace PPP.BLUE.VN
         [SerializeField] private VNPolicyController policy;
         [SerializeField] private WindowShortcutController shortcutController;
         [SerializeField] private WindowManager windowManager;
+        [SerializeField] private DrinkManager drinkManager;
 
         [Header("Buttons")]
         [SerializeField] private Button btnFail;
@@ -22,6 +24,7 @@ namespace PPP.BLUE.VN
         private Coroutine openCo;
         private bool isOpen;        // root active 기준으로 잡아도 됨
         private bool isOpening;
+        private bool callSubscribed;
 
         public bool IsOpenOrOpening => isOpen || isOpening;
 
@@ -48,6 +51,8 @@ namespace PPP.BLUE.VN
             }
 
             Debug.Log($"[DrinkPanel] Open requested order={orderId ?? ""}");
+            drinkManager?.SetRequest(orderId);
+            drinkManager?.ResetIngredients();
             runner?.StopAutoExternal("DrinkPanel Open:" + (orderId ?? string.Empty));
 
             // 혹시 남아있는 코루틴이 있으면 정리
@@ -57,8 +62,35 @@ namespace PPP.BLUE.VN
         }
 
 
+
+        private void OnEnable()
+        {
+            if (runner == null)
+                return;
+
+            if (callSubscribed)
+                return;
+
+            runner.OnCall += HandleVNCall;
+            callSubscribed = true;
+        }
+
+        private void HandleVNCall(string target, string arg)
+        {
+            if (!string.Equals(target, "drink", StringComparison.OrdinalIgnoreCase))
+                return;
+
+            Open(arg);
+        }
+
         private void OnDisable()
         {
+            if (runner != null && callSubscribed)
+            {
+                runner.OnCall -= HandleVNCall;
+                callSubscribed = false;
+            }
+
             if (isOpen)
             {
                 policy?.ExitDrinkMode();
