@@ -1,0 +1,45 @@
+{
+  "drinks": [
+    {
+      "id": "DRINK_COLA",
+      "name": "Cola",
+      "ingredients": {
+        "INGREDIENT_VELTRINE": 5,
+        "INGREDIENT_ZYPHRATE": 4,
+        "INGREDIENT_CYMENTOL": 3,
+        "INGREDIENT_REDULINE": 3
+      },
+      "category": ["CATEGORY_SODA"],
+      "tags": ["TAG_SWEET", "TAG_CARBONATED"],
+      "artheon_addable": true,
+      "total": 15
+    },
+    {
+      "id": "DRINK_GRAPE_JUICE",
+      "name": "포도 주스",
+      "ingredients": {
+        "INGREDIENT_REDULINE": 5,
+        "INGREDIENT_VELTRINE": 5,
+        "INGREDIENT_ZYPHRATE": 3,
+        "INGREDIENT_MORVION": 2
+      },
+      "category": ["CATEGORY_JUICE"],
+      "tags": ["TAG_FRUITY"],
+      "artheon_addable": false,
+      "total": 15
+    },
+    {
+      "id": "DRINK_MORVION_COLA",
+      "name": "Morvion Cola",
+      "ingredients": {
+        "INGREDIENT_MORVION": 7,
+        "INGREDIENT_VELTRINE": 4,
+        "INGREDIENT_ZYPHRATE": 4
+      },
+      "category": ["CATEGORY_SODA"],
+      "tags": ["TAG_BITTER", "TAG_CARBONATED"],
+      "artheon_addable": true,
+      "total": 15
+    }
+  ]
+}
