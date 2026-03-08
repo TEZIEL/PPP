@@ -99,6 +99,11 @@ namespace PPP.BLUE.VN
                 confirmPanel.SetActive(false);
         }
 
+        public void AddIngredientById(string ingredientId)
+        {
+            AddIngredient(ingredientId);
+        }
+
         public void AddIngredient(string ingredientID)
         {
             if (isResetInProgress || isProvided || IsConfirmOpen())
