@@ -1,0 +1,52 @@
+{
+  "ingredients": [
+    {
+      "id": "INGREDIENT_VELTRINE",
+      "english_name": "Veltrine",
+      "color": "#FFC0CB",
+      "taste": "TASTE_SWEET"
+    },
+    {
+      "id": "INGREDIENT_ZYPHRATE",
+      "english_name": "Zyphrate",
+      "color": "#FFFF00",
+      "taste": "TASTE_SOUR"
+    },
+    {
+      "id": "INGREDIENT_KRATYLEN",
+      "english_name": "Kratylen",
+      "color": "#ADD8E6",
+      "taste": "TASTE_NUTTY"
+    },
+    {
+      "id": "INGREDIENT_MORVION",
+      "english_name": "Morvion",
+      "color": "#800080",
+      "taste": "TASTE_BITTER"
+    },
+    {
+      "id": "INGREDIENT_REDULINE",
+      "english_name": "Reduline",
+      "color": "#FF0000",
+      "taste": "TASTE_FRUITY"
+    },
+    {
+      "id": "INGREDIENT_CYMENTOL",
+      "english_name": "Cymentol",
+      "color": "#00CED1",
+      "taste": "TASTE_CARBONATED"
+    },
+    {
+      "id": "INGREDIENT_BRAXIUM",
+      "english_name": "Braxium",
+      "color": "#A52A2A",
+      "taste": "TASTE_CAFFEINE"
+    },
+    {
+      "id": "INGREDIENT_ARTHEON",
+      "english_name": "Artheon",
+      "color": "#FFA500",
+      "taste": "TASTE_WARM"
+    }
+  ]
+}
