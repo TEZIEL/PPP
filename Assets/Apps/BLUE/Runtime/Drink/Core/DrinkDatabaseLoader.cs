@@ -119,7 +119,7 @@ namespace PPP.BLUE.VN.DrinkSystem
                 if (Enum.TryParse(typeStr, true, out DrinkRequestType parsedType))
                     request.type = parsedType;
 
-                if (rawRequest.TryGetValue("tags", out object tagsObj) && tagsObj is List<object> tags)
+                if (rawRequest.TryGetValue("tags", out object tagsObj2) && tagsObj2 is List<object> tags)
                 {
                     for (int t = 0; t < tags.Count; t++)
                         request.tags.Add(tags[t]?.ToString() ?? string.Empty);
