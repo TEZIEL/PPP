@@ -713,6 +713,106 @@ namespace PPP.BLUE.VN
             OnCall?.Invoke(target, arg);
         }
 
+
+
+        private void ResolveSwitchNode(VNNode node)
+        {
+            if (node == null)
+            {
+                pointer++;
+                return;
+            }
+
+            string value = GetVar(node.switchVar, 0).ToString();
+
+            if (node.switchCases != null && node.switchCases.TryGetValue(value, out var next) && !string.IsNullOrEmpty(next))
+            {
+                DoJump(next);
+                return;
+            }
+
+            if (!string.IsNullOrEmpty(node.switchDefault))
+            {
+                DoJump(node.switchDefault);
+                return;
+            }
+
+            pointer++;
+        }
+
+        private void ResolveBranchNode(VNNode node)
+        {
+            if (node == null)
+            {
+                pointer++;
+                return;
+            }
+
+            if (node.branches != null && node.branches.Length > 0)
+            {
+                for (int i = 0; i < node.branches.Length; i++)
+                {
+                    var rule = node.branches[i];
+                    if (rule == null)
+                        continue;
+
+                    if (string.Equals(rule.expr, "else", StringComparison.OrdinalIgnoreCase))
+                    {
+                        DoJump(rule.jumpLabel);
+                        return;
+                    }
+
+                    if (EvaluateExpr(rule.expr))
+                    {
+                        DoJump(rule.jumpLabel);
+                        return;
+                    }
+                }
+
+                pointer++;
+                return;
+            }
+
+            DoBranch(node.label);
+        }
+
+        private bool TryHandleDrinkCommand(VNNode node)
+        {
+            if (node == null)
+                return false;
+
+            string text = (node.text ?? string.Empty).Trim();
+            if (!text.StartsWith("DRINK ", StringComparison.OrdinalIgnoreCase))
+                return false;
+
+            string requestId = text.Substring(6).Trim();
+            if (string.IsNullOrEmpty(requestId))
+                return false;
+
+            lastStopIndex = pointer;
+            StartExternalCall("Drink", requestId);
+            pointer++;
+            return true;
+        }
+
+        private void StartExternalCall(string target, string arg)
+        {
+            StopAutoExternal("Call:" + target);
+
+            isWaiting = true;
+            waitPointer = pointer;
+            lastStopIndex = pointer;
+
+            callStack.Push(new VNCallFrame
+            {
+                returnPointer = pointer + 1,
+                target = target,
+                arg = arg,
+            });
+
+            OnCall?.Invoke(target, arg);
+        }
+
         public void OnAdvance()
         {
             

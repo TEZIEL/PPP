@@ -304,13 +304,7 @@ public class WindowController : MonoBehaviour,
             hit.GetComponentInParent<PPP.BLUE.VN.VNClosePopupController>(true) != null)
             return true;
 
-        if (vnPolicy.IsModalReasonOpen("ChoicePanel") &&
-            hit.GetComponentInParent<PPP.BLUE.VN.VNChoicePanel>(true) != null)
-            return true;
-
-        if (vnPolicy.IsModalReasonOpen("DrinkPanel") &&
-            hit.GetComponentInParent<PPP.BLUE.VN.DrinkTestPanel>(true) != null)
-            return true;
+               
 
         return false;
     }
