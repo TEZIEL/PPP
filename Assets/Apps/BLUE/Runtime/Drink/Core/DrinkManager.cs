@@ -247,7 +247,7 @@ namespace PPP.BLUE.VN
             if (runner != null)
             {
                 runner.ReturnFromCall(pendingResult);
-                runner.Next();
+                
             }
             else
             {
