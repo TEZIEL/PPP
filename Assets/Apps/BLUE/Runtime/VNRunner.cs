@@ -388,6 +388,12 @@ namespace PPP.BLUE.VN
 
         public void Choose(string jumpLabel)
         {
+            if (!enabled || !started)
+                return;
+
+            if (!isWaiting)
+                return;
+
             DoJump(jumpLabel);
             Next();
         }
@@ -578,7 +584,7 @@ namespace PPP.BLUE.VN
                                         continue;
 
                                     DoJump(choice.jumpLabel);
-                                    Debug.Log("[VN] Choice auto resolved -> pointer=" + pointer);
+                                    VNLog("[VN] Choice auto resolved -> pointer=" + pointer);
                                     return;
                                 }
                             }
@@ -590,7 +596,7 @@ namespace PPP.BLUE.VN
                     case VNNodeType.Branch:
                         {
                             ResolveBranchNode(node);
-                            Debug.Log("[VN] Branch auto resolved -> pointer=" + pointer);
+                            VNLog("[VN] Branch auto resolved -> pointer=" + pointer);
                             continue;
                         }
 
@@ -609,7 +615,11 @@ namespace PPP.BLUE.VN
 
                     case VNNodeType.Jump:
                         {
-                            DoJump(node.label);
+                            if (!DoJump(node.label))
+                            {
+                                VNLog("[VN] Jump failed -> pointer++");
+                                pointer++;
+                            }
                             continue;
                         }
 
@@ -631,6 +641,13 @@ namespace PPP.BLUE.VN
 
                     case VNNodeType.Return:
                         {
+                            if (callStack.Count == 0)
+                            {
+                                Debug.LogWarning("[VN] Return ignored (empty callStack)");
+                                pointer++;
+                                continue;
+                            }
+
                             ReturnFromCall(node.callArg ?? string.Empty);
                             continue;
                         }
@@ -666,13 +683,21 @@ namespace PPP.BLUE.VN
 
             if (node.switchCases != null && node.switchCases.TryGetValue(value, out var next) && !string.IsNullOrEmpty(next))
             {
-                DoJump(next);
+                if (!DoJump(next))
+                {
+                    VNLog("[VN] Switch jump failed -> pointer++");
+                    pointer++;
+                }
                 return;
             }
 
             if (!string.IsNullOrEmpty(node.switchDefault))
             {
-                DoJump(node.switchDefault);
+                if (!DoJump(node.switchDefault))
+                {
+                    VNLog("[VN] Switch jump failed -> pointer++");
+                    pointer++;
+                }
                 return;
             }
 
@@ -697,14 +722,14 @@ namespace PPP.BLUE.VN
 
                     if (string.Equals(rule.expr, "else", StringComparison.OrdinalIgnoreCase))
                     {
-                        Debug.Log("[VN_TEST] Branch resolved route=" + rule.jumpLabel);
+                        VNLog("[VN_TEST] Branch resolved route=" + rule.jumpLabel);
                         DoJump(rule.jumpLabel);
                         return;
                     }
 
                     if (EvaluateExpr(rule.expr))
                     {
-                        Debug.Log("[VN_TEST] Branch resolved route=" + rule.jumpLabel);
+                        VNLog("[VN_TEST] Branch resolved route=" + rule.jumpLabel);
                         DoJump(rule.jumpLabel);
                         return;
                     }
@@ -714,12 +739,18 @@ namespace PPP.BLUE.VN
                 return;
             }
 
-            Debug.Log("[VN_TEST] Branch resolved route=" + node.label);
+            VNLog("[VN_TEST] Branch resolved route=" + node.label);
             DoBranch(node.label);
         }
 
         private bool StartExternalCall(string target, string arg)
         {
+            if (skipMode)
+            {
+                VNLog("[VN] Skip disabled due to ExternalCall");
+                skipMode = false;
+            }
+
             Debug.Log("[VN_TEST] ExternalCall target=" + target + " arg=" + arg);
             if (string.IsNullOrWhiteSpace(target) || !IsExternalCallTargetAllowed(target))
             {
@@ -795,9 +826,10 @@ namespace PPP.BLUE.VN
 
         private void EmitSay(VNNode node)
         {
-            var commands = ParseInlineCommands(node.text);
+            string text = node?.text ?? string.Empty;
+            var commands = ParseInlineCommands(text);
 
-            string cleanText = RemoveInlineCommands(node.text);
+            string cleanText = RemoveInlineCommands(text);
 
             VNLog($"[VN] {node.speakerId}: {cleanText} (id={node.id})");
 
@@ -934,12 +966,12 @@ namespace PPP.BLUE.VN
 
 
 
-        private void DoJump(string label)
+        private bool DoJump(string label)
         {
             if (string.IsNullOrEmpty(label))
             {
                 Debug.LogError($"[VN] Jump label is empty. nodeId={script?.nodes?[pointer]?.id} idx={pointer}");
-                return;
+                return false;
             }
 
             if (!script.TryGetLabelIndex(label, out var idx))
@@ -950,13 +982,14 @@ namespace PPP.BLUE.VN
                 if (!script.TryGetLabelIndex(label, out idx))
                 {
                     Debug.LogError($"[VN] Label not found: '{label}' nodeId={script?.nodes?[pointer]?.id} curIdx={pointer} labels={script.LabelCount} dump={script.DumpLabels()}");
-                    return;
+                    return false;
                 }
             }
 
             VNLog($"[VN] Jump -> {label} (idx {idx}) from nodeId={script?.nodes?[pointer]?.id} curIdx={pointer}");
 
             pointer = idx + 1;
+            return true;
         }
 
         private void Finish()
@@ -1172,9 +1205,16 @@ namespace PPP.BLUE.VN
         public void ReturnFromCall(string result)
         {
             Debug.Log("[VN] ReturnFromCall result=" + result);
+
+            if (callStack == null)
+            {
+                Debug.LogError("[VN] callStack null");
+                return;
+            }
+
             if (callStack.Count == 0)
             {
-                Debug.LogWarning("[VN] ReturnFromCall ignored (callStack empty)");
+                Debug.LogError("[VN] CallStack desync detected");
                 return;
             }
 
@@ -1380,7 +1420,17 @@ namespace PPP.BLUE.VN
                 VNLog($"[VN] SaveState skipped key={key} SaveAllowed={SaveAllowed} policyOk={(policy != null && policy.CanSaveDialogueState())}");
                 return;
             }
-            if (script == null) return;
+            if (script == null)
+            {
+                Debug.LogError("[VN] Save blocked: script null");
+                return;
+            }
+
+            if (pointer < 0)
+            {
+                Debug.LogError("[VN] Save blocked: pointer invalid");
+                return;
+            }
 
             var st = BuildState();
 
@@ -1464,6 +1514,8 @@ namespace PPP.BLUE.VN
                 pendingCallResumeFrame = callStack.Peek();
                 isWaiting = true;
                 waitPointer = Mathf.Max(0, pendingCallResumeFrame.returnPointer - 1);
+
+                VNLog("[VN] Restoring pending external call");
             }
 
             if (logToConsole)
