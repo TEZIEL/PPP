@@ -2,6 +2,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using PPP.BLUE.VN.DrinkSystem;
+using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -24,6 +25,12 @@ namespace PPP.BLUE.VN
         [SerializeField] private Button resetButton;
         [SerializeField] private IngredientButton[] ingredientButtons;
 
+        [Header("Confirm Dialog")]
+        [SerializeField] private GameObject confirmPanel;
+        [SerializeField] private TMP_Text confirmDrinkNameText;
+        [SerializeField] private Button confirmRemakeButton;
+        [SerializeField] private Button confirmProvideButton;
+
         [Header("Timing")]
         [SerializeField] private float resetCooldownSeconds = 0.2f;
 
@@ -44,6 +51,11 @@ namespace PPP.BLUE.VN
         private bool isResetInProgress;
         private bool isProvided;
 
+        private string pendingResult = "FAIL";
+        private string pendingNormalizedResult = "FAIL";
+        private string pendingDrinkName = "Unknown Drink";
+        private bool hasPendingProvide;
+
         private void Awake()
         {
             database = databaseLoader != null ? databaseLoader.LoadDatabase() : new DrinkDatabase();
@@ -52,10 +64,16 @@ namespace PPP.BLUE.VN
             currentRequest = database.FindRequest(currentRequestId);
 
             if (provideButton != null)
-                provideButton.onClick.AddListener(ProvideDrink);
+                provideButton.onClick.AddListener(OnMakeDrink);
 
             if (resetButton != null)
                 resetButton.onClick.AddListener(ResetIngredients);
+
+            if (confirmRemakeButton != null)
+                confirmRemakeButton.onClick.AddListener(OnRemakeDrink);
+
+            if (confirmProvideButton != null)
+                confirmProvideButton.onClick.AddListener(OnConfirmProvide);
 
             for (int i = 0; i < ingredientButtons.Length; i++)
             {
@@ -63,6 +81,7 @@ namespace PPP.BLUE.VN
                     ingredientButtons[i].BindManager(this);
             }
 
+            HideConfirmPanel();
             panelUI?.ClearGridInstant();
             RefreshUi();
         }
@@ -73,9 +92,16 @@ namespace PPP.BLUE.VN
             currentRequest = database?.FindRequest(requestId);
         }
 
+        public void HideConfirmPanel()
+        {
+            hasPendingProvide = false;
+            if (confirmPanel != null)
+                confirmPanel.SetActive(false);
+        }
+
         public void AddIngredient(string ingredientID)
         {
-            if (isResetInProgress || isProvided)
+            if (isResetInProgress || isProvided || IsConfirmOpen())
                 return;
 
             if (string.IsNullOrEmpty(ingredientID))
@@ -118,9 +144,50 @@ namespace PPP.BLUE.VN
             StartCoroutine(CoResetIngredients());
         }
 
+        public string EvaluateCurrentDrink()
+        {
+            EvaluateCurrentDrinkInternal(out string result, out string normalized, out string drinkName);
+            pendingResult = result;
+            pendingNormalizedResult = normalized;
+            pendingDrinkName = drinkName;
+            hasPendingProvide = true;
+            return result;
+        }
+
+        public string GetCurrentDrinkName()
+        {
+            return string.IsNullOrEmpty(pendingDrinkName) ? "Unknown Drink" : pendingDrinkName;
+        }
+
         public void ProvideDrink()
         {
+            OnMakeDrink();
+        }
+
+        public void OnMakeDrink()
+        {
             if (isResetInProgress || isProvided || totalCount <= 0)
+                return;
+
+            string result = EvaluateCurrentDrink();
+            if (confirmDrinkNameText != null)
+                confirmDrinkNameText.text = GetCurrentDrinkName();
+
+            if (confirmPanel != null)
+                confirmPanel.SetActive(true);
+
+            LogDrink("MakeDrink result=" + result);
+        }
+
+        public void OnRemakeDrink()
+        {
+            if (confirmPanel != null)
+                confirmPanel.SetActive(false);
+        }
+
+        public void OnConfirmProvide()
+        {
+            if (!hasPendingProvide)
                 return;
 
             isProvided = true;
@@ -128,6 +195,23 @@ namespace PPP.BLUE.VN
             if (provideButton != null)
                 provideButton.interactable = false;
 
+            if (runner != null)
+                runner.SetVar("lastDrink", MapResultToLastDrinkValue(pendingNormalizedResult));
+
+            LogDrink("ConfirmProvide result=" + pendingResult);
+            LogResult(pendingResult);
+
+            runner?.ReturnFromCall(pendingNormalizedResult);
+
+            if (confirmPanel != null)
+                confirmPanel.SetActive(false);
+
+            if (panelToCloseOnProvide != null)
+                panelToCloseOnProvide.SetActive(false);
+        }
+
+        private void EvaluateCurrentDrinkInternal(out string result, out string normalizedResult, out string producedName)
+        {
             LogRecipe("validation started");
             string drinkId = recipeValidator.ValidateRecipe(currentIngredients, artheonEnabled, out bool blockedByArtheon);
             if (string.IsNullOrEmpty(drinkId))
@@ -137,36 +221,31 @@ namespace PPP.BLUE.VN
 
             LogRequest(currentRequest);
 
-            string result = blockedByArtheon ? "FAIL" : requestEvaluator.Evaluate(drinkId, currentRequest);
-            string normalized = NormalizeResultForRunner(result);
+            result = blockedByArtheon ? "FAIL" : requestEvaluator.Evaluate(drinkId, currentRequest);
+            normalizedResult = NormalizeResultForRunner(result);
 
             var produced = database?.FindDrink(drinkId);
-            string producedName = produced != null ? produced.name : "Unknown Drink";
+            producedName = produced != null ? produced.name : "Unknown Drink";
             if (artheonEnabled && produced != null && !string.IsNullOrEmpty(produced.name))
                 producedName = WarmPrefix + produced.name;
 
             panelUI?.ShowResult(result, producedName);
-            LogResult(result);
-
-            if (runner != null)
-                runner.SetVar("lastDrink", MapResultToLastDrinkValue(normalized));
-
-            runner?.ReturnFromCall(normalized);
-
-            if (panelToCloseOnProvide != null)
-                panelToCloseOnProvide.SetActive(false);
         }
 
         private IEnumerator CoResetIngredients()
         {
             isResetInProgress = true;
             isProvided = false;
+            hasPendingProvide = false;
 
             SetAllIngredientButtonsInteractable(false);
             if (provideButton != null)
                 provideButton.interactable = false;
             if (resetButton != null)
                 resetButton.interactable = false;
+
+            if (confirmPanel != null)
+                confirmPanel.SetActive(false);
 
             currentIngredients.Clear();
             totalCount = 0;
@@ -244,7 +323,12 @@ namespace PPP.BLUE.VN
             if (provideButton == null)
                 return;
 
-            provideButton.interactable = !isResetInProgress && !isProvided && totalCount > 0;
+            provideButton.interactable = !isResetInProgress && !isProvided && !IsConfirmOpen() && totalCount > 0;
+        }
+
+        private bool IsConfirmOpen()
+        {
+            return confirmPanel != null && confirmPanel.activeSelf;
         }
 
         private void LogDrink(string message)

@@ -56,6 +56,7 @@ namespace PPP.BLUE.VN
             Debug.Log($"[DrinkPanel] Open requested requestId={requestId ?? ""}");
 
             drinkManager?.SetRequest(requestId);
+            drinkManager?.HideConfirmPanel();
             drinkManager?.ResetIngredients();
             runner?.StopAutoExternal("DrinkPanel Open:" + (requestId ?? string.Empty));
 
