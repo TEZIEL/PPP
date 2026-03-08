@@ -205,5 +205,15 @@ namespace PPP.BLUE.VN
         {
             // 엔드 처리 (지금은 비워도 됨)
         }
+
+        public void OnSkipButton()
+        {
+            runner?.ToggleSkip();
+        }
+
+        public void OnAutoButton()
+        {
+            runner?.ToggleAutoFromInput();
+        }
     }
 }
