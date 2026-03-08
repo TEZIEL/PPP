@@ -99,6 +99,9 @@ namespace PPP.BLUE.VN
             if (runner == null) return;
             if (!runner.HasScript) return;
 
+            if (runner.isWaiting)
+                return;
+
             // InputGate를 통과한 입력만 대사 진행에 사용
             if (policy != null && !VNInputGate.CanAdvanceDialogue(policy))
                 return;
