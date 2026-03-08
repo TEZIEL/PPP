@@ -11,7 +11,6 @@ namespace PPP.BLUE.VN.DrinkSystem
         [SerializeField] private TMP_Text resultText;
         [SerializeField] private TMP_Text producedDrinkText;
         [SerializeField] private TMP_Text ingredientCountText;
-        [SerializeField] private TMP_Text warningText;
 
         [Header("Grid (4x4)")]
         [SerializeField] private Image[] slotImages = new Image[16];
@@ -24,6 +23,7 @@ namespace PPP.BLUE.VN.DrinkSystem
         [SerializeField] private Color cymentolColor = new Color(0.35f, 0.95f, 0.95f, 1f);
         [SerializeField] private Color braxiumColor = new Color(0.7f, 0.5f, 0.95f, 1f);
         [SerializeField] private Color artheonColor = new Color(0.9f, 0.8f, 1f, 1f);
+        [SerializeField] private float slotClearDelaySeconds = 0.025f;
 
         private Coroutine resetAnimation;
 
@@ -42,10 +42,9 @@ namespace PPP.BLUE.VN.DrinkSystem
                 producedDrinkText.text = string.IsNullOrEmpty(drinkName) ? "Unknown Drink" : drinkName;
         }
 
-        public void SetWarningVisible(bool visible)
+        public float GetResetAnimationDuration()
         {
-            if (warningText != null)
-                warningText.gameObject.SetActive(visible);
+            return slotImages.Length * Mathf.Max(0f, slotClearDelaySeconds);
         }
 
         public void FillNextSlot(int index, string ingredientId)
@@ -91,7 +90,7 @@ namespace PPP.BLUE.VN.DrinkSystem
             {
                 if (slotImages[i] != null)
                     slotImages[i].color = emptyColor;
-                yield return new WaitForSeconds(0.025f);
+                yield return new WaitForSeconds(slotClearDelaySeconds);
             }
 
             resetAnimation = null;

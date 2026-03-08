@@ -1,4 +1,5 @@
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using PPP.BLUE.VN.DrinkSystem;
 using UnityEngine;
@@ -10,17 +11,20 @@ namespace PPP.BLUE.VN
     {
         private const int MaxIngredients = 16;
         private const string ArtheonIngredient = "INGREDIENT_ARTHEON";
+        private const string WarmPrefix = "따뜻한 ";
 
         [Header("Runtime")]
         [SerializeField] private VNRunner runner;
         [SerializeField] private DrinkDatabaseLoader databaseLoader;
-        [SerializeField] private DrinkFailTracker failTracker;
         [SerializeField] private DrinkPanelUI panelUI;
 
         [Header("UI")]
         [SerializeField] private Button provideButton;
         [SerializeField] private Button resetButton;
         [SerializeField] private IngredientButton[] ingredientButtons;
+
+        [Header("Timing")]
+        [SerializeField] private float resetCooldownSeconds = 0.2f;
 
         [Header("Request")]
         [SerializeField] private string currentRequestId;
@@ -33,6 +37,8 @@ namespace PPP.BLUE.VN
         private DrinkRequestEvaluator requestEvaluator;
         private DrinkRequest currentRequest;
         private bool artheonEnabled;
+        private bool isResetInProgress;
+        private bool isProvided;
 
         private void Awake()
         {
@@ -65,6 +71,9 @@ namespace PPP.BLUE.VN
 
         public void AddIngredient(string ingredientID)
         {
+            if (isResetInProgress || isProvided)
+                return;
+
             if (string.IsNullOrEmpty(ingredientID))
                 return;
 
@@ -95,29 +104,66 @@ namespace PPP.BLUE.VN
 
         public void ResetIngredients()
         {
-            currentIngredients.Clear();
-            totalCount = 0;
-            artheonEnabled = false;
-            panelUI?.ClearGridAnimated(this);
-            SetIngredientButtonsInteractable(true);
-            panelUI?.SetWarningVisible(false);
-            RefreshUi();
+            if (isResetInProgress)
+                return;
+
+            StartCoroutine(CoResetIngredients());
         }
 
         public void ProvideDrink()
         {
+            if (isResetInProgress || isProvided)
+                return;
+
+            isProvided = true;
+            SetAllIngredientButtonsInteractable(false);
+            if (provideButton != null)
+                provideButton.interactable = false;
+
             string drinkId = recipeValidator.ValidateRecipe(currentIngredients, artheonEnabled, out bool blockedByArtheon);
             string result = blockedByArtheon ? "FAIL" : requestEvaluator.Evaluate(drinkId, currentRequest);
             string normalized = NormalizeResultForRunner(result);
 
             var produced = database?.FindDrink(drinkId);
             string producedName = produced != null ? produced.name : "Unknown Drink";
+            if (artheonEnabled && produced != null && !string.IsNullOrEmpty(produced.name))
+                producedName = WarmPrefix + produced.name;
+
             panelUI?.ShowResult(result, producedName);
-
-            bool showWarning = failTracker != null && failTracker.RegisterResult(result);
-            panelUI?.SetWarningVisible(showWarning);
-
             runner?.ReturnFromCall(normalized);
+        }
+
+        private IEnumerator CoResetIngredients()
+        {
+            isResetInProgress = true;
+            isProvided = false;
+
+            SetAllIngredientButtonsInteractable(false);
+            if (provideButton != null)
+                provideButton.interactable = false;
+            if (resetButton != null)
+                resetButton.interactable = false;
+
+            currentIngredients.Clear();
+            totalCount = 0;
+            artheonEnabled = false;
+            panelUI?.ClearGridAnimated(this);
+            RefreshUi();
+
+            float animationDuration = panelUI != null ? panelUI.GetResetAnimationDuration() : 0f;
+            if (animationDuration > 0f)
+                yield return new WaitForSeconds(animationDuration);
+
+            if (resetCooldownSeconds > 0f)
+                yield return new WaitForSeconds(resetCooldownSeconds);
+
+            SetIngredientButtonsInteractable(true);
+            if (provideButton != null)
+                provideButton.interactable = true;
+            if (resetButton != null)
+                resetButton.interactable = true;
+
+            isResetInProgress = false;
         }
 
         private string NormalizeResultForRunner(string result)
@@ -150,7 +196,6 @@ namespace PPP.BLUE.VN
             }
         }
 
-
         private void ToggleArtheon()
         {
             artheonEnabled = !artheonEnabled;
@@ -168,6 +213,15 @@ namespace PPP.BLUE.VN
                     continue;
 
                 ingredientButtons[i].SetInteractable(interactable);
+            }
+        }
+
+        private void SetAllIngredientButtonsInteractable(bool interactable)
+        {
+            for (int i = 0; i < ingredientButtons.Length; i++)
+            {
+                if (ingredientButtons[i] != null)
+                    ingredientButtons[i].SetInteractable(interactable);
             }
         }
     }
