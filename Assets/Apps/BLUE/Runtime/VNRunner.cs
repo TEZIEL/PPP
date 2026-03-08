@@ -242,7 +242,6 @@ namespace PPP.BLUE.VN
             // 일단 간단히는 Next() 구조를 조금 바꿔야 함.
         }
 
-        public event Action<VNNode.ChoiceOption[]> OnChoice;
         public event Action<string, string> OnCall; // callTarget, callArg
 
         private void Start()
@@ -386,72 +385,6 @@ namespace PPP.BLUE.VN
             StopAutoTimer();
         }
 
-        public void Choose(string jumpLabel)
-        {
-            if (!enabled || !started)
-                return;
-
-            if (!isWaiting)
-                return;
-
-            DoJump(jumpLabel);
-            Next();
-        }
-
-        private static bool HasChoiceText(VNNode.ChoiceOption[] choices)
-        {
-            if (choices == null || choices.Length == 0)
-            {
-                return false;
-            }
-
-            for (int i = 0; i < choices.Length; i++)
-            {
-                var choice = choices[i];
-                if (choice != null && !string.IsNullOrEmpty(choice.choiceText))
-                {
-                    return true;
-                }
-            }
-
-            return false;
-        }
-
-        private bool HasAnyChoiceText(VNNode.BranchRule[] rules)
-        {
-            foreach (var r in rules)
-                if (r != null && !string.IsNullOrEmpty(r.choiceText))
-                    return true;
-            return false;
-        }
-
-        private static VNNode.ChoiceOption[] ConvertChoiceRules(VNNode.BranchRule[] rules)
-        {
-            if (rules == null || rules.Length == 0)
-            {
-                return Array.Empty<VNNode.ChoiceOption>();
-            }
-
-            var choices = new VNNode.ChoiceOption[rules.Length];
-            for (int i = 0; i < rules.Length; i++)
-            {
-            
-                var rule = rules[i];
-                if (rule == null)
-                {
-                    continue;
-                }
-
-                choices[i] = new VNNode.ChoiceOption
-                {
-                    choiceText = rule.choiceText,
-                    jumpLabel = rule.jumpLabel,
-                };
-            }
-
-            return choices;
-        }
-
         private bool IsInteractionNodeForSkip(VNNode node)
         {
             if (node == null) return false;
@@ -582,40 +515,9 @@ namespace PPP.BLUE.VN
 
                     case VNNodeType.Choice:
                         {
-                            if (node.choices != null && node.choices.Length > 0)
-                            {
-                                VNChoice selectedChoice = null;
-                                for (int i = 0; i < node.choices.Length; i++)
-                                {
-                                    var choice = node.choices[i];
-                                    if (choice == null || string.IsNullOrEmpty(choice.jumpLabel))
-                                        continue;
-
-                                    selectedChoice = choice;
-                                    break;
-                                }
-
-                                if (selectedChoice != null)
-                                {
-                                    if (!DoJump(selectedChoice.jumpLabel))
-                                    {
-                                        Debug.LogError($"[VNRunner] Choice jump label not found: {selectedChoice.jumpLabel}");
-                                        pointer++;
-                                        if (pointer == previousPointer)
-                                        {
-                                            pointer++;
-                                        }
-
-                                        continue;
-                                    }
-
-                                    VNLog("[VN] Choice auto resolved -> pointer=" + pointer);
-                                    return;
-                                }
-                            }
-
+                            Debug.LogWarning("[VN] Choice node encountered but Choice system is disabled.");
                             pointer++;
-                            return;
+                            continue;
                         }
 
                     case VNNodeType.Branch:
