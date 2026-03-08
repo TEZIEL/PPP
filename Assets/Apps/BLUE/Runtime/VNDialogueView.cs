@@ -9,7 +9,6 @@ namespace PPP.BLUE.VN
         [SerializeField] private VNRunner runner;
         [SerializeField] private VNTextTyper typer;
         [SerializeField] private VNPolicyController policy;
-        [SerializeField] private VNChoicePanel choicePanel;
 
         [SerializeField] private TMP_Text nameText;
         [SerializeField] private TMP_Text dialogueText;
@@ -55,10 +54,9 @@ namespace PPP.BLUE.VN
             if (bridge == null) bridge = GetComponentInChildren<VNOSBridge>(true);
             if (typer != null) typer.SetTarget(dialogueText);
             if (runner == null) runner = GetComponentInParent<VNRunner>(true);
-            choicePanel = GetComponentInChildren<VNChoicePanel>(true); // 같은 윈도우 트리에서 찾기
             if (advanceClickArea == null && dialogueText != null)
                 advanceClickArea = dialogueText.rectTransform;
-            Debug.Log($"[VN_UI] bind runner={(runner ? runner.name : "NULL")} choicePanel={(choicePanel ? choicePanel.name : "NULL")}");
+            Debug.Log($"[VN_UI] bind runner={(runner ? runner.name : "NULL")}");
         }
 
         private bool IsPointerInsideAdvanceArea()
@@ -81,7 +79,6 @@ namespace PPP.BLUE.VN
 
             runner.OnSay += HandleSay;
             runner.OnEnd += HandleEnd;
-            runner.OnChoice += HandleChoice;
             subscribed = true;
         }
 
@@ -92,21 +89,7 @@ namespace PPP.BLUE.VN
 
             runner.OnSay -= HandleSay;
             runner.OnEnd -= HandleEnd;
-            runner.OnChoice -= HandleChoice;
             subscribed = false;
-        }
-
-        private void HandleChoice(VNNode.ChoiceOption[] choices)
-        {
-            Debug.Log($"[VN_UI] HandleChoice choices={choices?.Length ?? -1}");
-
-            if (choicePanel == null)
-            {
-                Debug.LogError("[VN] ChoicePanel missing — cannot present choices");
-                return;
-            }
-
-            choicePanel.Open(choices);
         }
 
         private void Update()

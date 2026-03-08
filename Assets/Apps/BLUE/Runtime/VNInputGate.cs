@@ -3,7 +3,6 @@ namespace PPP.BLUE.VN
     public enum VNInputState
     {
         Dialogue,
-        Choice,
         Drink,
         Popup,
         Blocked
@@ -31,9 +30,6 @@ namespace PPP.BLUE.VN
 
             if (!CanRouteInput(policy))
                 return VNInputState.Blocked;
-
-            if (policy.IsChoiceWaiting)
-                return VNInputState.Choice;
 
             if (policy.IsDrinkPanelOpen)
                 return VNInputState.Drink;
@@ -68,7 +64,6 @@ namespace PPP.BLUE.VN
             if (st.IsMinimized) return false;
 
             // VN 상태 차단
-            if (policy.IsChoiceWaiting) return false;
             if (policy.IsDrinkPanelOpen) return false;
             if (policy.IsClosePopupOpen || policy.IsModalOpen) return false;
 
@@ -83,7 +78,6 @@ namespace PPP.BLUE.VN
             // Save는 포커스와 분리
             // 타이핑 완료 콜백 때문에 포커스 기반 차단은 하지 않음
 
-            if (policy.IsChoiceWaiting) return false;
             if (policy.IsDrinkPanelOpen) return false;
             if (policy.IsClosePopupOpen || policy.IsModalOpen) return false;
 

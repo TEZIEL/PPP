@@ -438,11 +438,6 @@ namespace PPP.BLUE.VN
         {
             if (node == null) return false;
 
-            if (node.type == VNNodeType.Choice) return true;
-
-            if (node.type == VNNodeType.Branch && node.branches != null && node.branches.Length > 0 &&
-                HasAnyChoiceText(node.branches))
-                return true;
 
            
             return false;
@@ -559,45 +554,30 @@ namespace PPP.BLUE.VN
 
                 case VNNodeType.Choice:
                     {
-                        VNLog($"[VN] Choice hit id={node.id} choices={(node.choices == null ? -1 : node.choices.Length)} hasText={HasChoiceText(node.choices)}");
-
-                        if (node.choices != null && HasChoiceText(node.choices))
+                        // Choice UI 미사용 프로젝트: 첫 번째 유효 점프로 자동 분기
+                        if (node.choices != null && node.choices.Length > 0)
                         {
-                            lastStopIndex = pointer;
-                            waitPointer = pointer;
-                            isWaiting = true;
+                            for (int i = 0; i < node.choices.Length; i++)
+                            {
+                                var choice = node.choices[i];
+                                if (choice == null || string.IsNullOrEmpty(choice.jumpLabel))
+                                    continue;
 
-                            MarkSaveAllowed(true, "Choice Open");
-                            VNLog("[VN] OnChoice invoke");
-                            OnChoice?.Invoke(node.choices);
-                            return;
+                                DoJump(choice.jumpLabel);
+                                Debug.Log("[VN] Choice auto resolved -> pointer=" + pointer);
+                                return;
+                            }
                         }
 
-                        Debug.LogWarning("[VN] Choice skipped (no options or no text).");
                         pointer++;
                         return;
                     }
 
                 case VNNodeType.Branch:
                     {
-                        if (node.branches != null && node.branches.Length > 0 &&
-                            HasAnyChoiceText(node.branches))
-                        {
-                            lastStopIndex = pointer;
-                            waitPointer = pointer;
-                            isWaiting = true;
-
-                            MarkSaveAllowed(true, "Choice Open");
-                            OnChoice?.Invoke(ConvertChoiceRules(node.branches));
-                            pointer++;
-
-                            return;
-                        }
-                        else
-                        {
-                            DoBranch(node.label);
-                            return;
-                        }
+                        ResolveBranchNode(node);
+                        Debug.Log("[VN] Branch auto resolved -> pointer=" + pointer);
+                        return;
                     }
 
                 case VNNodeType.Label:
@@ -647,6 +627,42 @@ namespace PPP.BLUE.VN
         }
 
 
+
+        private void ResolveBranchNode(VNNode node)
+        {
+            if (node == null)
+            {
+                pointer++;
+                return;
+            }
+
+            if (node.branches != null && node.branches.Length > 0)
+            {
+                for (int i = 0; i < node.branches.Length; i++)
+                {
+                    var rule = node.branches[i];
+                    if (rule == null)
+                        continue;
+
+                    if (string.Equals(rule.expr, "else", StringComparison.OrdinalIgnoreCase))
+                    {
+                        DoJump(rule.jumpLabel);
+                        return;
+                    }
+
+                    if (EvaluateExpr(rule.expr))
+                    {
+                        DoJump(rule.jumpLabel);
+                        return;
+                    }
+                }
+
+                pointer++;
+                return;
+            }
+
+            DoBranch(node.label);
+        }
 
         private bool TryHandleDrinkCommand(VNNode node)
         {
