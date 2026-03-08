@@ -530,6 +530,8 @@ namespace PPP.BLUE.VN
 
             while (true)
             {
+                int previousPointer = pointer;
+
                 if (pointer < 0 || pointer >= script.nodes.Count)
                 {
                     Finish();
@@ -542,6 +544,11 @@ namespace PPP.BLUE.VN
                 if (node == null)
                 {
                     pointer++;
+                    if (pointer == previousPointer)
+                    {
+                        pointer++;
+                    }
+
                     continue;
                 }
 
@@ -577,13 +584,31 @@ namespace PPP.BLUE.VN
                         {
                             if (node.choices != null && node.choices.Length > 0)
                             {
+                                VNChoice selectedChoice = null;
                                 for (int i = 0; i < node.choices.Length; i++)
                                 {
                                     var choice = node.choices[i];
                                     if (choice == null || string.IsNullOrEmpty(choice.jumpLabel))
                                         continue;
 
-                                    DoJump(choice.jumpLabel);
+                                    selectedChoice = choice;
+                                    break;
+                                }
+
+                                if (selectedChoice != null)
+                                {
+                                    if (!DoJump(selectedChoice.jumpLabel))
+                                    {
+                                        Debug.LogError($"[VNRunner] Choice jump label not found: {selectedChoice.jumpLabel}");
+                                        pointer++;
+                                        if (pointer == previousPointer)
+                                        {
+                                            pointer++;
+                                        }
+
+                                        continue;
+                                    }
+
                                     VNLog("[VN] Choice auto resolved -> pointer=" + pointer);
                                     return;
                                 }
@@ -597,12 +622,22 @@ namespace PPP.BLUE.VN
                         {
                             ResolveBranchNode(node);
                             VNLog("[VN] Branch auto resolved -> pointer=" + pointer);
+                            if (pointer == previousPointer)
+                            {
+                                pointer++;
+                            }
+
                             continue;
                         }
 
                     case VNNodeType.Switch:
                         {
                             ResolveSwitchNode(node);
+                            if (pointer == previousPointer)
+                            {
+                                pointer++;
+                            }
+
                             continue;
                         }
 
@@ -610,6 +645,11 @@ namespace PPP.BLUE.VN
                         {
                             VNLog($"[VN] Label: {node.label} (idx {pointer})");
                             pointer++;
+                            if (pointer == previousPointer)
+                            {
+                                pointer++;
+                            }
+
                             continue;
                         }
 
@@ -620,6 +660,12 @@ namespace PPP.BLUE.VN
                                 VNLog("[VN] Jump failed -> pointer++");
                                 pointer++;
                             }
+
+                            if (pointer == previousPointer)
+                            {
+                                pointer++;
+                            }
+
                             continue;
                         }
 
@@ -631,6 +677,11 @@ namespace PPP.BLUE.VN
                             if (!StartExternalCall(target, arg))
                             {
                                 pointer++;
+                                if (pointer == previousPointer)
+                                {
+                                    pointer++;
+                                }
+
                                 continue;
                             }
 
@@ -643,12 +694,22 @@ namespace PPP.BLUE.VN
                         {
                             if (callStack.Count == 0)
                             {
-                                Debug.LogWarning("[VN] Return ignored (empty callStack)");
+                                Debug.LogError("Return without callStack");
                                 pointer++;
+                                if (pointer == previousPointer)
+                                {
+                                    pointer++;
+                                }
+
                                 continue;
                             }
 
                             ReturnFromCall(node.callArg ?? string.Empty);
+                            if (pointer == previousPointer)
+                            {
+                                pointer++;
+                            }
+
                             continue;
                         }
 
@@ -662,12 +723,16 @@ namespace PPP.BLUE.VN
                         {
                             Debug.LogWarning($"[VNRunner] Unknown node type: {node.type}");
                             pointer++;
+                            if (pointer == previousPointer)
+                            {
+                                pointer++;
+                            }
+
                             continue;
                         }
                 }
             }
         }
-
 
 
 
@@ -982,6 +1047,7 @@ namespace PPP.BLUE.VN
                 if (!script.TryGetLabelIndex(label, out idx))
                 {
                     Debug.LogError($"[VN] Label not found: '{label}' nodeId={script?.nodes?[pointer]?.id} curIdx={pointer} labels={script.LabelCount} dump={script.DumpLabels()}");
+                    pointer++;
                     return false;
                 }
             }
@@ -1717,6 +1783,9 @@ namespace PPP.BLUE.VN
 
         private List<InlineCommand> ParseInlineCommands(string text)
         {
+            if (string.IsNullOrEmpty(text))
+                return new List<InlineCommand>();
+
             List<InlineCommand> cmds = new List<InlineCommand>();
 
             int i = 0;
