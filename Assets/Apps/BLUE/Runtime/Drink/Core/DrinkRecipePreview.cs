@@ -11,16 +11,6 @@ namespace PPP.BLUE.VN.DrinkSystem
             this.validator = validator;
         }
 
-        public string PredictDrinkName(Dictionary<string, int> currentIngredients)
-        {
-            if (validator == null)
-                return "Unknown Drink";
-
-            var closest = validator.FindClosestRecipe(currentIngredients);
-            if (closest == null || string.IsNullOrEmpty(closest.name))
-                return "Unknown Drink";
-
-            return closest.name;
-        }
+        
     }
 }
