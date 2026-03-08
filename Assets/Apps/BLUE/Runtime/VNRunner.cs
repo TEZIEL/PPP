@@ -1029,6 +1029,7 @@ namespace PPP.BLUE.VN
                 if (!script.TryGetLabelIndex(label, out idx))
                 {
                     Debug.LogError($"[VN] Label not found: '{label}' nodeId={script?.nodes?[pointer]?.id} curIdx={pointer} labels={script.LabelCount} dump={script.DumpLabels()}");
+                    pointer++;
                     return false;
                 }
             }
