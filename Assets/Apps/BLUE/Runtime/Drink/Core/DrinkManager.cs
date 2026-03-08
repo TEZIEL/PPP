@@ -9,6 +9,7 @@ namespace PPP.BLUE.VN
     public sealed class DrinkManager : MonoBehaviour
     {
         private const int MaxIngredients = 16;
+        private const string ArtheonIngredient = "INGREDIENT_ARTHEON";
 
         [Header("Runtime")]
         [SerializeField] private VNRunner runner;
@@ -29,15 +30,14 @@ namespace PPP.BLUE.VN
 
         private DrinkDatabase database;
         private DrinkRecipeValidator recipeValidator;
-        private DrinkRecipePreview recipePreview;
         private DrinkRequestEvaluator requestEvaluator;
         private DrinkRequest currentRequest;
+        private bool artheonEnabled;
 
         private void Awake()
         {
             database = databaseLoader != null ? databaseLoader.LoadDatabase() : new DrinkDatabase();
             recipeValidator = new DrinkRecipeValidator(database);
-            recipePreview = new DrinkRecipePreview(recipeValidator);
             requestEvaluator = new DrinkRequestEvaluator(database);
             currentRequest = database.FindRequest(currentRequestId);
 
@@ -68,6 +68,12 @@ namespace PPP.BLUE.VN
             if (string.IsNullOrEmpty(ingredientID))
                 return;
 
+            if (string.Equals(ingredientID, ArtheonIngredient, StringComparison.Ordinal))
+            {
+                ToggleArtheon();
+                return;
+            }
+
             if (totalCount >= MaxIngredients)
             {
                 SetIngredientButtonsInteractable(false);
@@ -91,6 +97,7 @@ namespace PPP.BLUE.VN
         {
             currentIngredients.Clear();
             totalCount = 0;
+            artheonEnabled = false;
             panelUI?.ClearGridAnimated(this);
             SetIngredientButtonsInteractable(true);
             panelUI?.SetWarningVisible(false);
@@ -99,8 +106,8 @@ namespace PPP.BLUE.VN
 
         public void ProvideDrink()
         {
-            string drinkId = recipeValidator.ValidateRecipe(currentIngredients);
-            string result = requestEvaluator.Evaluate(drinkId, currentRequest);
+            string drinkId = recipeValidator.ValidateRecipe(currentIngredients, artheonEnabled, out bool blockedByArtheon);
+            string result = blockedByArtheon ? "FAIL" : requestEvaluator.Evaluate(drinkId, currentRequest);
             string normalized = NormalizeResultForRunner(result);
 
             var produced = database?.FindDrink(drinkId);
@@ -125,7 +132,6 @@ namespace PPP.BLUE.VN
         private void RefreshUi()
         {
             panelUI?.UpdateTotalCount(totalCount, MaxIngredients);
-            panelUI?.ShowPrediction(recipePreview.PredictDrinkName(currentIngredients));
 
             for (int i = 0; i < ingredientButtons.Length; i++)
             {
@@ -133,17 +139,35 @@ namespace PPP.BLUE.VN
                     continue;
 
                 string ingredientId = ingredientButtons[i].IngredientID;
+                if (string.Equals(ingredientId, ArtheonIngredient, StringComparison.Ordinal))
+                {
+                    ingredientButtons[i].SetModifierState(artheonEnabled);
+                    continue;
+                }
+
                 currentIngredients.TryGetValue(ingredientId, out int count);
                 ingredientButtons[i].RefreshLabel(count);
             }
+        }
+
+
+        private void ToggleArtheon()
+        {
+            artheonEnabled = !artheonEnabled;
+            RefreshUi();
         }
 
         private void SetIngredientButtonsInteractable(bool interactable)
         {
             for (int i = 0; i < ingredientButtons.Length; i++)
             {
-                if (ingredientButtons[i] != null)
-                    ingredientButtons[i].SetInteractable(interactable);
+                if (ingredientButtons[i] == null)
+                    continue;
+
+                if (string.Equals(ingredientButtons[i].IngredientID, ArtheonIngredient, StringComparison.Ordinal))
+                    continue;
+
+                ingredientButtons[i].SetInteractable(interactable);
             }
         }
     }

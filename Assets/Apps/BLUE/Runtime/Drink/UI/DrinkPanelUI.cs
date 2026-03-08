@@ -10,7 +10,6 @@ namespace PPP.BLUE.VN.DrinkSystem
         [Header("Texts")]
         [SerializeField] private TMP_Text resultText;
         [SerializeField] private TMP_Text producedDrinkText;
-        [SerializeField] private TMP_Text previewText;
         [SerializeField] private TMP_Text ingredientCountText;
         [SerializeField] private TMP_Text warningText;
 
@@ -27,12 +26,6 @@ namespace PPP.BLUE.VN.DrinkSystem
         [SerializeField] private Color artheonColor = new Color(0.9f, 0.8f, 1f, 1f);
 
         private Coroutine resetAnimation;
-
-        public void ShowPrediction(string predictedName)
-        {
-            if (previewText != null)
-                previewText.text = string.IsNullOrEmpty(predictedName) ? "Unknown Drink" : predictedName;
-        }
 
         public void UpdateTotalCount(int current, int max)
         {
