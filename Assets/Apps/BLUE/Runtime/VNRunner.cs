@@ -1765,6 +1765,9 @@ namespace PPP.BLUE.VN
 
         private List<InlineCommand> ParseInlineCommands(string text)
         {
+            if (string.IsNullOrEmpty(text))
+                return new List<InlineCommand>();
+
             List<InlineCommand> cmds = new List<InlineCommand>();
 
             int i = 0;
