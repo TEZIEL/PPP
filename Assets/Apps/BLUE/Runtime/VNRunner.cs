@@ -537,9 +537,6 @@ namespace PPP.BLUE.VN
             {
                 case VNNodeType.Say:
                     {
-                        if (TryHandleDrinkCommand(node))
-                            return;
-
                         lastShownPointer = pointer;
 
                         EmitSay(node);
