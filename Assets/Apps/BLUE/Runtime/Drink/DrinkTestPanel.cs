@@ -1,6 +1,7 @@
 ﻿using UnityEngine;
 using UnityEngine.UI;
 using UnityEngine.EventSystems;
+using System;
 using System.Collections;
 
 namespace PPP.BLUE.VN
@@ -23,6 +24,7 @@ namespace PPP.BLUE.VN
         private Coroutine openCo;
         private bool isOpen;        // root active 기준으로 잡아도 됨
         private bool isOpening;
+        private bool callSubscribed;
 
         public bool IsOpenOrOpening => isOpen || isOpening;
 
@@ -60,8 +62,35 @@ namespace PPP.BLUE.VN
         }
 
 
+
+        private void OnEnable()
+        {
+            if (runner == null)
+                return;
+
+            if (callSubscribed)
+                return;
+
+            runner.OnCall += HandleVNCall;
+            callSubscribed = true;
+        }
+
+        private void HandleVNCall(string target, string arg)
+        {
+            if (!string.Equals(target, "drink", StringComparison.OrdinalIgnoreCase))
+                return;
+
+            Open(arg);
+        }
+
         private void OnDisable()
         {
+            if (runner != null && callSubscribed)
+            {
+                runner.OnCall -= HandleVNCall;
+                callSubscribed = false;
+            }
+
             if (isOpen)
             {
                 policy?.ExitDrinkMode();

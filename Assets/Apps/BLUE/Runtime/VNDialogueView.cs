@@ -15,7 +15,6 @@ namespace PPP.BLUE.VN
         [SerializeField] private TMP_Text dialogueText;
         [SerializeField] private VNOSBridge osBridge;
         [SerializeField] private VNOSBridge bridge;
-        [SerializeField] private DrinkTestPanel drinkTestPanel;
         [SerializeField] private RectTransform advanceClickArea;
         [SerializeField] private Camera uiCamera;
 
@@ -83,7 +82,6 @@ namespace PPP.BLUE.VN
             runner.OnSay += HandleSay;
             runner.OnEnd += HandleEnd;
             runner.OnChoice += HandleChoice;
-            runner.OnCall += HandleCall;
             subscribed = true;
         }
 
@@ -95,7 +93,6 @@ namespace PPP.BLUE.VN
             runner.OnSay -= HandleSay;
             runner.OnEnd -= HandleEnd;
             runner.OnChoice -= HandleChoice;
-            runner.OnCall -= HandleCall;
             subscribed = false;
         }
 
@@ -110,18 +107,6 @@ namespace PPP.BLUE.VN
             }
 
             choicePanel.Open(choices);
-        }
-
-        private void HandleCall(string callTarget, string callArg)
-        {
-            if (!string.Equals(callTarget, "Drink", System.StringComparison.OrdinalIgnoreCase))
-                return;
-
-            bool fromRestore = runner != null && runner.IsDispatchingRestoredCall;
-            if (fromRestore)
-                Debug.Log($"[VN] Drink restore requested target={callTarget} arg={callArg}");
-
-            drinkTestPanel?.Open(callArg);
         }
 
         private void Update()
