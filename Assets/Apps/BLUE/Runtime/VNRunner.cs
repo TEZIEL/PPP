@@ -1043,6 +1043,17 @@ namespace PPP.BLUE.VN
                 speed = settings.speed
             };
 
+            st.vars = new List<VNIntVar>();
+
+            foreach (var kv in vars)
+            {
+                st.vars.Add(new VNIntVar
+                {
+                    key = kv.Key,
+                    value = kv.Value
+                });
+            }
+
             return st;
         }
 
@@ -1947,19 +1958,19 @@ namespace PPP.BLUE.VN
         public void OnDrinkGreat()
         {
             runner.ReturnFromCall("great");
-            runner.Next();
+            
         }
 
         public void OnDrinkSuccess()
         {
             runner.ReturnFromCall("success");
-            runner.Next();
+            
         }
 
         public void OnDrinkFail()
         {
             runner.ReturnFromCall("fail");
-            runner.Next();
+            
         }
 
 

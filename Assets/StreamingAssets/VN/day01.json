@@ -1,144 +1,251 @@
 {
-    "scriptId": "day01",
-    "nodes": [
-  
-      {
-        "id": "lb.start",
-        "type": "Label",
-        "label": "start"
-      },
-  
-      {
-        "id": "t.001",
-        "type": "Say",
-        "speaker": "세나",
-        "text": "안녕, 이건 테스트 스크립트야."
-      },
-  
-      {
-        "id": "t.002",
-        "type": "Say",
-        "speaker": "세나",
-        "text": "짧은 테스트지만 잘 부탁해."
-      },
-  
-      {
-        "id": "t.003",
-        "type": "Say",
-        "speaker": "멜리온",
-        "text": "뭔가 마시고 싶다며?"
-      },
-  
-      {
-        "id": "t.004",
-        "type": "Say",
-        "speaker": "세나",
-        "text": "카페라떼 하나만 부탁해."
-      },
-  
-      {
-        "id": "t.call",
-        "type": "Call",
-        "target": "Drink",
-        "arg": "REQ_TEST_LATTE"
-      },
-  
-      {
-        "id": "t.branch",
-        "type": "Branch",
-        "branches": [
-          {
-            "choiceText": "Perfect",
-            "cond": "lastDrink==1",
-            "next": "route_great"
-          },
-          {
-            "choiceText": "Success",
-            "cond": "lastDrink==2",
-            "next": "route_success"
-          },
-          {
-            "choiceText": "Fail",
-            "cond": "else",
-            "next": "route_fail"
-          }
-        ]
-      },
-  
-      {
-        "id": "lb.great",
-        "type": "Label",
-        "label": "route_great"
-      },
-  
-      {
-        "id": "t.g1",
-        "type": "Say",
-        "speaker": "세나",
-        "text": "정확해."
-      },
-  
-      {
-        "id": "t.g2",
-        "type": "Jump",
-        "next": "end"
-      },
-  
-      {
-        "id": "lb.success",
-        "type": "Label",
-        "label": "route_success"
-      },
-  
-      {
-        "id": "t.s1",
-        "type": "Say",
-        "speaker": "세나",
-        "text": "잘 마실게."
-      },
-  
-      {
-        "id": "t.s2",
-        "type": "Jump",
-        "next": "end"
-      },
-  
-      {
-        "id": "lb.fail",
-        "type": "Label",
-        "label": "route_fail"
-      },
-  
-      {
-        "id": "t.f1",
-        "type": "Say",
-        "speaker": "세나",
-        "text": "이건 내가 부탁한 게 아닌데."
-      },
-  
-      {
-        "id": "t.f2",
-        "type": "Jump",
-        "next": "end"
-      },
-  
-      {
-        "id": "lb.end",
-        "type": "Label",
-        "label": "end"
-      },
-  
-      {
-        "id": "t.end",
-        "type": "Say",
-        "speaker": "sys",
-        "text": "Drink 테스트 종료."
-      },
-  
-      {
-        "id": "end",
-        "type": "End"
-      }
-  
-    ]
-  }
+  "scriptId": "drink_test",
+  "nodes": [
+
+    { "id": "lb.start", "type": "Label", "label": "start" },
+
+    {
+      "id": "t.001",
+      "type": "Say",
+      "speaker": "세나",
+      "text": "안녕, 이건 테스트 스크립트야."
+    },
+
+    {
+      "id": "t.002",
+      "type": "Say",
+      "speaker": "세나",
+      "text": "짧은 테스트지만 잘 부탁해."
+    },
+
+    {
+      "id": "t.003",
+      "type": "Say",
+      "speaker": "멜리온",
+      "text": "뭔가 마시고 싶다며?"
+    },
+
+    {
+      "id": "t.004",
+      "type": "Say",
+      "speaker": "세나",
+      "text": "카페라떼 하나만 부탁해."
+    },
+
+    {
+      "id": "call.1",
+      "type": "Call",
+      "target": "Drink",
+      "arg": "REQ_TEST_LATTE"
+    },
+
+    {
+      "id": "branch.1",
+      "type": "Branch",
+      "branches": [
+        { "cond": "lastDrink==1", "next": "latte_great" },
+        { "cond": "lastDrink==2", "next": "latte_success" },
+        { "cond": "else", "next": "latte_fail" }
+      ]
+    },
+
+    { "id": "lb.latte_great", "type": "Label", "label": "latte_great" },
+
+    {
+      "id": "t.g1",
+      "type": "Say",
+      "speaker": "세나",
+      "text": "정확해."
+    },
+
+    { "id": "jump1", "type": "Jump", "next": "drink2" },
+
+
+
+    { "id": "lb.latte_success", "type": "Label", "label": "latte_success" },
+
+    {
+      "id": "t.s1",
+      "type": "Say",
+      "speaker": "세나",
+      "text": "잘 마실게."
+    },
+
+    { "id": "jump2", "type": "Jump", "next": "drink2" },
+
+
+
+    { "id": "lb.latte_fail", "type": "Label", "label": "latte_fail" },
+
+    {
+      "id": "t.f1",
+      "type": "Say",
+      "speaker": "세나",
+      "text": "이게 아닌데."
+    },
+
+    { "id": "jump3", "type": "Jump", "next": "drink2" },
+
+
+
+    { "id": "lb.drink2", "type": "Label", "label": "drink2" },
+
+    {
+      "id": "t.010",
+      "type": "Say",
+      "speaker": "세나",
+      "text": "하나 더 만들어줄래?"
+    },
+
+    {
+      "id": "t.011",
+      "type": "Say",
+      "speaker": "세나",
+      "text": "이번에는 콜라로."
+    },
+
+    {
+      "id": "call.2",
+      "type": "Call",
+      "target": "Drink",
+      "arg": "REQ_TEST_COLA"
+    },
+
+    {
+      "id": "branch.2",
+      "type": "Branch",
+      "branches": [
+        { "cond": "lastDrink==1", "next": "cola_great" },
+        { "cond": "lastDrink==2", "next": "cola_success" },
+        { "cond": "else", "next": "cola_fail" }
+      ]
+    },
+
+
+
+    { "id": "lb.cola_great", "type": "Label", "label": "cola_great" },
+
+    {
+      "id": "t.cg",
+      "type": "Say",
+      "speaker": "세나",
+      "text": "대단해."
+    },
+
+    { "id": "jump4", "type": "Jump", "next": "drink3" },
+
+
+
+    { "id": "lb.cola_success", "type": "Label", "label": "cola_success" },
+
+    {
+      "id": "t.cs",
+      "type": "Say",
+      "speaker": "세나",
+      "text": "잘 마실게."
+    },
+
+    { "id": "jump5", "type": "Jump", "next": "drink3" },
+
+
+
+    { "id": "lb.cola_fail", "type": "Label", "label": "cola_fail" },
+
+    {
+      "id": "t.cf",
+      "type": "Say",
+      "speaker": "세나",
+      "text": "이건 콜라가 아닌데."
+    },
+
+    { "id": "jump6", "type": "Jump", "next": "drink3" },
+
+
+
+    { "id": "lb.drink3", "type": "Label", "label": "drink3" },
+
+    {
+      "id": "t.020",
+      "type": "Say",
+      "speaker": "세나",
+      "text": "으음."
+    },
+
+    {
+      "id": "t.021",
+      "type": "Say",
+      "speaker": "세나",
+      "text": "아무거나 줘."
+    },
+
+    {
+      "id": "call.3",
+      "type": "Call",
+      "target": "Drink",
+      "arg": "REQ_TEST_ANY"
+    },
+
+    {
+      "id": "branch.3",
+      "type": "Branch",
+      "branches": [
+        { "cond": "lastDrink==1", "next": "any_great" },
+        { "cond": "lastDrink==2", "next": "any_success" },
+        { "cond": "else", "next": "any_fail" }
+      ]
+    },
+
+
+
+    { "id": "lb.any_great", "type": "Label", "label": "any_great" },
+
+    {
+      "id": "t.ag",
+      "type": "Say",
+      "speaker": "세나",
+      "text": "대단해."
+    },
+
+    { "id": "jump7", "type": "Jump", "next": "end" },
+
+
+
+    { "id": "lb.any_success", "type": "Label", "label": "any_success" },
+
+    {
+      "id": "t.as",
+      "type": "Say",
+      "speaker": "세나",
+      "text": "고마워."
+    },
+
+    { "id": "jump8", "type": "Jump", "next": "end" },
+
+
+
+    { "id": "lb.any_fail", "type": "Label", "label": "any_fail" },
+
+    {
+      "id": "t.af",
+      "type": "Say",
+      "speaker": "세나",
+      "text": "음... 이건 아닌 것 같아."
+    },
+
+    { "id": "jump9", "type": "Jump", "next": "end" },
+
+
+
+    { "id": "lb.end", "type": "Label", "label": "end" },
+
+    {
+      "id": "t.end",
+      "type": "Say",
+      "speaker": "sys",
+      "text": "Drink 테스트 종료."
+    },
+
+    { "id": "end", "type": "End" }
+
+  ]
+}
