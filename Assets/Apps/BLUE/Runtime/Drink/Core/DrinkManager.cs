@@ -225,6 +225,12 @@ namespace PPP.BLUE.VN
 
         public void OnConfirmProvide()
         {
+            if (pendingDrinkName == "Unknown Drink")
+            {
+                Debug.Log("[Drink] Provide blocked (Unknown)");
+                return;
+            }
+
             if (confirmCompleted)
                 return;
 
@@ -283,6 +289,11 @@ namespace PPP.BLUE.VN
                 producedName = WarmPrefix + produced.name;
 
             panelUI?.ShowResult(result, producedName);
+
+            bool isUnknown = string.IsNullOrEmpty(drinkId);
+
+            if (confirmProvideButton != null)
+                confirmProvideButton.interactable = !isUnknown;
         }
 
         private IEnumerator CoResetIngredients()

@@ -1,34 +1,22 @@
 {
   "requests": [
+
     {
       "id": "REQ_TEST_LATTE",
       "type": "EXACT_DRINK",
       "drinkID": "DRINK_CAFE_LATTE"
     },
+
     {
-      "id": "REQ_SODA",
-      "type": "CATEGORY_OR_TAG",
-      "category": ["CATEGORY_SODA"],
-      "tags": [],
-      "likedDrink": "DRINK_VELTRINE_COLA"
+      "id": "REQ_TEST_COLA",
+      "type": "CATEGORY_REQUEST",
+      "category": ["CATEGORY_SODA"]
     },
+
     {
-      "id": "REQ_FRUITY",
-      "type": "CATEGORY_OR_TAG",
-      "category": [],
-      "tags": ["TAG_FRUITY"],
-      "likedDrink": "DRINK_GRAPE_JUICE"
-    },
-    {
-      "id": "REQ_ANY",
-      "type": "ANY_DRINK",
-      "likedDrink": "DRINK_GRAPE_SODA",
-      "dislikedDrink": "DRINK_MORVION_COLA"
-    },
-    {
-      "id": "REQ_FAIL_EVENT",
-      "type": "INTENTIONAL_FAIL",
-      "drinkID": "DRINK_CAFE_LATTE"
+      "id": "REQ_TEST_ANY",
+      "type": "ANY_DRINK"
     }
+
   ]
 }
