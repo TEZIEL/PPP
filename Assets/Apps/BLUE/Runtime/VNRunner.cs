@@ -1117,6 +1117,13 @@ namespace PPP.BLUE.VN
 
         public bool TryLoadNow(string reason = "manual")
         {
+            if (callStack.Count > 0)
+            {
+                VNLog("[VN] Load blocked (external call active)");
+                return false;
+            }
+
+
             bool ok = LoadStateFromKey(VN_STATE_KEY);
             VNLog($"[VN] Load {(ok ? "ok" : "miss")} ({reason})");
             return ok;

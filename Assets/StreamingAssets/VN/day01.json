@@ -1,249 +1,120 @@
 {
-  "scriptId": "drink_test",
+  "scriptId": "drink_system_stress_test",
   "nodes": [
 
     { "id": "lb.start", "type": "Label", "label": "start" },
 
-    {
-      "id": "t.001",
-      "type": "Say",
-      "speaker": "세나",
-      "text": "안녕, 이건 테스트 스크립트야."
-    },
+    { "id": "t.1", "type": "Say", "speaker": "세나", "text": "테스트를 시작할게." },
+    { "id": "t.2", "type": "Say", "speaker": "세나", "text": "이 스크립트는 시스템 안정성 테스트야." },
+    { "id": "t.3", "type": "Say", "speaker": "세나", "text": "스킵이나 오토를 켜도 좋아." },
+    { "id": "t.4", "type": "Say", "speaker": "세나", "text": "세이브도 중간에 해보고." },
+    { "id": "t.5", "type": "Say", "speaker": "세나", "text": "포커스 이동도 테스트해봐." },
 
-    {
-      "id": "t.002",
-      "type": "Say",
-      "speaker": "세나",
-      "text": "짧은 테스트지만 잘 부탁해."
-    },
 
-    {
-      "id": "t.003",
-      "type": "Say",
-      "speaker": "멜리온",
-      "text": "뭔가 마시고 싶다며?"
-    },
 
-    {
-      "id": "t.004",
-      "type": "Say",
-      "speaker": "세나",
-      "text": "카페라떼 하나만 부탁해."
-    },
+    { "id": "t.10", "type": "Say", "speaker": "멜리온", "text": "첫 번째 음료 부탁해." },
 
-    {
-      "id": "call.1",
-      "type": "Call",
-      "target": "Drink",
-      "arg": "REQ_TEST_LATTE"
-    },
+    { "id": "call.1", "type": "Call", "target": "Drink", "arg": "REQ_TEST_LATTE" },
 
     {
       "id": "branch.1",
       "type": "Branch",
       "branches": [
-        { "cond": "lastDrink==1", "next": "latte_great" },
-        { "cond": "lastDrink==2", "next": "latte_success" },
-        { "cond": "else", "next": "latte_fail" }
+        { "cond": "lastDrink==1", "next": "great1" },
+        { "cond": "lastDrink==2", "next": "success1" },
+        { "cond": "else", "next": "fail1" }
       ]
     },
 
-    { "id": "lb.latte_great", "type": "Label", "label": "latte_great" },
+    { "id": "great1", "type": "Label", "label": "great1" },
+    { "id": "g1", "type": "Say", "speaker": "세나", "text": "완벽해." },
+    { "id": "jump1", "type": "Jump", "next": "phase2" },
 
-    {
-      "id": "t.g1",
-      "type": "Say",
-      "speaker": "세나",
-      "text": "정확해."
-    },
+    { "id": "success1", "type": "Label", "label": "success1" },
+    { "id": "s1", "type": "Say", "speaker": "세나", "text": "괜찮네." },
+    { "id": "jump2", "type": "Jump", "next": "phase2" },
 
-    { "id": "jump1", "type": "Jump", "next": "drink2" },
-
-
-
-    { "id": "lb.latte_success", "type": "Label", "label": "latte_success" },
-
-    {
-      "id": "t.s1",
-      "type": "Say",
-      "speaker": "세나",
-      "text": "잘 마실게."
-    },
-
-    { "id": "jump2", "type": "Jump", "next": "drink2" },
+    { "id": "fail1", "type": "Label", "label": "fail1" },
+    { "id": "f1", "type": "Say", "speaker": "세나", "text": "이건 아니야." },
+    { "id": "jump3", "type": "Jump", "next": "phase2" },
 
 
 
-    { "id": "lb.latte_fail", "type": "Label", "label": "latte_fail" },
+    { "id": "phase2", "type": "Label", "label": "phase2" },
 
-    {
-      "id": "t.f1",
-      "type": "Say",
-      "speaker": "세나",
-      "text": "이게 아닌데."
-    },
+    { "id": "t20", "type": "Say", "speaker": "세나", "text": "좋아, 두 번째 테스트야." },
+    { "id": "t21", "type": "Say", "speaker": "세나", "text": "지금 스킵을 켜도 좋아." },
+    { "id": "t22", "type": "Say", "speaker": "세나", "text": "Auto도 켜보고." },
+    { "id": "t23", "type": "Say", "speaker": "세나", "text": "세이브도 해봐." },
+    { "id": "t24", "type": "Say", "speaker": "세나", "text": "그리고 음료를 하나 더 만들어줘." },
 
-    { "id": "jump3", "type": "Jump", "next": "drink2" },
-
-
-
-    { "id": "lb.drink2", "type": "Label", "label": "drink2" },
-
-    {
-      "id": "t.010",
-      "type": "Say",
-      "speaker": "세나",
-      "text": "하나 더 만들어줄래?"
-    },
-
-    {
-      "id": "t.011",
-      "type": "Say",
-      "speaker": "세나",
-      "text": "이번에는 콜라로."
-    },
-
-    {
-      "id": "call.2",
-      "type": "Call",
-      "target": "Drink",
-      "arg": "REQ_TEST_COLA"
-    },
+    { "id": "call.2", "type": "Call", "target": "Drink", "arg": "REQ_TEST_SODA" },
 
     {
       "id": "branch.2",
       "type": "Branch",
       "branches": [
-        { "cond": "lastDrink==1", "next": "cola_great" },
-        { "cond": "lastDrink==2", "next": "cola_success" },
-        { "cond": "else", "next": "cola_fail" }
+        { "cond": "lastDrink==1", "next": "great2" },
+        { "cond": "lastDrink==2", "next": "success2" },
+        { "cond": "else", "next": "fail2" }
       ]
     },
 
+    { "id": "great2", "type": "Label", "label": "great2" },
+    { "id": "g2", "type": "Say", "speaker": "세나", "text": "완벽하네." },
+    { "id": "jump4", "type": "Jump", "next": "phase3" },
 
+    { "id": "success2", "type": "Label", "label": "success2" },
+    { "id": "s2", "type": "Say", "speaker": "세나", "text": "괜찮아." },
+    { "id": "jump5", "type": "Jump", "next": "phase3" },
 
-    { "id": "lb.cola_great", "type": "Label", "label": "cola_great" },
-
-    {
-      "id": "t.cg",
-      "type": "Say",
-      "speaker": "세나",
-      "text": "대단해."
-    },
-
-    { "id": "jump4", "type": "Jump", "next": "drink3" },
-
-
-
-    { "id": "lb.cola_success", "type": "Label", "label": "cola_success" },
-
-    {
-      "id": "t.cs",
-      "type": "Say",
-      "speaker": "세나",
-      "text": "잘 마실게."
-    },
-
-    { "id": "jump5", "type": "Jump", "next": "drink3" },
+    { "id": "fail2", "type": "Label", "label": "fail2" },
+    { "id": "f2", "type": "Say", "speaker": "세나", "text": "이건 콜라가 아닌데." },
+    { "id": "jump6", "type": "Jump", "next": "phase3" },
 
 
 
-    { "id": "lb.cola_fail", "type": "Label", "label": "cola_fail" },
+    { "id": "phase3", "type": "Label", "label": "phase3" },
 
-    {
-      "id": "t.cf",
-      "type": "Say",
-      "speaker": "세나",
-      "text": "이건 콜라가 아닌데."
-    },
+    { "id": "t30", "type": "Say", "speaker": "세나", "text": "세 번째 테스트." },
+    { "id": "t31", "type": "Say", "speaker": "세나", "text": "이 구간은 스킵 안정성 확인용이야." },
+    { "id": "t32", "type": "Say", "speaker": "세나", "text": "대사를 많이 넣어둘게." },
+    { "id": "t33", "type": "Say", "speaker": "세나", "text": "지금 Skip을 켜고 진행해봐." },
+    { "id": "t34", "type": "Say", "speaker": "세나", "text": "Drink에 진입하면 Skip이 꺼져야 정상이다." },
 
-    { "id": "jump6", "type": "Jump", "next": "drink3" },
-
-
-
-    { "id": "lb.drink3", "type": "Label", "label": "drink3" },
-
-    {
-      "id": "t.020",
-      "type": "Say",
-      "speaker": "세나",
-      "text": "으음."
-    },
-
-    {
-      "id": "t.021",
-      "type": "Say",
-      "speaker": "세나",
-      "text": "아무거나 줘."
-    },
-
-    {
-      "id": "call.3",
-      "type": "Call",
-      "target": "Drink",
-      "arg": "REQ_TEST_ANY"
-    },
+    { "id": "call.3", "type": "Call", "target": "Drink", "arg": "REQ_TEST_ANY" },
 
     {
       "id": "branch.3",
       "type": "Branch",
       "branches": [
-        { "cond": "lastDrink==1", "next": "any_great" },
-        { "cond": "lastDrink==2", "next": "any_success" },
-        { "cond": "else", "next": "any_fail" }
+        { "cond": "lastDrink==1", "next": "great3" },
+        { "cond": "else", "next": "success3" }
       ]
     },
 
+    { "id": "great3", "type": "Label", "label": "great3" },
+    { "id": "g3", "type": "Say", "speaker": "세나", "text": "대단하네." },
+    { "id": "jump7", "type": "Jump", "next": "phase4" },
 
-
-    { "id": "lb.any_great", "type": "Label", "label": "any_great" },
-
-    {
-      "id": "t.ag",
-      "type": "Say",
-      "speaker": "세나",
-      "text": "대단해."
-    },
-
-    { "id": "jump7", "type": "Jump", "next": "end" },
+    { "id": "success3", "type": "Label", "label": "success3" },
+    { "id": "s3", "type": "Say", "speaker": "세나", "text": "고마워." },
+    { "id": "jump8", "type": "Jump", "next": "phase4" },
 
 
 
-    { "id": "lb.any_success", "type": "Label", "label": "any_success" },
+    { "id": "phase4", "type": "Label", "label": "phase4" },
 
-    {
-      "id": "t.as",
-      "type": "Say",
-      "speaker": "세나",
-      "text": "고마워."
-    },
+    { "id": "t40", "type": "Say", "speaker": "세나", "text": "마지막 테스트다." },
+    { "id": "t41", "type": "Say", "speaker": "세나", "text": "포커스 이동 테스트도 해봐." },
+    { "id": "t42", "type": "Say", "speaker": "세나", "text": "창 최소화도 해보고." },
+    { "id": "t43", "type": "Say", "speaker": "세나", "text": "이제 마지막 음료." },
 
-    { "id": "jump8", "type": "Jump", "next": "end" },
+    { "id": "call.4", "type": "Call", "target": "Drink", "arg": "REQ_TEST_ANY" },
 
+    { "id": "endlabel", "type": "Label", "label": "endlabel" },
 
-
-    { "id": "lb.any_fail", "type": "Label", "label": "any_fail" },
-
-    {
-      "id": "t.af",
-      "type": "Say",
-      "speaker": "세나",
-      "text": "음... 이건 아닌 것 같아."
-    },
-
-    { "id": "jump9", "type": "Jump", "next": "end" },
-
-
-
-    { "id": "lb.end", "type": "Label", "label": "end" },
-
-    {
-      "id": "t.end",
-      "type": "Say",
-      "speaker": "sys",
-      "text": "Drink 테스트 종료."
-    },
+    { "id": "tend", "type": "Say", "speaker": "sys", "text": "Drink 시스템 스트레스 테스트 종료." },
 
     { "id": "end", "type": "End" }
 
