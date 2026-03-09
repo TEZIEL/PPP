@@ -20,6 +20,7 @@ namespace PPP.BLUE.VN
         [SerializeField] private DrinkDatabaseLoader databaseLoader;
         [SerializeField] private DrinkPanelUI panelUI;
         [SerializeField] private GameObject panelToCloseOnProvide;
+        [SerializeField] private DrinkPanel drinkPanel;
 
         [Header("UI")]
         [SerializeField] private Button provideButton;
@@ -92,6 +93,9 @@ namespace PPP.BLUE.VN
             panelUI?.ClearGridInstant();
             RefreshUi();
         }
+
+
+
 
         public void SetRequest(string requestId)
         {
@@ -231,6 +235,7 @@ namespace PPP.BLUE.VN
 
             isProvided = true;
             SetAllIngredientButtonsInteractable(false);
+
             if (provideButton != null)
                 provideButton.interactable = false;
 
@@ -241,24 +246,21 @@ namespace PPP.BLUE.VN
             LogResult(pendingResult);
             Debug.Log("[VN_TEST] Drink result=" + pendingResult + " request=" + currentRequestId);
 
-            policy?.ExitDrinkMode();
-            policy?.PopModal("DrinkPanel");
+            // 🔹 먼저 UI 정리
+            drinkPanel?.Close();
 
+            if (confirmPanel != null)
+                confirmPanel.SetActive(false);
+
+            // 🔹 마지막에 VN 복귀
             if (runner != null)
             {
                 runner.ReturnFromCall(pendingResult);
-                
             }
             else
             {
                 Debug.LogError("[Drink] VNRunner reference missing");
             }
-
-            if (confirmPanel != null)
-                confirmPanel.SetActive(false);
-
-            if (panelToCloseOnProvide != null)
-                panelToCloseOnProvide.SetActive(false);
         }
 
         private void EvaluateCurrentDrinkInternal(out string result, out string normalizedResult, out string producedName)
@@ -428,6 +430,29 @@ namespace PPP.BLUE.VN
 
                 ingredientButtons[i].SetInteractable(interactable);
             }
+        }
+
+        public void CancelDrinkSession()
+        {
+            LogDrink("Drink session cancelled");
+
+            currentIngredients.Clear();
+            totalCount = 0;
+
+            hasPendingProvide = false;
+            resultLocked = false;
+            confirmCompleted = false;
+            isProvided = false;
+
+            artheonEnabled = false;
+
+            HideConfirmPanel();
+            panelUI?.ClearGridInstant();
+
+            RefreshUi();
+
+            if (runner != null)
+                runner.ReturnFromCall("FAIL");
         }
 
         private void SetAllIngredientButtonsInteractable(bool interactable)

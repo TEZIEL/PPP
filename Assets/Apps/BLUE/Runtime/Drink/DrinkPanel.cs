@@ -67,9 +67,17 @@ namespace PPP.BLUE.VN
         {
             Debug.Log("[DrinkPanel] Open");
 
-            if (IsOpenOrOpening)
+            // 🔴 이전 코루틴 강제 종료
+            if (openCo != null)
             {
-                Debug.Log("[DrinkPanel] Open ignored (already open/opening)");
+                StopCoroutine(openCo);
+                openCo = null;
+                isOpening = false;
+            }
+
+            if (isOpen)
+            {
+                Debug.Log("[DrinkPanel] Open ignored (already open)");
                 return;
             }
 
@@ -80,9 +88,6 @@ namespace PPP.BLUE.VN
             drinkManager?.HideConfirmPanel();
             drinkManager?.ResetIngredients();
             runner?.StopAutoExternal("DrinkPanel Open:" + (requestId ?? string.Empty));
-
-            if (openCo != null)
-                StopCoroutine(openCo);
 
             openCo = StartCoroutine(CoOpenSafe());
         }
@@ -109,6 +114,25 @@ namespace PPP.BLUE.VN
                 StopCoroutine(openCo);
                 openCo = null;
             }
+
+            if (root != null)
+                root.SetActive(false);
+
+
+        }
+
+        public void Close()
+        {
+            Debug.Log("[DrinkPanel] Close");
+
+            isOpen = false;
+            isOpening = false;
+
+            policy?.ExitDrinkMode();
+            policy?.PopModal("DrinkPanel");
+
+            drinkManager?.ResetDrink();
+            drinkManager?.HideConfirmPanel();
 
             if (root != null)
                 root.SetActive(false);

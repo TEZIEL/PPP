@@ -4,24 +4,18 @@
     {
       "id": "REQ_TEST_LATTE",
       "type": "EXACT_DRINK",
-      "drink": "LATTE",
-      "success": "success",
-      "fail": "fail"
+      "drinkID": "DRINK_CAFE_LATTE"
     },
 
     {
       "id": "REQ_TEST_COLA",
       "type": "CATEGORY_REQUEST",
-      "category": "COLA",
-      "success": "success",
-      "fail": "fail"
+      "category": ["CATEGORY_SODA"]
     },
 
     {
       "id": "REQ_TEST_ANY",
-      "type": "ANY_DRINK",
-      "success": "success",
-      "fail": "fail"
+      "type": "ANY_DRINK"
     }
 
   ]

@@ -1811,6 +1811,7 @@ MonoBehaviour:
   databaseLoader: {fileID: 8341136025858823872}
   panelUI: {fileID: 7268708036573380069}
   panelToCloseOnProvide: {fileID: 7212977544356715011}
+  drinkPanel: {fileID: 8280133175284287354}
   provideButton: {fileID: 6034915901454495795}
   resetButton: {fileID: 5132403969679527932}
   ingredientButtons:
