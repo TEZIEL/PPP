@@ -631,6 +631,7 @@ MonoBehaviour:
   closeDuration: 0.1
   openFromScale: {x: 0.92, y: 0.92, z: 1}
   contentRoot: {fileID: 3238316313002331558}
+  vnPolicy: {fileID: 0}
 --- !u!225 &6495900692413345600
 CanvasGroup:
   m_ObjectHideFlags: 0
