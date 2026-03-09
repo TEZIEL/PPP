@@ -33,9 +33,9 @@ public class FidgetShortsController : MonoBehaviour, IScrollHandler
     [Header("Swipe")]
     [Range(0.05f, 0.8f)]
     [SerializeField] private float commitThreshold01 = 0.15f;
-    [SerializeField] private float swipeAnimDur = 0.12f;
+    [SerializeField] private float swipeAnimDur = 0.15f;
 
-    [SerializeField] private float wheelCooldown = 0.12f;
+    [SerializeField] private float wheelCooldown = 0.5f;
 
     [Header("Swipe Tuning")]
     
@@ -48,9 +48,12 @@ public class FidgetShortsController : MonoBehaviour, IScrollHandler
     
     private int _pendingNextIndex = -1; // next가 아직 history에 없을 때, “미리보기용”으로 1번만 뽑아두는 캐시
     private float _lastWheelTime;
+    private float _lastSwipeTime;
+    [SerializeField] private float swipeCooldown = 0.5f;
     private int _likeCount;
     private int _dislikeCount;
-
+    private CanvasGroup windowCanvasGroup;
+    private Transform windowRoot;
 
     private void SetupPageRects()
     {
@@ -113,13 +116,21 @@ public class FidgetShortsController : MonoBehaviour, IScrollHandler
     private readonly List<int> history = new List<int>();
     private int cursor = 0; // history[cursor]가 현재
 
-    
 
- 
 
+
+    private bool IsWindowFocused()
+    {
+        if (windowCanvasGroup == null)
+            return true;
+
+        return windowCanvasGroup.interactable;
+    }
 
     private void Awake()
     {
+        windowCanvasGroup = GetComponentInParent<CanvasGroup>();
+        windowRoot = windowCanvasGroup != null ? windowCanvasGroup.transform : transform;
         if (swipeViewport == null) swipeViewport = GetComponentInChildren<RectTransform>();
         viewH = swipeViewport.rect.height;
 
@@ -179,7 +190,50 @@ public class FidgetShortsController : MonoBehaviour, IScrollHandler
         RefreshCounts();
     }
 
-   
+    private bool CanSwipe()
+    {
+        // 비활성 상태
+        if (!gameObject.activeInHierarchy)
+            return false;
+
+        // 갤러리 열려있으면 스와이프 금지
+        if (galleryView != null && galleryView.activeSelf)
+            return false;
+
+        // 부모 윈도우 CanvasGroup 체크 (비포커스 / 최소화 대응)
+        CanvasGroup windowGroup = GetComponentInParent<CanvasGroup>();
+        if (windowGroup != null)
+        {
+            if (!windowGroup.interactable)
+                return false;
+
+            if (windowGroup.alpha <= 0f)
+                return false;
+        }
+
+        return true;
+    }
+
+
+    private bool IsPointerOverMyWindow()
+    {
+        var es = EventSystem.current;
+        if (es == null) return false;
+
+        PointerEventData data = new PointerEventData(es);
+        data.position = Input.mousePosition;
+
+        List<RaycastResult> results = new List<RaycastResult>();
+        es.RaycastAll(data, results);
+
+        foreach (var r in results)
+        {
+            if (r.gameObject.transform.IsChildOf(windowRoot))
+                return true;
+        }
+
+        return false;
+    }
 
     public void OpenGallery()
     {
@@ -203,6 +257,8 @@ public class FidgetShortsController : MonoBehaviour, IScrollHandler
 
     public void OnScroll(PointerEventData eventData)
     {
+        if (!IsPointerOverMyWindow()) return;
+        if (!CanSwipe()) return;
         if (Time.unscaledTime - _lastWheelTime < wheelCooldown) return;
 
         float y = eventData.scrollDelta.y;
@@ -222,6 +278,8 @@ public class FidgetShortsController : MonoBehaviour, IScrollHandler
     // ====== 입력(드래그/휠) ======
     private void Update()
     {
+        if (!CanSwipe()) return;
+        if (!IsPointerOverMyWindow()) return;
         if (isSwiping) return;
         if (galleryView != null && galleryView.activeSelf) return;
         if (pool == null || pool.Length == 0) return;
@@ -252,6 +310,7 @@ public class FidgetShortsController : MonoBehaviour, IScrollHandler
     public void BeginDrag(Vector2 screenPos, Camera uiCam)
     {
         if (isSwiping) return;
+        if (!CanSwipe()) return;
         if (galleryView != null && galleryView.activeSelf) return;
 
         if (!ScreenToLocal(screenPos, uiCam, out dragStartLocal))
@@ -264,6 +323,7 @@ public class FidgetShortsController : MonoBehaviour, IScrollHandler
     public void Drag(Vector2 screenPos, Camera uiCam)
     {
         if (isSwiping) return;
+        if (!CanSwipe()) return;
         if (galleryView != null && galleryView.activeSelf) return;
 
         if (!ScreenToLocal(screenPos, uiCam, out var local))
@@ -296,6 +356,7 @@ public class FidgetShortsController : MonoBehaviour, IScrollHandler
     public void EndDrag()
     {
         if (isSwiping) return;
+        if (!CanSwipe()) return;
         if (galleryView != null && galleryView.activeSelf) return;
 
         float y = pagesRoot ? pagesRoot.anchoredPosition.y : 0f;
@@ -343,6 +404,9 @@ public class FidgetShortsController : MonoBehaviour, IScrollHandler
     private void CommitNext()
     {
         if (isSwiping) return;
+        if (Time.unscaledTime - _lastSwipeTime < swipeCooldown) return;
+
+        _lastSwipeTime = Time.unscaledTime;
         SetOverlayVisible(false, instant: true); // ✅ 휠/드래그 공통: 스와이프 시작 숨김
         StartCoroutine(CoCommit(next: true));
     }
@@ -350,6 +414,9 @@ public class FidgetShortsController : MonoBehaviour, IScrollHandler
     private void CommitPrev()
     {
         if (isSwiping) return;
+        if (Time.unscaledTime - _lastSwipeTime < swipeCooldown) return;
+
+        _lastSwipeTime = Time.unscaledTime;
         SetOverlayVisible(false, instant: true);  // ✅ 휠/드래그 공통
         StartCoroutine(CoCommit(next: false));
     }
