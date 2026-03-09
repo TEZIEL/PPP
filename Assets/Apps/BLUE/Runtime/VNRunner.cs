@@ -438,10 +438,29 @@ namespace PPP.BLUE.VN
             //VNLog($"[VN] SkipMode forced OFF ({reason})");
         }
 
-
+        bool isAdvancing;
 
         public void Next()
         {
+            if (isAdvancing)
+                return;
+
+            isAdvancing = true;
+
+            try
+            {
+                NextInternal();
+            }
+            finally
+            {
+                isAdvancing = false;
+            }
+        }
+
+        public void NextInternal()
+        {
+
+
             if (!started)
             {
                 VNLog("[VN] Next ignored (not started).");
