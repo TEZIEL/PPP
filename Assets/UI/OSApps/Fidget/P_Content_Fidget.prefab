@@ -2192,7 +2192,19 @@ MonoBehaviour:
   m_TargetGraphic: {fileID: 3136719317195210970}
   m_OnClick:
     m_PersistentCalls:
-      m_Calls: []
+      m_Calls:
+      - m_Target: {fileID: 152788900074242110}
+        m_TargetAssemblyTypeName: FidgetShortsController, Assembly-CSharp
+        m_MethodName: TogglePin
+        m_Mode: 1
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
 --- !u!1 &3974581281478879984
 GameObject:
   m_ObjectHideFlags: 0
