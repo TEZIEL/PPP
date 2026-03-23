@@ -2759,6 +2759,9 @@ MonoBehaviour:
   galleryView: {fileID: 6309732910490047442}
   galleryButton: {fileID: 1203513784660716908}
   backButton: {fileID: 3074104283090365217}
+  pinButtonImage: {fileID: 3136719317195210970}
+  pinOnSprite: {fileID: 21300000, guid: 4984527664ff270469071e1b721f55db, type: 3}
+  pinOffSprite: {fileID: 21300000, guid: 314edb341459bfb4fa482f913004fdfa, type: 3}
   pool:
   - {fileID: 21300000, guid: 88801d04c24c2244aa5d5b2ee5eabf1d, type: 3}
   - {fileID: 21300000, guid: 8fbbd79e7bb60cd498fb988fceabfe57, type: 3}
