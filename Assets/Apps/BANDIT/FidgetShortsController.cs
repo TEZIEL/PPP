@@ -118,6 +118,7 @@ public class FidgetShortsController : MonoBehaviour, IScrollHandler
     
     private float viewH;
     private bool isSwiping;
+    private bool isDragging;
     private bool isPinned;
     private Vector2 dragStartLocal;
     private float dragDeltaY; // +면 위로 드래그(다음), -면 아래로 드래그(이전)
@@ -277,6 +278,7 @@ public class FidgetShortsController : MonoBehaviour, IScrollHandler
     {
         if (!IsPointerOverMyWindow()) return;
         if (!CanSwipe()) return;
+        if (isDragging) return;
         if (Time.unscaledTime - _lastWheelTime < wheelCooldown) return;
 
         float y = eventData.scrollDelta.y;
@@ -299,6 +301,7 @@ public class FidgetShortsController : MonoBehaviour, IScrollHandler
         if (!CanSwipe()) return;
         if (!IsPointerOverMyWindow()) return;
         if (isSwiping) return;
+        if (isDragging) return;
         if (galleryView != null && galleryView.activeSelf) return;
         if (pool == null || pool.Length == 0) return;
 
@@ -335,6 +338,7 @@ public class FidgetShortsController : MonoBehaviour, IScrollHandler
             return;
 
         dragDeltaY = 0f;
+        isDragging = true;
         SetPinButtonInteractable(false);
         SetOverlaySwiping(true, instant: true); // ✅ 숨김은 즉시
     }
@@ -377,6 +381,8 @@ public class FidgetShortsController : MonoBehaviour, IScrollHandler
         if (isSwiping) return;
         if (!CanSwipe()) return;
         if (galleryView != null && galleryView.activeSelf) return;
+
+        isDragging = false;
 
         float y = pagesRoot ? pagesRoot.anchoredPosition.y : 0f;
         float moved01 = Mathf.Abs(y) / Mathf.Max(1f, viewH);
