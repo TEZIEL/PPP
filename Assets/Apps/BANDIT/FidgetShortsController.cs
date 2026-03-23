@@ -538,6 +538,63 @@ public class FidgetShortsController : MonoBehaviour, IScrollHandler
         if (pagePrevImage) pagePrevImage.sprite = pool[prev];
         if (pageCurrImage) pageCurrImage.sprite = pool[curr];
         if (pageNextImage) pageNextImage.sprite = pool[next];
+
+        if (isPinned)
+            ApplyPinned();
+    }
+
+    private void ApplyPinned()
+    {
+        if (!isPinned) return;
+        if (pool == null || pool.Length == 0) return;
+
+        int index = Mathf.Clamp(pinnedIndex, 0, pool.Length - 1);
+        Sprite pinnedSprite = pool[index];
+
+        if (pagePrevImage) pagePrevImage.sprite = pinnedSprite;
+        if (pageCurrImage) pageCurrImage.sprite = pinnedSprite;
+        if (pageNextImage) pageNextImage.sprite = pinnedSprite;
+    }
+
+    private int FindIndexFromSprite(Sprite sprite)
+    {
+        if (sprite == null || pool == null || pool.Length == 0)
+            return -1;
+
+        for (int i = 0; i < pool.Length; i++)
+        {
+            if (pool[i] == sprite)
+                return i;
+        }
+
+        return -1;
+    }
+
+    private void UpdatePinVisual()
+    {
+        if (pinButtonImage == null)
+            return;
+
+        pinButtonImage.sprite = isPinned ? pinOnSprite : pinOffSprite;
+    }
+
+    public void TogglePin()
+    {
+        if (!isPinned)
+        {
+            int currentIndex = FindIndexFromSprite(pageCurrImage != null ? pageCurrImage.sprite : null);
+            if (currentIndex < 0)
+                return;
+
+            isPinned = true;
+            pinnedIndex = currentIndex;
+            ApplyPinned();
+            UpdatePinVisual();
+            return;
+        }
+
+        isPinned = false;
+        UpdatePinVisual();
     }
 
     private void ApplyPinned()
@@ -597,7 +654,17 @@ public class FidgetShortsController : MonoBehaviour, IScrollHandler
     private int PickRandomIndex()
     {
         if (pool == null || pool.Length == 0) return 0;
-        return Random.Range(0, pool.Length);
+        if (pool.Length == 1) return 0;
+
+        int current = history.Count > 0 ? history[cursor] : -1;
+        int idx;
+        do
+        {
+            idx = Random.Range(0, pool.Length);
+        }
+        while (idx == current);
+
+        return idx;
     }
 
     private void SetOverlayVisible(bool on, bool instant)
@@ -701,6 +768,9 @@ public class FidgetShortsController : MonoBehaviour, IScrollHandler
         pageNextImage.sprite = pool[newNextIdx];
 
         SetupPageRects();
+
+        if (isPinned)
+            ApplyPinned();
     }
 
     private void RecycleAfterPrev()
@@ -719,6 +789,9 @@ public class FidgetShortsController : MonoBehaviour, IScrollHandler
         pagePrevImage.sprite = pool[newPrevIdx];
 
         SetupPageRects();
+
+        if (isPinned)
+            ApplyPinned();
     }
 
 
