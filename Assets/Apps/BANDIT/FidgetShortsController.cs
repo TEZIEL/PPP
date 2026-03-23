@@ -13,6 +13,10 @@ public class FidgetShortsController : MonoBehaviour, IScrollHandler
     [SerializeField] private Image pagePrevImage;           // PagePrev 안의 Image
     [SerializeField] private Image pageCurrImage;           // PageCurr 안의 Image
     [SerializeField] private Image pageNextImage;           // PageNext 안의 Image
+    [SerializeField] private RectTransform pagePrev;
+    [SerializeField] private RectTransform pageCurr;
+    [SerializeField] private RectTransform pageNext;
+
 
     [Header("UI Groups to hide while swiping")]
     [SerializeField] private CanvasGroup rightMenuGroup;    // RightMenu (CanvasGroup 권장)
@@ -59,30 +63,29 @@ public class FidgetShortsController : MonoBehaviour, IScrollHandler
     {
         if (!swipeViewport) return;
 
-        float w = swipeViewport.rect.width;
         float h = swipeViewport.rect.height;
 
         void Setup(RectTransform rt, float posY)
         {
             if (!rt) return;
 
-            // Middle Center 고정
             rt.anchorMin = rt.anchorMax = new Vector2(0.5f, 0.5f);
             rt.pivot = new Vector2(0.5f, 0.5f);
 
-            rt.sizeDelta = new Vector2(w, h);
+            // ❌ 절대 건들지 마 (이미지 망가짐 원인)
+            // rt.sizeDelta = new Vector2(w, h);
+
             rt.anchoredPosition = new Vector2(0f, posY);
-            rt.localScale = Vector3.one;
         }
 
-        Setup(pagePrevImage ? (RectTransform)pagePrevImage.transform : null, +h);
-        Setup(pageCurrImage ? (RectTransform)pageCurrImage.transform : null, 0f);
-        Setup(pageNextImage ? (RectTransform)pageNextImage.transform : null, -h);
+        Setup(pagePrev, +h);
+        Setup(pageCurr, 0f);
+        Setup(pageNext, -h);
     }
 
-    
 
-    
+
+
 
     private void ResetShorts()
     {
@@ -588,47 +591,43 @@ public class FidgetShortsController : MonoBehaviour, IScrollHandler
     private void RecycleAfterNext()
     {
         if (pool == null || pool.Length == 0) return;
-        // Prev <- Curr <- Next <- Prev(재사용)
-        var oldPrev = pagePrevImage;
-        pagePrevImage = pageCurrImage;
-        pageCurrImage = pageNextImage;
-        pageNextImage = oldPrev;
 
-        // "새 Next" 스프라이트만 갱신
-        int nextIdx;
+        // 🔥 현재 상태 스냅샷
+        var prevSprite = pagePrevImage.sprite;
+        var currSprite = pageCurrImage.sprite;
+        var nextSprite = pageNextImage.sprite;
+
+        // 🔥 history 기준으로 새 next 결정
+        int newNextIdx;
         if (cursor < history.Count - 1)
-        {
-            nextIdx = history[cursor + 1];
-            _pendingNextIndex = -1;
-        }
+            newNextIdx = history[cursor + 1];
         else
-        {
-            if (_pendingNextIndex < 0) _pendingNextIndex = PickRandomIndex();
-            nextIdx = _pendingNextIndex;
-        }
+            newNextIdx = PickRandomIndex();
 
-        if (pageNextImage) pageNextImage.sprite = pool[nextIdx];
+        // 🔥 sprite 재배치 (참조 안 돌림!)
+        pagePrevImage.sprite = currSprite;
+        pageCurrImage.sprite = nextSprite;
+        pageNextImage.sprite = pool[newNextIdx];
 
-        // 위치 재배치(+H/0/-H)
         SetupPageRects();
     }
 
     private void RecycleAfterPrev()
     {
         if (pool == null || pool.Length == 0) return;
-        // Next <- Curr <- Prev <- Next(재사용)
-        var oldNext = pageNextImage;
-        pageNextImage = pageCurrImage;
-        pageCurrImage = pagePrevImage;
-        pagePrevImage = oldNext;
 
-        // "새 Prev" 스프라이트만 갱신
-        int prevIdx = (cursor > 0) ? history[cursor - 1] : history[cursor];
-        if (pagePrevImage) pagePrevImage.sprite = pool[prevIdx];
+        var prevSprite = pagePrevImage.sprite;
+        var currSprite = pageCurrImage.sprite;
+        var nextSprite = pageNextImage.sprite;
 
-        // 위치 재배치(+H/0/-H)
+        int newPrevIdx = (cursor > 0) ? history[cursor - 1] : history[cursor];
+
+        pageNextImage.sprite = currSprite;
+        pageCurrImage.sprite = prevSprite;
+        pagePrevImage.sprite = pool[newPrevIdx];
+
         SetupPageRects();
     }
 
-    
+
 }

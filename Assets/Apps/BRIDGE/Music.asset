@@ -19,5 +19,5 @@ MonoBehaviour:
   defaultPos: {x: -480, y: 180}
   defaultSize: {x: 640, y: 540}
   iconSprite: {fileID: 10905, guid: 0000000000000000f000000000000000, type: 0}
-  windowIconSprite: {fileID: 21300000, guid: 7ccc00b890c6a914bbd7afdfb1a17545, type: 3}
-  taskbarIconSprite: {fileID: 21300000, guid: 7ccc00b890c6a914bbd7afdfb1a17545, type: 3}
+  windowIconSprite: {fileID: 21300000, guid: c92ba813dcd19834983f82c761bfefd6, type: 3}
+  taskbarIconSprite: {fileID: 21300000, guid: c92ba813dcd19834983f82c761bfefd6, type: 3}
