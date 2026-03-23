@@ -33,6 +33,7 @@ public class FidgetShortsController : MonoBehaviour, IScrollHandler
 
     [Header("Pin UI")]
     [SerializeField] private Image pinButtonImage;
+    [SerializeField] private Button pinButton;
     [SerializeField] private Sprite pinOnSprite;
     [SerializeField] private Sprite pinOffSprite;
 
@@ -139,6 +140,9 @@ public class FidgetShortsController : MonoBehaviour, IScrollHandler
 
     private void Awake()
     {
+        if (pinButton == null && pinButtonImage != null)
+            pinButton = pinButtonImage.GetComponent<Button>();
+
         windowCanvasGroup = GetComponentInParent<CanvasGroup>();
         windowRoot = windowCanvasGroup != null ? windowCanvasGroup.transform : transform;
         if (swipeViewport == null) swipeViewport = GetComponentInChildren<RectTransform>();
@@ -154,6 +158,7 @@ public class FidgetShortsController : MonoBehaviour, IScrollHandler
         CloseGallery();
         RefreshCounts();
         UpdatePinVisual();
+        SetPinButtonInteractable(true);
                 
         
     }
@@ -168,6 +173,7 @@ public class FidgetShortsController : MonoBehaviour, IScrollHandler
         ResetShorts();
         SetupPageRects();
         UpdatePinVisual();
+        SetPinButtonInteractable(true);
 
         // ResetShorts 안에서 ApplyImagesInstant를 이미 호출한다면 여기선 생략 가능
         // ApplyImagesInstant();
@@ -329,6 +335,7 @@ public class FidgetShortsController : MonoBehaviour, IScrollHandler
             return;
 
         dragDeltaY = 0f;
+        SetPinButtonInteractable(false);
         SetOverlaySwiping(true, instant: true); // ✅ 숨김은 즉시
     }
 
@@ -380,6 +387,12 @@ public class FidgetShortsController : MonoBehaviour, IScrollHandler
             return;
         }
 
+        if (Time.unscaledTime - _lastSwipeTime < swipeCooldown)
+        {
+            StartCoroutine(CoSnapBack());
+            return;
+        }
+
         if (y > 0f)
         {
             CommitNext(); // 다음
@@ -410,6 +423,7 @@ public class FidgetShortsController : MonoBehaviour, IScrollHandler
 
         if (pagesRoot) pagesRoot.anchoredPosition = Vector2.zero;
         isSwiping = false;
+        SetPinButtonInteractable(true);
         SetOverlaySwiping(false, instant: false);
     }
 
@@ -419,7 +433,9 @@ public class FidgetShortsController : MonoBehaviour, IScrollHandler
         if (Time.unscaledTime - _lastSwipeTime < swipeCooldown) return;
 
         _lastSwipeTime = Time.unscaledTime;
+        SetPinButtonInteractable(false);
         SetOverlayVisible(false, instant: true); // ✅ 휠/드래그 공통: 스와이프 시작 숨김
+        if (!isPinned) PrepareVisualStateForSwipe();
         StartCoroutine(isPinned ? CoCommitPinned(next: true) : CoCommit(next: true));
     }
 
@@ -430,7 +446,9 @@ public class FidgetShortsController : MonoBehaviour, IScrollHandler
         if (Time.unscaledTime - _lastSwipeTime < swipeCooldown) return;
 
         _lastSwipeTime = Time.unscaledTime;
+        SetPinButtonInteractable(false);
         SetOverlayVisible(false, instant: true);  // ✅ 휠/드래그 공통
+        if (!isPinned) PrepareVisualStateForSwipe();
         StartCoroutine(isPinned ? CoCommitPinned(next: false) : CoCommit(next: false));
     }
     private IEnumerator CoCommit(bool next)
@@ -460,6 +478,7 @@ public class FidgetShortsController : MonoBehaviour, IScrollHandler
         if (pagesRoot) pagesRoot.anchoredPosition = Vector2.zero;
 
         isSwiping = false;
+        SetPinButtonInteractable(true);
         SetOverlaySwiping(false, instant: false);
     }
 
@@ -487,6 +506,7 @@ public class FidgetShortsController : MonoBehaviour, IScrollHandler
         if (pagesRoot) pagesRoot.anchoredPosition = Vector2.zero;
 
         isSwiping = false;
+        SetPinButtonInteractable(true);
         SetOverlaySwiping(false, instant: false);
     }
 
@@ -513,6 +533,12 @@ public class FidgetShortsController : MonoBehaviour, IScrollHandler
         cursor--;
 
         _pendingNextIndex = -1; // 뒤로 가면 ‘다음’은 history에 있을 가능성이 높으니 pending 폐기
+    }
+
+    private void PrepareVisualStateForSwipe()
+    {
+        ApplyImagesInstant();
+        SetupPageRects();
     }
 
     private void ApplyImagesInstant()
@@ -575,6 +601,12 @@ public class FidgetShortsController : MonoBehaviour, IScrollHandler
         return -1;
     }
 
+    private void SetPinButtonInteractable(bool interactable)
+    {
+        if (pinButton != null)
+            pinButton.interactable = interactable;
+    }
+
     private void UpdatePinVisual()
     {
         if (pinButtonImage == null)
@@ -585,6 +617,9 @@ public class FidgetShortsController : MonoBehaviour, IScrollHandler
 
     public void TogglePin()
     {
+        if (isSwiping) return;
+        if (pinButton != null && !pinButton.interactable) return;
+
         if (!isPinned)
         {
             int currentIndex = (history.Count > 0) ? history[cursor] : FindIndexFromSprite(pageCurrImage != null ? pageCurrImage.sprite : null);
