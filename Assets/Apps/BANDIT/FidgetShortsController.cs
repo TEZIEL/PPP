@@ -31,6 +31,11 @@ public class FidgetShortsController : MonoBehaviour, IScrollHandler
     [SerializeField] private Button galleryButton;          // RightMenu/Gallery 버튼(선택)
     [SerializeField] private Button backButton;             // GalleryView/BackButton
 
+    [Header("Pin UI")]
+    [SerializeField] private Image pinButtonImage;
+    [SerializeField] private Sprite pinOnSprite;
+    [SerializeField] private Sprite pinOffSprite;
+
     [Header("Sprites")]
     [SerializeField] private Sprite[] pool;                 // 랜덤으로 쓸 이미지 풀
 
@@ -148,6 +153,7 @@ public class FidgetShortsController : MonoBehaviour, IScrollHandler
 
         CloseGallery();
         RefreshCounts();
+        UpdatePinVisual();
                 
         
     }
@@ -161,6 +167,7 @@ public class FidgetShortsController : MonoBehaviour, IScrollHandler
 
         ResetShorts();
         SetupPageRects();
+        UpdatePinVisual();
 
         // ResetShorts 안에서 ApplyImagesInstant를 이미 호출한다면 여기선 생략 가능
         // ApplyImagesInstant();
@@ -546,20 +553,45 @@ public class FidgetShortsController : MonoBehaviour, IScrollHandler
         if (pageNextImage) pageNextImage.sprite = pinnedSprite;
     }
 
+    private int FindIndexFromSprite(Sprite sprite)
+    {
+        if (sprite == null || pool == null || pool.Length == 0)
+            return -1;
+
+        for (int i = 0; i < pool.Length; i++)
+        {
+            if (pool[i] == sprite)
+                return i;
+        }
+
+        return -1;
+    }
+
+    private void UpdatePinVisual()
+    {
+        if (pinButtonImage == null)
+            return;
+
+        pinButtonImage.sprite = isPinned ? pinOnSprite : pinOffSprite;
+    }
+
     public void TogglePin()
     {
         if (!isPinned)
         {
-            if (history.Count == 0)
+            int currentIndex = FindIndexFromSprite(pageCurrImage != null ? pageCurrImage.sprite : null);
+            if (currentIndex < 0)
                 return;
 
             isPinned = true;
-            pinnedIndex = history[cursor];
+            pinnedIndex = currentIndex;
             ApplyPinned();
+            UpdatePinVisual();
             return;
         }
 
         isPinned = false;
+        UpdatePinVisual();
     }
 
     private int PickRandomIndex()
