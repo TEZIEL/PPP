@@ -112,12 +112,14 @@ public class FidgetShortsController : MonoBehaviour, IScrollHandler
     
     private float viewH;
     private bool isSwiping;
+    private bool isPinned;
     private Vector2 dragStartLocal;
     private float dragDeltaY; // +면 위로 드래그(다음), -면 아래로 드래그(이전)
 
     // 히스토리: 인덱스 기반
     private readonly List<int> history = new List<int>();
     private int cursor = 0; // history[cursor]가 현재
+    private int pinnedIndex = -1;
 
 
 
@@ -411,7 +413,7 @@ public class FidgetShortsController : MonoBehaviour, IScrollHandler
 
         _lastSwipeTime = Time.unscaledTime;
         SetOverlayVisible(false, instant: true); // ✅ 휠/드래그 공통: 스와이프 시작 숨김
-        StartCoroutine(CoCommit(next: true));
+        StartCoroutine(isPinned ? CoCommitPinned(next: true) : CoCommit(next: true));
     }
 
     private void CommitPrev()
@@ -421,7 +423,7 @@ public class FidgetShortsController : MonoBehaviour, IScrollHandler
 
         _lastSwipeTime = Time.unscaledTime;
         SetOverlayVisible(false, instant: true);  // ✅ 휠/드래그 공통
-        StartCoroutine(CoCommit(next: false));
+        StartCoroutine(isPinned ? CoCommitPinned(next: false) : CoCommit(next: false));
     }
     private IEnumerator CoCommit(bool next)
     {
@@ -446,6 +448,33 @@ public class FidgetShortsController : MonoBehaviour, IScrollHandler
 
         if (next) RecycleAfterNext();
         else RecycleAfterPrev();
+
+        if (pagesRoot) pagesRoot.anchoredPosition = Vector2.zero;
+
+        isSwiping = false;
+        SetOverlaySwiping(false, instant: false);
+    }
+
+    private IEnumerator CoCommitPinned(bool next)
+    {
+        isSwiping = true;
+
+        float dir = next ? 1f : -1f;
+        Vector2 from = pagesRoot ? pagesRoot.anchoredPosition : Vector2.zero;
+        Vector2 to = new Vector2(0f, dir * viewH);
+
+        ApplyPinned();
+
+        float t = 0f;
+        while (t < 1f)
+        {
+            t += Time.unscaledDeltaTime / Mathf.Max(0.01f, swipeAnimDur);
+            float s = Mathf.SmoothStep(0f, 1f, t);
+            if (pagesRoot) pagesRoot.anchoredPosition = Vector2.LerpUnclamped(from, to, s);
+            yield return null;
+        }
+
+        ApplyPinned();
 
         if (pagesRoot) pagesRoot.anchoredPosition = Vector2.zero;
 
@@ -502,6 +531,35 @@ public class FidgetShortsController : MonoBehaviour, IScrollHandler
         if (pagePrevImage) pagePrevImage.sprite = pool[prev];
         if (pageCurrImage) pageCurrImage.sprite = pool[curr];
         if (pageNextImage) pageNextImage.sprite = pool[next];
+    }
+
+    private void ApplyPinned()
+    {
+        if (!isPinned) return;
+        if (pool == null || pool.Length == 0) return;
+
+        int index = Mathf.Clamp(pinnedIndex, 0, pool.Length - 1);
+        Sprite pinnedSprite = pool[index];
+
+        if (pagePrevImage) pagePrevImage.sprite = pinnedSprite;
+        if (pageCurrImage) pageCurrImage.sprite = pinnedSprite;
+        if (pageNextImage) pageNextImage.sprite = pinnedSprite;
+    }
+
+    public void TogglePin()
+    {
+        if (!isPinned)
+        {
+            if (history.Count == 0)
+                return;
+
+            isPinned = true;
+            pinnedIndex = history[cursor];
+            ApplyPinned();
+            return;
+        }
+
+        isPinned = false;
     }
 
     private int PickRandomIndex()
@@ -590,6 +648,7 @@ public class FidgetShortsController : MonoBehaviour, IScrollHandler
 
     private void RecycleAfterNext()
     {
+        if (isPinned) return;
         if (pool == null || pool.Length == 0) return;
 
         // 🔥 현재 상태 스냅샷
@@ -614,6 +673,7 @@ public class FidgetShortsController : MonoBehaviour, IScrollHandler
 
     private void RecycleAfterPrev()
     {
+        if (isPinned) return;
         if (pool == null || pool.Length == 0) return;
 
         var prevSprite = pagePrevImage.sprite;
