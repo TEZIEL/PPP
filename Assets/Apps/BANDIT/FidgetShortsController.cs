@@ -31,6 +31,11 @@ public class FidgetShortsController : MonoBehaviour, IScrollHandler
     [SerializeField] private Button galleryButton;          // RightMenu/Gallery 버튼(선택)
     [SerializeField] private Button backButton;             // GalleryView/BackButton
 
+    [Header("Pin UI")]
+    [SerializeField] private Image pinButtonImage;
+    [SerializeField] private Sprite pinOnSprite;
+    [SerializeField] private Sprite pinOffSprite;
+
     [Header("Sprites")]
     [SerializeField] private Sprite[] pool;                 // 랜덤으로 쓸 이미지 풀
 
@@ -112,12 +117,14 @@ public class FidgetShortsController : MonoBehaviour, IScrollHandler
     
     private float viewH;
     private bool isSwiping;
+    private bool isPinned;
     private Vector2 dragStartLocal;
     private float dragDeltaY; // +면 위로 드래그(다음), -면 아래로 드래그(이전)
 
     // 히스토리: 인덱스 기반
     private readonly List<int> history = new List<int>();
     private int cursor = 0; // history[cursor]가 현재
+    private int pinnedIndex = -1;
 
 
 
@@ -146,6 +153,7 @@ public class FidgetShortsController : MonoBehaviour, IScrollHandler
 
         CloseGallery();
         RefreshCounts();
+        UpdatePinVisual();
                 
         
     }
@@ -159,6 +167,7 @@ public class FidgetShortsController : MonoBehaviour, IScrollHandler
 
         ResetShorts();
         SetupPageRects();
+        UpdatePinVisual();
 
         // ResetShorts 안에서 ApplyImagesInstant를 이미 호출한다면 여기선 생략 가능
         // ApplyImagesInstant();
@@ -411,7 +420,7 @@ public class FidgetShortsController : MonoBehaviour, IScrollHandler
 
         _lastSwipeTime = Time.unscaledTime;
         SetOverlayVisible(false, instant: true); // ✅ 휠/드래그 공통: 스와이프 시작 숨김
-        StartCoroutine(CoCommit(next: true));
+        StartCoroutine(isPinned ? CoCommitPinned(next: true) : CoCommit(next: true));
     }
 
     private void CommitPrev()
@@ -421,7 +430,7 @@ public class FidgetShortsController : MonoBehaviour, IScrollHandler
 
         _lastSwipeTime = Time.unscaledTime;
         SetOverlayVisible(false, instant: true);  // ✅ 휠/드래그 공통
-        StartCoroutine(CoCommit(next: false));
+        StartCoroutine(isPinned ? CoCommitPinned(next: false) : CoCommit(next: false));
     }
     private IEnumerator CoCommit(bool next)
     {
@@ -446,6 +455,33 @@ public class FidgetShortsController : MonoBehaviour, IScrollHandler
 
         if (next) RecycleAfterNext();
         else RecycleAfterPrev();
+
+        if (pagesRoot) pagesRoot.anchoredPosition = Vector2.zero;
+
+        isSwiping = false;
+        SetOverlaySwiping(false, instant: false);
+    }
+
+    private IEnumerator CoCommitPinned(bool next)
+    {
+        isSwiping = true;
+
+        float dir = next ? 1f : -1f;
+        Vector2 from = pagesRoot ? pagesRoot.anchoredPosition : Vector2.zero;
+        Vector2 to = new Vector2(0f, dir * viewH);
+
+        ApplyPinned();
+
+        float t = 0f;
+        while (t < 1f)
+        {
+            t += Time.unscaledDeltaTime / Mathf.Max(0.01f, swipeAnimDur);
+            float s = Mathf.SmoothStep(0f, 1f, t);
+            if (pagesRoot) pagesRoot.anchoredPosition = Vector2.LerpUnclamped(from, to, s);
+            yield return null;
+        }
+
+        ApplyPinned();
 
         if (pagesRoot) pagesRoot.anchoredPosition = Vector2.zero;
 
@@ -502,12 +538,79 @@ public class FidgetShortsController : MonoBehaviour, IScrollHandler
         if (pagePrevImage) pagePrevImage.sprite = pool[prev];
         if (pageCurrImage) pageCurrImage.sprite = pool[curr];
         if (pageNextImage) pageNextImage.sprite = pool[next];
+
+        if (isPinned)
+            ApplyPinned();
+    }
+
+    private void ApplyPinned()
+    {
+        if (!isPinned) return;
+        if (pool == null || pool.Length == 0) return;
+
+        int index = Mathf.Clamp(pinnedIndex, 0, pool.Length - 1);
+        Sprite pinnedSprite = pool[index];
+
+        if (pagePrevImage) pagePrevImage.sprite = pinnedSprite;
+        if (pageCurrImage) pageCurrImage.sprite = pinnedSprite;
+        if (pageNextImage) pageNextImage.sprite = pinnedSprite;
+    }
+
+    private int FindIndexFromSprite(Sprite sprite)
+    {
+        if (sprite == null || pool == null || pool.Length == 0)
+            return -1;
+
+        for (int i = 0; i < pool.Length; i++)
+        {
+            if (pool[i] == sprite)
+                return i;
+        }
+
+        return -1;
+    }
+
+    private void UpdatePinVisual()
+    {
+        if (pinButtonImage == null)
+            return;
+
+        pinButtonImage.sprite = isPinned ? pinOnSprite : pinOffSprite;
+    }
+
+    public void TogglePin()
+    {
+        if (!isPinned)
+        {
+            int currentIndex = FindIndexFromSprite(pageCurrImage != null ? pageCurrImage.sprite : null);
+            if (currentIndex < 0)
+                return;
+
+            isPinned = true;
+            pinnedIndex = currentIndex;
+            ApplyPinned();
+            UpdatePinVisual();
+            return;
+        }
+
+        isPinned = false;
+        UpdatePinVisual();
     }
 
     private int PickRandomIndex()
     {
         if (pool == null || pool.Length == 0) return 0;
-        return Random.Range(0, pool.Length);
+        if (pool.Length == 1) return 0;
+
+        int current = history.Count > 0 ? history[cursor] : -1;
+        int idx;
+        do
+        {
+            idx = Random.Range(0, pool.Length);
+        }
+        while (idx == current);
+
+        return idx;
     }
 
     private void SetOverlayVisible(bool on, bool instant)
@@ -590,6 +693,7 @@ public class FidgetShortsController : MonoBehaviour, IScrollHandler
 
     private void RecycleAfterNext()
     {
+        if (isPinned) return;
         if (pool == null || pool.Length == 0) return;
 
         // 🔥 현재 상태 스냅샷
@@ -610,10 +714,14 @@ public class FidgetShortsController : MonoBehaviour, IScrollHandler
         pageNextImage.sprite = pool[newNextIdx];
 
         SetupPageRects();
+
+        if (isPinned)
+            ApplyPinned();
     }
 
     private void RecycleAfterPrev()
     {
+        if (isPinned) return;
         if (pool == null || pool.Length == 0) return;
 
         var prevSprite = pagePrevImage.sprite;
@@ -627,6 +735,9 @@ public class FidgetShortsController : MonoBehaviour, IScrollHandler
         pagePrevImage.sprite = pool[newPrevIdx];
 
         SetupPageRects();
+
+        if (isPinned)
+            ApplyPinned();
     }
 
 
