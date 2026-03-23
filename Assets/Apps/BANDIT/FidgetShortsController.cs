@@ -97,7 +97,7 @@ public class FidgetShortsController : MonoBehaviour, IScrollHandler
         if (pool == null || pool.Length == 0) return;
 
         history.Clear();
-        history.Add(PickRandomIndex());
+        history.Add(isPinned && pinnedIndex >= 0 ? pinnedIndex : PickRandomIndex());
         cursor = 0;
 
            _pendingNextIndex = -1;
@@ -586,60 +586,10 @@ public class FidgetShortsController : MonoBehaviour, IScrollHandler
             if (currentIndex < 0)
                 return;
 
-            isPinned = true;
-            pinnedIndex = currentIndex;
-            ApplyPinned();
-            UpdatePinVisual();
-            return;
-        }
+            if (history.Count > 0)
+                history[cursor] = currentIndex;
 
-        isPinned = false;
-        UpdatePinVisual();
-    }
-
-    private void ApplyPinned()
-    {
-        if (!isPinned) return;
-        if (pool == null || pool.Length == 0) return;
-
-        int index = Mathf.Clamp(pinnedIndex, 0, pool.Length - 1);
-        Sprite pinnedSprite = pool[index];
-
-        if (pagePrevImage) pagePrevImage.sprite = pinnedSprite;
-        if (pageCurrImage) pageCurrImage.sprite = pinnedSprite;
-        if (pageNextImage) pageNextImage.sprite = pinnedSprite;
-    }
-
-    private int FindIndexFromSprite(Sprite sprite)
-    {
-        if (sprite == null || pool == null || pool.Length == 0)
-            return -1;
-
-        for (int i = 0; i < pool.Length; i++)
-        {
-            if (pool[i] == sprite)
-                return i;
-        }
-
-        return -1;
-    }
-
-    private void UpdatePinVisual()
-    {
-        if (pinButtonImage == null)
-            return;
-
-        pinButtonImage.sprite = isPinned ? pinOnSprite : pinOffSprite;
-    }
-
-    public void TogglePin()
-    {
-        if (!isPinned)
-        {
-            int currentIndex = FindIndexFromSprite(pageCurrImage != null ? pageCurrImage.sprite : null);
-            if (currentIndex < 0)
-                return;
-
+            _pendingNextIndex = -1;
             isPinned = true;
             pinnedIndex = currentIndex;
             ApplyPinned();
