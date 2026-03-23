@@ -426,6 +426,7 @@ public class FidgetShortsController : MonoBehaviour, IScrollHandler
     private void CommitPrev()
     {
         if (isSwiping) return;
+        if (cursor <= 0) return;
         if (Time.unscaledTime - _lastSwipeTime < swipeCooldown) return;
 
         _lastSwipeTime = Time.unscaledTime;
@@ -517,6 +518,7 @@ public class FidgetShortsController : MonoBehaviour, IScrollHandler
     private void ApplyImagesInstant()
     {
         if (pool == null || pool.Length == 0) return;
+        if (history.Count == 0) return;
 
         int curr = history[cursor];
         int prev = (cursor > 0) ? history[cursor - 1] : curr;
@@ -535,12 +537,15 @@ public class FidgetShortsController : MonoBehaviour, IScrollHandler
             next = _pendingNextIndex;
         }
 
+        if (isPinned)
+        {
+            ApplyPinned();
+            return;
+        }
+
         if (pagePrevImage) pagePrevImage.sprite = pool[prev];
         if (pageCurrImage) pageCurrImage.sprite = pool[curr];
         if (pageNextImage) pageNextImage.sprite = pool[next];
-
-        if (isPinned)
-            ApplyPinned();
     }
 
     private void ApplyPinned()
@@ -582,14 +587,10 @@ public class FidgetShortsController : MonoBehaviour, IScrollHandler
     {
         if (!isPinned)
         {
-            int currentIndex = FindIndexFromSprite(pageCurrImage != null ? pageCurrImage.sprite : null);
+            int currentIndex = (history.Count > 0) ? history[cursor] : FindIndexFromSprite(pageCurrImage != null ? pageCurrImage.sprite : null);
             if (currentIndex < 0)
                 return;
 
-            if (history.Count > 0)
-                history[cursor] = currentIndex;
-
-            _pendingNextIndex = -1;
             isPinned = true;
             pinnedIndex = currentIndex;
             ApplyPinned();
@@ -598,6 +599,7 @@ public class FidgetShortsController : MonoBehaviour, IScrollHandler
         }
 
         isPinned = false;
+        pinnedIndex = -1;
         UpdatePinVisual();
     }
 
@@ -697,51 +699,18 @@ public class FidgetShortsController : MonoBehaviour, IScrollHandler
 
     private void RecycleAfterNext()
     {
-        if (isPinned) return;
         if (pool == null || pool.Length == 0) return;
 
-        // 🔥 현재 상태 스냅샷
-        var prevSprite = pagePrevImage.sprite;
-        var currSprite = pageCurrImage.sprite;
-        var nextSprite = pageNextImage.sprite;
-
-        // 🔥 history 기준으로 새 next 결정
-        int newNextIdx;
-        if (cursor < history.Count - 1)
-            newNextIdx = history[cursor + 1];
-        else
-            newNextIdx = PickRandomIndex();
-
-        // 🔥 sprite 재배치 (참조 안 돌림!)
-        pagePrevImage.sprite = currSprite;
-        pageCurrImage.sprite = nextSprite;
-        pageNextImage.sprite = pool[newNextIdx];
-
+        ApplyImagesInstant();
         SetupPageRects();
-
-        if (isPinned)
-            ApplyPinned();
     }
 
     private void RecycleAfterPrev()
     {
-        if (isPinned) return;
         if (pool == null || pool.Length == 0) return;
 
-        var prevSprite = pagePrevImage.sprite;
-        var currSprite = pageCurrImage.sprite;
-        var nextSprite = pageNextImage.sprite;
-
-        int newPrevIdx = (cursor > 0) ? history[cursor - 1] : history[cursor];
-
-        pageNextImage.sprite = currSprite;
-        pageCurrImage.sprite = prevSprite;
-        pagePrevImage.sprite = pool[newPrevIdx];
-
+        ApplyImagesInstant();
         SetupPageRects();
-
-        if (isPinned)
-            ApplyPinned();
     }
 
 
