@@ -28,10 +28,7 @@ namespace PPP.BLUE.VN.DrinkSystem
         [SerializeField] private Sprite unknownDrinkSprite;
         [SerializeField] private Sprite failDrinkSprite;
 
-        [Header("Result Image")]
-        [SerializeField] private Image producedDrinkImage;
-        [SerializeField] private Sprite unknownDrinkSprite;
-        [SerializeField] private Sprite failDrinkSprite;
+      
 
         [Header("Grid (4x4)")]
         [SerializeField] private Image[] slotImages = new Image[16];
