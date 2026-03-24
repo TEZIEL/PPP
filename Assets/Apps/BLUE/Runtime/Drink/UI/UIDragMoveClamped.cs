@@ -1,14 +1,20 @@
 using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
+using System.Collections.Generic;
 
 namespace PPP.BLUE.VN
 {
-    public sealed class UIDragMoveClamped : MonoBehaviour, IBeginDragHandler, IDragHandler
+    public sealed class UIDragMoveClamped : MonoBehaviour, IBeginDragHandler, IDragHandler, IPointerDownHandler
     {
         [SerializeField] private RectTransform parentArea;
         [SerializeField] private Button pinToggleButton;
         [SerializeField] private string pinStateVarKey;
+        [Header("Z-Order")]
+        [SerializeField] private bool bringToFrontOnPointerDown = true;
+        [SerializeField] private bool bringToFrontOnChildPointerDown = true;
+        [SerializeField] private bool applyInitialSiblingIndexOnEnable;
+        [SerializeField] private int initialSiblingIndex = -1;
 
         private RectTransform rect;
         private RectTransform dragParent;
@@ -16,6 +22,7 @@ namespace PPP.BLUE.VN
         private Vector2 startAnchoredPosition;
         private VNRunner runner;
         private bool isPinned;
+        private static readonly List<RaycastResult> RaycastResultsBuffer = new List<RaycastResult>(16);
 
         private void Awake()
         {
@@ -36,9 +43,34 @@ namespace PPP.BLUE.VN
                 pinToggleButton.onClick.RemoveListener(TogglePinned);
         }
 
+        private void OnEnable()
+        {
+            ApplyInitialSiblingIndex();
+        }
+
+        private void Update()
+        {
+            if (!bringToFrontOnChildPointerDown || rect == null)
+                return;
+
+            if (!Input.GetMouseButtonDown(0))
+                return;
+
+            TryBringToFrontFromPointerPosition(Input.mousePosition);
+        }
+
         public void SetParentArea(RectTransform area)
         {
             parentArea = area;
+        }
+
+        public void ConfigureZOrder(bool bringToFront, bool applyInitialIndex, int siblingIndex)
+        {
+            bringToFrontOnPointerDown = bringToFront;
+            bringToFrontOnChildPointerDown = bringToFront;
+            applyInitialSiblingIndexOnEnable = applyInitialIndex;
+            initialSiblingIndex = siblingIndex;
+            ApplyInitialSiblingIndex();
         }
 
         public void TogglePinned()
@@ -60,6 +92,11 @@ namespace PPP.BLUE.VN
             if (!CanDrag(eventData))
                 return;
 
+            if (IsPointerOnButton(eventData))
+                return;
+
+            BringToFront();
+
             RectTransformUtility.ScreenPointToLocalPointInRectangle(
                 dragParent,
                 eventData.position,
@@ -77,6 +114,9 @@ namespace PPP.BLUE.VN
             if (!CanDrag(eventData))
                 return;
 
+            if (IsPointerOnButton(eventData))
+                return;
+
             if (!RectTransformUtility.ScreenPointToLocalPointInRectangle(
                     dragParent,
                     eventData.position,
@@ -87,6 +127,14 @@ namespace PPP.BLUE.VN
             Vector2 delta = currentMouseLocal - startMouseLocal;
             Vector2 newAnchoredPosition = startAnchoredPosition + delta;
             rect.anchoredPosition = ClampAnchoredPositionToParentArea(newAnchoredPosition);
+        }
+
+        public void OnPointerDown(PointerEventData eventData)
+        {
+            if (!CanDrag(eventData))
+                return;
+
+            BringToFront();
         }
 
         private void SavePinnedState()
@@ -100,6 +148,65 @@ namespace PPP.BLUE.VN
         private bool CanDrag(PointerEventData eventData)
         {
             return eventData != null && rect != null && dragParent != null && parentArea != null;
+        }
+
+        private static bool IsPointerOnButton(PointerEventData eventData)
+        {
+            if (eventData == null)
+                return false;
+
+            GameObject target = eventData.pointerPressRaycast.gameObject;
+            if (target == null)
+                target = eventData.pointerCurrentRaycast.gameObject;
+            if (target == null)
+                return false;
+
+            return target.GetComponentInParent<Button>() != null;
+        }
+
+        private void BringToFront()
+        {
+            if (!bringToFrontOnPointerDown || rect == null)
+                return;
+
+            rect.SetAsLastSibling();
+        }
+
+        private void TryBringToFrontFromPointerPosition(Vector2 screenPosition)
+        {
+            if (EventSystem.current == null)
+                return;
+
+            var pointerEventData = new PointerEventData(EventSystem.current)
+            {
+                position = screenPosition
+            };
+
+            RaycastResultsBuffer.Clear();
+            EventSystem.current.RaycastAll(pointerEventData, RaycastResultsBuffer);
+
+            for (int i = 0; i < RaycastResultsBuffer.Count; i++)
+            {
+                var hit = RaycastResultsBuffer[i];
+                if (hit.gameObject == null)
+                    continue;
+
+                Transform hitTransform = hit.gameObject.transform;
+                if (hitTransform == transform || hitTransform.IsChildOf(transform))
+                {
+                    BringToFront();
+                    return;
+                }
+            }
+        }
+
+        private void ApplyInitialSiblingIndex()
+        {
+            if (!applyInitialSiblingIndexOnEnable || rect == null || rect.parent == null || initialSiblingIndex < 0)
+                return;
+
+            int clampedIndex = Mathf.Clamp(initialSiblingIndex, 0, rect.parent.childCount - 1);
+            rect.SetSiblingIndex(clampedIndex);
         }
 
         private Vector2 ClampAnchoredPositionToParentArea(Vector2 anchoredPosition)

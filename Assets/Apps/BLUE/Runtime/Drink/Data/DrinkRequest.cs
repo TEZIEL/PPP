@@ -19,6 +19,7 @@ namespace PPP.BLUE.VN.DrinkSystem
         public DrinkRequestType type;
         public string drinkID;
         public string category;
+        public List<string> categories = new List<string>();
         public List<string> tags = new List<string>();
         public string likedDrink;
         public string dislikedDrink;

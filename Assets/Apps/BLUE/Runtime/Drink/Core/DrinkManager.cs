@@ -10,6 +10,13 @@ namespace PPP.BLUE.VN
 {
     public sealed class DrinkManager : MonoBehaviour
     {
+        [Serializable]
+        private struct DrinkImageEntry
+        {
+            public string imageKey;
+            public Sprite sprite;
+        }
+
         private const int MaxIngredients = 16;
         private const string ArtheonIngredient = "INGREDIENT_ARTHEON";
         private const string WarmPrefix = "따뜻한 ";
@@ -27,6 +34,7 @@ namespace PPP.BLUE.VN
         [SerializeField] private Button resetButton;
         [SerializeField] private IngredientButton[] ingredientButtons;
         [SerializeField] private Selectable[] gridInteractables = Array.Empty<Selectable>();
+        [SerializeField] private DrinkImageEntry[] drinkImageEntries = Array.Empty<DrinkImageEntry>();
 
         [Header("Confirm Dialog")]
         [SerializeField] private GameObject confirmPanel;
@@ -44,6 +52,7 @@ namespace PPP.BLUE.VN
         [SerializeField] private bool debugDrinkSystem = true;
 
         private readonly Dictionary<string, int> currentIngredients = new Dictionary<string, int>(StringComparer.Ordinal);
+        private readonly Dictionary<string, Sprite> drinkImageMap = new Dictionary<string, Sprite>(StringComparer.OrdinalIgnoreCase);
         private int totalCount;
 
         private DrinkDatabase database;
@@ -54,12 +63,13 @@ namespace PPP.BLUE.VN
         private bool isResetInProgress;
         private bool isProvided;
 
-        private string pendingResult = "FAIL";
-        private string pendingNormalizedResult = "FAIL";
+        private string pendingResult = "fail";
+        private string pendingNormalizedResult = "fail";
         private string pendingDrinkName = "Unknown Drink";
         private bool hasPendingProvide;
         private bool resultLocked;
         private bool confirmCompleted;
+        private string hoveredIngredientId;
 
         private void Awake()
         {
@@ -67,6 +77,8 @@ namespace PPP.BLUE.VN
             recipeValidator = new DrinkRecipeValidator(database);
             requestEvaluator = new DrinkRequestEvaluator(database);
             currentRequest = database.FindRequest(currentRequestId);
+            LogDrink($"request bind inputRequestId={currentRequestId} resolvedRequestId={(currentRequest != null ? currentRequest.requestID : "(null)")}");
+            RebuildDrinkImageMap();
 
             if (policy == null)
                 policy = GetComponentInParent<VNPolicyController>(true);
@@ -91,6 +103,7 @@ namespace PPP.BLUE.VN
 
             HideConfirmPanel();
             panelUI?.ClearGridInstant();
+            panelUI?.ClearIngredientHoverInfo();
             RefreshUi();
         }
 
@@ -101,6 +114,7 @@ namespace PPP.BLUE.VN
         {
             currentRequestId = requestId;
             currentRequest = database?.FindRequest(requestId);
+            LogDrink($"request set inputRequestId={currentRequestId} resolvedRequestId={(currentRequest != null ? currentRequest.requestID : "(null)")}");
         }
 
         public void HideConfirmPanel()
@@ -154,6 +168,12 @@ namespace PPP.BLUE.VN
 
             if (totalCount >= MaxIngredients)
                 SetIngredientButtonsInteractable(false);
+        }
+
+        public void SetIngredientHover(string ingredientId, bool isHovering)
+        {
+            hoveredIngredientId = isHovering ? ingredientId : null;
+            UpdateHoveredIngredientInfo();
         }
 
         public void ResetIngredients()
@@ -280,7 +300,7 @@ namespace PPP.BLUE.VN
 
             LogRequest(currentRequest);
 
-            result = blockedByArtheon ? "FAIL" : requestEvaluator.Evaluate(drinkId, currentRequest);
+            result = blockedByArtheon ? "fail" : requestEvaluator.Evaluate(drinkId, currentRequest, currentRequestId);
             normalizedResult = NormalizeResultForRunner(result);
 
             var produced = database?.FindDrink(drinkId);
@@ -288,7 +308,8 @@ namespace PPP.BLUE.VN
             if (artheonEnabled && produced != null && !string.IsNullOrEmpty(produced.name))
                 producedName = WarmPrefix + produced.name;
 
-            panelUI?.ShowResult(result, producedName);
+            bool isFailResult = string.Equals(normalizedResult, "fail", StringComparison.OrdinalIgnoreCase);
+            panelUI?.ShowResult(result, producedName, ResolveDrinkSprite(produced), isFailResult);
 
             bool isUnknown = string.IsNullOrEmpty(drinkId);
 
@@ -337,11 +358,10 @@ namespace PPP.BLUE.VN
 
         private static int MapResultToLastDrinkValue(string result)
         {
-            if (string.Equals(result, "PERFECT", StringComparison.OrdinalIgnoreCase) ||
-                string.Equals(result, "GREAT", StringComparison.OrdinalIgnoreCase))
+            if (string.Equals(result, "great", StringComparison.OrdinalIgnoreCase))
                 return 1;
 
-            if (string.Equals(result, "SUCCESS", StringComparison.OrdinalIgnoreCase))
+            if (string.Equals(result, "success", StringComparison.OrdinalIgnoreCase))
                 return 2;
 
             return 3;
@@ -349,11 +369,11 @@ namespace PPP.BLUE.VN
 
         private string NormalizeResultForRunner(string result)
         {
-            if (string.Equals(result, "PERFECT", StringComparison.OrdinalIgnoreCase))
-                return "PERFECT";
-            if (string.Equals(result, "SUCCESS", StringComparison.OrdinalIgnoreCase))
-                return "SUCCESS";
-            return "FAIL";
+            if (string.Equals(result, "great", StringComparison.OrdinalIgnoreCase))
+                return "great";
+            if (string.Equals(result, "success", StringComparison.OrdinalIgnoreCase))
+                return "success";
+            return "fail";
         }
 
         private void RefreshUi()
@@ -376,6 +396,8 @@ namespace PPP.BLUE.VN
                 currentIngredients.TryGetValue(ingredientId, out int count);
                 ingredientButtons[i].RefreshLabel(count);
             }
+
+            UpdateHoveredIngredientInfo();
         }
 
         private void ToggleArtheon()
@@ -384,12 +406,79 @@ namespace PPP.BLUE.VN
             RefreshUi();
         }
 
+        private void RebuildDrinkImageMap()
+        {
+            drinkImageMap.Clear();
+
+            if (drinkImageEntries == null)
+                return;
+
+            for (int i = 0; i < drinkImageEntries.Length; i++)
+            {
+                var entry = drinkImageEntries[i];
+                if (string.IsNullOrWhiteSpace(entry.imageKey) || entry.sprite == null)
+                    continue;
+
+                drinkImageMap[entry.imageKey.Trim()] = entry.sprite;
+            }
+        }
+
+        private Sprite ResolveDrinkSprite(DrinkData drink)
+        {
+            if (drink == null || string.IsNullOrWhiteSpace(drink.imageKey))
+                return null;
+
+            return drinkImageMap.TryGetValue(drink.imageKey.Trim(), out var sprite) ? sprite : null;
+        }
+
         private void UpdateProvideButtonState()
         {
             if (provideButton == null)
                 return;
 
             provideButton.interactable = !isResetInProgress && !isProvided && !IsConfirmOpen() && totalCount > 0;
+        }
+
+        private void UpdateHoveredIngredientInfo()
+        {
+            if (panelUI == null)
+                return;
+
+            if (string.IsNullOrEmpty(hoveredIngredientId))
+            {
+                panelUI.ClearIngredientHoverInfo();
+                return;
+            }
+
+            string displayName = GetIngredientDisplayName(hoveredIngredientId);
+            string description = GetIngredientDescription(hoveredIngredientId);
+
+            if (string.Equals(hoveredIngredientId, ArtheonIngredient, StringComparison.Ordinal))
+            {
+                panelUI.ShowIngredientHoverInfo($"{displayName} {(artheonEnabled ? "ON" : "OFF")}", description);
+                return;
+            }
+
+            currentIngredients.TryGetValue(hoveredIngredientId, out int count);
+            panelUI.ShowIngredientHoverInfo($"{displayName} x {count:00}", description);
+        }
+
+        private string GetIngredientDisplayName(string ingredientId)
+        {
+            var info = database?.FindIngredient(ingredientId);
+            if (info != null && !string.IsNullOrWhiteSpace(info.displayName))
+                return info.displayName;
+
+            if (string.IsNullOrWhiteSpace(ingredientId))
+                return "UNKNOWN";
+
+            return ingredientId.Replace("INGREDIENT_", string.Empty);
+        }
+
+        private string GetIngredientDescription(string ingredientId)
+        {
+            var info = database?.FindIngredient(ingredientId);
+            return info != null ? (info.description ?? string.Empty) : string.Empty;
         }
 
         private bool IsConfirmOpen()
@@ -463,7 +552,7 @@ namespace PPP.BLUE.VN
             RefreshUi();
 
             if (runner != null)
-                runner.ReturnFromCall("FAIL");
+                runner.ReturnFromCall("fail");
         }
 
         private void SetAllIngredientButtonsInteractable(bool interactable)
