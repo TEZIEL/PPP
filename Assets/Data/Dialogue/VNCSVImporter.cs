@@ -1,3 +1,4 @@
+#if false
 using UnityEngine;
 using UnityEditor;
 using System;                 // ← 이것 추가
@@ -115,3 +116,4 @@ public class VNCSVImporter : AssetPostprocessor
     }
 
 }
+#endif

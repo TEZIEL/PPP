@@ -1937,24 +1937,7 @@ namespace PPP.BLUE.VN
         }
 
 
-        public void LoadScenario(string name)
-        {
-            string path = $"ScenarioJSON/{name}";
-
-            TextAsset json = Resources.Load<TextAsset>(path);
-
-            if (json == null)
-            {
-                Debug.LogError("Scenario not found: " + name);
-                return;
-            }
-
-            VNNodeList list = JsonUtility.FromJson<VNNodeList>(json.text);
-
-            nodes = list.nodes;
-
-            pointer = 0;
-        }
+       
 
 
 

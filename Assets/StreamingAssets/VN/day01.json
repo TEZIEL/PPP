@@ -153,7 +153,7 @@
       "id": "call.2",
       "type": "Call",
       "target": "Drink",
-      "arg": "REQ_TEST_SODA"
+      "arg": "REQ_TEST_COLA"
     },
     {
       "id": "branch.2",
