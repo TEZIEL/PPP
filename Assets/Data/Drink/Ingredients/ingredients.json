@@ -1,0 +1,68 @@
+{
+  "ingredients": [
+    {
+      "name": "벨트린",
+      "id": "INGREDIENT_VELTRINE",
+      "english_name": "Veltrine",
+      "color": "#FFC0CB",
+      "taste": "TASTE_SWEET",
+      "description": "강한 단맛을 내며, 음료에 달콤함과 부드러움을 추가함."
+    },
+    {
+      "name": "자이프레이트",
+      "id": "INGREDIENT_ZYPHRATE",
+      "english_name": "Zyphrate",
+      "color": "#FFFF00",
+      "taste": "TASTE_SOUR",
+      "description": "강한 신맛을 부여하며, 상쾌하고 깔끔한 인상을 남김."
+    },
+    {
+      "name": "크라틸렌",
+      "id": "INGREDIENT_KRATYLEN",
+      "english_name": "Kratylen",
+      "color": "#ADD8E6",
+      "taste": "TASTE_NUTTY",
+      "description": "고소한 곡물과 견과류, 유제품의 맛을 강조하여, 부드럽고 진한 맛을 더함."
+    },
+    { 
+      "name": "모르비온",
+      "id": "INGREDIENT_MORVION",
+      "english_name": "Morvion",
+      "color": "#800080",
+      "taste": "TASTE_BITTER",
+      "description": "깊고 진한 쓴맛을 추가하여, 묵직하고 성숙한 느낌을 연출함."
+    },
+    {
+      "name": "레듈린",
+      "id": "INGREDIENT_REDULINE",
+      "english_name": "Reduline",
+      "color": "#FF0000",
+      "taste": "TASTE_FRUITY",
+      "description": "달콤하고 상큼한 과일의 맛을 강조하여, 생동감 있는 맛을 형성함."
+    },
+    {
+      "name": "사이멘톨",
+      "id": "INGREDIENT_CYMENTOL",
+      "english_name": "Cymentol",
+      "color": "#00CED1",
+      "taste": "TASTE_CARBONATED",
+      "description": "톡톡 튀는 탄산감을 더해 청량감을 높임."
+    },
+    {
+      "name": "브랙시움",
+      "id": "INGREDIENT_BRAXIUM",
+      "english_name": "Braxium",
+      "color": "#A52A2A",
+      "taste": "TASTE_CAFFEINE",
+      "description": "카페인의 씁쓸함과 강렬한 에너지를 제공함."
+    },
+    {
+      "name": "아르테온",
+      "id": "INGREDIENT_ARTHEON",
+      "english_name": "Artheon",
+      "color": "#FFA500",
+      "taste": "TASTE_WARM",
+      "description": "은은한 온기를 부여하며, 부드럽고 편안한 느낌을 더함."
+    }
+  ]
+}
