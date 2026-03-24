@@ -48,7 +48,7 @@ namespace PPP.BLUE.VN.DrinkSystem
                 stateTarget.color = enabled ? enabledColor : defaultColor;
 
             if (label != null)
-                label.text = $"ARTHEON {(enabled ? "ON" : "OFF")}";
+                label.text = "ARTHEON";
         }
 
         public void RefreshLabel(int count)
@@ -58,7 +58,7 @@ namespace PPP.BLUE.VN.DrinkSystem
 
             if (string.Equals(ingredientID, ArtheonIngredient, System.StringComparison.Ordinal))
             {
-                label.text = "ARTHEON OFF";
+                label.text = "ARTHEON";
                 return;
             }
 
