@@ -2668,6 +2668,20 @@ MonoBehaviour:
   skipBurstPerFrame: 20
   allowedExternalCallTargets:
   - Drink
+  syncFocusLinkedImages: 1
+  focusLinkedImages:
+  - target: {fileID: 4762162199109793200}
+    activeSprite: {fileID: 21300000, guid: b180f04e184c29d4a939e310db0820f4, type: 3}
+    inactiveSprite: {fileID: 21300000, guid: 3761e1b7a49682f4ab4e0b19fb06e4d5, type: 3}
+  - target: {fileID: 7548661460075191408}
+    activeSprite: {fileID: 21300000, guid: b180f04e184c29d4a939e310db0820f4, type: 3}
+    inactiveSprite: {fileID: 21300000, guid: 3761e1b7a49682f4ab4e0b19fb06e4d5, type: 3}
+  - target: {fileID: 4353270666560682798}
+    activeSprite: {fileID: 21300000, guid: b180f04e184c29d4a939e310db0820f4, type: 3}
+    inactiveSprite: {fileID: 21300000, guid: 3761e1b7a49682f4ab4e0b19fb06e4d5, type: 3}
+  - target: {fileID: 9041316756514125524}
+    activeSprite: {fileID: 21300000, guid: b180f04e184c29d4a939e310db0820f4, type: 3}
+    inactiveSprite: {fileID: 21300000, guid: 3761e1b7a49682f4ab4e0b19fb06e4d5, type: 3}
 --- !u!114 &2321816555586790909
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -3295,6 +3309,10 @@ MonoBehaviour:
   parentArea: {fileID: 7551348740662702333}
   pinToggleButton: {fileID: 8657123684315957331}
   pinStateVarKey: 
+  bringToFrontOnPointerDown: 1
+  bringToFrontOnChildPointerDown: 1
+  applyInitialSiblingIndexOnEnable: 0
+  initialSiblingIndex: -1
 --- !u!222 &5375797328295298933
 CanvasRenderer:
   m_ObjectHideFlags: 0
@@ -6500,6 +6518,10 @@ MonoBehaviour:
   parentArea: {fileID: 7551348740662702333}
   pinToggleButton: {fileID: 5615515203433212443}
   pinStateVarKey: 
+  bringToFrontOnPointerDown: 1
+  bringToFrontOnChildPointerDown: 1
+  applyInitialSiblingIndexOnEnable: 0
+  initialSiblingIndex: -1
 --- !u!222 &2540910458417759392
 CanvasRenderer:
   m_ObjectHideFlags: 0
@@ -6773,6 +6795,10 @@ MonoBehaviour:
   ingredientPanelRoot: {fileID: 6530648253024217355}
   drinkGridRoot: {fileID: 10961799066480680}
   vnContentRoot: {fileID: 7551348740662702333}
+  enableWeakZOrder: 1
+  applyInitialSiblingOrder: 1
+  ingredientPanelInitialSiblingIndex: 1
+  drinkGridInitialSiblingIndex: 0
 --- !u!1 &4936938286051861497
 GameObject:
   m_ObjectHideFlags: 0
