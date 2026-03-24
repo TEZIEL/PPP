@@ -4,6 +4,7 @@ using System.Collections;
 using UnityEngine;
 using PPP.BLUE.VN;
 using System.Text.RegularExpressions;
+using UnityEngine.UI;
 
 namespace PPP.BLUE.VN
 {
@@ -64,8 +65,12 @@ namespace PPP.BLUE.VN
 
         [Header("External Call")]
         [SerializeField] private string[] allowedExternalCallTargets = { "Drink" };
+        [Header("Window Focus Linked Images (VN App Only)")]
+        [SerializeField] private bool syncFocusLinkedImages = true;
 
         private readonly HashSet<string> externalCallTargetSet = new(StringComparer.OrdinalIgnoreCase);
+        [SerializeField] private FocusLinkedImage[] focusLinkedImages = Array.Empty<FocusLinkedImage>();
+        private bool? lastWindowFocusedVisualState;
 
 
         private struct InlineCommand
@@ -73,6 +78,14 @@ namespace PPP.BLUE.VN
             public string name;
             public string arg;
             public int index;
+        }
+
+        [Serializable]
+        private struct FocusLinkedImage
+        {
+            public Image target;
+            public Sprite activeSprite;
+            public Sprite inactiveSprite;
         }
 
         [System.Serializable]
@@ -105,6 +118,7 @@ namespace PPP.BLUE.VN
         public void InjectBridge(VNOSBridge b)
         {
             bridge = b;
+            lastWindowFocusedVisualState = null;
         }
 
         private void Awake()
@@ -304,6 +318,8 @@ namespace PPP.BLUE.VN
         {
             if (!HasScript) return;
 
+            SyncFocusLinkedImages();
+
             if (policy != null && !VNInputGate.CanRouteInput(policy))
                 return;
             // ----------------------------
@@ -377,6 +393,35 @@ namespace PPP.BLUE.VN
                 StopAutoTimer();
 
             // (여기 아래에 네 기존 autoPending 방식 로직이 있으면 그대로 두면 됨)
+        }
+
+        private void SyncFocusLinkedImages()
+        {
+            if (!syncFocusLinkedImages || focusLinkedImages == null || focusLinkedImages.Length == 0)
+                return;
+
+            bool isFocused = false;
+            if (bridge != null)
+            {
+                var state = bridge.GetWindowState();
+                isFocused = state.IsFocused && !state.IsMinimized;
+            }
+
+            if (lastWindowFocusedVisualState.HasValue && lastWindowFocusedVisualState.Value == isFocused)
+                return;
+
+            lastWindowFocusedVisualState = isFocused;
+
+            for (int i = 0; i < focusLinkedImages.Length; i++)
+            {
+                var entry = focusLinkedImages[i];
+                if (entry.target == null)
+                    continue;
+
+                Sprite next = isFocused ? entry.activeSprite : entry.inactiveSprite;
+                if (next != null)
+                    entry.target.sprite = next;
+            }
         }
 
         public void NotifyLineTypedEnd()
@@ -1280,8 +1325,7 @@ namespace PPP.BLUE.VN
             if (string.IsNullOrEmpty(result))
                 return;
 
-            if (string.Equals(result, "great", StringComparison.OrdinalIgnoreCase) ||
-                string.Equals(result, "perfect", StringComparison.OrdinalIgnoreCase))
+            if (string.Equals(result, "great", StringComparison.OrdinalIgnoreCase))
             {
                 SetVar("lastDrink", 1);
             }
@@ -1301,10 +1345,10 @@ namespace PPP.BLUE.VN
         {
             lastResult = result;
 
-            if (result == "great" || result == "perfect")
+            if (result == "great")
             {
                 greatCount++;
-                successCount++; // great/perfect는 success 포함 규칙
+                successCount++; // great는 success 포함 규칙
             }
             else if (result == "success")
             {

@@ -86,7 +86,6 @@ public class WindowController : MonoBehaviour,
         return true;
     }
 
-   
 
     private void BeginAnim()
     {
@@ -571,5 +570,3 @@ public class WindowController : MonoBehaviour,
             });
     }
 }
-
-   
