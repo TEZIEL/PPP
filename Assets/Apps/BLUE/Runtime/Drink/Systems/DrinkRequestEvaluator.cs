@@ -14,52 +14,52 @@ namespace PPP.BLUE.VN.DrinkSystem
         public string Evaluate(string drinkId, DrinkRequest request)
         {
             if (request == null)
-                return "FAIL";
+                return "fail";
 
             switch (request.type)
             {
                 case DrinkRequestType.EXACT_DRINK:
-                    return string.Equals(drinkId, request.drinkID, StringComparison.OrdinalIgnoreCase) ? "PERFECT" : "FAIL";
+                    return string.Equals(drinkId, request.drinkID, StringComparison.OrdinalIgnoreCase) ? "great" : "fail";
 
                 case DrinkRequestType.CATEGORY_REQUEST:
                 case DrinkRequestType.TAG_REQUEST:
                     if (string.IsNullOrEmpty(drinkId))
-                        return "FAIL";
+                        return "fail";
 
                     var drink = database?.FindDrink(drinkId);
                     if (drink == null)
-                        return "FAIL";
+                        return "fail";
 
                     if (!string.IsNullOrEmpty(request.likedDrink) &&
                         string.Equals(drinkId, request.likedDrink, StringComparison.OrdinalIgnoreCase))
                     {
-                        return "PERFECT";
+                        return "great";
                     }
 
                     bool categoryMatch = !string.IsNullOrEmpty(request.category) && drink.category.Contains(request.category);
                     bool tagMatch = request.tags != null && request.tags.Count > 0 && HasAnyTag(drink, request);
-                    return (categoryMatch || tagMatch) ? "SUCCESS" : "FAIL";
+                    return (categoryMatch || tagMatch) ? "success" : "fail";
 
                 case DrinkRequestType.ANY_DRINK:
                     if (!string.IsNullOrEmpty(request.dislikedDrink) &&
                         string.Equals(drinkId, request.dislikedDrink, StringComparison.OrdinalIgnoreCase))
                     {
-                        return "FAIL";
+                        return "fail";
                     }
 
                     if (!string.IsNullOrEmpty(request.likedDrink) &&
                         string.Equals(drinkId, request.likedDrink, StringComparison.OrdinalIgnoreCase))
                     {
-                        return "PERFECT";
+                        return "great";
                     }
 
-                    return string.IsNullOrEmpty(drinkId) ? "FAIL" : "SUCCESS";
+                    return string.IsNullOrEmpty(drinkId) ? "fail" : "success";
 
                 case DrinkRequestType.INTENTIONAL_FAIL:
-                    return string.Equals(drinkId, request.drinkID, StringComparison.OrdinalIgnoreCase) ? "FAIL" : "SUCCESS";
+                    return string.Equals(drinkId, request.drinkID, StringComparison.OrdinalIgnoreCase) ? "fail" : "success";
 
                 default:
-                    return "FAIL";
+                    return "fail";
             }
         }
 

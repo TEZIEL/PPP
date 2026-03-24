@@ -48,6 +48,9 @@ public class WindowManager : MonoBehaviour, IVNHostOS
     public bool IsAnimating => isAnimating;
 
     [SerializeField] private bool logSaveVerbose = false;
+    [Header("Save Split")]
+    [SerializeField] private bool excludeAppIdsFromOSWindowSave = true;
+    [SerializeField] private string[] excludedWindowAppIdsFromOSSave = { "app.vn" };
 
     [System.Diagnostics.Conditional("UNITY_EDITOR")]
     private void LogSave(string msg)
@@ -142,7 +145,7 @@ public class WindowManager : MonoBehaviour, IVNHostOS
         if (data != null)
         {
             var wd = data.windows.Find(x => x.appId == appId);
-            if (wd != null)
+            if (wd != null && !IsExcludedFromOSWindowSave(appId))
             {
                 spawned.SetWindowPosition(wd.position);
                 TryApplyWindowSize(spawned, wd.size);
@@ -476,6 +479,9 @@ public class WindowManager : MonoBehaviour, IVNHostOS
         var windows = windowsRoot.GetComponentsInChildren<WindowController>(true);
         foreach (var w in windows)
         {
+            if (IsExcludedFromOSWindowSave(w.GetAppId()))
+                continue;
+
             RectTransform rect = w.GetWindowRoot();
 
             data.windows.Add(new OSWindowData
@@ -495,6 +501,9 @@ public class WindowManager : MonoBehaviour, IVNHostOS
         var windows = windowsRoot.GetComponentsInChildren<WindowController>(true);
         foreach (var w in windows)
         {
+            if (IsExcludedFromOSWindowSave(w.GetAppId()))
+                continue;
+
             var saved = data.windows.Find(x => x.appId == w.GetAppId());
             if (saved == null) continue;
 
@@ -997,6 +1006,23 @@ public class WindowManager : MonoBehaviour, IVNHostOS
     {
         if (string.IsNullOrEmpty(appId)) return;
         exitLockedByAppId[appId] = locked;
+    }
+
+    private bool IsExcludedFromOSWindowSave(string appId)
+    {
+        if (!excludeAppIdsFromOSWindowSave || string.IsNullOrEmpty(appId))
+            return false;
+
+        if (excludedWindowAppIdsFromOSSave == null)
+            return false;
+
+        for (int i = 0; i < excludedWindowAppIdsFromOSSave.Length; i++)
+        {
+            if (string.Equals(excludedWindowAppIdsFromOSSave[i], appId, System.StringComparison.OrdinalIgnoreCase))
+                return true;
+        }
+
+        return false;
     }
 
 

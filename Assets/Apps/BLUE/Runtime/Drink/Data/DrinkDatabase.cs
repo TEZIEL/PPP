@@ -8,6 +8,7 @@ namespace PPP.BLUE.VN.DrinkSystem
         public List<DrinkData> drinks = new List<DrinkData>();
         public Dictionary<string, DrinkRequest> requests = new Dictionary<string, DrinkRequest>(StringComparer.OrdinalIgnoreCase);
         public HashSet<string> ingredients = new HashSet<string>();
+        public Dictionary<string, IngredientData> ingredientInfos = new Dictionary<string, IngredientData>(StringComparer.OrdinalIgnoreCase);
 
         public DrinkRequest FindRequest(string requestId)
         {
@@ -34,6 +35,14 @@ namespace PPP.BLUE.VN.DrinkSystem
             }
 
             return null;
+        }
+
+        public IngredientData FindIngredient(string ingredientId)
+        {
+            if (string.IsNullOrEmpty(ingredientId))
+                return null;
+
+            return ingredientInfos.TryGetValue(ingredientId, out var info) ? info : null;
         }
     }
 }
