@@ -4,11 +4,15 @@ using UnityEngine.UI;
 
 namespace PPP.BLUE.VN
 {
-    public sealed class UIDragMoveClamped : MonoBehaviour, IBeginDragHandler, IDragHandler
+    public sealed class UIDragMoveClamped : MonoBehaviour, IBeginDragHandler, IDragHandler, IPointerDownHandler
     {
         [SerializeField] private RectTransform parentArea;
         [SerializeField] private Button pinToggleButton;
         [SerializeField] private string pinStateVarKey;
+        [Header("Z-Order")]
+        [SerializeField] private bool bringToFrontOnPointerDown = true;
+        [SerializeField] private bool applyInitialSiblingIndexOnEnable;
+        [SerializeField] private int initialSiblingIndex = -1;
 
         private RectTransform rect;
         private RectTransform dragParent;
@@ -36,9 +40,22 @@ namespace PPP.BLUE.VN
                 pinToggleButton.onClick.RemoveListener(TogglePinned);
         }
 
+        private void OnEnable()
+        {
+            ApplyInitialSiblingIndex();
+        }
+
         public void SetParentArea(RectTransform area)
         {
             parentArea = area;
+        }
+
+        public void ConfigureZOrder(bool bringToFront, bool applyInitialIndex, int siblingIndex)
+        {
+            bringToFrontOnPointerDown = bringToFront;
+            applyInitialSiblingIndexOnEnable = applyInitialIndex;
+            initialSiblingIndex = siblingIndex;
+            ApplyInitialSiblingIndex();
         }
 
         public void TogglePinned()
@@ -59,6 +76,8 @@ namespace PPP.BLUE.VN
 
             if (!CanDrag(eventData))
                 return;
+
+            BringToFront();
 
             RectTransformUtility.ScreenPointToLocalPointInRectangle(
                 dragParent,
@@ -89,6 +108,14 @@ namespace PPP.BLUE.VN
             rect.anchoredPosition = ClampAnchoredPositionToParentArea(newAnchoredPosition);
         }
 
+        public void OnPointerDown(PointerEventData eventData)
+        {
+            if (!CanDrag(eventData))
+                return;
+
+            BringToFront();
+        }
+
         private void SavePinnedState()
         {
             if (runner == null || string.IsNullOrEmpty(pinStateVarKey))
@@ -100,6 +127,23 @@ namespace PPP.BLUE.VN
         private bool CanDrag(PointerEventData eventData)
         {
             return eventData != null && rect != null && dragParent != null && parentArea != null;
+        }
+
+        private void BringToFront()
+        {
+            if (!bringToFrontOnPointerDown || rect == null)
+                return;
+
+            rect.SetAsLastSibling();
+        }
+
+        private void ApplyInitialSiblingIndex()
+        {
+            if (!applyInitialSiblingIndexOnEnable || rect == null || rect.parent == null || initialSiblingIndex < 0)
+                return;
+
+            int clampedIndex = Mathf.Clamp(initialSiblingIndex, 0, rect.parent.childCount - 1);
+            rect.SetSiblingIndex(clampedIndex);
         }
 
         private Vector2 ClampAnchoredPositionToParentArea(Vector2 anchoredPosition)
