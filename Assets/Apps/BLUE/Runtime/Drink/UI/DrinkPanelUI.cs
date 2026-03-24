@@ -88,11 +88,11 @@ namespace PPP.BLUE.VN.DrinkSystem
 
             if (producedDrinkImage != null)
             {
-                Sprite targetSprite = null;
-                if (isFailResult && failDrinkSprite != null)
+                Sprite targetSprite = drinkSprite;
+                if (targetSprite == null && isFailResult && failDrinkSprite != null)
                     targetSprite = failDrinkSprite;
-                else
-                    targetSprite = drinkSprite != null ? drinkSprite : unknownDrinkSprite;
+                if (targetSprite == null)
+                    targetSprite = unknownDrinkSprite;
 
                 producedDrinkImage.sprite = targetSprite;
                 producedDrinkImage.enabled = targetSprite != null;
