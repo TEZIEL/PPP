@@ -20,6 +20,13 @@ namespace PPP.BLUE.VN.DrinkSystem
         [SerializeField] private TMP_Text resultText;
         [SerializeField] private TMP_Text producedDrinkText;
         [SerializeField] private TMP_Text ingredientCountText;
+        [SerializeField] private TMP_Text ingredientHoverTitleText;
+        [SerializeField] private TMP_Text ingredientHoverDescriptionText;
+
+        [Header("Result Image")]
+        [SerializeField] private Image producedDrinkImage;
+        [SerializeField] private Sprite unknownDrinkSprite;
+        [SerializeField] private Sprite failDrinkSprite;
 
         [Header("Result Image")]
         [SerializeField] private Image producedDrinkImage;
@@ -60,6 +67,20 @@ namespace PPP.BLUE.VN.DrinkSystem
         {
             if (ingredientCountText != null)
                 ingredientCountText.text = $"{current} / {max}";
+        }
+
+        public void ShowIngredientHoverInfo(string title, string description)
+        {
+            if (ingredientHoverTitleText != null)
+                ingredientHoverTitleText.text = title ?? string.Empty;
+
+            if (ingredientHoverDescriptionText != null)
+                ingredientHoverDescriptionText.text = description ?? string.Empty;
+        }
+
+        public void ClearIngredientHoverInfo()
+        {
+            ShowIngredientHoverInfo(string.Empty, string.Empty);
         }
 
         public void ShowResult(string result, string drinkName, Sprite drinkSprite = null, bool isFailResult = false)

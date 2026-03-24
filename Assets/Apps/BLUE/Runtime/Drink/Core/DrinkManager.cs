@@ -69,6 +69,7 @@ namespace PPP.BLUE.VN
         private bool hasPendingProvide;
         private bool resultLocked;
         private bool confirmCompleted;
+        private string hoveredIngredientId;
 
         private void Awake()
         {
@@ -101,6 +102,7 @@ namespace PPP.BLUE.VN
 
             HideConfirmPanel();
             panelUI?.ClearGridInstant();
+            panelUI?.ClearIngredientHoverInfo();
             RefreshUi();
         }
 
@@ -164,6 +166,12 @@ namespace PPP.BLUE.VN
 
             if (totalCount >= MaxIngredients)
                 SetIngredientButtonsInteractable(false);
+        }
+
+        public void SetIngredientHover(string ingredientId, bool isHovering)
+        {
+            hoveredIngredientId = isHovering ? ingredientId : null;
+            UpdateHoveredIngredientInfo();
         }
 
         public void ResetIngredients()
@@ -387,6 +395,8 @@ namespace PPP.BLUE.VN
                 currentIngredients.TryGetValue(ingredientId, out int count);
                 ingredientButtons[i].RefreshLabel(count);
             }
+
+            UpdateHoveredIngredientInfo();
         }
 
         private void ToggleArtheon()
@@ -426,6 +436,48 @@ namespace PPP.BLUE.VN
                 return;
 
             provideButton.interactable = !isResetInProgress && !isProvided && !IsConfirmOpen() && totalCount > 0;
+        }
+
+        private void UpdateHoveredIngredientInfo()
+        {
+            if (panelUI == null)
+                return;
+
+            if (string.IsNullOrEmpty(hoveredIngredientId))
+            {
+                panelUI.ClearIngredientHoverInfo();
+                return;
+            }
+
+            string displayName = GetIngredientDisplayName(hoveredIngredientId);
+            string description = GetIngredientDescription(hoveredIngredientId);
+
+            if (string.Equals(hoveredIngredientId, ArtheonIngredient, StringComparison.Ordinal))
+            {
+                panelUI.ShowIngredientHoverInfo($"{displayName} {(artheonEnabled ? "ON" : "OFF")}", description);
+                return;
+            }
+
+            currentIngredients.TryGetValue(hoveredIngredientId, out int count);
+            panelUI.ShowIngredientHoverInfo($"{displayName} x {count:00}", description);
+        }
+
+        private string GetIngredientDisplayName(string ingredientId)
+        {
+            var info = database?.FindIngredient(ingredientId);
+            if (info != null && !string.IsNullOrWhiteSpace(info.displayName))
+                return info.displayName;
+
+            if (string.IsNullOrWhiteSpace(ingredientId))
+                return "UNKNOWN";
+
+            return ingredientId.Replace("INGREDIENT_", string.Empty);
+        }
+
+        private string GetIngredientDescription(string ingredientId)
+        {
+            var info = database?.FindIngredient(ingredientId);
+            return info != null ? (info.description ?? string.Empty) : string.Empty;
         }
 
         private bool IsConfirmOpen()

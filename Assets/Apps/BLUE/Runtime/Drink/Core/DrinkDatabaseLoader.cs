@@ -168,6 +168,27 @@ namespace PPP.BLUE.VN.DrinkSystem
                 {
                     if (obj.TryGetValue("id", out object idObj))
                         value = idObj?.ToString();
+
+                    if (!string.IsNullOrEmpty(value))
+                    {
+                        var info = new IngredientData
+                        {
+                            id = value,
+                            displayName = FirstNonEmpty(
+                                GetString(obj, "displayName"),
+                                FirstNonEmpty(
+                                    GetString(obj, "name"),
+                                    FirstNonEmpty(GetString(obj, "korean_name"), GetString(obj, "english_name"))
+                                )
+                            ),
+                            description = FirstNonEmpty(GetString(obj, "description"), GetString(obj, "desc"))
+                        };
+
+                        if (string.IsNullOrWhiteSpace(info.displayName))
+                            info.displayName = value.Replace("INGREDIENT_", string.Empty);
+
+                        db.ingredientInfos[value] = info;
+                    }
                 }
                 else
                 {
