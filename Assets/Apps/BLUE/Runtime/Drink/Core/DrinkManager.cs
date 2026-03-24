@@ -10,6 +10,13 @@ namespace PPP.BLUE.VN
 {
     public sealed class DrinkManager : MonoBehaviour
     {
+        [Serializable]
+        private struct DrinkImageEntry
+        {
+            public string imageKey;
+            public Sprite sprite;
+        }
+
         private const int MaxIngredients = 16;
         private const string ArtheonIngredient = "INGREDIENT_ARTHEON";
         private const string WarmPrefix = "따뜻한 ";
@@ -27,6 +34,7 @@ namespace PPP.BLUE.VN
         [SerializeField] private Button resetButton;
         [SerializeField] private IngredientButton[] ingredientButtons;
         [SerializeField] private Selectable[] gridInteractables = Array.Empty<Selectable>();
+        [SerializeField] private DrinkImageEntry[] drinkImageEntries = Array.Empty<DrinkImageEntry>();
 
         [Header("Confirm Dialog")]
         [SerializeField] private GameObject confirmPanel;
@@ -44,6 +52,7 @@ namespace PPP.BLUE.VN
         [SerializeField] private bool debugDrinkSystem = true;
 
         private readonly Dictionary<string, int> currentIngredients = new Dictionary<string, int>(StringComparer.Ordinal);
+        private readonly Dictionary<string, Sprite> drinkImageMap = new Dictionary<string, Sprite>(StringComparer.OrdinalIgnoreCase);
         private int totalCount;
 
         private DrinkDatabase database;
@@ -67,6 +76,7 @@ namespace PPP.BLUE.VN
             recipeValidator = new DrinkRecipeValidator(database);
             requestEvaluator = new DrinkRequestEvaluator(database);
             currentRequest = database.FindRequest(currentRequestId);
+            RebuildDrinkImageMap();
 
             if (policy == null)
                 policy = GetComponentInParent<VNPolicyController>(true);
@@ -288,7 +298,8 @@ namespace PPP.BLUE.VN
             if (artheonEnabled && produced != null && !string.IsNullOrEmpty(produced.name))
                 producedName = WarmPrefix + produced.name;
 
-            panelUI?.ShowResult(result, producedName);
+            bool isFailResult = string.Equals(normalizedResult, "FAIL", StringComparison.OrdinalIgnoreCase);
+            panelUI?.ShowResult(result, producedName, ResolveDrinkSprite(produced), isFailResult);
 
             bool isUnknown = string.IsNullOrEmpty(drinkId);
 
@@ -382,6 +393,31 @@ namespace PPP.BLUE.VN
         {
             artheonEnabled = !artheonEnabled;
             RefreshUi();
+        }
+
+        private void RebuildDrinkImageMap()
+        {
+            drinkImageMap.Clear();
+
+            if (drinkImageEntries == null)
+                return;
+
+            for (int i = 0; i < drinkImageEntries.Length; i++)
+            {
+                var entry = drinkImageEntries[i];
+                if (string.IsNullOrWhiteSpace(entry.imageKey) || entry.sprite == null)
+                    continue;
+
+                drinkImageMap[entry.imageKey.Trim()] = entry.sprite;
+            }
+        }
+
+        private Sprite ResolveDrinkSprite(DrinkData drink)
+        {
+            if (drink == null || string.IsNullOrWhiteSpace(drink.imageKey))
+                return null;
+
+            return drinkImageMap.TryGetValue(drink.imageKey.Trim(), out var sprite) ? sprite : null;
         }
 
         private void UpdateProvideButtonState()

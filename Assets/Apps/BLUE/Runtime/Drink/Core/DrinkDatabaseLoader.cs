@@ -43,6 +43,7 @@ namespace PPP.BLUE.VN.DrinkSystem
                 {
                     id = GetString(rawDrink, "id"),
                     name = GetString(rawDrink, "name"),
+                    imageKey = FirstNonEmpty(GetString(rawDrink, "IMAGE_KEY"), GetString(rawDrink, "imageKey")),
                     artheon_addable = GetBool(rawDrink, "artheon_addable"),
                     total = GetInt(rawDrink, "total")
                 };
@@ -191,6 +192,9 @@ namespace PPP.BLUE.VN.DrinkSystem
 
         private static string GetString(Dictionary<string, object> data, string key)
             => data.TryGetValue(key, out object value) ? value?.ToString() ?? string.Empty : string.Empty;
+
+        private static string FirstNonEmpty(string primary, string fallback)
+            => !string.IsNullOrWhiteSpace(primary) ? primary : (fallback ?? string.Empty);
 
         private static bool GetBool(Dictionary<string, object> data, string key)
             => data.TryGetValue(key, out object value) && ToBool(value);

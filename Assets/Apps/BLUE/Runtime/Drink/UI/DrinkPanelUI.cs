@@ -21,6 +21,11 @@ namespace PPP.BLUE.VN.DrinkSystem
         [SerializeField] private TMP_Text producedDrinkText;
         [SerializeField] private TMP_Text ingredientCountText;
 
+        [Header("Result Image")]
+        [SerializeField] private Image producedDrinkImage;
+        [SerializeField] private Sprite unknownDrinkSprite;
+        [SerializeField] private Sprite failDrinkSprite;
+
         [Header("Grid (4x4)")]
         [SerializeField] private Image[] slotImages = new Image[16];
         [SerializeField] private Sprite emptySlotSprite;
@@ -57,13 +62,25 @@ namespace PPP.BLUE.VN.DrinkSystem
                 ingredientCountText.text = $"{current} / {max}";
         }
 
-        public void ShowResult(string result, string drinkName)
+        public void ShowResult(string result, string drinkName, Sprite drinkSprite = null, bool isFailResult = false)
         {
             if (resultText != null)
                 resultText.text = result;
 
             if (producedDrinkText != null)
                 producedDrinkText.text = string.IsNullOrEmpty(drinkName) ? "Unknown Drink" : drinkName;
+
+            if (producedDrinkImage != null)
+            {
+                Sprite targetSprite = null;
+                if (isFailResult && failDrinkSprite != null)
+                    targetSprite = failDrinkSprite;
+                else
+                    targetSprite = drinkSprite != null ? drinkSprite : unknownDrinkSprite;
+
+                producedDrinkImage.sprite = targetSprite;
+                producedDrinkImage.enabled = targetSprite != null;
+            }
         }
 
         public float GetResetAnimationDuration()
