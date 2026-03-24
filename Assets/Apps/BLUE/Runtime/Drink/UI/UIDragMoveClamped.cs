@@ -92,6 +92,9 @@ namespace PPP.BLUE.VN
             if (!CanDrag(eventData))
                 return;
 
+            if (IsPointerOnButton(eventData))
+                return;
+
             BringToFront();
 
             RectTransformUtility.ScreenPointToLocalPointInRectangle(
@@ -109,6 +112,9 @@ namespace PPP.BLUE.VN
                 return;
 
             if (!CanDrag(eventData))
+                return;
+
+            if (IsPointerOnButton(eventData))
                 return;
 
             if (!RectTransformUtility.ScreenPointToLocalPointInRectangle(
@@ -142,6 +148,20 @@ namespace PPP.BLUE.VN
         private bool CanDrag(PointerEventData eventData)
         {
             return eventData != null && rect != null && dragParent != null && parentArea != null;
+        }
+
+        private static bool IsPointerOnButton(PointerEventData eventData)
+        {
+            if (eventData == null)
+                return false;
+
+            GameObject target = eventData.pointerPressRaycast.gameObject;
+            if (target == null)
+                target = eventData.pointerCurrentRaycast.gameObject;
+            if (target == null)
+                return false;
+
+            return target.GetComponentInParent<Button>() != null;
         }
 
         private void BringToFront()
