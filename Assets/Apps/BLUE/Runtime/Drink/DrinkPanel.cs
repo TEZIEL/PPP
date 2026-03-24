@@ -18,6 +18,12 @@ namespace PPP.BLUE.VN
         [SerializeField] private RectTransform drinkGridRoot;
         [SerializeField] private RectTransform vnContentRoot;
 
+        [Header("Ingredient/Grid Z-Order")]
+        [SerializeField] private bool enableWeakZOrder = true;
+        [SerializeField] private bool applyInitialSiblingOrder = true;
+        [SerializeField] private int ingredientPanelInitialSiblingIndex = 1;
+        [SerializeField] private int drinkGridInitialSiblingIndex = 0;
+
         private Coroutine openCo;
         private bool isOpen;
         private bool isOpening;
@@ -27,14 +33,14 @@ namespace PPP.BLUE.VN
 
         private void Awake()
         {
-            EnsureClampedDragMove(ingredientPanelRoot, vnContentRoot);
-            EnsureClampedDragMove(drinkGridRoot, vnContentRoot);
+            EnsureClampedDragMove(ingredientPanelRoot, vnContentRoot, ingredientPanelInitialSiblingIndex);
+            EnsureClampedDragMove(drinkGridRoot, vnContentRoot, drinkGridInitialSiblingIndex);
 
             if (root != null)
                 root.SetActive(false);
         }
 
-        private static void EnsureClampedDragMove(RectTransform target, RectTransform parentArea)
+        private void EnsureClampedDragMove(RectTransform target, RectTransform parentArea, int initialSiblingIndex)
         {
             if (target == null)
                 return;
@@ -44,6 +50,7 @@ namespace PPP.BLUE.VN
                 dragMove = target.gameObject.AddComponent<UIDragMoveClamped>();
 
             dragMove.SetParentArea(parentArea);
+            dragMove.ConfigureZOrder(enableWeakZOrder, applyInitialSiblingOrder, initialSiblingIndex);
         }
 
         private void OnEnable()
