@@ -1,10 +1,11 @@
 using TMPro;
 using UnityEngine;
+using UnityEngine.EventSystems;
 using UnityEngine.UI;
 
 namespace PPP.BLUE.VN.DrinkSystem
 {
-    public sealed class IngredientButton : MonoBehaviour
+    public sealed class IngredientButton : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler
     {
         private const string ArtheonIngredient = "INGREDIENT_ARTHEON";
 
@@ -62,12 +63,22 @@ namespace PPP.BLUE.VN.DrinkSystem
             }
 
             var displayId = string.IsNullOrEmpty(ingredientID) ? "UNKNOWN" : ingredientID.Replace("INGREDIENT_", string.Empty);
-            label.text = $"{displayId} x{count}";
+            label.text = displayId;
         }
 
         private void OnClick()
         {
             manager?.AddIngredient(ingredientID);
+        }
+
+        public void OnPointerEnter(PointerEventData eventData)
+        {
+            manager?.SetIngredientHover(ingredientID, true);
+        }
+
+        public void OnPointerExit(PointerEventData eventData)
+        {
+            manager?.SetIngredientHover(ingredientID, false);
         }
     }
 }
