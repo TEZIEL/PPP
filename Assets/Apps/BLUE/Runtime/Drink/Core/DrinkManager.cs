@@ -63,8 +63,8 @@ namespace PPP.BLUE.VN
         private bool isResetInProgress;
         private bool isProvided;
 
-        private string pendingResult = "FAIL";
-        private string pendingNormalizedResult = "FAIL";
+        private string pendingResult = "fail";
+        private string pendingNormalizedResult = "fail";
         private string pendingDrinkName = "Unknown Drink";
         private bool hasPendingProvide;
         private bool resultLocked;
@@ -298,7 +298,7 @@ namespace PPP.BLUE.VN
 
             LogRequest(currentRequest);
 
-            result = blockedByArtheon ? "FAIL" : requestEvaluator.Evaluate(drinkId, currentRequest);
+            result = blockedByArtheon ? "fail" : requestEvaluator.Evaluate(drinkId, currentRequest);
             normalizedResult = NormalizeResultForRunner(result);
 
             var produced = database?.FindDrink(drinkId);
@@ -306,7 +306,7 @@ namespace PPP.BLUE.VN
             if (artheonEnabled && produced != null && !string.IsNullOrEmpty(produced.name))
                 producedName = WarmPrefix + produced.name;
 
-            bool isFailResult = string.Equals(normalizedResult, "FAIL", StringComparison.OrdinalIgnoreCase);
+            bool isFailResult = string.Equals(normalizedResult, "fail", StringComparison.OrdinalIgnoreCase);
             panelUI?.ShowResult(result, producedName, ResolveDrinkSprite(produced), isFailResult);
 
             bool isUnknown = string.IsNullOrEmpty(drinkId);
@@ -356,11 +356,10 @@ namespace PPP.BLUE.VN
 
         private static int MapResultToLastDrinkValue(string result)
         {
-            if (string.Equals(result, "PERFECT", StringComparison.OrdinalIgnoreCase) ||
-                string.Equals(result, "GREAT", StringComparison.OrdinalIgnoreCase))
+            if (string.Equals(result, "great", StringComparison.OrdinalIgnoreCase))
                 return 1;
 
-            if (string.Equals(result, "SUCCESS", StringComparison.OrdinalIgnoreCase))
+            if (string.Equals(result, "success", StringComparison.OrdinalIgnoreCase))
                 return 2;
 
             return 3;
@@ -368,11 +367,11 @@ namespace PPP.BLUE.VN
 
         private string NormalizeResultForRunner(string result)
         {
-            if (string.Equals(result, "PERFECT", StringComparison.OrdinalIgnoreCase))
-                return "PERFECT";
-            if (string.Equals(result, "SUCCESS", StringComparison.OrdinalIgnoreCase))
-                return "SUCCESS";
-            return "FAIL";
+            if (string.Equals(result, "great", StringComparison.OrdinalIgnoreCase))
+                return "great";
+            if (string.Equals(result, "success", StringComparison.OrdinalIgnoreCase))
+                return "success";
+            return "fail";
         }
 
         private void RefreshUi()
@@ -551,7 +550,7 @@ namespace PPP.BLUE.VN
             RefreshUi();
 
             if (runner != null)
-                runner.ReturnFromCall("FAIL");
+                runner.ReturnFromCall("fail");
         }
 
         private void SetAllIngredientButtonsInteractable(bool interactable)

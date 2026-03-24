@@ -9,7 +9,7 @@ namespace PPP.BLUE.VN.DrinkSystem
 
         public bool RegisterResult(string result)
         {
-            if (string.Equals(result, "FAIL", System.StringComparison.OrdinalIgnoreCase))
+            if (string.Equals(result, "fail", System.StringComparison.OrdinalIgnoreCase))
             {
                 FailCount++;
                 return FailCount >= warningThreshold;
