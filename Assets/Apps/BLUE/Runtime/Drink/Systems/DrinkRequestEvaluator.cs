@@ -1,4 +1,6 @@
 using System;
+using System.Collections.Generic;
+using UnityEngine;
 
 namespace PPP.BLUE.VN.DrinkSystem
 {
@@ -11,55 +13,73 @@ namespace PPP.BLUE.VN.DrinkSystem
             this.database = database;
         }
 
-        public string Evaluate(string drinkId, DrinkRequest request)
+        public string Evaluate(string drinkId, DrinkRequest request, string requestIdInput = null)
         {
             if (request == null)
-                return "FAIL";
+                return "fail";
 
             switch (request.type)
             {
                 case DrinkRequestType.EXACT_DRINK:
-                    return string.Equals(drinkId, request.drinkID, StringComparison.OrdinalIgnoreCase) ? "PERFECT" : "FAIL";
+                    return string.Equals(drinkId, request.drinkID, StringComparison.OrdinalIgnoreCase) ? "great" : "fail";
 
                 case DrinkRequestType.CATEGORY_REQUEST:
-                case DrinkRequestType.TAG_REQUEST:
                     if (string.IsNullOrEmpty(drinkId))
-                        return "FAIL";
+                        return "fail";
 
-                    var drink = database?.FindDrink(drinkId);
-                    if (drink == null)
-                        return "FAIL";
+                    var categoryDrink = database?.FindDrink(drinkId);
+                    if (categoryDrink == null)
+                        return "fail";
 
                     if (!string.IsNullOrEmpty(request.likedDrink) &&
                         string.Equals(drinkId, request.likedDrink, StringComparison.OrdinalIgnoreCase))
                     {
-                        return "PERFECT";
+                        return "great";
                     }
 
-                    bool categoryMatch = !string.IsNullOrEmpty(request.category) && drink.category.Contains(request.category);
-                    bool tagMatch = request.tags != null && request.tags.Count > 0 && HasAnyTag(drink, request);
-                    return (categoryMatch || tagMatch) ? "SUCCESS" : "FAIL";
+                    bool categoryMatch = HasAnyCategoryMatch(categoryDrink, request);
+                    string categoryResult = categoryMatch ? "success" : "fail";
+                    LogCategoryRequest(requestIdInput, request, categoryDrink, categoryMatch, categoryResult);
+                    return categoryResult;
+
+                case DrinkRequestType.TAG_REQUEST:
+                    if (string.IsNullOrEmpty(drinkId))
+                        return "fail";
+
+                    var tagDrink = database?.FindDrink(drinkId);
+                    if (tagDrink == null)
+                        return "fail";
+
+                    if (!string.IsNullOrEmpty(request.likedDrink) &&
+                        string.Equals(drinkId, request.likedDrink, StringComparison.OrdinalIgnoreCase))
+                    {
+                        return "great";
+                    }
+
+                    return request.tags != null && request.tags.Count > 0 && HasAnyTag(tagDrink, request)
+                        ? "success"
+                        : "fail";
 
                 case DrinkRequestType.ANY_DRINK:
                     if (!string.IsNullOrEmpty(request.dislikedDrink) &&
                         string.Equals(drinkId, request.dislikedDrink, StringComparison.OrdinalIgnoreCase))
                     {
-                        return "FAIL";
+                        return "fail";
                     }
 
                     if (!string.IsNullOrEmpty(request.likedDrink) &&
                         string.Equals(drinkId, request.likedDrink, StringComparison.OrdinalIgnoreCase))
                     {
-                        return "PERFECT";
+                        return "great";
                     }
 
-                    return string.IsNullOrEmpty(drinkId) ? "FAIL" : "SUCCESS";
+                    return string.IsNullOrEmpty(drinkId) ? "fail" : "success";
 
                 case DrinkRequestType.INTENTIONAL_FAIL:
-                    return string.Equals(drinkId, request.drinkID, StringComparison.OrdinalIgnoreCase) ? "FAIL" : "SUCCESS";
+                    return string.Equals(drinkId, request.drinkID, StringComparison.OrdinalIgnoreCase) ? "fail" : "success";
 
                 default:
-                    return "FAIL";
+                    return "fail";
             }
         }
 
@@ -72,6 +92,53 @@ namespace PPP.BLUE.VN.DrinkSystem
             }
 
             return false;
+        }
+
+        private static bool HasAnyCategoryMatch(DrinkData drink, DrinkRequest request)
+        {
+            if (drink == null || drink.category == null || drink.category.Count == 0 || request == null)
+                return false;
+
+            List<string> requestCategories = request.categories;
+            if (requestCategories == null || requestCategories.Count == 0)
+            {
+                if (string.IsNullOrWhiteSpace(request.category))
+                    return false;
+
+                requestCategories = new List<string> { request.category };
+            }
+
+            for (int i = 0; i < drink.category.Count; i++)
+            {
+                string drinkCategory = drink.category[i];
+                if (string.IsNullOrWhiteSpace(drinkCategory))
+                    continue;
+
+                for (int j = 0; j < requestCategories.Count; j++)
+                {
+                    if (string.Equals(requestCategories[j], drinkCategory, StringComparison.OrdinalIgnoreCase))
+                        return true;
+                }
+            }
+
+            return false;
+        }
+
+        private static void LogCategoryRequest(string requestIdInput, DrinkRequest request, DrinkData drink, bool categoryMatch, string result)
+        {
+            string requestCategories = request != null && request.categories != null && request.categories.Count > 0
+                ? string.Join(",", request.categories)
+                : (request?.category ?? string.Empty);
+            string drinkCategories = drink != null && drink.category != null && drink.category.Count > 0
+                ? string.Join(",", drink.category)
+                : string.Empty;
+
+            Debug.Log(
+                $"[Drink][CATEGORY_REQUEST] requestIdInput={requestIdInput ?? string.Empty} " +
+                $"resolvedRequestId={request?.requestID ?? string.Empty} requestType={request?.type.ToString() ?? string.Empty} " +
+                $"requestCategory={requestCategories} resolvedDrinkId={drink?.id ?? string.Empty} " +
+                $"drinkCategory={drinkCategories} categoryMatch={categoryMatch} result={result}"
+            );
         }
     }
 }

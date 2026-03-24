@@ -43,6 +43,7 @@ namespace PPP.BLUE.VN.DrinkSystem
                 {
                     id = GetString(rawDrink, "id"),
                     name = GetString(rawDrink, "name"),
+                    imageKey = FirstNonEmpty(GetString(rawDrink, "IMAGE_KEY"), GetString(rawDrink, "imageKey")),
                     artheon_addable = GetBool(rawDrink, "artheon_addable"),
                     total = GetInt(rawDrink, "total")
                 };
@@ -136,10 +137,18 @@ namespace PPP.BLUE.VN.DrinkSystem
                     if (categoryObj is List<object> list && list.Count > 0)
                     {
                         request.category = list[0]?.ToString() ?? "";
+                        for (int c = 0; c < list.Count; c++)
+                        {
+                            string cat = list[c]?.ToString() ?? string.Empty;
+                            if (!string.IsNullOrWhiteSpace(cat))
+                                request.categories.Add(cat);
+                        }
                     }
                     else if (categoryObj is string s)
                     {
                         request.category = s;
+                        if (!string.IsNullOrWhiteSpace(s))
+                            request.categories.Add(s);
                     }
                 }
 
@@ -167,6 +176,27 @@ namespace PPP.BLUE.VN.DrinkSystem
                 {
                     if (obj.TryGetValue("id", out object idObj))
                         value = idObj?.ToString();
+
+                    if (!string.IsNullOrEmpty(value))
+                    {
+                        var info = new IngredientData
+                        {
+                            id = value,
+                            displayName = FirstNonEmpty(
+                                GetString(obj, "displayName"),
+                                FirstNonEmpty(
+                                    GetString(obj, "name"),
+                                    FirstNonEmpty(GetString(obj, "korean_name"), GetString(obj, "english_name"))
+                                )
+                            ),
+                            description = FirstNonEmpty(GetString(obj, "description"), GetString(obj, "desc"))
+                        };
+
+                        if (string.IsNullOrWhiteSpace(info.displayName))
+                            info.displayName = value.Replace("INGREDIENT_", string.Empty);
+
+                        db.ingredientInfos[value] = info;
+                    }
                 }
                 else
                 {
@@ -191,6 +221,9 @@ namespace PPP.BLUE.VN.DrinkSystem
 
         private static string GetString(Dictionary<string, object> data, string key)
             => data.TryGetValue(key, out object value) ? value?.ToString() ?? string.Empty : string.Empty;
+
+        private static string FirstNonEmpty(string primary, string fallback)
+            => !string.IsNullOrWhiteSpace(primary) ? primary : (fallback ?? string.Empty);
 
         private static bool GetBool(Dictionary<string, object> data, string key)
             => data.TryGetValue(key, out object value) && ToBool(value);
