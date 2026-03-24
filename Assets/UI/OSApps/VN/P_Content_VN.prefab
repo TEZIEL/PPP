@@ -3101,7 +3101,7 @@ MonoBehaviour:
   confirmRemakeButton: {fileID: 3115612337220229594}
   confirmProvideButton: {fileID: 619811421041390469}
   resetCooldownSeconds: 0.2
-  currentRequestId: REQ_TEST_LATTE
+  currentRequestId: 
   debugDrinkSystem: 1
 --- !u!1 &2336280376324475973
 GameObject:
