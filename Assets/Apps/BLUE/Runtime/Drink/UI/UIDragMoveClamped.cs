@@ -1,6 +1,7 @@
 using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
+using System.Collections.Generic;
 
 namespace PPP.BLUE.VN
 {
@@ -11,6 +12,7 @@ namespace PPP.BLUE.VN
         [SerializeField] private string pinStateVarKey;
         [Header("Z-Order")]
         [SerializeField] private bool bringToFrontOnPointerDown = true;
+        [SerializeField] private bool bringToFrontOnChildPointerDown = true;
         [SerializeField] private bool applyInitialSiblingIndexOnEnable;
         [SerializeField] private int initialSiblingIndex = -1;
 
@@ -20,6 +22,7 @@ namespace PPP.BLUE.VN
         private Vector2 startAnchoredPosition;
         private VNRunner runner;
         private bool isPinned;
+        private static readonly List<RaycastResult> RaycastResultsBuffer = new List<RaycastResult>(16);
 
         private void Awake()
         {
@@ -45,6 +48,17 @@ namespace PPP.BLUE.VN
             ApplyInitialSiblingIndex();
         }
 
+        private void Update()
+        {
+            if (!bringToFrontOnChildPointerDown || rect == null)
+                return;
+
+            if (!Input.GetMouseButtonDown(0))
+                return;
+
+            TryBringToFrontFromPointerPosition(Input.mousePosition);
+        }
+
         public void SetParentArea(RectTransform area)
         {
             parentArea = area;
@@ -53,6 +67,7 @@ namespace PPP.BLUE.VN
         public void ConfigureZOrder(bool bringToFront, bool applyInitialIndex, int siblingIndex)
         {
             bringToFrontOnPointerDown = bringToFront;
+            bringToFrontOnChildPointerDown = bringToFront;
             applyInitialSiblingIndexOnEnable = applyInitialIndex;
             initialSiblingIndex = siblingIndex;
             ApplyInitialSiblingIndex();
@@ -135,6 +150,34 @@ namespace PPP.BLUE.VN
                 return;
 
             rect.SetAsLastSibling();
+        }
+
+        private void TryBringToFrontFromPointerPosition(Vector2 screenPosition)
+        {
+            if (EventSystem.current == null)
+                return;
+
+            var pointerEventData = new PointerEventData(EventSystem.current)
+            {
+                position = screenPosition
+            };
+
+            RaycastResultsBuffer.Clear();
+            EventSystem.current.RaycastAll(pointerEventData, RaycastResultsBuffer);
+
+            for (int i = 0; i < RaycastResultsBuffer.Count; i++)
+            {
+                var hit = RaycastResultsBuffer[i];
+                if (hit.gameObject == null)
+                    continue;
+
+                Transform hitTransform = hit.gameObject.transform;
+                if (hitTransform == transform || hitTransform.IsChildOf(transform))
+                {
+                    BringToFront();
+                    return;
+                }
+            }
         }
 
         private void ApplyInitialSiblingIndex()
