@@ -137,10 +137,18 @@ namespace PPP.BLUE.VN.DrinkSystem
                     if (categoryObj is List<object> list && list.Count > 0)
                     {
                         request.category = list[0]?.ToString() ?? "";
+                        for (int c = 0; c < list.Count; c++)
+                        {
+                            string cat = list[c]?.ToString() ?? string.Empty;
+                            if (!string.IsNullOrWhiteSpace(cat))
+                                request.categories.Add(cat);
+                        }
                     }
                     else if (categoryObj is string s)
                     {
                         request.category = s;
+                        if (!string.IsNullOrWhiteSpace(s))
+                            request.categories.Add(s);
                     }
                 }
 

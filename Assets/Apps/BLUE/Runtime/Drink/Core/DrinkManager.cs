@@ -77,6 +77,7 @@ namespace PPP.BLUE.VN
             recipeValidator = new DrinkRecipeValidator(database);
             requestEvaluator = new DrinkRequestEvaluator(database);
             currentRequest = database.FindRequest(currentRequestId);
+            LogDrink($"request bind inputRequestId={currentRequestId} resolvedRequestId={(currentRequest != null ? currentRequest.requestID : "(null)")}");
             RebuildDrinkImageMap();
 
             if (policy == null)
@@ -113,6 +114,7 @@ namespace PPP.BLUE.VN
         {
             currentRequestId = requestId;
             currentRequest = database?.FindRequest(requestId);
+            LogDrink($"request set inputRequestId={currentRequestId} resolvedRequestId={(currentRequest != null ? currentRequest.requestID : "(null)")}");
         }
 
         public void HideConfirmPanel()
@@ -298,7 +300,7 @@ namespace PPP.BLUE.VN
 
             LogRequest(currentRequest);
 
-            result = blockedByArtheon ? "fail" : requestEvaluator.Evaluate(drinkId, currentRequest);
+            result = blockedByArtheon ? "fail" : requestEvaluator.Evaluate(drinkId, currentRequest, currentRequestId);
             normalizedResult = NormalizeResultForRunner(result);
 
             var produced = database?.FindDrink(drinkId);

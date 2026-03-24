@@ -27,6 +27,7 @@ namespace PPP.BLUE.VN.DrinkSystem
         [SerializeField] private Image producedDrinkImage;
         [SerializeField] private Sprite unknownDrinkSprite;
         [SerializeField] private Sprite failDrinkSprite;
+        [SerializeField] private bool preferProducedDrinkSpriteOnFail = true;
 
         [Header("Grid (4x4)")]
         [SerializeField] private Image[] slotImages = new Image[16];
@@ -88,9 +89,21 @@ namespace PPP.BLUE.VN.DrinkSystem
 
             if (producedDrinkImage != null)
             {
-                Sprite targetSprite = drinkSprite;
-                if (targetSprite == null && isFailResult && failDrinkSprite != null)
-                    targetSprite = failDrinkSprite;
+                Sprite targetSprite = null;
+                if (isFailResult)
+                {
+                    if (preferProducedDrinkSpriteOnFail && drinkSprite != null)
+                        targetSprite = drinkSprite;
+                    else if (failDrinkSprite != null)
+                        targetSprite = failDrinkSprite;
+                    else if (drinkSprite != null)
+                        targetSprite = drinkSprite;
+                }
+                else
+                {
+                    targetSprite = drinkSprite;
+                }
+
                 if (targetSprite == null)
                     targetSprite = unknownDrinkSprite;
 
