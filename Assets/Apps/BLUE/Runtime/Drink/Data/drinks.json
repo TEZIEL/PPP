@@ -14,6 +14,7 @@
       "artheon_addable": false,
       "category": "CATEGORY_NONE",
       "tags": ["TAG_VELTRINE_PLUS", "TAG_COMPLEX"],
+      "imageKey": "DRINK_SPORTS_DRINK",
       "total": 12
     },
     {
@@ -29,6 +30,7 @@
       "artheon_addable": false,
       "category": "CATEGORY_JUICE",
       "tags": ["TAG_REDULINE_PLUS","TAG_VELTRINE_PLUS","TAG_STIMULATING","TAG_STRONG"],
+      "imageKey": "DRINK_GRAPE_JUICE",
       "total": 15
     },
     {
@@ -44,6 +46,7 @@
       "artheon_addable": false,
       "category": "CATEGORY_JUICE",
       "tags": ["TAG_REDULINE_PLUS","TAG_VELTRINE_PLUS","TAG_STIMULATING"],
+      "imageKey": "DRINK_PEACH_JUICE",
       "total": 14
     },
     {
@@ -59,6 +62,7 @@
       "artheon_addable": true,
       "category": "CATEGORY_TRADITIONAL_TEA",
       "tags": ["TAG_MORVION_PLUS","TAG_VELTRINE_PLUS","TAG_STIMULATING"],
+      "imageKey": "DRINK_GINGER_TEA",
       "total": 14
     },
     {
@@ -75,6 +79,7 @@
       "artheon_addable": false,
       "category": "CATEGORY_JUICE",
       "tags": ["TAG_VELTRINE_PLUS","TAG_REDULINE_PLUS","TAG_STIMULATING","TAG_COMPLEX","TAG_STRONG"],
+      "imageKey": "DRINK_BAD_APPLE",
       "total": 16
     },
 
@@ -91,6 +96,7 @@
       "artheon_addable": false,
       "category": "CATEGORY_NONE",
       "tags": ["TAG_ZYPHRATE_PLUS"],
+      "imageKey": "DRINK_VITAMIN_PLUS",
       "total": 14
     },
 
@@ -107,6 +113,7 @@
       "artheon_addable": true,
       "category": "CATEGORY_TRADITIONAL_TEA",
       "tags": ["TAG_BALANCED","TAG_LIGHT"],
+      "imageKey": "DRINK_YUJA_TEA",
       "total": 10
     },
 
@@ -123,6 +130,7 @@
       "artheon_addable": true,
       "category": "CATEGORY_TRADITIONAL_TEA",
       "tags": ["TAG_ZYPHRATE_PLUS"],
+      "imageKey": "DRINK_PLUM_TEA",
       "total": 12
     },
 
@@ -139,6 +147,7 @@
       "artheon_addable": false,
       "category": "CATEGORY_JUICE",
       "tags": ["TAG_ZYPHRATE_PLUS","TAG_VELTRINE_PLUS","TAG_STIMULATING","TAG_STRONG"],
+      "imageKey": "DRINK_ORANGE_JUICE",
       "total": 16
     },
 
@@ -154,6 +163,7 @@
       "artheon_addable": false,
       "category": "CATEGORY_JUICE",
       "tags": ["TAG_REDULINE_PLUS","TAG_VELTRINE_PLUS","TAG_STIMULATING","TAG_SIMPLE","TAG_STRONG"],
+      "imageKey": "DRINK_PINEAPPLE_JUICE",
       "total": 15
     },
     
@@ -169,6 +179,7 @@
       "artheon_addable": true,
       "category": "CATEGORY_PLANT_DRINK",
       "tags": ["TAG_VELTRINE_PLUS","TAG_SIMPLE","TAG_LIGHT"],
+      "imageKey": "DRINK_RICE_MILK",
       "total": 10
     },
     {
@@ -184,6 +195,7 @@
       "artheon_addable": true,
       "category": "CATEGORY_DAIRY",
       "tags": ["TAG_KRATYLEN_PLUS","TAG_LIGHT"],
+      "imageKey": "DRINK_MILK",
       "total": 10
     },
     {
@@ -198,6 +210,7 @@
       "artheon_addable": true,
       "category": "CATEGORY_DAIRY",
       "tags": ["TAG_REDULINE_PLUS","TAG_VELTRINE_PLUS","TAG_STIMULATING","TAG_SIMPLE"],
+      "imageKey": "DRINK_STRAWBERRY_MILK",
       "total": 13
     },
     {
@@ -212,6 +225,7 @@
       "artheon_addable": true,
       "category": "CATEGORY_DAIRY",
       "tags": ["TAG_VELTRINE_PLUS","TAG_SIMPLE"],
+      "imageKey": "DRINK_BANANA_MILK",
       "total": 12
     },
     {
@@ -226,6 +240,7 @@
       "artheon_addable": true,
       "category": "CATEGORY_PLANT_DRINK",
       "tags": ["TAG_KRATYLEN_PLUS","TAG_SIMPLE","TAG_LIGHT"],
+      "imageKey": "DRINK_SOY_MILK",
       "total": 11
     },
     {
@@ -240,6 +255,7 @@
       "artheon_addable": true,
       "category": "CATEGORY_PLANT_DRINK",
       "tags": ["TAG_KRATYLEN_PLUS","TAG_SIMPLE","TAG_LIGHT"],
+      "imageKey": "DRINK_ALMOND_MILK",
       "total": 10
     },
     {
@@ -254,6 +270,7 @@
       "artheon_addable": true,
       "category": "CATEGORY_PLANT_DRINK",
       "tags": ["TAG_KRATYLEN_PLUS","TAG_VELTRINE_NONE","TAG_SIMPLE","TAG_LIGHT"],
+      "imageKey": "DRINK_BARLEY_TEA",
       "total": 9
     },
     {
@@ -268,6 +285,7 @@
       "artheon_addable": false,
       "category": "CATEGORY_DAIRY",
       "tags": ["TAG_VELTRINE_PLUS","TAG_SIMPLE", "TAG_YOGURT"],
+      "imageKey": "DRINK_YOGURT",
       "total": 13
     },
     {
@@ -283,6 +301,7 @@
       "artheon_addable": false,
       "category": "CATEGORY_DAIRY",
       "tags": ["TAG_VELTRINE_PLUS", "TAG_YOGURT"],
+      "imageKey": "DRINK_YOGURT_BERRY",
       "total": 13
     },
     {
@@ -298,6 +317,7 @@
       "artheon_addable": false,
       "category": "CATEGORY_DAIRY",
       "tags": ["TAG_BALANCED", "TAG_YOGURT"],
+      "imageKey": "DRINK_YOGURT_APPLE",
       "total": 13
     },
     
@@ -315,6 +335,7 @@
       "artheon_addable": false,
       "category": "CATEGORY_NONE",
       "tags": ["TAG_BRAXIUM_PLUS","TAG_COMPLEX","TAG_STRONG", "TAG_ENERGY_DRINK"],
+      "imageKey": "DRINK_REDULINE_ENERGY",
       "total": 16
     },
     {
@@ -330,6 +351,7 @@
       "artheon_addable": true,
       "category": "CATEGORY_DAIRY",
       "tags": ["TAG_KRATYLEN_PLUS","TAG_VELTRINE_PLUS","TAG_STIMULATING","TAG_STRONG", "TAG_CHOCOLATE"],
+      "imageKey": "DRINK_CHOCOLATE_MILK",
       "total": 15
     },
     {
@@ -345,6 +367,7 @@
       "artheon_addable": true,
       "category": "CATEGORY_DAIRY",
       "tags": ["TAG_MORVION_PLUS","TAG_STRONG","TAG_CHOCOLATE"],
+      "imageKey": "DRINK_DARK_CHOCOLATE",
       "total": 15
     },
     {
@@ -360,6 +383,7 @@
       "artheon_addable": true,
       "category": "CATEGORY_DAIRY",
       "tags": ["TAG_VELTRINE_PLUS","TAG_STRONG","TAG_CHOCOLATE"],
+      "imageKey": "DRINK_MINT_CHOCOLATE",
       "total": 15
     },
     {
@@ -374,6 +398,7 @@
       "artheon_addable": true,
      "category": "CATEGORY_NONE",
       "tags": ["TAG_BRAXIUM_PLUS","TAG_VELTRINE_NONE","TAG_SIMPLE","TAG_LIGHT", "TAG_TEA"],
+      "imageKey": "DRINK_GREEN_TEA",
       "total": 10
     },
     {
@@ -389,6 +414,7 @@
       "artheon_addable": true,
      "category": "CATEGORY_NONE",
       "tags": ["TAG_BRAXIUM_PLUS","TAG_VELTRINE_NONE", "TAG_TEA"],
+      "imageKey": "DRINK_BLACK_TEA",
       "total": 12
     },
     {
@@ -404,6 +430,7 @@
       "artheon_addable": true,
       "category": "CATEGORY_DAIRY",
       "tags": ["TAG_BALANCED", "TAG_TEA"],
+      "imageKey": "DRINK_MILK_TEA",
       "total": 12
     },
     {
@@ -420,6 +447,7 @@
       "artheon_addable": false,
      "category": "CATEGORY_NONE",
       "tags": ["TAG_VELTRINE_PLUS","TAG_COMPLEX", "TAG_TEA"],
+      "imageKey": "DRINK_ICED_TEA",
       "total": 12
     },
     {
@@ -435,6 +463,7 @@
       "artheon_addable": true,
       "category": "CATEGORY_DAIRY",
       "tags": ["TAG_BALANCED","TAG_COFFEE"],
+      "imageKey": "DRINK_COFFEE_MILK",
       "total": 12
     },
     {
@@ -449,6 +478,7 @@
       "artheon_addable": true,
       "category": "CATEGORY_NONE",
       "tags": ["TAG_MORVION_PLUS","TAG_VELTRINE_NONE","TAG_SIMPLE","TAG_LIGHT", "TAG_COFFEE"],
+      "imageKey": "DRINK_AMERICANO",
       "total": 11
     },
     
@@ -465,21 +495,23 @@
       "artheon_addable": true,
       "category": "CATEGORY_DAIRY",
       "tags": ["TAG_BALANCED","TAG_STRONG", "TAG_COFFEE"],
+      "imageKey": "DRINK_CAFE_LATTE",
       "total": 15
     },
     {
-      "id": "DRINK_CARAMEL_MACCHIATO",
-      "name": "카라멜마끼아또",
+      "id": "DRINK_CARAMEL_LATTE",
+      "name": "카라멜라떼",
       "ingredients": {
         "INGREDIENT_MORVION": 2,
         "INGREDIENT_BRAXIUM": 3,
         "INGREDIENT_KRATYLEN": 3,
         "INGREDIENT_VELTRINE": 7
       },
-      "description": "달콤한 카라멜과 깊은 커피가 어우러진 부드러운 마끼아또.",
+      "description": "달콤한 카라멜과 깊은 커피가 어우러진 부드러운 라떼.",
       "artheon_addable": true,
       "category": "CATEGORY_NONE",
       "tags": ["TAG_VELTRINE_PLUS","TAG_STRONG", "TAG_COFFEE"],
+      "imageKey": "DRINK_CARAMEL_LATTE",
       "total": 15
     },
     {
@@ -496,6 +528,7 @@
       "artheon_addable": false,
       "category": "CATEGORY_SODA",
       "tags": ["TAG_VELTRINE_PLUS","TAG_COMPLEX","TAG_STRONG","TAG_COLA"],
+      "imageKey": "DRINK_VELTRINE_COLA",
       "total": 16
     },
     {
@@ -511,6 +544,7 @@
       "artheon_addable": false,
       "category": "CATEGORY_SODA",
       "tags": ["TAG_BALANCED"],
+      "imageKey": "DRINK_GRAPE_SODA",
       "total": 13
     },
     {
@@ -526,6 +560,7 @@
       "artheon_addable": false,
       "category": "CATEGORY_SODA",
       "tags": ["TAG_VELTRINE_PLUS"],
+      "imageKey": "DRINK_ORANGE_SODA",
       "total": 12
     },
     {
@@ -541,6 +576,7 @@
       "artheon_addable": false,
       "category": "CATEGORY_SODA",
       "tags": ["TAG_BALANCED","TAG_LIGHT"],
+      "imageKey": "DRINK_MILK_SODA",
       "total": 11
     },
     {
@@ -557,6 +593,7 @@
       "artheon_addable": false,
       "category": "CATEGORY_SODA",
       "tags": ["TAG_CYMENTOL_PLUS","TAG_COMPLEX","TAG_STRONG","TAG_COLA"],
+      "imageKey": "DRINK_CYMENTOL_COLA",
       "total": 16
     },
     {
@@ -572,6 +609,7 @@
       "artheon_addable": false,
       "category": "CATEGORY_SODA",
       "tags": ["TAG_CYMENTOL_PLUS","TAG_VELTRINE_NONE","TAG_LIGHT"],
+      "imageKey": "DRINK_SPARKLING_WATER",
       "total": 9
     },
     {
@@ -588,6 +626,7 @@
       "artheon_addable": false,
       "category": "CATEGORY_SODA",
       "tags": ["TAG_BALANCED","TAG_COMPLEX"],
+      "imageKey": "DRINK_CIDER",
       "total": 14
     },
     {
@@ -603,6 +642,7 @@
       "artheon_addable": false,
       "category": "CATEGORY_SODA",
       "tags": ["TAG_BRAXIUM_PLUS","TAG_STRONG","TAG_CYMENTOL_PLUS","TAG_STIMULATING", "TAG_ENERGY_DRINK"],
+      "imageKey": "DRINK_CYMENTOL_ENERGY",
       "total": 16
     },
     {
@@ -619,6 +659,7 @@
       "artheon_addable": false,
       "category": "CATEGORY_SODA",
       "tags": ["TAG_BRAXIUM_PLUS","TAG_COMPLEX","TAG_STRONG","TAG_COLA"],
+      "imageKey": "DRINK_MORVION_COLA",
       "total": 16
     }
     

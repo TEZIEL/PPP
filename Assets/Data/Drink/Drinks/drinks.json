@@ -1,0 +1,667 @@
+{
+  "drinks": [
+    {
+      "id": "DRINK_SPORTS_DRINK",
+      "name": "스포츠드링크",
+      "ingredients": {
+        "INGREDIENT_REDULINE": 4,
+        "INGREDIENT_VELTRINE": 5,
+        "INGREDIENT_ZYPHRATE": 1,
+        "INGREDIENT_MORVION": 1,
+        "INGREDIENT_KRATYLEN": 1
+      },
+      "description": "운동 후 마시기 좋은 깔끔한 과일향 음료.",
+      "artheon_addable": false,
+      "category": "CATEGORY_NONE",
+      "tags": ["TAG_VELTRINE_PLUS", "TAG_COMPLEX"],
+      "imageKey": "DRINK_SPORTS_DRINK",
+      "total": 12
+    },
+    {
+      "id": "DRINK_GRAPE_JUICE",
+      "name": "포도 주스",
+      "ingredients": {
+        "INGREDIENT_REDULINE": 5,
+        "INGREDIENT_VELTRINE": 5,
+        "INGREDIENT_ZYPHRATE": 3,
+        "INGREDIENT_MORVION": 2
+      },
+      "description": "진한 포도향과 달콤한 맛이 특징인 주스.",
+      "artheon_addable": false,
+      "category": "CATEGORY_JUICE",
+      "tags": ["TAG_REDULINE_PLUS","TAG_VELTRINE_PLUS","TAG_STIMULATING","TAG_STRONG"],
+      "imageKey": "DRINK_GRAPE_JUICE",
+      "total": 15
+    },
+    {
+      "id": "DRINK_PEACH_JUICE",
+      "name": "복숭아 주스",
+      "ingredients": {
+        "INGREDIENT_REDULINE": 6,
+        "INGREDIENT_ZYPHRATE": 1,
+        "INGREDIENT_KRATYLEN": 1,
+        "INGREDIENT_VELTRINE": 6
+      },
+      "description": "부드럽고 달콤한 복숭아 풍미의 주스.",
+      "artheon_addable": false,
+      "category": "CATEGORY_JUICE",
+      "tags": ["TAG_REDULINE_PLUS","TAG_VELTRINE_PLUS","TAG_STIMULATING"],
+      "imageKey": "DRINK_PEACH_JUICE",
+      "total": 14
+    },
+    {
+      "id": "DRINK_GINGER_TEA",
+      "name": "생강차",
+      "ingredients": {
+        "INGREDIENT_MORVION": 5,
+        "INGREDIENT_VELTRINE": 5,
+        "INGREDIENT_KRATYLEN": 2,
+        "INGREDIENT_ZYPHRATE": 2
+      },
+      "description": "따뜻하고 얼큰한 생강 향이 돋보이는 차.",
+      "artheon_addable": true,
+      "category": "CATEGORY_TRADITIONAL_TEA",
+      "tags": ["TAG_MORVION_PLUS","TAG_VELTRINE_PLUS","TAG_STIMULATING"],
+      "imageKey": "DRINK_GINGER_TEA",
+      "total": 14
+    },
+    {
+      "id": "DRINK_BAD_APPLE",
+      "name": "배드애플",
+      "ingredients": {
+        "INGREDIENT_ZYPHRATE": 3,
+        "INGREDIENT_VELTRINE": 6,
+        "INGREDIENT_REDULINE": 5,
+        "INGREDIENT_MORVION": 1,
+        "INGREDIENT_KRATYLEN": 1
+      },
+      "description": "사과의 상큼한 맛과 단맛이 조화로운 주스.",
+      "artheon_addable": false,
+      "category": "CATEGORY_JUICE",
+      "tags": ["TAG_VELTRINE_PLUS","TAG_REDULINE_PLUS","TAG_STIMULATING","TAG_COMPLEX","TAG_STRONG"],
+      "imageKey": "DRINK_BAD_APPLE",
+      "total": 16
+    },
+
+    {
+      "id": "DRINK_VITAMIN_PLUS",
+      "name": "비타민 플러스",
+      "ingredients": {
+        "INGREDIENT_ZYPHRATE": 7,
+        "INGREDIENT_VELTRINE": 4,
+        "INGREDIENT_REDULINE": 2,
+        "INGREDIENT_MORVION": 1
+      },
+      "description": "비타민이 풍부한 상큼한 음료.",
+      "artheon_addable": false,
+      "category": "CATEGORY_NONE",
+      "tags": ["TAG_ZYPHRATE_PLUS"],
+      "imageKey": "DRINK_VITAMIN_PLUS",
+      "total": 14
+    },
+
+    {
+      "id": "DRINK_YUJA_TEA",
+      "name": "유자차",
+      "ingredients": {
+        "INGREDIENT_ZYPHRATE": 2,
+        "INGREDIENT_MORVION": 3,
+        "INGREDIENT_VELTRINE": 3,
+        "INGREDIENT_REDULINE": 2
+      },
+      "description": "유자의 상큼한 향과 달콤한 맛이 어우러진 차.",
+      "artheon_addable": true,
+      "category": "CATEGORY_TRADITIONAL_TEA",
+      "tags": ["TAG_BALANCED","TAG_LIGHT"],
+      "imageKey": "DRINK_YUJA_TEA",
+      "total": 10
+    },
+
+    {
+      "id": "DRINK_PLUM_TEA",
+      "name": "매실차",
+      "ingredients": {
+        "INGREDIENT_ZYPHRATE": 5,
+        "INGREDIENT_VELTRINE": 2,
+        "INGREDIENT_REDULINE": 3,
+        "INGREDIENT_MORVION": 2
+      },
+      "description": "매실의 새콤한 맛과 부드러운 단맛이 느껴지는 차.",
+      "artheon_addable": true,
+      "category": "CATEGORY_TRADITIONAL_TEA",
+      "tags": ["TAG_ZYPHRATE_PLUS"],
+      "imageKey": "DRINK_PLUM_TEA",
+      "total": 12
+    },
+
+    {
+      "id": "DRINK_ORANGE_JUICE",
+      "name": "오렌지 주스",
+      "ingredients": {
+        "INGREDIENT_ZYPHRATE": 6,
+        "INGREDIENT_REDULINE": 3,
+        "INGREDIENT_MORVION": 1,
+        "INGREDIENT_VELTRINE": 6
+      },
+      "description": "신선한 오렌지 과즙이 가득한 주스.",
+      "artheon_addable": false,
+      "category": "CATEGORY_JUICE",
+      "tags": ["TAG_ZYPHRATE_PLUS","TAG_VELTRINE_PLUS","TAG_STIMULATING","TAG_STRONG"],
+      "imageKey": "DRINK_ORANGE_JUICE",
+      "total": 16
+    },
+
+    {
+      "id": "DRINK_PINEAPPLE_JUICE",
+      "name": "파인애플 주스",
+      "ingredients": {
+        "INGREDIENT_ZYPHRATE": 4,
+        "INGREDIENT_REDULINE": 5,
+        "INGREDIENT_VELTRINE": 6
+      },
+      "description": "달콤하고 상큼한 파인애플 향의 주스.",
+      "artheon_addable": false,
+      "category": "CATEGORY_JUICE",
+      "tags": ["TAG_REDULINE_PLUS","TAG_VELTRINE_PLUS","TAG_STIMULATING","TAG_SIMPLE","TAG_STRONG"],
+      "imageKey": "DRINK_PINEAPPLE_JUICE",
+      "total": 15
+    },
+    
+    {
+      "id": "DRINK_RICE_MILK",
+      "name": "라이스 밀크",
+      "ingredients": {
+        "INGREDIENT_KRATYLEN": 3,
+        "INGREDIENT_VELTRINE": 6,
+        "INGREDIENT_MORVION": 1
+      },
+      "description": "쌀의 부드러운 단맛이 느껴지는 건강한 음료.",
+      "artheon_addable": true,
+      "category": "CATEGORY_PLANT_DRINK",
+      "tags": ["TAG_VELTRINE_PLUS","TAG_SIMPLE","TAG_LIGHT"],
+      "imageKey": "DRINK_RICE_MILK",
+      "total": 10
+    },
+    {
+      "id": "DRINK_MILK",
+      "name": "우유",
+      "ingredients": {
+        "INGREDIENT_KRATYLEN": 5,
+        "INGREDIENT_VELTRINE": 3,
+        "INGREDIENT_ZYPHRATE": 1,
+        "INGREDIENT_MORVION": 1
+      },
+      "description": "고소하고 부드러운 맛을 자랑하는 우유.",
+      "artheon_addable": true,
+      "category": "CATEGORY_DAIRY",
+      "tags": ["TAG_KRATYLEN_PLUS","TAG_LIGHT"],
+      "imageKey": "DRINK_MILK",
+      "total": 10
+    },
+    {
+      "id": "DRINK_STRAWBERRY_MILK",
+      "name": "딸기맛 우유",
+      "ingredients": {
+        "INGREDIENT_KRATYLEN": 3,
+        "INGREDIENT_REDULINE": 5,
+        "INGREDIENT_VELTRINE": 5
+      },
+      "description": "딸기의 상큼한 향과 우유의 부드러움이 어우러진 음료.",
+      "artheon_addable": true,
+      "category": "CATEGORY_DAIRY",
+      "tags": ["TAG_REDULINE_PLUS","TAG_VELTRINE_PLUS","TAG_STIMULATING","TAG_SIMPLE"],
+      "imageKey": "DRINK_STRAWBERRY_MILK",
+      "total": 13
+    },
+    {
+      "id": "DRINK_BANANA_MILK",
+      "name": "바나나맛 우유",
+      "ingredients": {
+        "INGREDIENT_KRATYLEN": 3,
+        "INGREDIENT_REDULINE": 3,
+        "INGREDIENT_VELTRINE": 6
+      },
+      "description": "부드러운 바나나 향과 달콤한 우유의 조화.",
+      "artheon_addable": true,
+      "category": "CATEGORY_DAIRY",
+      "tags": ["TAG_VELTRINE_PLUS","TAG_SIMPLE"],
+      "imageKey": "DRINK_BANANA_MILK",
+      "total": 12
+    },
+    {
+      "id": "DRINK_SOY_MILK",
+      "name": "두유",
+      "ingredients": {
+        "INGREDIENT_KRATYLEN": 5,
+        "INGREDIENT_VELTRINE": 4,
+        "INGREDIENT_MORVION": 2
+      },
+      "description": "고소한 콩의 맛을 그대로 담은 두유.",
+      "artheon_addable": true,
+      "category": "CATEGORY_PLANT_DRINK",
+      "tags": ["TAG_KRATYLEN_PLUS","TAG_SIMPLE","TAG_LIGHT"],
+      "imageKey": "DRINK_SOY_MILK",
+      "total": 11
+    },
+    {
+      "id": "DRINK_ALMOND_MILK",
+      "name": "아몬드 밀크",
+      "ingredients": {
+        "INGREDIENT_KRATYLEN": 6,
+        "INGREDIENT_VELTRINE": 2,
+        "INGREDIENT_MORVION": 2
+      },
+      "description": "고소한 아몬드 향이 돋보이는 건강한 우유 대체 음료.",
+      "artheon_addable": true,
+      "category": "CATEGORY_PLANT_DRINK",
+      "tags": ["TAG_KRATYLEN_PLUS","TAG_SIMPLE","TAG_LIGHT"],
+      "imageKey": "DRINK_ALMOND_MILK",
+      "total": 10
+    },
+    {
+      "id": "DRINK_BARLEY_TEA",
+      "name": "보리차",
+      "ingredients": {
+        "INGREDIENT_KRATYLEN": 5,
+        "INGREDIENT_MORVION": 3,
+        "INGREDIENT_ZYPHRATE": 1
+      },
+      "description": "구수한 보리의 풍미가 가득한 전통 차.",
+      "artheon_addable": true,
+      "category": "CATEGORY_PLANT_DRINK",
+      "tags": ["TAG_KRATYLEN_PLUS","TAG_VELTRINE_NONE","TAG_SIMPLE","TAG_LIGHT"],
+      "imageKey": "DRINK_BARLEY_TEA",
+      "total": 9
+    },
+    {
+      "id": "DRINK_YOGURT",
+      "name": "요구르트",
+      "ingredients": {
+        "INGREDIENT_KRATYLEN": 3,
+        "INGREDIENT_ZYPHRATE": 4,
+        "INGREDIENT_VELTRINE": 6
+      },
+      "description": "새콤달콤한 기본 요구르트.",
+      "artheon_addable": false,
+      "category": "CATEGORY_DAIRY",
+      "tags": ["TAG_VELTRINE_PLUS","TAG_SIMPLE", "TAG_YOGURT"],
+      "imageKey": "DRINK_YOGURT",
+      "total": 13
+    },
+    {
+      "id": "DRINK_YOGURT_BERRY",
+      "name": "요구르트 베리",
+      "ingredients": {
+        "INGREDIENT_KRATYLEN": 2,
+        "INGREDIENT_ZYPHRATE": 3,
+        "INGREDIENT_REDULINE": 3,
+        "INGREDIENT_VELTRINE": 5
+      },
+      "description": "베리류 과일이 첨가된 새콤달콤한 요구르트.",
+      "artheon_addable": false,
+      "category": "CATEGORY_DAIRY",
+      "tags": ["TAG_VELTRINE_PLUS", "TAG_YOGURT"],
+      "imageKey": "DRINK_YOGURT_BERRY",
+      "total": 13
+    },
+    {
+      "id": "DRINK_YOGURT_APPLE",
+      "name": "요구르트 애플",
+      "ingredients": {
+        "INGREDIENT_KRATYLEN": 2,
+        "INGREDIENT_ZYPHRATE": 4,
+        "INGREDIENT_REDULINE": 3,
+        "INGREDIENT_VELTRINE": 4
+      },
+      "description": "사과의 상큼함이 돋보이는 요구르트.",
+      "artheon_addable": false,
+      "category": "CATEGORY_DAIRY",
+      "tags": ["TAG_BALANCED", "TAG_YOGURT"],
+      "imageKey": "DRINK_YOGURT_APPLE",
+      "total": 13
+    },
+    
+    {
+      "id": "DRINK_REDULINE_ENERGY",
+      "name": "레듈린 에너지",
+      "ingredients": {
+        "INGREDIENT_ZYPHRATE": 1,
+        "INGREDIENT_BRAXIUM": 5,
+        "INGREDIENT_VELTRINE": 4,
+        "INGREDIENT_MORVION": 2,
+        "INGREDIENT_REDULINE": 4
+      },
+      "description": "과일의 상쾌한 단맛과 강한 카페인이 조화된 에너지 드링크.",
+      "artheon_addable": false,
+      "category": "CATEGORY_NONE",
+      "tags": ["TAG_BRAXIUM_PLUS","TAG_COMPLEX","TAG_STRONG", "TAG_ENERGY_DRINK"],
+      "imageKey": "DRINK_REDULINE_ENERGY",
+      "total": 16
+    },
+    {
+      "id": "DRINK_CHOCOLATE_MILK",
+      "name": "초코맛 우유",
+      "ingredients": {
+        "INGREDIENT_KRATYLEN": 5,
+        "INGREDIENT_VELTRINE": 7,
+        "INGREDIENT_BRAXIUM": 1,
+        "INGREDIENT_MORVION": 2
+      },
+      "description": "부드럽고 달콤한 초코 우유.",
+      "artheon_addable": true,
+      "category": "CATEGORY_DAIRY",
+      "tags": ["TAG_KRATYLEN_PLUS","TAG_VELTRINE_PLUS","TAG_STIMULATING","TAG_STRONG", "TAG_CHOCOLATE"],
+      "imageKey": "DRINK_CHOCOLATE_MILK",
+      "total": 15
+    },
+    {
+      "id": "DRINK_DARK_CHOCOLATE",
+      "name": "다크 초콜릿",
+      "ingredients": {
+        "INGREDIENT_KRATYLEN": 2,
+        "INGREDIENT_VELTRINE": 3,
+        "INGREDIENT_BRAXIUM": 4,
+        "INGREDIENT_MORVION": 6
+      },
+      "description": "깊고 진한 쓴맛이 특징인 다크 초콜릿 음료.",
+      "artheon_addable": true,
+      "category": "CATEGORY_DAIRY",
+      "tags": ["TAG_MORVION_PLUS","TAG_STRONG","TAG_CHOCOLATE"],
+      "imageKey": "DRINK_DARK_CHOCOLATE",
+      "total": 15
+    },
+    {
+      "id": "DRINK_MINT_CHOCOLATE",
+      "name": "민트 초콜릿",
+      "ingredients": {
+        "INGREDIENT_KRATYLEN": 4,
+        "INGREDIENT_VELTRINE": 5,
+        "INGREDIENT_BRAXIUM": 2,
+        "INGREDIENT_MORVION": 4
+      },
+      "description": "민트의 상쾌함과 초콜릿의 단맛이 조화된 음료.",
+      "artheon_addable": true,
+      "category": "CATEGORY_DAIRY",
+      "tags": ["TAG_VELTRINE_PLUS","TAG_STRONG","TAG_CHOCOLATE"],
+      "imageKey": "DRINK_MINT_CHOCOLATE",
+      "total": 15
+    },
+    {
+      "id": "DRINK_GREEN_TEA",
+      "name": "녹차",
+      "ingredients": {
+        "INGREDIENT_MORVION": 4,
+        "INGREDIENT_BRAXIUM": 5,
+        "INGREDIENT_KRATYLEN": 1
+      },
+      "description": "진한 녹차의 씁쓸한 맛이 살아있는 음료.",
+      "artheon_addable": true,
+     "category": "CATEGORY_NONE",
+      "tags": ["TAG_BRAXIUM_PLUS","TAG_VELTRINE_NONE","TAG_SIMPLE","TAG_LIGHT", "TAG_TEA"],
+      "imageKey": "DRINK_GREEN_TEA",
+      "total": 10
+    },
+    {
+      "id": "DRINK_BLACK_TEA",
+      "name": "홍차",
+      "ingredients": {
+        "INGREDIENT_MORVION": 3,
+        "INGREDIENT_BRAXIUM": 5,
+        "INGREDIENT_ZYPHRATE": 2,
+        "INGREDIENT_REDULINE": 2
+      },
+      "description": "홍차 특유의 깊은 풍미와 은은한 과일맛이 어우러진 차.",
+      "artheon_addable": true,
+     "category": "CATEGORY_NONE",
+      "tags": ["TAG_BRAXIUM_PLUS","TAG_VELTRINE_NONE", "TAG_TEA"],
+      "imageKey": "DRINK_BLACK_TEA",
+      "total": 12
+    },
+    {
+      "id": "DRINK_MILK_TEA",
+      "name": "밀크티",
+      "ingredients": {
+        "INGREDIENT_MORVION": 2,
+        "INGREDIENT_BRAXIUM": 4,
+        "INGREDIENT_KRATYLEN": 2,
+        "INGREDIENT_VELTRINE": 4
+      },
+      "description": "부드러운 우유와 홍차의 조화가 돋보이는 밀크티.",
+      "artheon_addable": true,
+      "category": "CATEGORY_DAIRY",
+      "tags": ["TAG_BALANCED", "TAG_TEA"],
+      "imageKey": "DRINK_MILK_TEA",
+      "total": 12
+    },
+    {
+      "id": "DRINK_ICED_TEA",
+      "name": "아이스티",
+      "ingredients": {
+        "INGREDIENT_MORVION": 1,
+        "INGREDIENT_BRAXIUM": 2,
+        "INGREDIENT_VELTRINE": 5,
+        "INGREDIENT_ZYPHRATE": 1,
+        "INGREDIENT_REDULINE": 3
+      },
+      "description": "차가운 홍차에 달콤함이 더해진 상쾌한 음료.",
+      "artheon_addable": false,
+     "category": "CATEGORY_NONE",
+      "tags": ["TAG_VELTRINE_PLUS","TAG_COMPLEX", "TAG_TEA"],
+      "imageKey": "DRINK_ICED_TEA",
+      "total": 12
+    },
+    {
+      "id": "DRINK_COFFEE_MILK",
+      "name": "커피맛 우유",
+      "ingredients": {
+        "INGREDIENT_MORVION": 3,
+        "INGREDIENT_BRAXIUM": 2,
+        "INGREDIENT_KRATYLEN": 4,
+        "INGREDIENT_VELTRINE": 3
+      },
+      "description": "우유의 부드러움과 커피의 깊은 맛이 조화를 이루는 음료.",
+      "artheon_addable": true,
+      "category": "CATEGORY_DAIRY",
+      "tags": ["TAG_BALANCED","TAG_COFFEE"],
+      "imageKey": "DRINK_COFFEE_MILK",
+      "total": 12
+    },
+    {
+      "id": "DRINK_AMERICANO",
+      "name": "아메리카노",
+      "ingredients": {
+        "INGREDIENT_MORVION": 6,
+        "INGREDIENT_BRAXIUM": 4,
+        "INGREDIENT_ZYPHRATE": 1
+      },
+      "description": "쓴맛과 깊은 풍미가 특징인 클래식한 블랙 커피.",
+      "artheon_addable": true,
+      "category": "CATEGORY_NONE",
+      "tags": ["TAG_MORVION_PLUS","TAG_VELTRINE_NONE","TAG_SIMPLE","TAG_LIGHT", "TAG_COFFEE"],
+      "imageKey": "DRINK_AMERICANO",
+      "total": 11
+    },
+    
+    {
+      "id": "DRINK_CAFE_LATTE",
+      "name": "카페라떼",
+      "ingredients": {
+        "INGREDIENT_MORVION": 4,
+        "INGREDIENT_BRAXIUM": 3,
+        "INGREDIENT_KRATYLEN": 4,
+        "INGREDIENT_VELTRINE": 4
+      },
+      "description": "부드러운 우유와 깊은 커피의 조화로 은은한 쓴맛이 느껴지는 라떼.",
+      "artheon_addable": true,
+      "category": "CATEGORY_DAIRY",
+      "tags": ["TAG_BALANCED","TAG_STRONG", "TAG_COFFEE"],
+      "imageKey": "DRINK_CAFE_LATTE",
+      "total": 15
+    },
+    {
+      "id": "DRINK_CARAMEL_LATTE",
+      "name": "카라멜라떼",
+      "ingredients": {
+        "INGREDIENT_MORVION": 2,
+        "INGREDIENT_BRAXIUM": 3,
+        "INGREDIENT_KRATYLEN": 3,
+        "INGREDIENT_VELTRINE": 7
+      },
+      "description": "달콤한 카라멜과 깊은 커피가 어우러진 부드러운 라떼.",
+      "artheon_addable": true,
+      "category": "CATEGORY_NONE",
+      "tags": ["TAG_VELTRINE_PLUS","TAG_STRONG", "TAG_COFFEE"],
+      "imageKey": "DRINK_CARAMEL_LATTE",
+      "total": 15
+    },
+    {
+      "id": "DRINK_VELTRINE_COLA",
+      "name": "벨트린 콜라",
+      "ingredients": {
+        "INGREDIENT_VELTRINE": 7,
+        "INGREDIENT_BRAXIUM": 3,
+        "INGREDIENT_CYMENTOL": 3,
+        "INGREDIENT_REDULINE": 2,
+        "INGREDIENT_MORVION": 1
+      },
+      "description": "부드러운 단맛과 풍부한 탄산감이 조화된 클래식한 콜라.",
+      "artheon_addable": false,
+      "category": "CATEGORY_SODA",
+      "tags": ["TAG_VELTRINE_PLUS","TAG_COMPLEX","TAG_STRONG","TAG_COLA"],
+      "imageKey": "DRINK_VELTRINE_COLA",
+      "total": 16
+    },
+    {
+      "id": "DRINK_GRAPE_SODA",
+      "name": "포도 소다",
+      "ingredients": {
+        "INGREDIENT_VELTRINE": 4,
+        "INGREDIENT_CYMENTOL": 3,
+        "INGREDIENT_MORVION": 2,
+        "INGREDIENT_REDULINE": 4
+      },
+      "description": "달콤한 포도향과 강한 탄산감이 느껴지는 소다 음료.",
+      "artheon_addable": false,
+      "category": "CATEGORY_SODA",
+      "tags": ["TAG_BALANCED"],
+      "imageKey": "DRINK_GRAPE_SODA",
+      "total": 13
+    },
+    {
+      "id": "DRINK_ORANGE_SODA",
+      "name": "오렌지 소다",
+      "ingredients": {
+        "INGREDIENT_VELTRINE": 5,
+        "INGREDIENT_CYMENTOL": 2,
+        "INGREDIENT_REDULINE": 1,
+        "INGREDIENT_ZYPHRATE": 4
+      },
+      "description": "상큼한 오렌지와 탄산이 어우러진 청량한 소다.",
+      "artheon_addable": false,
+      "category": "CATEGORY_SODA",
+      "tags": ["TAG_VELTRINE_PLUS"],
+      "imageKey": "DRINK_ORANGE_SODA",
+      "total": 12
+    },
+    {
+      "id": "DRINK_MILK_SODA",
+      "name": "밀크 소다",
+      "ingredients": {
+        "INGREDIENT_VELTRINE": 4,
+        "INGREDIENT_CYMENTOL": 2,
+        "INGREDIENT_KRATYLEN": 4,
+        "INGREDIENT_MORVION": 1
+      },
+      "description": "부드러운 우유의 고소함과 탄산의 상쾌함이 조화를 이루는 음료.",
+      "artheon_addable": false,
+      "category": "CATEGORY_SODA",
+      "tags": ["TAG_BALANCED","TAG_LIGHT"],
+      "imageKey": "DRINK_MILK_SODA",
+      "total": 11
+    },
+    {
+      "id": "DRINK_CYMENTOL_COLA",
+      "name": "사이멘톨 콜라",
+      "ingredients": {
+        "INGREDIENT_VELTRINE": 4,
+        "INGREDIENT_BRAXIUM": 1,
+        "INGREDIENT_CYMENTOL": 7,
+        "INGREDIENT_ZYPHRATE": 3,
+        "INGREDIENT_REDULINE": 1
+      },
+      "description": "강한 탄산과 청량한 뒷맛이 특징인 스파클링 콜라.",
+      "artheon_addable": false,
+      "category": "CATEGORY_SODA",
+      "tags": ["TAG_CYMENTOL_PLUS","TAG_COMPLEX","TAG_STRONG","TAG_COLA"],
+      "imageKey": "DRINK_CYMENTOL_COLA",
+      "total": 16
+    },
+    {
+      "id": "DRINK_SPARKLING_WATER",
+      "name": "탄산수",
+      "ingredients": {
+        "INGREDIENT_CYMENTOL": 5,
+        "INGREDIENT_MORVION": 2,
+        "INGREDIENT_REDULINE": 1,
+        "INGREDIENT_KRATYLEN": 1
+      },
+      "description": "강렬한 탄산과 깔끔한 목넘김이 특징인 탄산수.",
+      "artheon_addable": false,
+      "category": "CATEGORY_SODA",
+      "tags": ["TAG_CYMENTOL_PLUS","TAG_VELTRINE_NONE","TAG_LIGHT"],
+      "imageKey": "DRINK_SPARKLING_WATER",
+      "total": 9
+    },
+    {
+      "id": "DRINK_CIDER",
+      "name": "사이다",
+      "ingredients": {
+        "INGREDIENT_CYMENTOL": 4,
+        "INGREDIENT_MORVION": 1,
+        "INGREDIENT_REDULINE": 3,
+        "INGREDIENT_ZYPHRATE": 3,
+        "INGREDIENT_VELTRINE": 3
+      },
+      "description": "상쾌한 신맛과 탄산이 어우러진 클래식한 사이다.",
+      "artheon_addable": false,
+      "category": "CATEGORY_SODA",
+      "tags": ["TAG_BALANCED","TAG_COMPLEX"],
+      "imageKey": "DRINK_CIDER",
+      "total": 14
+    },
+    {
+      "id": "DRINK_CYMENTOL_ENERGY",
+      "name": "사이멘톨 에너지",
+      "ingredients": {
+        "INGREDIENT_CYMENTOL": 5,
+        "INGREDIENT_ZYPHRATE": 2,
+        "INGREDIENT_BRAXIUM": 6,
+        "INGREDIENT_VELTRINE": 3
+      },
+      "description": "강렬한 에너지를 충전하는 청량한 에너지 드링크.",
+      "artheon_addable": false,
+      "category": "CATEGORY_SODA",
+      "tags": ["TAG_BRAXIUM_PLUS","TAG_STRONG","TAG_CYMENTOL_PLUS","TAG_STIMULATING", "TAG_ENERGY_DRINK"],
+      "imageKey": "DRINK_CYMENTOL_ENERGY",
+      "total": 16
+    },
+    {
+      "id": "DRINK_MORVION_COLA",
+      "name": "모르비온 콜라",
+      "ingredients": {
+        "INGREDIENT_CYMENTOL": 3,
+        "INGREDIENT_MORVION": 4,
+        "INGREDIENT_VELTRINE": 3,
+        "INGREDIENT_BRAXIUM": 5,
+        "INGREDIENT_ZYPHRATE": 1
+      },
+      "description": "묵직한 쓴맛과 깊은 풍미가 특징인 다크 콜라.",
+      "artheon_addable": false,
+      "category": "CATEGORY_SODA",
+      "tags": ["TAG_BRAXIUM_PLUS","TAG_COMPLEX","TAG_STRONG","TAG_COLA"],
+      "imageKey": "DRINK_MORVION_COLA",
+      "total": 16
+    }
+    
+  ]
+  }

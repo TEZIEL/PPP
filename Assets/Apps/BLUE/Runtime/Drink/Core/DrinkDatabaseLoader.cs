@@ -7,10 +7,10 @@ namespace PPP.BLUE.VN.DrinkSystem
 {
     public sealed class DrinkDatabaseLoader : MonoBehaviour
     {
-        private const string DataRelativePath = "Apps/BLUE/Runtime/Drink/Data";
-        private const string DrinksFileName = "drinks.json";
-        private const string RequestsFileName = "requests.json";
-        private const string IngredientsFileName = "ingredients.json";
+        private const string DataRelativePath = AppDataPaths.DRINK_ROOT;
+        private const string DrinksFileName = "Drinks/drinks.json";
+        private const string RequestsFileName = "Requests/requests.json";
+        private const string IngredientsFileName = "Ingredients/ingredients.json";
 
         public DrinkDatabase LoadDatabase()
         {
