@@ -46,6 +46,7 @@ namespace PPP.BLUE.VN
         private bool? lastSaveLoadButtonInteractable;
         private bool skipHoldBindingApplied;
         private float controlActionLockedUntil;
+        private Coroutine waitAndRefreshCoroutine;
 
         private void Start()
         {
@@ -185,6 +186,9 @@ namespace PPP.BLUE.VN
         private void OnEnable()
         {
             LockInputFrames(5); // 여기 추가 (2 말고 5 추천)
+            Debug.Log($"[VN] DialogueView OnEnable text={(dialogueText != null ? dialogueText.text : "<null>")}");
+            if (dialogueText != null && dialogueText.text == "New Text")
+                dialogueText.text = string.Empty;
 
             if (subscribed) return;
             if (runner == null) return;
@@ -192,11 +196,14 @@ namespace PPP.BLUE.VN
             runner.OnSay += HandleSay;
             runner.OnEnd += HandleEnd;
             subscribed = true;
+
+            StartWaitAndRefresh();
         }
 
         private void OnDisable()
         {
             OnSkipButtonPointerUp();
+            StopWaitAndRefresh();
 
             if (!subscribed) return;
             if (runner == null) return;
@@ -298,6 +305,109 @@ namespace PPP.BLUE.VN
         public void LockInputFrames(int frames = 2)
         {
             inputLockFrames = Mathf.Max(inputLockFrames, frames);
+        }
+
+        public void Open()
+        {
+            Debug.Log("[VN] Open called → forcing refresh");
+            gameObject.SetActive(true);
+            StartWaitAndRefresh();
+        }
+
+        private void RefreshCurrentLine()
+        {
+            ForceRefreshCurrentLine();
+        }
+
+        private void StartWaitAndRefresh()
+        {
+            StopWaitAndRefresh();
+            waitAndRefreshCoroutine = StartCoroutine(WaitAndRefresh());
+        }
+
+        private void StopWaitAndRefresh()
+        {
+            if (waitAndRefreshCoroutine == null)
+                return;
+
+            StopCoroutine(waitAndRefreshCoroutine);
+            waitAndRefreshCoroutine = null;
+        }
+
+        private IEnumerator WaitAndRefresh()
+        {
+            const int maxWaitFrames = 10;
+            int remaining = maxWaitFrames;
+            bool loggedNullState = false;
+            Debug.Log("[VN] WaitAndRefresh start");
+
+            while (runner == null || !runner.HasValidNode())
+            {
+                if (!loggedNullState)
+                {
+                    Debug.Log($"[VN] WaitAndRefresh pending runner={(runner != null)} hasValidNode={(runner != null && runner.HasValidNode())}");
+                    loggedNullState = true;
+                }
+
+                yield return null;
+                remaining--;
+                if (remaining <= 0)
+                {
+                    Debug.LogError("[VN] Runner not ready after wait");
+                    waitAndRefreshCoroutine = null;
+                    yield break;
+                }
+            }
+
+            Debug.Log("[VN] WaitAndRefresh ready -> ForceRefreshCurrentLine");
+            ForceRefreshCurrentLine();
+            waitAndRefreshCoroutine = null;
+        }
+
+        private void ForceRefreshCurrentLine()
+        {
+            if (runner == null)
+            {
+                Debug.LogError("[VN] ForceRefresh currentNode is unavailable (runner null)");
+                return;
+            }
+
+            if (!runner.TryGetCurrentSayState(out var currentNodeId, out var currentLineIndex, out var currentText, out var currentSpeaker))
+            {
+                Debug.LogWarning("[VN] no node → retry next frame");
+                StartWaitAndRefresh();
+
+                if (dialogueText != null && !string.IsNullOrEmpty(currentFullText))
+                {
+                    dialogueText.text = currentFullText;
+                    Debug.Log($"[VN] Reopen fallback text={currentFullText}");
+                }
+                else if (dialogueText != null)
+                {
+                    dialogueText.text = string.Empty;
+                }
+
+                Debug.LogWarning("[VN] ForceRefresh skipped: no current Say node");
+                return;
+            }
+
+            if (nameText != null)
+                nameText.text = currentSpeaker;
+
+            if (dialogueText != null)
+                dialogueText.text = currentText;
+
+            currentFullText = currentText ?? string.Empty;
+            lineCompleted = true;
+
+            bool isTyping = typer != null && typer.IsTyping;
+            bool isWaitingInput = lineCompleted;
+            Debug.Log($"[VN] Reopen currentNode={currentNodeId}, lineIndex={currentLineIndex}, text={currentFullText}");
+            Debug.Log($"[VN] CurrentNode={currentNodeId}, LineIndex={currentLineIndex}");
+            Debug.Log($"[VN] CurrentText={currentFullText}");
+            Debug.Log($"[VN] dialogueText.text={dialogueText?.text}");
+            Debug.Log($"[VN] isWaitingInput={isWaitingInput}, isTyping={isTyping}");
+            Debug.Log($"[VN] ForceRefresh → {currentFullText}");
         }
 
         private void HandleSay(string speakerId, string text, string lineId)
