@@ -182,10 +182,17 @@ namespace PPP.BLUE.VN
                 return;
             }
 
+            if (policy != null && policy.IsDrinkPanelOpen && autoPlayEnabled)
+            {
+                autoPlayEnabled = false;
+                runner?.SetAutoPlay(false, "Drink Mode Auto Off");
+            }
+
             if (!CanAcceptVNInput()) return;
             if (inputLockFrames > 0) { inputLockFrames--; return; }
             if (runner == null) return;
             if (!runner.HasScript) return;
+            HandleSkipAutoState();
 
             // InputGate를 통과한 입력만 대사 진행에 사용
             if (policy != null && !VNInputGate.CanAdvanceDialogue(policy))

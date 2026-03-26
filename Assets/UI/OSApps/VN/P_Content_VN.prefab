@@ -2018,7 +2018,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!224 &4906037463695743716
 RectTransform:
   m_ObjectHideFlags: 0
@@ -6289,7 +6289,19 @@ MonoBehaviour:
   m_TargetGraphic: {fileID: 697244860327632606}
   m_OnClick:
     m_PersistentCalls:
-      m_Calls: []
+      m_Calls:
+      - m_Target: {fileID: 5735854688594582119}
+        m_TargetAssemblyTypeName: PPP.BLUE.VN.VNDialogueView, Assembly-CSharp
+        m_MethodName: OnExitButtonClicked
+        m_Mode: 1
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
 --- !u!1 &4682528666176802760
 GameObject:
   m_ObjectHideFlags: 0
@@ -6886,7 +6898,7 @@ GameObject:
   - component: {fileID: 2119572559131677818}
   - component: {fileID: 8067733451394957521}
   m_Layer: 5
-  m_Name: GameObject
+  m_Name: dialog
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -6961,7 +6973,7 @@ GameObject:
   m_Component:
   - component: {fileID: 7841419661480170252}
   m_Layer: 5
-  m_Name: BUTTON
+  m_Name: BUTTONcontainer
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -9917,8 +9929,15 @@ MonoBehaviour:
   dialogueText: {fileID: 8338431015460203540}
   osBridge: {fileID: 8020622904635775800}
   bridge: {fileID: 8020622904635775800}
-  advanceClickArea: {fileID: 1154989184179664875}
+  advanceClickArea: {fileID: 820545437009525261}
+  buttonContainerRoot: {fileID: 7841419661480170252}
+  graphicRaycaster: {fileID: 0}
   uiCamera: {fileID: 0}
+  closePopupController: {fileID: 1861449070072624014}
+  skipButton: {fileID: 8212970735057202272}
+  autoPlayButton: {fileID: 5261307437254180606}
+  exitButton: {fileID: 673330969755753658}
+  autoPlayEnabled: 0
   charsPerSecond: 40
 --- !u!1 &7212977544356715011
 GameObject:
@@ -10078,7 +10097,19 @@ MonoBehaviour:
   m_TargetGraphic: {fileID: 2888286835868929661}
   m_OnClick:
     m_PersistentCalls:
-      m_Calls: []
+      m_Calls:
+      - m_Target: {fileID: 5735854688594582119}
+        m_TargetAssemblyTypeName: PPP.BLUE.VN.VNDialogueView, Assembly-CSharp
+        m_MethodName: ToggleAuto
+        m_Mode: 1
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
 --- !u!1 &7241070449273791115
 GameObject:
   m_ObjectHideFlags: 0
