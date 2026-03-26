@@ -38,6 +38,9 @@ namespace PPP.BLUE.VN
         // 현재 라인의 풀텍스트 (SkipToEnd용)
         private string currentFullText = "";
         private bool lineCompleted = true; // true면 Next로 "다음 라인" 가능
+        private bool lineDisplayed;
+        private int currentLineIndex = -1;
+        private bool inputLocked = true;
         private int inputLockFrames = 0;
         private bool subscribed;
         private bool? lastSkipButtonInteractable;
@@ -46,6 +49,7 @@ namespace PPP.BLUE.VN
         private bool? lastSaveLoadButtonInteractable;
         private bool skipHoldBindingApplied;
         private float controlActionLockedUntil;
+        private Coroutine waitAndRefreshCoroutine;
 
         private void Start()
         {
@@ -184,7 +188,11 @@ namespace PPP.BLUE.VN
 
         private void OnEnable()
         {
+            inputLocked = true;
             LockInputFrames(5); // 여기 추가 (2 말고 5 추천)
+            Debug.Log($"[VN] DialogueView OnEnable text={(dialogueText != null ? dialogueText.text : "<null>")}");
+            if (dialogueText != null && dialogueText.text == "New Text")
+                dialogueText.text = string.Empty;
 
             if (subscribed) return;
             if (runner == null) return;
@@ -192,11 +200,15 @@ namespace PPP.BLUE.VN
             runner.OnSay += HandleSay;
             runner.OnEnd += HandleEnd;
             subscribed = true;
+
+            StartWaitAndRefresh();
         }
 
         private void OnDisable()
         {
             OnSkipButtonPointerUp();
+            inputLocked = true;
+            StopWaitAndRefresh();
 
             if (!subscribed) return;
             if (runner == null) return;
@@ -247,7 +259,23 @@ namespace PPP.BLUE.VN
             }
 
             // ✅ 유저 입력이면 무조건 Auto OFF (타이핑완료/Next 둘 다 포함)
+            if (inputLocked)
+            {
+                Debug.Log("[VN] input blocked (not ready)");
+                return;
+            }
+
+            if (!runner.HasValidNode())
+            {
+                Debug.Log("[VN] input blocked (no node)");
+                return;
+            }
+
             runner.ForceAutoOff(pressedSpace ? "User input (Space)" : "User input (Click)");
+            if (runner.TryGetCurrentSayState(out _, out var debugLineIndex, out _, out _))
+                currentLineIndex = debugLineIndex;
+            Debug.Log($"[VN] input lineIndex={currentLineIndex}, displayed={lineDisplayed}");
+            Debug.Log($"[VN] lineIndex={currentLineIndex}, displayed={lineDisplayed}");
 
             // ✅ 타이핑 중이면 "완성"만 하고 다음 라인으로 넘어가진 않음
             if (!lineCompleted && typer != null && typer.IsTyping)
@@ -300,12 +328,126 @@ namespace PPP.BLUE.VN
             inputLockFrames = Mathf.Max(inputLockFrames, frames);
         }
 
+        public void Open()
+        {
+            Debug.Log("[VN] Open called → forcing refresh");
+            gameObject.SetActive(true);
+            StartWaitAndRefresh();
+        }
+
+        private void RefreshCurrentLine()
+        {
+            ForceRefreshCurrentLine();
+        }
+
+        private void StartWaitAndRefresh()
+        {
+            StopWaitAndRefresh();
+            waitAndRefreshCoroutine = StartCoroutine(WaitAndRefresh());
+        }
+
+        private void StopWaitAndRefresh()
+        {
+            if (waitAndRefreshCoroutine == null)
+                return;
+
+            StopCoroutine(waitAndRefreshCoroutine);
+            waitAndRefreshCoroutine = null;
+        }
+
+        private IEnumerator WaitAndRefresh()
+        {
+            const int maxWaitFrames = 10;
+            int remaining = maxWaitFrames;
+            bool loggedNullState = false;
+            Debug.Log("[VN] WaitAndRefresh start");
+
+            while (runner == null || !runner.HasValidNode())
+            {
+                if (!loggedNullState)
+                {
+                    Debug.Log($"[VN] WaitAndRefresh pending runner={(runner != null)} hasValidNode={(runner != null && runner.HasValidNode())}");
+                    loggedNullState = true;
+                }
+
+                yield return null;
+                remaining--;
+                if (remaining <= 0)
+                {
+                    Debug.LogError("[VN] Runner not ready after wait");
+                    waitAndRefreshCoroutine = null;
+                    yield break;
+                }
+            }
+
+            Debug.Log("[VN] WaitAndRefresh ready -> ForceRefreshCurrentLine");
+            ForceRefreshCurrentLine();
+            waitAndRefreshCoroutine = null;
+        }
+
+        private void ForceRefreshCurrentLine()
+        {
+            if (runner == null)
+            {
+                Debug.LogError("[VN] ForceRefresh currentNode is unavailable (runner null)");
+                return;
+            }
+
+            if (!runner.TryGetCurrentSayState(out var currentNodeId, out var refreshedLineIndex, out var currentText, out var currentSpeaker))
+            {
+                Debug.LogWarning("[VN] no node → retry next frame");
+                StartWaitAndRefresh();
+
+                if (dialogueText != null && !string.IsNullOrEmpty(currentFullText))
+                {
+                    dialogueText.text = currentFullText;
+                    Debug.Log($"[VN] Reopen fallback text={currentFullText}");
+                }
+                else if (dialogueText != null)
+                {
+                    dialogueText.text = string.Empty;
+                }
+
+                lineDisplayed = !string.IsNullOrEmpty(dialogueText != null ? dialogueText.text : string.Empty);
+                lineCompleted = true;
+
+                Debug.LogWarning("[VN] ForceRefresh skipped: no current Say node");
+                Debug.Log($"[VN] lineIndex={currentLineIndex}, displayed={lineDisplayed}");
+                return;
+            }
+
+            if (nameText != null)
+                nameText.text = currentSpeaker;
+
+            if (dialogueText != null)
+                dialogueText.text = currentText;
+
+            currentFullText = currentText ?? string.Empty;
+            currentLineIndex = refreshedLineIndex;
+            lineDisplayed = true;
+            lineCompleted = true;
+            if (typer != null && typer.IsTyping)
+                typer.ForceComplete();
+            inputLocked = false;
+
+            bool isTyping = typer != null && typer.IsTyping;
+            bool isWaitingInput = lineCompleted;
+            Debug.Log($"[VN] Reopen currentNode={currentNodeId}, lineIndex={refreshedLineIndex}, text={currentFullText}");
+            Debug.Log($"[VN] CurrentNode={currentNodeId}, LineIndex={refreshedLineIndex}");
+            Debug.Log($"[VN] CurrentText={currentFullText}");
+            Debug.Log($"[VN] dialogueText.text={dialogueText?.text}");
+            Debug.Log($"[VN] isWaitingInput={isWaitingInput}, isTyping={isTyping}");
+            Debug.Log($"[VN] lineIndex={currentLineIndex}, displayed={lineDisplayed}");
+            Debug.Log($"[VN] ForceRefresh → {currentFullText}");
+        }
+
         private void HandleSay(string speakerId, string text, string lineId)
         {
           
             inputLockFrames = 1;
 
             lineCompleted = false;
+            lineDisplayed = true;
             currentFullText = text ?? "";
 
             runner?.MarkSeen(lineId);
@@ -320,6 +462,7 @@ namespace PPP.BLUE.VN
             {
                 if (dialogueText != null) dialogueText.text = currentFullText;
                 lineCompleted = true;
+                lineDisplayed = true;
 
                 runner?.MarkSaveAllowed(true, "No Typer => Immediate");
                 runner?.NotifyLineTypedEnd();
@@ -331,6 +474,7 @@ namespace PPP.BLUE.VN
             {
                 dialogueText.text = currentFullText;
                 lineCompleted = true;
+                lineDisplayed = true;
 
                 runner?.NotifyLineTypedEnd();
                 runner?.MarkSaveAllowed(true, "Skip Immediate");
@@ -342,6 +486,7 @@ namespace PPP.BLUE.VN
             typer.StartTyping(currentFullText, onCompleted: () =>
             {
                 lineCompleted = true;
+                lineDisplayed = true;
                 runner?.NotifyLineTypedEnd();
 
                 runner?.MarkSaveAllowed(true, "Typing Completed");
@@ -354,6 +499,7 @@ namespace PPP.BLUE.VN
             if (typer != null) typer.ForceComplete();
             else if (dialogueText != null) dialogueText.text = currentFullText;
 
+            lineDisplayed = true;
             lineCompleted = true; // 안전하게 유지
         }
 
