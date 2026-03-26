@@ -4,23 +4,23 @@ using UnityEngine.UI;
 namespace PPP.BLUE.VN.RecipeApp
 {
     /// <summary>
-    /// 마우스 휠 스크롤만 허용하고, 마우스 드래그 스크롤은 막는 ScrollRect.
+    /// 留곗  ㅽщ·留 ⑺怨, 留곗 洹 ㅽщ· 留 ScrollRect.
     /// </summary>
     public sealed class WheelOnlyScrollRect : ScrollRect
     {
         public override void OnBeginDrag(PointerEventData eventData)
         {
-            // 드래그 시작 무시
+            // 洹  臾댁
         }
 
         public override void OnDrag(PointerEventData eventData)
         {
-            // 드래그 이동 무시
+            // 洹 대 臾댁
         }
 
         public override void OnEndDrag(PointerEventData eventData)
         {
-            // 드래그 종료 무시
+            // 洹 醫猷 臾댁
         }
     }
 }
