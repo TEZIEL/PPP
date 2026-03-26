@@ -360,27 +360,33 @@ namespace PPP.BLUE.VN
         private void EmitCurrent()
         {
             if (script == null || script.nodes == null) return;
-            if (pointer < 0 || pointer >= script.nodes.Count)
+            int replayIndex = waitPointer;
+            if (replayIndex < 0 || replayIndex >= script.nodes.Count)
+                replayIndex = lastShownPointer;
+            if (replayIndex < 0 || replayIndex >= script.nodes.Count)
+                replayIndex = pointer;
+
+            if (replayIndex < 0 || replayIndex >= script.nodes.Count)
             {
-                Debug.LogWarning($"[VNRunner] EmitCurrent out of range pointer={pointer}");
+                Debug.LogWarning($"[VNRunner] EmitCurrent out of range pointer={pointer} waitPointer={waitPointer} lastShown={lastShownPointer}");
                 return;
             }
 
-            var node = script.nodes[pointer];
+            var node = script.nodes[replayIndex];
             if (node == null)
             {
-                Debug.LogWarning($"[VN] EmitCurrent skipped null node at pointer={pointer}");
+                Debug.LogWarning($"[VN] EmitCurrent skipped null node at index={replayIndex}");
                 return;
             }
 
             if (node.type != VNNodeType.Say)
             {
-                Debug.Log($"[VN] EmitCurrent non-say node type={node.type} pointer={pointer}; no immediate replay.");
+                Debug.Log($"[VN] EmitCurrent non-say node type={node.type} index={replayIndex}; no immediate replay.");
                 return;
             }
 
-            lastShownPointer = pointer;
-            waitPointer = pointer;
+            lastShownPointer = replayIndex;
+            waitPointer = replayIndex;
             isWaiting = true;
             EmitSay(node);
             MarkSaveAllowed(false, "Load EmitCurrent");
@@ -1509,8 +1515,20 @@ namespace PPP.BLUE.VN
                 }
                 else
                 {
-                    isWaiting = false;
-                    waitPointer = -1;
+                    bool restoredSay = script.nodes[pointer] != null && script.nodes[pointer].type == VNNodeType.Say;
+                    if (restoredSay)
+                    {
+                        int restoredSayIndex = pointer;
+                        waitPointer = restoredSayIndex;
+                        lastShownPointer = restoredSayIndex;
+                        isWaiting = true;
+                        pointer = Mathf.Min(restoredSayIndex + 1, script.nodes.Count);
+                    }
+                    else
+                    {
+                        isWaiting = false;
+                        waitPointer = -1;
+                    }
                 }
 
                 started = true;
