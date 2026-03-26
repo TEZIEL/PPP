@@ -21,6 +21,7 @@ namespace PPP.BLUE.VN
         [SerializeField] private VNPolicyController policy;
         [SerializeField] private VNDialogueView dialogueView;
         [SerializeField] private VNFadeController fadeController;
+        [SerializeField] private CanvasGroup windowCanvasGroup;
         [SerializeField] private Button closeButton;
         [SerializeField] private Button saveButton;
         [SerializeField] private Button loadButton;
@@ -35,9 +36,12 @@ namespace PPP.BLUE.VN
         [Header("Fade")]
         [SerializeField, Min(0f)] private float loadFadeOutSeconds = 0.35f;
         [SerializeField, Min(0f)] private float loadFadeInSeconds = 0.35f;
+        [SerializeField, Min(0f)] private float loadBlackHoldSeconds = 3f;
 
         private const string ModalReason = "SaveLoadWindow";
+        private const string LoadingModalReason = "Loading";
         private bool modalPushed;
+        private bool loadingModalPushed;
         private bool busy;
         private bool confirmOpen;
         private int selectedSlotIndex = 0;
@@ -57,17 +61,20 @@ namespace PPP.BLUE.VN
             if (runner == null) runner = GetComponentInParent<VNRunner>(true);
             if (policy == null) policy = GetComponentInParent<VNPolicyController>(true);
             if (dialogueView == null) dialogueView = GetComponentInParent<VNDialogueView>(true);
+            if (windowCanvasGroup == null) windowCanvasGroup = GetComponent<CanvasGroup>();
 
             BindButtons();
             SetConfirmPopupVisible(false);
             EnsureValidSelection();
             RefreshSlotVisuals();
             RefreshActionButtonState();
+            SetWindowVisible(false);
         }
 
         private void OnDisable()
         {
             ReleaseModal();
+            ReleaseLoadingModal();
             busy = false;
             confirmOpen = false;
             pendingAction = PendingAction.None;
@@ -88,6 +95,7 @@ namespace PPP.BLUE.VN
             RefreshSlotStatus();
             RefreshSlotVisuals();
             RefreshActionButtonState();
+            SetWindowVisible(true);
         }
 
         public void Close()
@@ -95,9 +103,22 @@ namespace PPP.BLUE.VN
             if (busy)
                 return;
 
-            gameObject.SetActive(false);
-            ReleaseModal();
+            CloseImmediate();
             dialogueView?.LockInputFrames(2);
+        }
+
+        public void CloseImmediate()
+        {
+            if (confirmOpen)
+            {
+                confirmOpen = false;
+                pendingAction = PendingAction.None;
+                SetConfirmPopupVisible(false);
+            }
+
+            SetWindowVisible(false);
+            ReleaseModal();
+            RefreshActionButtonState();
         }
 
         public void SelectSlot(int index)
@@ -161,12 +182,27 @@ namespace PPP.BLUE.VN
 
         private IEnumerator CoLoadSlot(int slotNumber)
         {
+            if (busy)
+                yield break;
+
             busy = true;
+            confirmOpen = false;
+            pendingAction = PendingAction.None;
+            SetConfirmPopupVisible(false);
+            RefreshActionButtonState();
+
             AcquireModal();
+            AcquireLoadingModal();
             ForceAutoOff($"Load slot {slotNumber}");
 
             if (fadeController != null)
                 yield return fadeController.FadeOut(loadFadeOutSeconds);
+
+            // 검은 화면에서 창을 정리
+            CloseImmediate();
+
+            if (loadBlackHoldSeconds > 0f)
+                yield return new WaitForSecondsRealtime(loadBlackHoldSeconds);
 
             bool copied = CopySlotToDefaultSave(slotNumber);
             bool ok = false;
@@ -184,9 +220,8 @@ namespace PPP.BLUE.VN
             if (fadeController != null)
                 yield return fadeController.FadeIn(loadFadeInSeconds);
 
+            ReleaseLoadingModal();
             busy = false;
-            gameObject.SetActive(false);
-            ReleaseModal();
             dialogueView?.LockInputFrames(2);
         }
 
@@ -315,6 +350,24 @@ namespace PPP.BLUE.VN
 
             policy.PopModal(ModalReason);
             modalPushed = false;
+        }
+
+        private void AcquireLoadingModal()
+        {
+            if (loadingModalPushed || policy == null)
+                return;
+
+            policy.PushModal(LoadingModalReason);
+            loadingModalPushed = true;
+        }
+
+        private void ReleaseLoadingModal()
+        {
+            if (!loadingModalPushed || policy == null)
+                return;
+
+            policy.PopModal(LoadingModalReason);
+            loadingModalPushed = false;
         }
 
         private void ForceAutoOff(string reason)
@@ -469,6 +522,19 @@ namespace PPP.BLUE.VN
         {
             if (confirmPopupRoot != null)
                 confirmPopupRoot.SetActive(visible);
+        }
+
+        private void SetWindowVisible(bool visible)
+        {
+            if (windowCanvasGroup == null)
+            {
+                gameObject.SetActive(visible);
+                return;
+            }
+
+            windowCanvasGroup.alpha = visible ? 1f : 0f;
+            windowCanvasGroup.interactable = visible;
+            windowCanvasGroup.blocksRaycasts = visible;
         }
 
         private static string GetDefaultSavePath()
