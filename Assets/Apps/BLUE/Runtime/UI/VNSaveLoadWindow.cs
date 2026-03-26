@@ -47,8 +47,10 @@ namespace PPP.BLUE.VN
 
         [Header("Slot Selection Fallback")]
         [SerializeField] private bool useButtonTintWhenNoHighlight = true;
-        [SerializeField] private Color selectedSlotButtonColor = new Color(0.32f, 0.62f, 1f, 1f);
+        [SerializeField] private Color selectedSlotButtonColor = new Color32(128, 128, 184, 255);
         [SerializeField] private Color unselectedSlotButtonColor = Color.white;
+        [SerializeField] private Color selectedTextColor = Color.white;
+        [SerializeField] private Color normalTextColor = new Color32(30, 30, 30, 255);
 
         private const string ModalReason = "SaveLoadWindow";
         private const string LoadingModalReason = "Loading";
@@ -643,6 +645,8 @@ namespace PPP.BLUE.VN
                     continue;
                 
                 bool selected = i == selectedSlotIndex;
+                ApplySlotTextSelection(slot, selected);
+
                 if (slot.selectedHighlight == null)
                 {
                     ApplySlotSelectionTint(i, slot, selected);
@@ -663,13 +667,65 @@ namespace PPP.BLUE.VN
 
                     var graphic = slot.selectedHighlight.GetComponent<Graphic>();
                     if (graphic != null)
+                    {
                         graphic.enabled = selected;
+                        graphic.color = selectedSlotButtonColor;
+                    }
 
                     continue;
                 }
 
                 slot.selectedHighlight.SetActive(selected);
+
+                var highlightGraphic = slot.selectedHighlight.GetComponent<Graphic>();
+                if (highlightGraphic != null)
+                    highlightGraphic.color = selectedSlotButtonColor;
             }
+        }
+
+        private void ApplySlotTextSelection(SlotUI slot, bool selected)
+        {
+            if (slot == null)
+                return;
+
+            var texts = slot.selectButton != null
+                ? slot.selectButton.GetComponentsInChildren<TMP_Text>(true)
+                : System.Array.Empty<TMP_Text>();
+
+            Color targetColor = selected ? selectedTextColor : normalTextColor;
+            for (int i = 0; i < texts.Length; i++)
+            {
+                if (texts[i] != null)
+                    texts[i].color = targetColor;
+            }
+
+            if (slot.statusText != null)
+                slot.statusText.color = targetColor;
+        }
+
+        private void ApplySlotSelectionTint(int slotIndex, SlotUI slot, bool selected)
+        {
+            if (!useButtonTintWhenNoHighlight || slot?.selectButton == null)
+                return;
+
+            var graphic = slot.selectButton.targetGraphic;
+            if (graphic == null)
+                return;
+
+            if (!slotOriginalButtonColors.ContainsKey(slotIndex))
+                slotOriginalButtonColors[slotIndex] = graphic.color;
+
+            if (selected)
+            {
+                graphic.color = selectedSlotButtonColor;
+                return;
+            }
+
+            Color fallback = unselectedSlotButtonColor;
+            if (unselectedSlotButtonColor == Color.white && slotOriginalButtonColors.TryGetValue(slotIndex, out var original))
+                fallback = original;
+
+            graphic.color = fallback;
         }
 
         private void ApplySlotSelectionTint(int slotIndex, SlotUI slot, bool selected)
