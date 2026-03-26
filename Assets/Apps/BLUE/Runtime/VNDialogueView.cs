@@ -408,7 +408,6 @@ namespace PPP.BLUE.VN
             runner?.ForceAutoOff("Open SaveLoad Window");
             runner?.SetUiSkipHeld(false, "Open SaveLoad Window");
             saveLoadWindow.Open();
-            StartCoroutine(ReplayClick());
         }
 
         private IEnumerator ReplayClick()

@@ -86,8 +86,25 @@ namespace PPP.BLUE.VN
 
         public void Open()
         {
+            if (busy && !loadingModalPushed)
+            {
+                Debug.LogWarning("[VN][SaveLoad] Open requested while busy=true but loading modal is not active. Recovering busy flag.");
+                busy = false;
+            }
+
             if (busy)
                 return;
+
+            if (!gameObject.activeSelf)
+                gameObject.SetActive(true);
+            if (windowRoot != null && !windowRoot.activeSelf)
+                windowRoot.SetActive(true);
+            if (windowCanvasGroup == null)
+            {
+                if (windowRoot == null) windowRoot = gameObject;
+                windowCanvasGroup = windowRoot.GetComponent<CanvasGroup>();
+                if (windowCanvasGroup == null) windowCanvasGroup = windowRoot.AddComponent<CanvasGroup>();
+            }
 
             ForceAutoOff("Open SaveLoad Modal");
             AcquireModal();
@@ -186,46 +203,51 @@ namespace PPP.BLUE.VN
                 yield break;
 
             busy = true;
-            confirmOpen = false;
-            pendingAction = PendingAction.None;
-            SetConfirmPopupVisible(false);
-            RefreshActionButtonState();
+            try
+            {
+                confirmOpen = false;
+                pendingAction = PendingAction.None;
+                SetConfirmPopupVisible(false);
+                RefreshActionButtonState();
 
-            AcquireModal();
-            AcquireLoadingModal();
-            ForceAutoOff($"Load slot {slotNumber}");
+                AcquireModal();
+                AcquireLoadingModal();
+                ForceAutoOff($"Load slot {slotNumber}");
 
-            if (fadeController != null)
-                yield return fadeController.FadeOut(loadFadeOutSeconds);
+                if (fadeController != null)
+                    yield return fadeController.FadeOut(loadFadeOutSeconds);
 
-            // 검은 화면에서 창을 정리
-            CloseImmediate();
+                // 검은 화면에서 창을 정리
+                CloseImmediate();
 
-            if (loadBlackHoldSeconds > 0f)
-                yield return new WaitForSecondsRealtime(loadBlackHoldSeconds);
+                if (loadBlackHoldSeconds > 0f)
+                    yield return new WaitForSecondsRealtime(loadBlackHoldSeconds);
 
-            bool copied = CopySlotToDefaultSave(slotNumber);
-            bool ok = false;
+                bool copied = CopySlotToDefaultSave(slotNumber);
+                bool ok = false;
 
-            if (copied && runner != null)
-                ok = runner.TryLoadNow($"VN_SAVE_{slotNumber}");
+                if (copied && runner != null)
+                    ok = runner.TryLoadNow($"VN_SAVE_{slotNumber}");
 
-            if (!copied)
-                Debug.LogWarning($"[VN][SaveLoad] Load failed. slot file missing slot={slotNumber}");
-            else
-                Debug.Log(ok
-                    ? $"[VN][SaveLoad] Loaded slot={slotNumber}"
-                    : $"[VN][SaveLoad] Load blocked/fail slot={slotNumber}");
+                if (!copied)
+                    Debug.LogWarning($"[VN][SaveLoad] Load failed. slot file missing slot={slotNumber}");
+                else
+                    Debug.Log(ok
+                        ? $"[VN][SaveLoad] Loaded slot={slotNumber}"
+                        : $"[VN][SaveLoad] Load blocked/fail slot={slotNumber}");
 
-            if (ok && runner != null)
-                runner.Next();
+                if (ok && runner != null)
+                    runner.Next();
 
-            if (fadeController != null)
-                yield return fadeController.FadeIn(loadFadeInSeconds);
-
-            ReleaseLoadingModal();
-            busy = false;
-            dialogueView?.LockInputFrames(2);
+                if (fadeController != null)
+                    yield return fadeController.FadeIn(loadFadeInSeconds);
+            }
+            finally
+            {
+                ReleaseLoadingModal();
+                busy = false;
+                dialogueView?.LockInputFrames(2);
+            }
         }
 
         private void ExecuteSave()
