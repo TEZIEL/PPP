@@ -40,6 +40,9 @@ namespace PPP.BLUE.VN.RecipeApp
         [SerializeField] private Transform drinkListContent;
         [SerializeField] private DrinkListItemUI drinkListItemPrefab;
         [SerializeField] private TMP_Text emptyStateText;
+        [SerializeField] private Button scrollUpButton;
+        [SerializeField] private Button scrollDownButton;
+        [SerializeField, Range(0.01f, 1f)] private float buttonScrollStep = 0.2f;
 
         [Header("Detail Panel")]
         [SerializeField] private GameObject detailRoot;
@@ -64,11 +67,33 @@ namespace PPP.BLUE.VN.RecipeApp
 
         private void Awake()
         {
+            BindScrollButtons();
             BuildImageMap();
             LoadData();
             BuildIngredientButtons();
             ApplyFilterAndRebuildList();
             ShowDetail(null);
+        }
+
+        private void OnDestroy()
+        {
+            UnbindScrollButtons();
+        }
+
+        /// <summary>
+        /// 인스펙터에서 OnClick에 직접 연결할 수 있는 헬퍼.
+        /// </summary>
+        public void ScrollListUp()
+        {
+            ScrollListByStep(+1f);
+        }
+
+        /// <summary>
+        /// 인스펙터에서 OnClick에 직접 연결할 수 있는 헬퍼.
+        /// </summary>
+        public void ScrollListDown()
+        {
+            ScrollListByStep(-1f);
         }
 
         private void LoadData()
@@ -236,6 +261,43 @@ namespace PPP.BLUE.VN.RecipeApp
             // 현재 열린 상세가 필터 결과에 없으면 상세를 닫는다.
             if (openedDetailDrink != null && !filtered.Contains(openedDetailDrink))
                 ShowDetail(null);
+        }
+
+        private void BindScrollButtons()
+        {
+            if (scrollUpButton != null)
+                scrollUpButton.onClick.AddListener(ScrollListUp);
+
+            if (scrollDownButton != null)
+                scrollDownButton.onClick.AddListener(ScrollListDown);
+        }
+
+        private void UnbindScrollButtons()
+        {
+            if (scrollUpButton != null)
+                scrollUpButton.onClick.RemoveListener(ScrollListUp);
+
+            if (scrollDownButton != null)
+                scrollDownButton.onClick.RemoveListener(ScrollListDown);
+        }
+
+        private void ScrollListByStep(float direction)
+        {
+            if (drinkListScrollRect == null)
+                return;
+
+            if (drinkListScrollRect.content == null || drinkListScrollRect.viewport == null)
+                return;
+
+            // 스크롤 가능한 길이가 없으면 이동하지 않는다.
+            float contentHeight = drinkListScrollRect.content.rect.height;
+            float viewportHeight = drinkListScrollRect.viewport.rect.height;
+            if (contentHeight <= viewportHeight + 0.01f)
+                return;
+
+            float step = Mathf.Clamp01(buttonScrollStep);
+            float next = drinkListScrollRect.verticalNormalizedPosition + (direction * step);
+            drinkListScrollRect.verticalNormalizedPosition = Mathf.Clamp01(next);
         }
 
         private List<DrinkEntry> FilterDrinksBySelectedIngredients()
