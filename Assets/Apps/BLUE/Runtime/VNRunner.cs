@@ -31,6 +31,7 @@ namespace PPP.BLUE.VN
         private int waitPointer = -1;   // 화면에 보여주고 '기다리는' 노드 인덱스
         private bool isWaiting;         // 지금 입력/선택 대기 상태인지
         public bool IsWaiting => isWaiting;
+        public bool IsHoldSkipInputActive => holdSkipInputActive;
 
         private List<VNNode> nodes = new List<VNNode>();
         public bool IsSkipMode => skipMode;
@@ -38,7 +39,8 @@ namespace PPP.BLUE.VN
         private const string SAVE_KEY = "vn.state";
         private const string VN_STATE_KEY = "vn.state";
         private const string VN_STATE_KEY_DBG = "vn.state.dbg";
-        private const float AutoDelaySeconds = 0.35f;
+        [Header("Timing")]
+        [SerializeField, Min(0.05f)] private float autoPlayDelaySeconds = 0.35f;
         private int lastShownPointer = -1;
         private int lastStopIndex = 0; // 마지막으로 '멈춘' 노드(Say/Choice)의 인덱스
         private Dictionary<string, int> flags = new Dictionary<string, int>();
@@ -59,7 +61,9 @@ namespace PPP.BLUE.VN
         [SerializeField] private float holdSkipStepInterval = 0.1f;
         [SerializeField, Min(1)] private int skipBurstPerFrame = 20;
         private float nextHoldSkipAllowedTime;
-        private bool wasF1Held;
+        private bool wasHoldSkipHeld;
+        private bool uiSkipHeld;
+        private bool holdSkipInputActive;
 
         private string lastDrinkResult = "";
 
@@ -194,6 +198,7 @@ namespace PPP.BLUE.VN
         public event Action OnEnd;
 
         public bool HasScript => script != null;
+        public bool IsAutoPlayEnabled => settings.auto;
         private VNScript script;
         private int pointer = 0;
         private bool started;
@@ -364,16 +369,18 @@ namespace PPP.BLUE.VN
             lastBlocked = blocked;
 
 
-            bool f1Held = Input.GetKey(KeyCode.F1);
+            bool keyboardSkipHeld = Input.GetKey(KeyCode.F1);
+            bool holdSkip = keyboardSkipHeld ^ uiSkipHeld; // 동시 입력은 무시 (둘 중 하나만 허용)
+            holdSkipInputActive = holdSkip;
 
-            if (f1Held && !wasF1Held)
+            if (holdSkip && !wasHoldSkipHeld)
             {
                 ForceAutoOff("Hold Skip");
             }
 
-            wasF1Held = f1Held;
+            wasHoldSkipHeld = holdSkip;
 
-            if (f1Held && VNInputGate.CanUseSkipOrAuto(policy))
+            if (holdSkip && VNInputGate.CanUseSkipOrAuto(policy))
             {
                 if (Time.time >= nextHoldSkipAllowedTime)
                 {
@@ -1443,9 +1450,9 @@ namespace PPP.BLUE.VN
 
         private IEnumerator CoAutoNext()
         {
-            if (logToConsole) VNLog($"[VN] AutoTimer Start ({AutoDelaySeconds:0.00}s)");
+            if (logToConsole) VNLog($"[VN] AutoTimer Start ({autoPlayDelaySeconds:0.00}s)");
 
-            yield return new WaitForSeconds(AutoDelaySeconds);
+            yield return new WaitForSeconds(autoPlayDelaySeconds);
 
             autoCo = null;
 
@@ -2049,6 +2056,36 @@ namespace PPP.BLUE.VN
             SkipStep();
 
             VNLog($"[VN] SkipStep triggered source={source}");
+        }
+
+        public void RequestSkipStep(string source = "UI Button")
+        {
+            ToggleSkip(source);
+        }
+
+        public void SetUiSkipHeld(bool held, string source = "UI Hold Skip")
+        {
+            if (uiSkipHeld == held)
+                return;
+
+            uiSkipHeld = held;
+            if (held)
+            {
+                ForceAutoOff(source);
+            }
+        }
+
+        public void ToggleAuto(string source = "UI Button")
+        {
+            ToggleAutoFromInput(source);
+        }
+
+        public void SetAutoPlay(bool value, string source = "UI Button")
+        {
+            if (settings.auto == value)
+                return;
+
+            ToggleAutoFromInput(source);
         }
 
         private void SkipStep()
