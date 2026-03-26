@@ -259,6 +259,7 @@ namespace PPP.BLUE.VN
             runner.ForceAutoOff(pressedSpace ? "User input (Space)" : "User input (Click)");
             if (runner.TryGetCurrentSayState(out _, out var debugLineIndex, out _, out _))
                 currentLineIndex = debugLineIndex;
+            Debug.Log($"[VN] input lineIndex={currentLineIndex}, displayed={lineDisplayed}");
             Debug.Log($"[VN] lineIndex={currentLineIndex}, displayed={lineDisplayed}");
 
             // ✅ 타이핑 중이면 "완성"만 하고 다음 라인으로 넘어가진 않음
