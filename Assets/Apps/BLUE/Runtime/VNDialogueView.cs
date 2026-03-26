@@ -387,6 +387,8 @@ namespace PPP.BLUE.VN
         {
             if (policy != null && policy.IsDrinkPanelOpen)
                 return;
+            if (policy != null && policy.IsSaveLoadModalOpen)
+                return;
             if (Time.unscaledTime < controlActionLockedUntil)
                 return;
             if (Input.GetKeyDown(KeyCode.Alpha3) || Input.GetKeyDown(KeyCode.Keypad3))
