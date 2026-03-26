@@ -86,10 +86,6 @@ namespace PPP.BLUE.VN
                         choices = ConvertChoices(nodeDto.choices),
                     };
 
-                    Debug.Log("JSON PATH = " + path);
-                    Debug.Log($"DTO label={nodeDto.label} next={nodeDto.next} arg={nodeDto.arg} arg1={nodeDto.arg1}");
-                    if (t == VNNodeType.Call)
-                        Debug.Log($"[CALL DTO->NODE] target={callTarget} arg={callArg}");
                     nodes.Add(node);
                 }
             }

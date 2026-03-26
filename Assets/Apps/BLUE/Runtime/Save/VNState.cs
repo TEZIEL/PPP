@@ -8,6 +8,9 @@ namespace PPP.BLUE.VN
     {
         public string scriptId;
         public int pointer;
+        public string currentLabel;
+        public int nodeIndex;
+        public bool isWaitingExternalCall;
 
         public List<VNIntVar> vars = new();
         public List<string> seen = new();
@@ -19,6 +22,14 @@ namespace PPP.BLUE.VN
         public string lastResult;
 
         public List<VNRunner.VNCallFrame> callStack = new();
+        public VNDrinkState drink = new();
+    }
+
+    [Serializable]
+    public sealed class VNDrinkState
+    {
+        public string currentRequestId;
+        public bool isActive;
     }
 
     [Serializable]

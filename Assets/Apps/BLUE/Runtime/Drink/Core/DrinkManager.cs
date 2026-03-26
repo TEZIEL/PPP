@@ -11,6 +11,13 @@ namespace PPP.BLUE.VN
     public sealed class DrinkManager : MonoBehaviour
     {
         [Serializable]
+        public sealed class DrinkRuntimeState
+        {
+            public string currentRequestId;
+            public bool isActive;
+        }
+
+        [Serializable]
         private struct DrinkImageEntry
         {
             public string imageKey;
@@ -62,6 +69,7 @@ namespace PPP.BLUE.VN
         private bool artheonEnabled;
         private bool isResetInProgress;
         private bool isProvided;
+        private bool isDrinkSessionActive;
 
         private string pendingResult = "fail";
         private string pendingNormalizedResult = "fail";
@@ -131,6 +139,7 @@ namespace PPP.BLUE.VN
         {
             Debug.Log("[TRACE 5] StartDrink called with " + requestId);
             currentRequestId = requestId;
+            isDrinkSessionActive = true;
             Debug.Log("[TRACE 6] Before FindRequest id=" + requestId);
             currentRequest = database?.FindRequest(requestId);
             Debug.Log("[TRACE 7] After FindRequest result=" + (currentRequest != null ? currentRequest.requestID : "NULL"));
@@ -362,6 +371,7 @@ namespace PPP.BLUE.VN
             confirmCompleted = true;
 
             isProvided = true;
+            isDrinkSessionActive = false;
             SetAllIngredientButtonsInteractable(false);
 
             if (provideButton != null)
@@ -650,6 +660,7 @@ namespace PPP.BLUE.VN
             isProvided = false;
 
             artheonEnabled = false;
+            isDrinkSessionActive = false;
 
             HideConfirmPanel();
             panelUI?.ClearGridInstant();
@@ -692,6 +703,27 @@ namespace PPP.BLUE.VN
 
             if (confirmRemakeButton != null)
                 confirmRemakeButton.interactable = locked;
+        }
+
+        public DrinkRuntimeState ExportState()
+        {
+            return new DrinkRuntimeState
+            {
+                currentRequestId = currentRequestId,
+                isActive = isDrinkSessionActive
+            };
+        }
+
+        public void RestoreState(DrinkRuntimeState state)
+        {
+            if (state == null)
+                return;
+
+            currentRequestId = state.currentRequestId;
+            currentRequest = database?.FindRequest(currentRequestId);
+            isDrinkSessionActive = state.isActive;
+
+            LogDrink($"state restored requestId={currentRequestId ?? string.Empty} active={isDrinkSessionActive}");
         }
     }
 }
