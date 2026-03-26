@@ -24,6 +24,7 @@ namespace PPP.BLUE.VN
         [SerializeField] private Button skipButton;
         [SerializeField] private Button autoPlayButton;
         [SerializeField] private Button exitButton;
+        [SerializeField] private VNSaveLoadWindow saveLoadWindow;
         // Legacy compatibility: kept hidden so partial merges referencing old fields still compile.
         [SerializeField, HideInInspector] private bool autoPlayEnabled;
         [SerializeField, Min(0f)] private float closeActionLockSeconds = 0.15f;
@@ -392,6 +393,19 @@ namespace PPP.BLUE.VN
             controlActionLockedUntil = Time.unscaledTime + closeActionLockSeconds;
 
             closePopupController?.Show();
+        }
+
+        public void OpenSaveLoadWindow()
+        {
+            if (saveLoadWindow == null)
+            {
+                Debug.LogWarning("[VN_UI] SaveLoadWindow reference missing.");
+                return;
+            }
+
+            runner?.ForceAutoOff("Open SaveLoad Window");
+            runner?.SetUiSkipHeld(false, "Open SaveLoad Window");
+            saveLoadWindow.Open();
         }
 
         private void HandleEnd()
