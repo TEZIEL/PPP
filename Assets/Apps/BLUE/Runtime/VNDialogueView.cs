@@ -187,6 +187,8 @@ namespace PPP.BLUE.VN
             LockInputFrames(5); // 여기 추가 (2 말고 5 추천)
             Debug.Log($"[VN] DialogueView OnEnable text={(dialogueText != null ? dialogueText.text : "<null>")}");
 
+            RefreshCurrentLine();
+
             if (subscribed) return;
             if (runner == null) return;
 
@@ -305,18 +307,39 @@ namespace PPP.BLUE.VN
 
         public void Open()
         {
-            Debug.Log("[VN] Open called");
+            Debug.Log("[VN] Open called → forcing refresh");
             gameObject.SetActive(true);
-            RefreshCurrentLine();
+            ForceRefreshCurrentLine();
         }
 
         private void RefreshCurrentLine()
         {
+            ForceRefreshCurrentLine();
+        }
+
+        private void ForceRefreshCurrentLine()
+        {
             if (runner == null)
+            {
+                Debug.LogError("[VN] ForceRefresh currentNode is unavailable (runner null)");
                 return;
+            }
 
             if (!runner.TryGetCurrentSayState(out var currentNodeId, out var currentLineIndex, out var currentText, out var currentSpeaker))
+            {
+                if (dialogueText != null && !string.IsNullOrEmpty(currentFullText))
+                {
+                    dialogueText.text = currentFullText;
+                    Debug.Log($"[VN] Reopen fallback text={currentFullText}");
+                }
+                else if (dialogueText != null)
+                {
+                    dialogueText.text = string.Empty;
+                }
+
+                Debug.LogWarning("[VN] ForceRefresh skipped: no current Say node");
                 return;
+            }
 
             if (nameText != null)
                 nameText.text = currentSpeaker;
@@ -329,9 +352,12 @@ namespace PPP.BLUE.VN
 
             bool isTyping = typer != null && typer.IsTyping;
             bool isWaitingInput = lineCompleted;
+            Debug.Log($"[VN] Reopen currentNode={currentNodeId}, lineIndex={currentLineIndex}, text={currentFullText}");
             Debug.Log($"[VN] CurrentNode={currentNodeId}, LineIndex={currentLineIndex}");
             Debug.Log($"[VN] CurrentText={currentFullText}");
+            Debug.Log($"[VN] dialogueText.text={dialogueText?.text}");
             Debug.Log($"[VN] isWaitingInput={isWaitingInput}, isTyping={isTyping}");
+            Debug.Log($"[VN] ForceRefresh → {currentFullText}");
         }
 
         private void HandleSay(string speakerId, string text, string lineId)

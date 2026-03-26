@@ -255,6 +255,8 @@ namespace PPP.BLUE.VN
             int index = -1;
             if (isWaiting && waitPointer >= 0 && waitPointer < script.nodes.Count)
                 index = waitPointer;
+            else if (lastShownPointer >= 0 && lastShownPointer < script.nodes.Count)
+                index = lastShownPointer;
             else if (pointer > 0 && pointer - 1 < script.nodes.Count)
                 index = pointer - 1;
 
