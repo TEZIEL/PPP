@@ -1792,19 +1792,7 @@ MonoBehaviour:
   m_TargetGraphic: {fileID: 6924300331833636206}
   m_OnClick:
     m_PersistentCalls:
-      m_Calls:
-      - m_Target: {fileID: 5735854688594582119}
-        m_TargetAssemblyTypeName: PPP.BLUE.VN.VNDialogueView, Assembly-CSharp
-        m_MethodName: OnSkipButtonClicked
-        m_Mode: 1
-        m_Arguments:
-          m_ObjectArgument: {fileID: 0}
-          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
-          m_IntArgument: 0
-          m_FloatArgument: 0
-          m_StringArgument: 
-          m_BoolArgument: 0
-        m_CallState: 2
+      m_Calls: []
 --- !u!1 &1046323121332844376
 GameObject:
   m_ObjectHideFlags: 0
@@ -9949,9 +9937,7 @@ MonoBehaviour:
   skipButton: {fileID: 8212970735057202272}
   autoPlayButton: {fileID: 5261307437254180606}
   exitButton: {fileID: 673330969755753658}
-  skipEnabled: 0
   autoPlayEnabled: 0
-  skipStepInterval: 0.08
   charsPerSecond: 40
 --- !u!1 &7212977544356715011
 GameObject:
@@ -10114,7 +10100,7 @@ MonoBehaviour:
       m_Calls:
       - m_Target: {fileID: 5735854688594582119}
         m_TargetAssemblyTypeName: PPP.BLUE.VN.VNDialogueView, Assembly-CSharp
-        m_MethodName: OnAutoPlayButtonClicked
+        m_MethodName: ToggleAuto
         m_Mode: 1
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
