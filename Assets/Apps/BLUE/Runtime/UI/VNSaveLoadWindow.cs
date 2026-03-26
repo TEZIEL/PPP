@@ -38,6 +38,7 @@ namespace PPP.BLUE.VN
 
         private const string ModalReason = "SaveLoadWindow";
         private bool modalPushed;
+        private bool isClosing = false;
         private bool busy;
         private bool confirmOpen;
         private int selectedSlotIndex = -1;
@@ -66,7 +67,11 @@ namespace PPP.BLUE.VN
 
         private void OnDisable()
         {
+            if (!isClosing)
+                return;
+
             ReleaseModal();
+
             busy = false;
             confirmOpen = false;
             pendingAction = PendingAction.None;
@@ -91,8 +96,13 @@ namespace PPP.BLUE.VN
             if (busy)
                 return;
 
-            gameObject.SetActive(false);
+            isClosing = true;
+
             ReleaseModal();
+            gameObject.SetActive(false);
+
+            isClosing = false;
+
             dialogueView?.LockInputFrames(2);
         }
 
