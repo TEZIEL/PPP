@@ -24,9 +24,6 @@ namespace PPP.BLUE.VN
         [SerializeField] private Button skipButton;
         [SerializeField] private Button autoPlayButton;
         [SerializeField] private Button exitButton;
-        [SerializeField] private bool skipEnabled;
-        [SerializeField] private bool autoPlayEnabled;
-        [SerializeField, Min(0.02f)] private float skipStepInterval = 0.08f;
 
         [Header("Typing")]
         [SerializeField] private float charsPerSecond = 40f;
@@ -36,7 +33,6 @@ namespace PPP.BLUE.VN
         private bool lineCompleted = true; // true면 Next로 "다음 라인" 가능
         private int inputLockFrames = 0;
         private bool subscribed;
-        private float nextSkipStepTime;
         private bool? lastSkipButtonInteractable;
         private bool? lastAutoButtonInteractable;
         private bool? lastExitButtonInteractable;
@@ -186,38 +182,6 @@ namespace PPP.BLUE.VN
             Debug.Log("[VN_UI] Next input detected -> runner.Next()");
         }
 
-        private void HandleSkipAutoState()
-        {
-            if (runner == null)
-                return;
-
-            if (policy != null && policy.IsDrinkPanelOpen)
-            {
-                if (autoPlayEnabled)
-                {
-                    autoPlayEnabled = false;
-                    runner.SetAutoPlay(false, "Drink Mode Auto Off");
-                }
-
-                if (skipEnabled)
-                    skipEnabled = false;
-
-                return;
-            }
-
-            if (autoPlayEnabled != runner.IsAutoPlayEnabled)
-                runner.SetAutoPlay(autoPlayEnabled, "VNDialogueView Sync");
-
-            if (!skipEnabled)
-                return;
-
-            if (Time.unscaledTime < nextSkipStepTime)
-                return;
-
-            nextSkipStepTime = Time.unscaledTime + skipStepInterval;
-            runner.RequestSkipStep("VNDialogueView Skip");
-        }
-
         private void HandleControlButtonState()
         {
             bool isDrinkMode = policy != null && policy.IsDrinkPanelOpen;
@@ -317,41 +281,31 @@ namespace PPP.BLUE.VN
 
         public void SetSkip(bool value)
         {
-            if (policy != null && policy.IsDrinkPanelOpen)
-                value = false;
-
-            skipEnabled = value;
-            if (skipEnabled)
-            {
-                autoPlayEnabled = false;
-                runner?.SetAutoPlay(false, "Skip Enabled");
-            }
+            if (!value) return;
+            OnSkipButtonClicked();
         }
 
         public void ToggleSkip()
         {
-            SetSkip(!skipEnabled);
+            OnSkipButtonClicked();
         }
 
         public void SetAutoPlay(bool value)
         {
-            if (policy != null && policy.IsDrinkPanelOpen)
-                value = false;
-
-            autoPlayEnabled = value;
-            runner?.SetAutoPlay(autoPlayEnabled, "VNDialogueView UI");
-            if (autoPlayEnabled)
-                skipEnabled = false;
+            runner?.SetAutoPlay(value, "VNDialogueView UI");
         }
 
         public void ToggleAuto()
         {
-            SetAutoPlay(!autoPlayEnabled);
+            runner?.ToggleAuto("VNDialogueView UI");
         }
 
         public void OnSkipButtonClicked()
         {
-            ToggleSkip();
+            if (policy != null && policy.IsDrinkPanelOpen)
+                return;
+
+            runner?.RequestSkipStep("VNDialogueView Skip Button");
         }
 
         public void OnAutoPlayButtonClicked()
