@@ -46,6 +46,7 @@ namespace PPP.BLUE.VN
         private bool loadingModalPushed;
         private bool busy;
         private bool confirmOpen;
+        private bool? lastDrinkModeActive;
         private int selectedSlotIndex = 0;
         private PendingAction pendingAction = PendingAction.None;
         private readonly System.Collections.Generic.HashSet<int> warnedHighlightBindings = new();
@@ -87,7 +88,21 @@ namespace PPP.BLUE.VN
             busy = false;
             confirmOpen = false;
             pendingAction = PendingAction.None;
+            lastDrinkModeActive = null;
             SetConfirmPopupVisible(false);
+        }
+
+        private void Update()
+        {
+            if (windowRoot == null || !windowRoot.activeInHierarchy)
+                return;
+
+            bool drinkModeActive = policy != null && policy.IsDrinkModeActive();
+            if (lastDrinkModeActive.HasValue && lastDrinkModeActive.Value == drinkModeActive)
+                return;
+
+            lastDrinkModeActive = drinkModeActive;
+            RefreshActionButtonState();
         }
 
         public void Open()
