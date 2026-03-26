@@ -341,7 +341,7 @@
       "id": "call.4",
       "type": "Call",
       "target": "Drink",
-      "arg": "REQ_TEST_ANY"
+      "arg": "REQ_TEST_ANY2"
     },
     {
       "id": "endlabel",

@@ -268,7 +268,7 @@
       },
       "description": "구수한 보리의 풍미가 가득한 전통 차.",
       "artheon_addable": true,
-      "category": "CATEGORY_PLANT_DRINK",
+      "category": "CATEGORY_TRADITIONAL_TEA",
       "tags": ["TAG_KRATYLEN_PLUS","TAG_VELTRINE_NONE","TAG_SIMPLE","TAG_LIGHT"],
       "imageKey": "DRINK_BARLEY_TEA",
       "total": 9
