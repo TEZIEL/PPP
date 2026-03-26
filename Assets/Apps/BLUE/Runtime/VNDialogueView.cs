@@ -443,6 +443,16 @@ namespace PPP.BLUE.VN
             Debug.Log($"[VN] ForceRefresh → {currentFullText}");
         }
 
+        public void OnStateLoadedForValidation()
+        {
+            ForceRefreshCurrentLine();
+
+            bool isTyping = typer != null && typer.IsTyping;
+            Debug.Log($"[CHECK] displayed={lineDisplayed}");
+            Debug.Log($"[CHECK] isTyping={isTyping}");
+            Debug.Log($"[CHECK] inputLocked={inputLocked}");
+        }
+
         private void HandleSay(string speakerId, string text, string lineId)
         {
           

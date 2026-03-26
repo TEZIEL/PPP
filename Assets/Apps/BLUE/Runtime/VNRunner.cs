@@ -366,10 +366,24 @@ namespace PPP.BLUE.VN
                 return;
             }
 
-            // “현재 포인터 노드를 한번 재생”하는 함수
-            // 보통 Next() 안에서 switch(node.type) 하는 로직이 있을 텐데,
-            // 그걸 분리해서 "RunNode(script.nodes[pointer], advance:false)" 같은 형태로 만드는 게 베스트.
-            // 일단 간단히는 Next() 구조를 조금 바꿔야 함.
+            var node = script.nodes[pointer];
+            if (node == null)
+            {
+                Debug.LogWarning($"[VN] EmitCurrent skipped null node at pointer={pointer}");
+                return;
+            }
+
+            if (node.type != VNNodeType.Say)
+            {
+                Debug.Log($"[VN] EmitCurrent non-say node type={node.type} pointer={pointer}; no immediate replay.");
+                return;
+            }
+
+            lastShownPointer = pointer;
+            waitPointer = pointer;
+            isWaiting = true;
+            EmitSay(node);
+            MarkSaveAllowed(false, "Load EmitCurrent");
         }
 
         public event Action<string, string> OnCall; // callTarget, callArg
@@ -1839,6 +1853,7 @@ namespace PPP.BLUE.VN
 
         private bool LoadStateFromKey(string key)
         {
+            int oldPointer = pointer;
             var st = VNFileSaveSystem.Load(key);
             if (st == null)
                 return false;
@@ -1852,6 +1867,18 @@ namespace PPP.BLUE.VN
                 $"great={greatCount}, success={successCount}, fail={failCount}, " +
                 $"varsCount={(vars != null ? vars.Count : 0)}"
                 );
+                Debug.Log($"[CHECK] pointer before load={oldPointer}");
+                Debug.Log($"[CHECK] pointer after load={pointer}");
+
+                if (TryGetCurrentSayState(out var currentNodeId, out var currentLineIndex, out _, out _))
+                {
+                    Debug.Log($"[CHECK] pointer={pointer}");
+                    Debug.Log($"[CHECK] currentNode={currentNodeId}");
+                    Debug.Log($"[CHECK] lineIndex={currentLineIndex}");
+                }
+
+                var dialogueView = GetComponentInChildren<VNDialogueView>(true);
+                dialogueView?.OnStateLoadedForValidation();
             }
             return ok;
         }
