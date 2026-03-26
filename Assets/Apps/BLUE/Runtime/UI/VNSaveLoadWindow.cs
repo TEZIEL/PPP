@@ -78,6 +78,9 @@ namespace PPP.BLUE.VN
             if (busy)
                 return;
 
+            if (!gameObject.activeSelf)
+                gameObject.SetActive(true);
+
             ForceAutoOff("Open SaveLoad Modal");
             AcquireModal();
             EnsureValidSelection();
@@ -91,6 +94,7 @@ namespace PPP.BLUE.VN
             if (busy)
                 return;
 
+            gameObject.SetActive(false);
             ReleaseModal();
             dialogueView?.LockInputFrames(2);
         }
@@ -180,6 +184,7 @@ namespace PPP.BLUE.VN
                 yield return fadeController.FadeIn(loadFadeInSeconds);
 
             busy = false;
+            gameObject.SetActive(false);
             ReleaseModal();
             dialogueView?.LockInputFrames(2);
         }
