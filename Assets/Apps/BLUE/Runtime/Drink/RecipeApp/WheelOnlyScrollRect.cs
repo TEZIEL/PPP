@@ -1,33 +1,26 @@
-using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
 
-/// <summary>
-/// ScrollRectÀÇ µå·¡±× ½ºÅ©·Ñ¸¸ ¸·°í,
-/// ¸¶¿ì½º ÈÙ ½ºÅ©·ÑÀº ±×´ë·Î Çã¿ëÇÏ´Â ÄÄÆ÷³ÍÆ®.
-/// </summary>
-[RequireComponent(typeof(ScrollRect))]
-public class WheelOnlyScrollRect : MonoBehaviour, IBeginDragHandler, IDragHandler, IEndDragHandler
+namespace PPP.BLUE.VN.RecipeApp
 {
-    private ScrollRect scrollRect;
-
-    private void Awake()
+    /// <summary>
+    /// ï§ÂˆÂšê³—ÂŠ Âœ ÂŠã…½ÂÑ‰Â·ï§ÂŒ Â—ÂˆÂšâ‘ºÂ•Â˜æ€¨, ï§ÂˆÂšê³—ÂŠ Â“ÂœÂÂ˜æ´¹ ÂŠã…½ÂÑ‰Â·ÂÂ€ ï§Â‰ÂŠÂ” ScrollRect.
+    /// </summary>
+    public sealed class WheelOnlyScrollRect : ScrollRect
     {
-        scrollRect = GetComponent<ScrollRect>();
-    }
+        public override void OnBeginDrag(PointerEventData eventData)
+        {
+            // Â“ÂœÂÂ˜æ´¹ Â‹ÂœÂÂ‘ è‡¾ëŒÂ‹Âœ
+        }
 
-    public void OnBeginDrag(PointerEventData eventData)
-    {
-        // µå·¡±× ½ÃÀÛ ¹«½Ã
-    }
+        public override void OnDrag(PointerEventData eventData)
+        {
+            // Â“ÂœÂÂ˜æ´¹ ÂëŒ€Â™ è‡¾ëŒÂ‹Âœ
+        }
 
-    public void OnDrag(PointerEventData eventData)
-    {
-        // µå·¡±× Áß ¹«½Ã
-    }
-
-    public void OnEndDrag(PointerEventData eventData)
-    {
-        // µå·¡±× Á¾·á ¹«½Ã
+        public override void OnEndDrag(PointerEventData eventData)
+        {
+            // Â“ÂœÂÂ˜æ´¹ é†«Â…çŒ·ÂŒ è‡¾ëŒÂ‹Âœ
+        }
     }
 }
