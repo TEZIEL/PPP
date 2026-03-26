@@ -302,6 +302,7 @@ namespace PPP.BLUE.VN
             {
                 Debug.LogWarning($"[VN][SaveLoad] Save blocked/fail slot={slotNumber}");
                 RefreshSlotStatus();
+                RefreshSlotVisuals();
                 RefreshActionButtonState();
                 return;
             }
@@ -313,6 +314,7 @@ namespace PPP.BLUE.VN
                 Debug.LogWarning($"[VN][SaveLoad] Saved runtime state but failed to copy slot file. slot={slotNumber}");
 
             RefreshSlotStatus();
+            RefreshSlotVisuals();
             RefreshActionButtonState();
         }
 
@@ -332,6 +334,7 @@ namespace PPP.BLUE.VN
             }
 
             RefreshSlotStatus();
+            RefreshSlotVisuals();
             RefreshActionButtonState();
         }
 
@@ -528,6 +531,7 @@ namespace PPP.BLUE.VN
             if (confirmOkButton != null) confirmOkButton.gameObject.SetActive(false);
 
             SetConfirmPopupVisible(true);
+            RefreshSlotVisuals();
             RefreshActionButtonState();
         }
 
@@ -544,6 +548,7 @@ namespace PPP.BLUE.VN
             if (confirmOkButton != null) confirmOkButton.gameObject.SetActive(true);
 
             SetConfirmPopupVisible(true);
+            RefreshSlotVisuals();
             RefreshActionButtonState();
         }
 
@@ -556,6 +561,7 @@ namespace PPP.BLUE.VN
             pendingAction = PendingAction.None;
             confirmOpen = false;
             SetConfirmPopupVisible(false);
+            RefreshSlotVisuals();
             RefreshActionButtonState();
 
             switch (action)
@@ -577,6 +583,7 @@ namespace PPP.BLUE.VN
             pendingAction = PendingAction.None;
             confirmOpen = false;
             SetConfirmPopupVisible(false);
+            RefreshSlotVisuals();
             RefreshActionButtonState();
         }
 
