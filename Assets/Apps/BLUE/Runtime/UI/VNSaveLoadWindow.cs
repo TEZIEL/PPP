@@ -40,6 +40,11 @@ namespace PPP.BLUE.VN
         [SerializeField, Min(0f)] private float loadFadeInSeconds = 0.35f;
         [SerializeField, Min(0f)] private float loadBlackHoldSeconds = 3f;
 
+        [Header("Slot Selection Fallback")]
+        [SerializeField] private bool useButtonTintWhenNoHighlight = true;
+        [SerializeField] private Color selectedSlotButtonColor = new Color(0.32f, 0.62f, 1f, 1f);
+        [SerializeField] private Color unselectedSlotButtonColor = Color.white;
+
         private const string ModalReason = "SaveLoadWindow";
         private const string LoadingModalReason = "Loading";
         private bool modalPushed;
@@ -51,6 +56,7 @@ namespace PPP.BLUE.VN
         private int selectedSlotIndex = 0;
         private PendingAction pendingAction = PendingAction.None;
         private readonly System.Collections.Generic.HashSet<int> warnedHighlightBindings = new();
+        private readonly System.Collections.Generic.Dictionary<int, Color> slotOriginalButtonColors = new();
 
         private enum PendingAction
         {
@@ -456,10 +462,16 @@ namespace PPP.BLUE.VN
             for (int i = 0; i < slots.Length; i++)
             {
                 var slot = slots[i];
-                if (slot?.selectedHighlight == null)
+                if (slot == null)
                     continue;
                 
                 bool selected = i == selectedSlotIndex;
+                if (slot.selectedHighlight == null)
+                {
+                    ApplySlotSelectionTint(i, slot, selected);
+                    continue;
+                }
+
                 bool highlightIsSlotRoot = slot.selectButton != null &&
                                            (slot.selectedHighlight == slot.selectButton.gameObject ||
                                             slot.selectButton.transform.IsChildOf(slot.selectedHighlight.transform));
@@ -481,6 +493,31 @@ namespace PPP.BLUE.VN
 
                 slot.selectedHighlight.SetActive(selected);
             }
+        }
+
+        private void ApplySlotSelectionTint(int slotIndex, SlotUI slot, bool selected)
+        {
+            if (!useButtonTintWhenNoHighlight || slot?.selectButton == null)
+                return;
+
+            var graphic = slot.selectButton.targetGraphic;
+            if (graphic == null)
+                return;
+
+            if (!slotOriginalButtonColors.ContainsKey(slotIndex))
+                slotOriginalButtonColors[slotIndex] = graphic.color;
+
+            if (selected)
+            {
+                graphic.color = selectedSlotButtonColor;
+                return;
+            }
+
+            Color fallback = unselectedSlotButtonColor;
+            if (unselectedSlotButtonColor == Color.white && slotOriginalButtonColors.TryGetValue(slotIndex, out var original))
+                fallback = original;
+
+            graphic.color = fallback;
         }
 
         private bool SlotHasSave(int slotIndex)
