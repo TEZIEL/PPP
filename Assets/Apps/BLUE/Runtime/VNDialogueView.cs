@@ -195,6 +195,8 @@ namespace PPP.BLUE.VN
             runner.OnSay += HandleSay;
             runner.OnEnd += HandleEnd;
             subscribed = true;
+
+            RefreshCurrentLine();
         }
 
         private void OnDisable()
