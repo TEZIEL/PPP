@@ -24,7 +24,6 @@ namespace PPP.BLUE.VN
         [SerializeField] private Button skipButton;
         [SerializeField] private Button autoPlayButton;
         [SerializeField] private Button exitButton;
-        [SerializeField] private Button thirdButton;
         // Legacy compatibility: kept hidden so partial merges referencing old fields still compile.
         [SerializeField, HideInInspector] private bool autoPlayEnabled;
         [SerializeField, Min(0f)] private float closeActionLockSeconds = 0.15f;
@@ -244,10 +243,7 @@ namespace PPP.BLUE.VN
             SetButtonInteractable(skipButton, skipAutoInteractable && !controlLockActive, ref lastSkipButtonInteractable);
             SetButtonInteractable(autoPlayButton, skipAutoInteractable && !controlLockActive, ref lastAutoButtonInteractable);
             SetButtonInteractable(exitButton, exitInteractable && !controlLockActive, ref lastExitButtonInteractable);
-            SetButtonInteractable(thirdButton, !isDrinkMode && !controlLockActive, ref lastThirdButtonInteractable);
         }
-
-        private bool? lastThirdButtonInteractable;
 
         private static void SetButtonInteractable(Button button, bool interactable, ref bool? cachedState)
         {
@@ -388,6 +384,8 @@ namespace PPP.BLUE.VN
             if (policy != null && policy.IsDrinkPanelOpen)
                 return;
             if (Time.unscaledTime < controlActionLockedUntil)
+                return;
+            if (Input.GetKeyDown(KeyCode.Alpha3) || Input.GetKeyDown(KeyCode.Keypad3))
                 return;
 
             controlActionLockedUntil = Time.unscaledTime + closeActionLockSeconds;

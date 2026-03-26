@@ -2069,7 +2069,6 @@ namespace PPP.BLUE.VN
             if (held)
             {
                 ForceAutoOff(source);
-                nextHoldSkipAllowedTime = 0f;
             }
         }
 
