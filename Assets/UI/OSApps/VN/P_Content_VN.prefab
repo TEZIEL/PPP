@@ -2663,8 +2663,9 @@ MonoBehaviour:
   typeSpeed: 30
   runner: {fileID: 5088717439015034517}
   policy: {fileID: 5970636519023333258}
+  autoPlayDelaySeconds: 0.75
   skipMode: 1
-  holdSkipStepInterval: 0.06
+  holdSkipStepInterval: 0.15
   skipBurstPerFrame: 20
   allowedExternalCallTargets:
   - Drink
@@ -9937,7 +9938,9 @@ MonoBehaviour:
   skipButton: {fileID: 8212970735057202272}
   autoPlayButton: {fileID: 5261307437254180606}
   exitButton: {fileID: 673330969755753658}
+  thirdButton: {fileID: 0}
   autoPlayEnabled: 0
+  closeActionLockSeconds: 0.15
   charsPerSecond: 40
 --- !u!1 &7212977544356715011
 GameObject:
