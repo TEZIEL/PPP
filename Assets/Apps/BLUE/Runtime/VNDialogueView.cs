@@ -1,4 +1,6 @@
-﻿using TMPro;
+﻿using System.Collections;
+using System.Collections.Generic;
+using TMPro;
 using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
@@ -24,9 +26,10 @@ namespace PPP.BLUE.VN
         [SerializeField] private Button skipButton;
         [SerializeField] private Button autoPlayButton;
         [SerializeField] private Button exitButton;
-        [SerializeField] private bool skipEnabled;
-        [SerializeField] private bool autoPlayEnabled;
-        [SerializeField, Min(0.02f)] private float skipStepInterval = 0.08f;
+        [SerializeField] private VNSaveLoadWindow saveLoadWindow;
+        // Legacy compatibility: kept hidden so partial merges referencing old fields still compile.
+        [SerializeField, HideInInspector] private bool autoPlayEnabled;
+        [SerializeField, Min(0f)] private float closeActionLockSeconds = 0.15f;
 
         [Header("Typing")]
         [SerializeField] private float charsPerSecond = 40f;
@@ -36,10 +39,11 @@ namespace PPP.BLUE.VN
         private bool lineCompleted = true; // true면 Next로 "다음 라인" 가능
         private int inputLockFrames = 0;
         private bool subscribed;
-        private float nextSkipStepTime;
         private bool? lastSkipButtonInteractable;
         private bool? lastAutoButtonInteractable;
         private bool? lastExitButtonInteractable;
+        private bool skipHoldBindingApplied;
+        private float controlActionLockedUntil;
 
         private void Start()
         {
@@ -75,7 +79,45 @@ namespace PPP.BLUE.VN
                 advanceClickArea = dialogueText.rectTransform;
             if (graphicRaycaster == null)
                 graphicRaycaster = GetComponentInParent<GraphicRaycaster>(true);
+            SetupSkipHoldBinding();
             Debug.Log($"[VN_UI] bind runner={(runner ? runner.name : "NULL")}");
+        }
+
+        private void SetupSkipHoldBinding()
+        {
+            if (skipHoldBindingApplied || skipButton == null)
+                return;
+
+            var trigger = skipButton.GetComponent<EventTrigger>();
+            if (trigger == null)
+                trigger = skipButton.gameObject.AddComponent<EventTrigger>();
+
+            AddEventTrigger(trigger, EventTriggerType.PointerDown, _ => OnSkipButtonPointerDown());
+            AddEventTrigger(trigger, EventTriggerType.PointerUp, _ => OnSkipButtonPointerUp());
+            AddEventTrigger(trigger, EventTriggerType.PointerExit, _ => OnSkipButtonPointerUp());
+            skipHoldBindingApplied = true;
+        }
+
+        private static void AddEventTrigger(EventTrigger trigger, EventTriggerType eventType, UnityEngine.Events.UnityAction<BaseEventData> callback)
+        {
+            if (trigger == null)
+                return;
+
+            if (trigger.triggers == null)
+                trigger.triggers = new System.Collections.Generic.List<EventTrigger.Entry>();
+
+            for (int i = 0; i < trigger.triggers.Count; i++)
+            {
+                if (trigger.triggers[i].eventID != eventType)
+                    continue;
+
+                trigger.triggers[i].callback.AddListener(callback);
+                return;
+            }
+
+            var entry = new EventTrigger.Entry { eventID = eventType };
+            entry.callback.AddListener(callback);
+            trigger.triggers.Add(entry);
         }
 
         private bool IsPointerInsideAdvanceArea()
@@ -123,6 +165,8 @@ namespace PPP.BLUE.VN
 
         private void OnDisable()
         {
+            OnSkipButtonPointerUp();
+
             if (!subscribed) return;
             if (runner == null) return;
 
@@ -186,36 +230,10 @@ namespace PPP.BLUE.VN
             Debug.Log("[VN_UI] Next input detected -> runner.Next()");
         }
 
+        // Legacy compatibility: older branches may still call this.
         private void HandleSkipAutoState()
         {
-            if (runner == null)
-                return;
-
-            if (policy != null && policy.IsDrinkPanelOpen)
-            {
-                if (autoPlayEnabled)
-                {
-                    autoPlayEnabled = false;
-                    runner.SetAutoPlay(false, "Drink Mode Auto Off");
-                }
-
-                if (skipEnabled)
-                    skipEnabled = false;
-
-                return;
-            }
-
-            if (autoPlayEnabled != runner.IsAutoPlayEnabled)
-                runner.SetAutoPlay(autoPlayEnabled, "VNDialogueView Sync");
-
-            if (!skipEnabled)
-                return;
-
-            if (Time.unscaledTime < nextSkipStepTime)
-                return;
-
-            nextSkipStepTime = Time.unscaledTime + skipStepInterval;
-            runner.RequestSkipStep("VNDialogueView Skip");
+            // Intentionally empty. Skip/Auto behavior is runner-owned.
         }
 
         private void HandleControlButtonState()
@@ -223,10 +241,11 @@ namespace PPP.BLUE.VN
             bool isDrinkMode = policy != null && policy.IsDrinkPanelOpen;
             bool skipAutoInteractable = !isDrinkMode && (policy == null || VNInputGate.CanUseSkipOrAuto(policy));
             bool exitInteractable = !isDrinkMode;
+            bool controlLockActive = Time.unscaledTime < controlActionLockedUntil;
 
-            SetButtonInteractable(skipButton, skipAutoInteractable, ref lastSkipButtonInteractable);
-            SetButtonInteractable(autoPlayButton, skipAutoInteractable, ref lastAutoButtonInteractable);
-            SetButtonInteractable(exitButton, exitInteractable, ref lastExitButtonInteractable);
+            SetButtonInteractable(skipButton, skipAutoInteractable && !controlLockActive, ref lastSkipButtonInteractable);
+            SetButtonInteractable(autoPlayButton, skipAutoInteractable && !controlLockActive, ref lastAutoButtonInteractable);
+            SetButtonInteractable(exitButton, exitInteractable && !controlLockActive, ref lastExitButtonInteractable);
         }
 
         private static void SetButtonInteractable(Button button, bool interactable, ref bool? cachedState)
@@ -275,7 +294,7 @@ namespace PPP.BLUE.VN
                 return;
             }
 
-            if (runner != null && runner.IsSkipMode)
+            if (runner != null && runner.IsSkipMode && !runner.IsHoldSkipInputActive)
             {
                 dialogueText.text = currentFullText;
                 lineCompleted = true;
@@ -317,45 +336,50 @@ namespace PPP.BLUE.VN
 
         public void SetSkip(bool value)
         {
-            if (policy != null && policy.IsDrinkPanelOpen)
-                value = false;
-
-            skipEnabled = value;
-            if (skipEnabled)
-            {
-                autoPlayEnabled = false;
-                runner?.SetAutoPlay(false, "Skip Enabled");
-            }
+            if (!value) return;
+            OnSkipButtonClicked();
         }
 
         public void ToggleSkip()
         {
-            SetSkip(!skipEnabled);
+            OnSkipButtonClicked();
         }
 
         public void SetAutoPlay(bool value)
         {
-            if (policy != null && policy.IsDrinkPanelOpen)
-                value = false;
-
-            autoPlayEnabled = value;
-            runner?.SetAutoPlay(autoPlayEnabled, "VNDialogueView UI");
-            if (autoPlayEnabled)
-                skipEnabled = false;
+            runner?.SetAutoPlay(value, "VNDialogueView UI");
         }
 
         public void ToggleAuto()
         {
-            SetAutoPlay(!autoPlayEnabled);
+            runner?.ToggleAuto("VNDialogueView UI");
         }
 
         public void OnSkipButtonClicked()
         {
-            ToggleSkip();
+            // Hold-based skip only. Keep empty to avoid one-shot skip on click.
+        }
+
+        public void OnSkipButtonPointerDown()
+        {
+            if (policy != null && policy.IsDrinkPanelOpen)
+                return;
+            if (Time.unscaledTime < controlActionLockedUntil)
+                return;
+
+            runner?.ForceAutoOff("Skip Hold Button");
+            runner?.SetUiSkipHeld(true, "VNDialogueView Skip Hold");
+        }
+
+        public void OnSkipButtonPointerUp()
+        {
+            runner?.SetUiSkipHeld(false, "VNDialogueView Skip Hold");
         }
 
         public void OnAutoPlayButtonClicked()
         {
+            if (Time.unscaledTime < controlActionLockedUntil)
+                return;
             ToggleAuto();
         }
 
@@ -363,8 +387,54 @@ namespace PPP.BLUE.VN
         {
             if (policy != null && policy.IsDrinkPanelOpen)
                 return;
+            if (Time.unscaledTime < controlActionLockedUntil)
+                return;
+            if (Input.GetKeyDown(KeyCode.Alpha3) || Input.GetKeyDown(KeyCode.Keypad3))
+                return;
+
+            controlActionLockedUntil = Time.unscaledTime + closeActionLockSeconds;
 
             closePopupController?.Show();
+        }
+
+        public void OpenSaveLoadWindow()
+        {
+            if (saveLoadWindow == null)
+            {
+                Debug.LogWarning("[VN_UI] SaveLoadWindow reference missing.");
+                return;
+            }
+
+            runner?.ForceAutoOff("Open SaveLoad Window");
+            runner?.SetUiSkipHeld(false, "Open SaveLoad Window");
+            saveLoadWindow.Open();
+            StartCoroutine(ReplayClick());
+        }
+
+        private IEnumerator ReplayClick()
+        {
+            yield return null;
+
+            var eventSystem = EventSystem.current;
+            if (eventSystem == null)
+                yield break;
+
+            var pointerData = new PointerEventData(eventSystem)
+            {
+                position = Input.mousePosition
+            };
+
+            var results = new List<RaycastResult>();
+            eventSystem.RaycastAll(pointerData, results);
+
+            for (int i = 0; i < results.Count; i++)
+            {
+                var go = results[i].gameObject;
+                if (go == null)
+                    continue;
+
+                ExecuteEvents.Execute(go, pointerData, ExecuteEvents.pointerClickHandler);
+            }
         }
 
         private void HandleEnd()

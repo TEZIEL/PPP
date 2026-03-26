@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 
+
 namespace PPP.BLUE.VN.DrinkSystem
 {
     public enum DrinkRequestType
@@ -21,7 +22,7 @@ namespace PPP.BLUE.VN.DrinkSystem
         public string category;
         public List<string> categories = new List<string>();
         public List<string> tags = new List<string>();
-        public string likedDrink;
+        public List<string> likedDrink;
         public string dislikedDrink;
     }
 }
