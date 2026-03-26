@@ -8,8 +8,9 @@
   - `drinks.json`의 `category`, `tags` raw key를 그대로 사용
   - `DrinkListItemUI.localizedEntries`(키-값 테이블)에서 표시 언어를 해석
   - 언어 변경 시 코드 수정 대신 테이블 교체/수정
-- 단어 잘림 대응:
-  - `forceWrapByCharCount` + `maxCharsPerLine`로 긴 토큰 강제 줄바꿈
+- 줄바꿈:
+  - 강제 줄바꿈 로직 없이 TMP 기본 줄바꿈 사용
+  - 마우스 드래그 스크롤은 막고, 휠 + 버튼 스크롤 사용
 
 ## DrinkListItem 표시 필드
 - 이름: 음료명
@@ -40,5 +41,10 @@
   - 예) `META_ARTHEON_ADDABLE -> 아르테온 추가 가능`
 - `DrinkListItemUI.hiddenRawTagKeys`:
   - 내부 태그(`TAG_SIMPLE`, `TAG_COMPLEX` 등) 숨김 키 설정
-- `forceWrapByCharCount` / `maxCharsPerLine`:
-  - 긴 단어 강제 줄바꿈 동작 조절
+- Scroll View의 `ScrollRect` 컴포넌트:
+  - `WheelOnlyScrollRect`로 교체해 드래그 스크롤 비활성화
+  - 휠 스크롤은 그대로 사용
+  - 관성/탄성 비활성화(`inertia=false`, `movementType=Clamped`)로 미끌림 제거
+- `RecipeAppController`:
+  - `scrollUpButton`, `scrollDownButton`에 위/아래 이동 버튼 연결
+  - `buttonScrollStep`으로 버튼 1회 이동량 조절
