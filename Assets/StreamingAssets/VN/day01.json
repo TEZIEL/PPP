@@ -1,5 +1,5 @@
 {
-  "scriptId": "drink_system_stress_test",
+  "scriptId": "day01",
   "nodes": [
     {
       "id": "lb.start",
