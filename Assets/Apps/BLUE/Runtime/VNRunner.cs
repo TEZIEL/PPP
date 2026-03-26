@@ -571,6 +571,8 @@ namespace PPP.BLUE.VN
 
                 var node = script.nodes[pointer];
                 VNLog($"[VN] node@{pointer} type={node?.type} label={node?.label}");
+                if (node != null)
+                    Debug.Log($"[NODE EXECUTE] id={node.id} type={node.type}");
 
                 if (node == null)
                 {

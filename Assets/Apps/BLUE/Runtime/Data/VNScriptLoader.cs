@@ -72,15 +72,12 @@ namespace PPP.BLUE.VN
                         speakerId = FirstNonEmpty(nodeDto.speakerId, nodeDto.speaker),
                         text = nodeDto.text ?? string.Empty,
                         label = FirstNonEmpty(
-            nodeDto.arg,
-            FirstNonEmpty(
-                nodeDto.label,
-                FirstNonEmpty(
-                    nodeDto.next,
-                    nodeDto.arg1
-                )
-            )
-        ),
+                            nodeDto.label,
+                            FirstNonEmpty(
+                                nodeDto.next,
+                                nodeDto.arg1
+                            )
+                        ),
                         callTarget = callTarget,
                         callArg = callArg,
                         branches = ConvertBranches(nodeDto.branches),
