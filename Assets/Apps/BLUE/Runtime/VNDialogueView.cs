@@ -301,7 +301,9 @@ namespace PPP.BLUE.VN
             bool isDrinkMode = policy != null && policy.IsDrinkPanelOpen;
             bool skipAutoInteractable = !isDrinkMode;
             bool exitInteractable = !isDrinkMode;
-            bool saveLoadInteractable = !isDrinkMode;
+            bool typingInProgress = (typer != null && typer.IsTyping) || !lineCompleted || inputLocked;
+            bool saveAllowedByRunner = runner == null || runner.SaveAllowed;
+            bool saveLoadInteractable = !isDrinkMode && !typingInProgress && saveAllowedByRunner;
             bool controlLockActive = Time.unscaledTime < controlActionLockedUntil;
 
             SetButtonInteractable(skipButton, skipAutoInteractable && !controlLockActive, ref lastSkipButtonInteractable);
