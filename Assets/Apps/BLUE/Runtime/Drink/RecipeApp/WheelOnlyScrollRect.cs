@@ -20,7 +20,8 @@ namespace PPP.BLUE.VN.RecipeApp
 
         public override void OnEndDrag(PointerEventData eventData)
         {
-            // 洹 醫猷 臾댁
+            // 洹 醫
+
         }
     }
 }
