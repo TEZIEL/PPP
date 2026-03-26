@@ -14,8 +14,6 @@ namespace PPP.BLUE.VN
             [SerializeField] public Button selectButton;
             [SerializeField] public GameObject selectedHighlight;
             [SerializeField] public TMP_Text slotNameText;
-            [SerializeField] public TMP_Text slotInfoText;
-            [SerializeField] public TMP_Text slotDateText;
             [SerializeField] public TMP_Text statusText; // legacy fallback
         }
 
@@ -32,6 +30,10 @@ namespace PPP.BLUE.VN
         [SerializeField] private Button loadButton;
         [SerializeField] private Button deleteButton;
         [SerializeField] private SlotUI[] slots = new SlotUI[3];
+        [Header("Selected Slot Metadata (Integrated Panel)")]
+        [SerializeField] private TMP_Text selectedSlotNameText;
+        [SerializeField] private TMP_Text selectedSlotInfoText;
+        [SerializeField] private TMP_Text selectedSlotDateText;
         [SerializeField] private GameObject confirmPopupRoot;
         [SerializeField] private TMP_Text confirmMessageText;
         [SerializeField] private Button confirmYesButton;
@@ -86,8 +88,11 @@ namespace PPP.BLUE.VN
             if (windowCanvasGroup == null) windowCanvasGroup = windowRoot.AddComponent<CanvasGroup>();
 
             BindButtons();
+            AutoBindIntegratedSlotMetadataTexts();
             SetConfirmPopupVisible(false);
             EnsureValidSelection();
+            RefreshSlotStatus();
+            RefreshSelectedSlotMetadata();
             RefreshSlotVisuals();
             RefreshActionButtonState();
             SetWindowVisible(false);
@@ -150,6 +155,7 @@ namespace PPP.BLUE.VN
             AcquireModal();
             EnsureValidSelection();
             RefreshSlotStatus();
+            RefreshSelectedSlotMetadata();
             RefreshSlotVisuals();
             lastDrinkModeActive = null;
             lastRunnerSaveAllowed = null;
@@ -190,6 +196,7 @@ namespace PPP.BLUE.VN
                 return;
 
             selectedSlotIndex = index;
+            RefreshSelectedSlotMetadata();
             RefreshSlotVisuals();
             RefreshActionButtonState();
         }
@@ -313,6 +320,7 @@ namespace PPP.BLUE.VN
             {
                 Debug.LogWarning($"[VN][SaveLoad] Save blocked/fail slot={slotNumber}");
                 RefreshSlotStatus();
+                RefreshSelectedSlotMetadata();
                 RefreshSlotVisuals();
                 RefreshActionButtonState();
                 return;
@@ -325,6 +333,7 @@ namespace PPP.BLUE.VN
                 Debug.LogWarning($"[VN][SaveLoad] Saved runtime state but failed to copy slot file. slot={slotNumber}");
 
             RefreshSlotStatus();
+            RefreshSelectedSlotMetadata();
             RefreshSlotVisuals();
             RefreshActionButtonState();
         }
@@ -345,6 +354,7 @@ namespace PPP.BLUE.VN
             }
 
             RefreshSlotStatus();
+            RefreshSelectedSlotMetadata();
             RefreshSlotVisuals();
             RefreshActionButtonState();
         }
@@ -453,33 +463,123 @@ namespace PPP.BLUE.VN
         {
             for (int i = 0; i < slots.Length; i++)
             {
-                BindSlotMetaText(slots[i], i);
+                BindSlotHeaderText(slots[i], i);
             }
         }
 
-        private void BindSlotMetaText(SlotUI slot, int index)
+        private void BindSlotHeaderText(SlotUI slot, int index)
         {
             if (slot == null)
                 return;
 
             string slotName = GetSlotName(index);
+            SetText(slot.slotNameText, slotName);
+
+            // Legacy slot text는 슬롯 번호만 표시(통합 메타데이터 패널과 역할 분리).
+            if (slot.statusText != null)
+                slot.statusText.text = slotName;
+        }
+
+        private void RefreshSelectedSlotMetadata()
+        {
+            EnsureValidSelection();
+            if (selectedSlotIndex < 0 || selectedSlotIndex >= slots.Length)
+            {
+                SetText(selectedSlotNameText, "슬롯00");
+                SetText(selectedSlotInfoText, "비어있음");
+                SetText(selectedSlotDateText, "비어있음");
+                return;
+            }
+
+            string slotName = GetSlotName(selectedSlotIndex);
             string slotInfo = "비어있음";
             string slotDate = "비어있음";
-
-            var state = ReadSlotState(index + 1);
+            var state = ReadSlotState(selectedSlotIndex + 1);
             if (state != null)
             {
                 slotInfo = ComposeSavePointInfo(state);
                 slotDate = FormatSaveDate(state.saveTime);
             }
 
-            SetText(slot.slotNameText, slotName);
-            SetText(slot.slotInfoText, slotInfo);
-            SetText(slot.slotDateText, slotDate);
+            SetText(selectedSlotNameText, slotName);
+            SetText(selectedSlotInfoText, slotInfo);
+            SetText(selectedSlotDateText, slotDate);
+        }
 
-            // Backward compatibility when prefab still has a single status label.
-            if (slot.statusText != null)
-                slot.statusText.text = $"{slotName}\n{slotInfo}\n{slotDate}";
+        private void AutoBindIntegratedSlotMetadataTexts()
+        {
+            if (selectedSlotNameText != null && selectedSlotInfoText != null && selectedSlotDateText != null)
+                return;
+
+            var allTexts = windowRoot != null ? windowRoot.GetComponentsInChildren<TMP_Text>(true) : GetComponentsInChildren<TMP_Text>(true);
+            var candidates = new System.Collections.Generic.List<TMP_Text>();
+            foreach (var text in allTexts)
+            {
+                if (text == null)
+                    continue;
+
+                if (confirmMessageText != null && text == confirmMessageText)
+                    continue;
+
+                if (IsSlotText(text))
+                    continue;
+                if (IsActionButtonText(text))
+                    continue;
+
+                if (windowRoot != null && text.transform.IsChildOf(windowRoot.transform))
+                    candidates.Add(text);
+            }
+
+            if (candidates.Count < 3)
+                return;
+
+            candidates.Sort((a, b) =>
+            {
+                float ay = ((RectTransform)a.transform).anchoredPosition.y;
+                float by = ((RectTransform)b.transform).anchoredPosition.y;
+                return by.CompareTo(ay);
+            });
+
+            if (selectedSlotNameText == null) selectedSlotNameText = candidates[0];
+            if (selectedSlotInfoText == null) selectedSlotInfoText = candidates[1];
+            if (selectedSlotDateText == null) selectedSlotDateText = candidates[2];
+        }
+
+        private bool IsSlotText(TMP_Text text)
+        {
+            for (int i = 0; i < slots.Length; i++)
+            {
+                var slot = slots[i];
+                if (slot == null)
+                    continue;
+
+                if (slot.slotNameText == text || slot.statusText == text)
+                    return true;
+
+                if (slot.selectButton != null && text.transform.IsChildOf(slot.selectButton.transform))
+                    return true;
+            }
+
+            return false;
+        }
+
+        private bool IsActionButtonText(TMP_Text text)
+        {
+            return IsChildOfButton(text, closeButton)
+                   || IsChildOfButton(text, saveButton)
+                   || IsChildOfButton(text, loadButton)
+                   || IsChildOfButton(text, deleteButton)
+                   || IsChildOfButton(text, confirmYesButton)
+                   || IsChildOfButton(text, confirmNoButton)
+                   || IsChildOfButton(text, confirmOkButton);
+        }
+
+        private static bool IsChildOfButton(TMP_Text text, Button button)
+        {
+            if (text == null || button == null)
+                return false;
+
+            return text.transform.IsChildOf(button.transform);
         }
 
         private static string GetSlotName(int index)
