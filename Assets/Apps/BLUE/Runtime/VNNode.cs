@@ -19,6 +19,8 @@ namespace PPP.BLUE.VN
         // Call
         public string callTarget;
         public string callArg;
+        public string arg;
+        public string arg1;
 
         // Branch
         public BranchRule[] branches;

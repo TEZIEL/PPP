@@ -706,10 +706,10 @@ namespace PPP.BLUE.VN
                     case VNNodeType.Call:
                         {
                             string target = node.callTarget ?? string.Empty;
-                            string arg = node.callArg ?? string.Empty;
+                            string arg = !string.IsNullOrWhiteSpace(node.arg) ? node.arg : (node.callArg ?? string.Empty);
                             Debug.Log($"[CALL DEBUG] target={target} arg={arg}");
 
-                            if (!StartExternalCall(target, arg))
+                            if (!ExecuteCall(target, arg))
                             {
                                 pointer++;
                                 if (pointer == previousPointer)
@@ -844,6 +844,11 @@ namespace PPP.BLUE.VN
 
             VNLog("[VN_TEST] Branch resolved route=" + node.label);
             DoBranch(node.label);
+        }
+
+        private bool ExecuteCall(string target, string arg)
+        {
+            return StartExternalCall(target, arg);
         }
 
         private bool StartExternalCall(string target, string arg)

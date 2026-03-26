@@ -80,6 +80,8 @@ namespace PPP.BLUE.VN
                         ),
                         callTarget = callTarget,
                         callArg = callArg,
+                        arg = nodeDto.arg ?? string.Empty,
+                        arg1 = nodeDto.arg1 ?? string.Empty,
                         branches = ConvertBranches(nodeDto.branches),
                         choices = ConvertChoices(nodeDto.choices),
                     };
