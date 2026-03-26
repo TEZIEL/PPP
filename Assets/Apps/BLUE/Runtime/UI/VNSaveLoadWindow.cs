@@ -159,7 +159,7 @@ namespace PPP.BLUE.VN
             AcquireModal();
             EnsureValidSelection();
             RefreshSlotStatus();
-            RefreshSelectedSlotMetadataDeferred();
+            RefreshSelectedSlotMetadata();
             RefreshSlotVisuals();
             lastDrinkModeActive = null;
             lastRunnerSaveAllowed = null;
@@ -200,7 +200,7 @@ namespace PPP.BLUE.VN
                 return;
 
             selectedSlotIndex = index;
-            RefreshSelectedSlotMetadataDeferred();
+            RefreshSelectedSlotMetadata();
             RefreshSlotVisuals();
             RefreshActionButtonState();
         }
@@ -324,7 +324,7 @@ namespace PPP.BLUE.VN
             {
                 Debug.LogWarning($"[VN][SaveLoad] Save blocked/fail slot={slotNumber}");
                 RefreshSlotStatus();
-                RefreshSelectedSlotMetadataDeferred();
+                RefreshSelectedSlotMetadata();
                 RefreshSlotVisuals();
                 RefreshActionButtonState();
                 return;
@@ -337,7 +337,9 @@ namespace PPP.BLUE.VN
                 Debug.LogWarning($"[VN][SaveLoad] Saved runtime state but failed to copy slot file. slot={slotNumber}");
 
             RefreshSlotStatus();
-            RefreshSelectedSlotMetadataDeferred();
+            RefreshSelectedSlotMetadata();
+            Canvas.ForceUpdateCanvases();
+            RefreshSelectedSlotMetadata();
             RefreshSlotVisuals();
             RefreshActionButtonState();
         }
@@ -358,7 +360,7 @@ namespace PPP.BLUE.VN
             }
 
             RefreshSlotStatus();
-            RefreshSelectedSlotMetadataDeferred();
+            RefreshSelectedSlotMetadata();
             RefreshSlotVisuals();
             RefreshActionButtonState();
         }
@@ -508,27 +510,6 @@ namespace PPP.BLUE.VN
             SetText(selectedSlotNameText, slotName);
             SetText(selectedSlotInfoText, slotInfo);
             SetText(selectedSlotDateText, slotDate);
-        }
-
-        private void RefreshSelectedSlotMetadataDeferred()
-        {
-            RefreshSelectedSlotMetadata();
-            Canvas.ForceUpdateCanvases();
-
-            if (!isActiveAndEnabled)
-                return;
-
-            if (deferredMetadataRefreshRoutine != null)
-                StopCoroutine(deferredMetadataRefreshRoutine);
-            deferredMetadataRefreshRoutine = StartCoroutine(CoRefreshSelectedSlotMetadataNextFrame());
-        }
-
-        private IEnumerator CoRefreshSelectedSlotMetadataNextFrame()
-        {
-            yield return null;
-            RefreshSelectedSlotMetadata();
-            Canvas.ForceUpdateCanvases();
-            deferredMetadataRefreshRoutine = null;
         }
 
         private void AutoBindIntegratedSlotMetadataTexts()
