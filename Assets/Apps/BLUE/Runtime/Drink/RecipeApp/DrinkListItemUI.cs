@@ -194,9 +194,8 @@ namespace PPP.BLUE.VN.RecipeApp
             if (rawTag.IndexOf("NONE", StringComparison.OrdinalIgnoreCase) >= 0)
                 return string.Empty;
 
-            // 직접 매핑
-            string direct = LocalizeKey(rawTag);
-            if (!string.IsNullOrWhiteSpace(direct) && !string.Equals(direct, rawTag, StringComparison.OrdinalIgnoreCase))
+            // 직접 매핑(인스펙터/기본 fallback 사전에 실제 rawTag 키가 있을 때만 사용)
+            if (localizedByKey.TryGetValue(rawTag, out var direct) && !string.IsNullOrWhiteSpace(direct))
                 return direct;
 
             // TAG_xxx_PLUS -> 재료명+
@@ -336,37 +335,37 @@ namespace PPP.BLUE.VN.RecipeApp
             text.text = safe;
         }
 
-        // 공백 없는 긴 토큰(예: 내부 키/긴 영문)이 잘리는 경우를 대비해 강제 줄바꿈을 넣는다.
+        // 공백 여부와 상관없이 라인 길이가 maxChars를 넘으면 강제로 줄바꿈한다.
         private static string ForceWrapLongTokens(string src, int maxChars)
         {
             if (string.IsNullOrEmpty(src) || maxChars <= 0)
                 return src;
 
-            var words = src.Split(' ');
-            for (int i = 0; i < words.Length; i++)
+            var result = new System.Text.StringBuilder(src.Length + (src.Length / maxChars));
+            int lineCount = 0;
+
+            for (int i = 0; i < src.Length; i++)
             {
-                if (words[i].Length <= maxChars)
+                char ch = src[i];
+
+                if (ch == '\n')
+                {
+                    result.Append(ch);
+                    lineCount = 0;
                     continue;
+                }
 
-                words[i] = InsertNewLineEvery(words[i], maxChars);
+                if (lineCount >= maxChars)
+                {
+                    result.Append('\n');
+                    lineCount = 0;
+                }
+
+                result.Append(ch);
+                lineCount++;
             }
 
-            return string.Join(" ", words);
-        }
-
-        private static string InsertNewLineEvery(string text, int interval)
-        {
-            if (string.IsNullOrEmpty(text) || interval <= 0)
-                return text;
-
-            var chunks = new List<string>();
-            for (int i = 0; i < text.Length; i += interval)
-            {
-                int len = Mathf.Min(interval, text.Length - i);
-                chunks.Add(text.Substring(i, len));
-            }
-
-            return string.Join("\n", chunks);
+            return result.ToString();
         }
 
         private void HandleClick()
