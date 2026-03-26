@@ -46,6 +46,7 @@ namespace PPP.BLUE.VN
         private bool? lastSaveLoadButtonInteractable;
         private bool skipHoldBindingApplied;
         private float controlActionLockedUntil;
+        private Coroutine waitAndRefreshCoroutine;
 
         private void Start()
         {
@@ -186,8 +187,8 @@ namespace PPP.BLUE.VN
         {
             LockInputFrames(5); // 여기 추가 (2 말고 5 추천)
             Debug.Log($"[VN] DialogueView OnEnable text={(dialogueText != null ? dialogueText.text : "<null>")}");
-
-            RefreshCurrentLine();
+            if (dialogueText != null && dialogueText.text == "New Text")
+                dialogueText.text = string.Empty;
 
             if (subscribed) return;
             if (runner == null) return;
@@ -196,12 +197,13 @@ namespace PPP.BLUE.VN
             runner.OnEnd += HandleEnd;
             subscribed = true;
 
-            RefreshCurrentLine();
+            StartWaitAndRefresh();
         }
 
         private void OnDisable()
         {
             OnSkipButtonPointerUp();
+            StopWaitAndRefresh();
 
             if (!subscribed) return;
             if (runner == null) return;
@@ -309,12 +311,57 @@ namespace PPP.BLUE.VN
         {
             Debug.Log("[VN] Open called → forcing refresh");
             gameObject.SetActive(true);
-            ForceRefreshCurrentLine();
+            StartWaitAndRefresh();
         }
 
         private void RefreshCurrentLine()
         {
             ForceRefreshCurrentLine();
+        }
+
+        private void StartWaitAndRefresh()
+        {
+            StopWaitAndRefresh();
+            waitAndRefreshCoroutine = StartCoroutine(WaitAndRefresh());
+        }
+
+        private void StopWaitAndRefresh()
+        {
+            if (waitAndRefreshCoroutine == null)
+                return;
+
+            StopCoroutine(waitAndRefreshCoroutine);
+            waitAndRefreshCoroutine = null;
+        }
+
+        private IEnumerator WaitAndRefresh()
+        {
+            const int maxWaitFrames = 10;
+            int remaining = maxWaitFrames;
+            bool loggedNullState = false;
+            Debug.Log("[VN] WaitAndRefresh start");
+
+            while (runner == null || !runner.HasValidNode())
+            {
+                if (!loggedNullState)
+                {
+                    Debug.Log($"[VN] WaitAndRefresh pending runner={(runner != null)} hasValidNode={(runner != null && runner.HasValidNode())}");
+                    loggedNullState = true;
+                }
+
+                yield return null;
+                remaining--;
+                if (remaining <= 0)
+                {
+                    Debug.LogError("[VN] Runner not ready after wait");
+                    waitAndRefreshCoroutine = null;
+                    yield break;
+                }
+            }
+
+            Debug.Log("[VN] WaitAndRefresh ready -> ForceRefreshCurrentLine");
+            ForceRefreshCurrentLine();
+            waitAndRefreshCoroutine = null;
         }
 
         private void ForceRefreshCurrentLine()
@@ -327,6 +374,9 @@ namespace PPP.BLUE.VN
 
             if (!runner.TryGetCurrentSayState(out var currentNodeId, out var currentLineIndex, out var currentText, out var currentSpeaker))
             {
+                Debug.LogWarning("[VN] no node → retry next frame");
+                StartWaitAndRefresh();
+
                 if (dialogueText != null && !string.IsNullOrEmpty(currentFullText))
                 {
                     dialogueText.text = currentFullText;

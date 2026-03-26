@@ -274,6 +274,28 @@ namespace PPP.BLUE.VN
             return true;
         }
 
+        public bool HasValidNode()
+        {
+            if (script == null || script.nodes == null || script.nodes.Count == 0)
+                return false;
+
+            bool IsValid(int index)
+            {
+                return index >= 0 && index < script.nodes.Count && script.nodes[index] != null;
+            }
+
+            if (isWaiting && IsValid(waitPointer))
+                return true;
+            if (IsValid(lastShownPointer))
+                return true;
+            if (IsValid(pointer))
+                return true;
+            if (IsValid(pointer - 1))
+                return true;
+
+            return false;
+        }
+
         // VNRunner 메서드
         public void SetVar(string key, int value)
         {
