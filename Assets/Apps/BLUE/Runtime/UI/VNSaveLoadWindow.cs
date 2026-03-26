@@ -264,9 +264,6 @@ namespace PPP.BLUE.VN
                         ? $"[VN][SaveLoad] Loaded slot={slotNumber}"
                         : $"[VN][SaveLoad] Load blocked/fail slot={slotNumber}");
 
-                if (ok && runner != null)
-                    runner.Next();
-
                 if (fadeController != null)
                     yield return fadeController.FadeIn(loadFadeInSeconds);
             }
