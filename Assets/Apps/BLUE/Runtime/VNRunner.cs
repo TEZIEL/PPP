@@ -1130,6 +1130,11 @@ namespace PPP.BLUE.VN
                 });
             }
 
+            st.greatCount = greatCount;
+            st.successCount = successCount;
+            st.failCount = failCount;
+            st.lastResult = lastResult;
+
             return st;
         }
 
@@ -1355,6 +1360,7 @@ namespace PPP.BLUE.VN
 
         public void ApplyDrinkResult(string result)
         {
+            Debug.Log($"[BEFORE APPLY] great={greatCount}");
             lastResult = result;
 
             if (result == "great")
@@ -1608,7 +1614,9 @@ namespace PPP.BLUE.VN
                 greatCount = st.greatCount;
                 successCount = st.successCount;
                 failCount = st.failCount;
-                lastResult = st.lastResult;
+                lastResult = string.IsNullOrEmpty(st.lastResult) ? "success" : st.lastResult;
+
+                Debug.Log($"[LOAD STATE] great={greatCount}, success={successCount}, fail={failCount}");
 
                 callStack.Clear();
                 pendingCallResumeFrame = null;
