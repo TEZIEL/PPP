@@ -1,18 +1,32 @@
 {
   "requests": [
+
     {
       "id": "REQ_TEST_LATTE",
       "type": "EXACT_DRINK",
       "drinkID": "DRINK_CAFE_LATTE"
     },
+
     {
       "id": "REQ_TEST_COLA",
       "type": "CATEGORY_REQUEST",
-      "category": ["CATEGORY_SODA"]
+      "category": ["CATEGORY_SODA"],
+      "likedDrink": "DRINK_MORVION_COLA"
+
     },
+
     {
       "id": "REQ_TEST_ANY",
-      "type": "ANY_DRINK"
+      "type": "ANY_DRINK",
+      "likedDrink": "DRINK_MILK_SODA"
+
+    },
+
+    {
+      "id": "REQ_TEST_ANY2",
+      "type": "EXACT_DRINK",
+      "drinkID": "DRINK_MILK_SODA"
     }
+
   ]
 }
