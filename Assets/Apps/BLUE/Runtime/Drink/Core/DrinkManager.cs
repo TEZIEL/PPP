@@ -336,6 +336,8 @@ namespace PPP.BLUE.VN
 
         public void OnConfirmProvide()
         {
+            Debug.Log("[DRINK COMPLETE CALLED]");
+
             if (pendingDrinkName == "Unknown Drink")
             {
                 Debug.Log("[Drink] Provide blocked (Unknown)");
@@ -363,6 +365,9 @@ namespace PPP.BLUE.VN
             LogResult(pendingResult);
             Debug.Log("[VN_TEST] Drink result=" + pendingResult + " request=" + currentRequestId);
 
+            string returnResult = string.IsNullOrEmpty(pendingNormalizedResult) ? pendingResult : pendingNormalizedResult;
+            Debug.Log($"[DRINK RESULT] {returnResult}");
+
             // 🔹 먼저 UI 정리
             drinkPanel?.Close();
 
@@ -372,7 +377,7 @@ namespace PPP.BLUE.VN
             // 🔹 마지막에 VN 복귀
             if (runner != null)
             {
-                runner.ReturnFromCall(pendingResult);
+                runner.ReturnFromCall(returnResult);
             }
             else
             {
