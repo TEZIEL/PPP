@@ -38,6 +38,7 @@ namespace PPP.BLUE.VN.RecipeApp
         [SerializeField] private Transform drinkListContent;
         [SerializeField] private DrinkListItemUI drinkListItemPrefab;
         [SerializeField] private TMP_Text emptyStateText;
+        [SerializeField] private ScrollRect drinkScrollRect;
 
         [Header("Detail Panel")]
         [SerializeField] private GameObject detailRoot;
@@ -219,6 +220,19 @@ namespace PPP.BLUE.VN.RecipeApp
             // 현재 열린 상세가 필터 결과에 없으면 상세를 닫는다.
             if (openedDetailDrink != null && !filtered.Contains(openedDetailDrink))
                 ShowDetail(null);
+
+            Canvas.ForceUpdateCanvases();
+
+            if (drinkListContent is RectTransform contentRect)
+            {
+                LayoutRebuilder.ForceRebuildLayoutImmediate(contentRect);
+            }
+
+            if (drinkScrollRect != null)
+            {
+                drinkScrollRect.StopMovement();
+                drinkScrollRect.verticalNormalizedPosition = 1f;
+            }
         }
 
         private List<DrinkEntry> FilterDrinksBySelectedIngredients()
