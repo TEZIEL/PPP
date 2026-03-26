@@ -1,4 +1,6 @@
-﻿using TMPro;
+﻿using System.Collections;
+using System.Collections.Generic;
+using TMPro;
 using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
@@ -406,6 +408,33 @@ namespace PPP.BLUE.VN
             runner?.ForceAutoOff("Open SaveLoad Window");
             runner?.SetUiSkipHeld(false, "Open SaveLoad Window");
             saveLoadWindow.Open();
+            StartCoroutine(ReplayClick());
+        }
+
+        private IEnumerator ReplayClick()
+        {
+            yield return null;
+
+            var eventSystem = EventSystem.current;
+            if (eventSystem == null)
+                yield break;
+
+            var pointerData = new PointerEventData(eventSystem)
+            {
+                position = Input.mousePosition
+            };
+
+            var results = new List<RaycastResult>();
+            eventSystem.RaycastAll(pointerData, results);
+
+            for (int i = 0; i < results.Count; i++)
+            {
+                var go = results[i].gameObject;
+                if (go == null)
+                    continue;
+
+                ExecuteEvents.Execute(go, pointerData, ExecuteEvents.pointerClickHandler);
+            }
         }
 
         private void HandleEnd()
