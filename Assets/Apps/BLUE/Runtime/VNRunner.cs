@@ -150,16 +150,11 @@ namespace PPP.BLUE.VN
 
             VNLog($"[VN] SaveAllowed {(SaveAllowed ? "TRUE" : "FALSE")} ({reason})");
 
-            // 🔴 Skip 중에는 저장 금지
+            // 자동 저장 제거: SaveAllowed 상태 계산/AutoTimer 제어만 유지
             if (SaveAllowed && !skipMode)
-            {
-                SaveState();
                 TryStartAutoTimer();
-            }
             else
-            {
                 StopAutoTimer();
-            }
         }
 
         // ✅ 기존 호출 유지용(대부분 DialogueView가 runner.MarkSaveAllowed()로 호출하니까)
