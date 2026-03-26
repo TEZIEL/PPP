@@ -3721,15 +3721,15 @@ MonoBehaviour:
   m_faceColor:
     serializedVersion: 2
     rgba: 4294967295
-  m_fontSize: 30
-  m_fontSizeBase: 30
+  m_fontSize: 24
+  m_fontSizeBase: 24
   m_fontWeight: 400
   m_enableAutoSizing: 0
   m_fontSizeMin: 18
   m_fontSizeMax: 72
   m_fontStyle: 0
   m_HorizontalAlignment: 1
-  m_VerticalAlignment: 256
+  m_VerticalAlignment: 512
   m_textAlignment: 65535
   m_characterSpacing: 0
   m_wordSpacing: 0
@@ -4907,15 +4907,15 @@ MonoBehaviour:
   deleteButton: {fileID: 6428581638760747367}
   slots:
   - selectButton: {fileID: 7805887846553023622}
-    selectedHighlight: {fileID: 0}
+    selectedHighlight: {fileID: 7768581424123041980}
     slotNameText: {fileID: 1011169965919996622}
     statusText: {fileID: 0}
   - selectButton: {fileID: 4042050118768659777}
-    selectedHighlight: {fileID: 0}
+    selectedHighlight: {fileID: 2071635230107689742}
     slotNameText: {fileID: 1789702109533712942}
     statusText: {fileID: 0}
   - selectButton: {fileID: 8647862973111563008}
-    selectedHighlight: {fileID: 0}
+    selectedHighlight: {fileID: 7421363067799035225}
     slotNameText: {fileID: 259607367569040337}
     statusText: {fileID: 0}
   selectedSlotNameText: {fileID: 6515758473680482040}
@@ -4929,9 +4929,7 @@ MonoBehaviour:
   loadFadeOutSeconds: 0.5
   loadFadeInSeconds: 0.5
   loadBlackHoldSeconds: 3
-  useButtonTintWhenNoHighlight: 1
   selectedSlotButtonColor: {r: 0.5019608, g: 0.5019608, b: 0.72156864, a: 1}
-  unselectedSlotButtonColor: {r: 1, g: 1, b: 1, a: 1}
   selectedTextColor: {r: 1, g: 1, b: 1, a: 1}
   normalTextColor: {r: 0.11764706, g: 0.11764706, b: 0.11764706, a: 1}
 --- !u!225 &6662508580495934891
@@ -10183,15 +10181,15 @@ MonoBehaviour:
   m_faceColor:
     serializedVersion: 2
     rgba: 4294967295
-  m_fontSize: 30
-  m_fontSizeBase: 30
+  m_fontSize: 24
+  m_fontSizeBase: 24
   m_fontWeight: 400
   m_enableAutoSizing: 0
   m_fontSizeMin: 18
   m_fontSizeMax: 72
   m_fontStyle: 0
   m_HorizontalAlignment: 1
-  m_VerticalAlignment: 256
+  m_VerticalAlignment: 512
   m_textAlignment: 65535
   m_characterSpacing: 0
   m_wordSpacing: 0
@@ -14006,15 +14004,15 @@ MonoBehaviour:
   m_faceColor:
     serializedVersion: 2
     rgba: 4294967295
-  m_fontSize: 30
-  m_fontSizeBase: 30
+  m_fontSize: 24
+  m_fontSizeBase: 24
   m_fontWeight: 400
   m_enableAutoSizing: 0
   m_fontSizeMin: 18
   m_fontSizeMax: 72
   m_fontStyle: 0
   m_HorizontalAlignment: 1
-  m_VerticalAlignment: 256
+  m_VerticalAlignment: 512
   m_textAlignment: 65535
   m_characterSpacing: 0
   m_wordSpacing: 0
@@ -14929,7 +14927,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_Material: {fileID: 0}
-  m_Color: {r: 0.2264151, g: 0.2264151, b: 0.2264151, a: 1}
+  m_Color: {r: 0.13207549, g: 0.13207549, b: 0.13207549, a: 1}
   m_RaycastTarget: 1
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
