@@ -301,7 +301,9 @@ namespace PPP.BLUE.VN
             bool isDrinkMode = policy != null && policy.IsDrinkPanelOpen;
             bool skipAutoInteractable = !isDrinkMode && (policy == null || VNInputGate.CanUseSkipOrAuto(policy));
             bool exitInteractable = !isDrinkMode;
-            bool saveLoadInteractable = !isDrinkMode;
+            bool typingInProgress = (typer != null && typer.IsTyping) || !lineCompleted || inputLocked;
+            bool saveAllowedByRunner = runner == null || runner.SaveAllowed;
+            bool saveLoadInteractable = !isDrinkMode && !typingInProgress && saveAllowedByRunner;
             bool controlLockActive = Time.unscaledTime < controlActionLockedUntil;
 
             SetButtonInteractable(skipButton, skipAutoInteractable && !controlLockActive, ref lastSkipButtonInteractable);
@@ -441,6 +443,16 @@ namespace PPP.BLUE.VN
             Debug.Log($"[VN] isWaitingInput={isWaitingInput}, isTyping={isTyping}");
             Debug.Log($"[VN] lineIndex={currentLineIndex}, displayed={lineDisplayed}");
             Debug.Log($"[VN] ForceRefresh → {currentFullText}");
+        }
+
+        public void OnStateLoadedForValidation()
+        {
+            ForceRefreshCurrentLine();
+
+            bool isTyping = typer != null && typer.IsTyping;
+            Debug.Log($"[CHECK] displayed={lineDisplayed}");
+            Debug.Log($"[CHECK] isTyping={isTyping}");
+            Debug.Log($"[CHECK] inputLocked={inputLocked}");
         }
 
         private void HandleSay(string speakerId, string text, string lineId)
