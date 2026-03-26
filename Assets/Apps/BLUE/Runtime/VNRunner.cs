@@ -194,6 +194,7 @@ namespace PPP.BLUE.VN
         public event Action OnEnd;
 
         public bool HasScript => script != null;
+        public bool IsAutoPlayEnabled => settings.auto;
         private VNScript script;
         private int pointer = 0;
         private bool started;
@@ -2049,6 +2050,24 @@ namespace PPP.BLUE.VN
             SkipStep();
 
             VNLog($"[VN] SkipStep triggered source={source}");
+        }
+
+        public void RequestSkipStep(string source = "UI Button")
+        {
+            ToggleSkip(source);
+        }
+
+        public void ToggleAuto(string source = "UI Button")
+        {
+            ToggleAutoFromInput(source);
+        }
+
+        public void SetAutoPlay(bool value, string source = "UI Button")
+        {
+            if (settings.auto == value)
+                return;
+
+            ToggleAutoFromInput(source);
         }
 
         private void SkipStep()
