@@ -145,6 +145,18 @@ namespace PPP.BLUE.VN
             OnForceCloseRequested?.Invoke();
         }
 
+        public void RequestCloseFromUI()
+        {
+            if (Host != null)
+            {
+                Host.RequestClose(appId);
+                return;
+            }
+
+            // Host 미주입 폴백: 기존 경로 유지
+            NotifyCloseRequested();
+        }
+
         public event Action OnCloseRequested;
 
         public void ConsumeCloseOnce()
