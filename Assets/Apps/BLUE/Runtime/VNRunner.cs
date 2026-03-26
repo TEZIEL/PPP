@@ -848,11 +848,13 @@ namespace PPP.BLUE.VN
 
         private bool ExecuteCall(string target, string arg)
         {
+            Debug.Log($"[TRACE 1] ExecuteCall START target={target} arg={arg}");
             return StartExternalCall(target, arg);
         }
 
         private bool StartExternalCall(string target, string arg)
         {
+            Debug.Log("[TRACE 2] StartExternalCall ENTER");
             Debug.Log($"[CALL EXECUTE] inputRequestId={arg}");
 
             if (skipMode)
@@ -881,7 +883,9 @@ namespace PPP.BLUE.VN
                 arg = arg,
             });
 
+            Debug.Log("[TRACE 2-1] OnCall listener count = " + (OnCall == null ? 0 : OnCall.GetInvocationList().Length));
             OnCall?.Invoke(target, arg);
+            Debug.Log("[TRACE 3] OnCall INVOKED");
             return true;
         }
 

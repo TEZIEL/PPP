@@ -73,6 +73,7 @@ namespace PPP.BLUE.VN
 
         public void Open(string requestId)
         {
+            Debug.Log("[TRACE 4] DrinkPanel.Open called with " + requestId);
             Debug.Log("[DrinkPanel] Open");
 
             // 🔴 이전 코루틴 강제 종료
