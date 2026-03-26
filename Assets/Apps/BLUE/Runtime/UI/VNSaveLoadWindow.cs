@@ -21,6 +21,7 @@ namespace PPP.BLUE.VN
         [SerializeField] private VNPolicyController policy;
         [SerializeField] private VNDialogueView dialogueView;
         [SerializeField] private VNFadeController fadeController;
+        [SerializeField] private VNOSBridge bridge;
         [SerializeField] private GameObject windowRoot;
         [SerializeField] private CanvasGroup windowCanvasGroup;
         [SerializeField] private Button closeButton;
@@ -62,7 +63,12 @@ namespace PPP.BLUE.VN
             if (runner == null) runner = GetComponentInParent<VNRunner>(true);
             if (policy == null) policy = GetComponentInParent<VNPolicyController>(true);
             if (dialogueView == null) dialogueView = GetComponentInParent<VNDialogueView>(true);
-            if (windowRoot == null) windowRoot = gameObject;
+            if (bridge == null) bridge = GetComponentInParent<VNOSBridge>(true);
+            if (windowRoot == null)
+            {
+                var candidate = transform.Find("Image");
+                windowRoot = candidate != null ? candidate.gameObject : gameObject;
+            }
             if (windowCanvasGroup == null) windowCanvasGroup = windowRoot.GetComponent<CanvasGroup>();
             if (windowCanvasGroup == null) windowCanvasGroup = windowRoot.AddComponent<CanvasGroup>();
 
@@ -107,6 +113,7 @@ namespace PPP.BLUE.VN
             }
 
             ForceAutoOff("Open SaveLoad Modal");
+            bridge?.ClearCloseRequestPending();
             AcquireModal();
             EnsureValidSelection();
             RefreshSlotStatus();
@@ -134,6 +141,7 @@ namespace PPP.BLUE.VN
             }
 
             SetWindowVisible(false);
+            bridge?.ClearCloseRequestPending();
             ReleaseModal();
             RefreshActionButtonState();
         }
