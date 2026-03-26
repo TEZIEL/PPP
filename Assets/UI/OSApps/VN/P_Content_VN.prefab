@@ -9938,7 +9938,6 @@ MonoBehaviour:
   skipButton: {fileID: 8212970735057202272}
   autoPlayButton: {fileID: 5261307437254180606}
   exitButton: {fileID: 673330969755753658}
-  thirdButton: {fileID: 0}
   autoPlayEnabled: 0
   closeActionLockSeconds: 0.15
   charsPerSecond: 40
@@ -10081,7 +10080,7 @@ MonoBehaviour:
     m_NormalColor: {r: 1, g: 1, b: 1, a: 1}
     m_HighlightedColor: {r: 1, g: 1, b: 1, a: 1}
     m_PressedColor: {r: 0.7169812, g: 0.7169812, b: 0.7169812, a: 1}
-    m_SelectedColor: {r: 1, g: 1, b: 1, a: 1}
+    m_SelectedColor: {r: 0.5896226, g: 0.5896226, b: 0.5896226, a: 1}
     m_DisabledColor: {r: 0.78431374, g: 0.78431374, b: 0.78431374, a: 0.5019608}
     m_ColorMultiplier: 1
     m_FadeDuration: 0.1
