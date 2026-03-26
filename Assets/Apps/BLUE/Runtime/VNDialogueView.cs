@@ -20,6 +20,10 @@ namespace PPP.BLUE.VN
         [SerializeField] private RectTransform buttonContainerRoot;
         [SerializeField] private GraphicRaycaster graphicRaycaster;
         [SerializeField] private Camera uiCamera;
+        [SerializeField] private VNClosePopupController closePopupController;
+        [SerializeField] private Button skipButton;
+        [SerializeField] private Button autoPlayButton;
+        [SerializeField] private Button exitButton;
         [SerializeField] private bool skipEnabled;
         [SerializeField] private bool autoPlayEnabled;
         [SerializeField, Min(0.02f)] private float skipStepInterval = 0.08f;
@@ -33,6 +37,9 @@ namespace PPP.BLUE.VN
         private int inputLockFrames = 0;
         private bool subscribed;
         private float nextSkipStepTime;
+        private bool? lastSkipButtonInteractable;
+        private bool? lastAutoButtonInteractable;
+        private bool? lastExitButtonInteractable;
 
         private void Start()
         {
@@ -60,6 +67,8 @@ namespace PPP.BLUE.VN
         {
             if (bridge == null) bridge = GetComponentInParent<VNOSBridge>(true);
             if (bridge == null) bridge = GetComponentInChildren<VNOSBridge>(true);
+            if (closePopupController == null) closePopupController = GetComponentInParent<VNClosePopupController>(true);
+            if (closePopupController == null) closePopupController = GetComponentInChildren<VNClosePopupController>(true);
             if (typer != null) typer.SetTarget(dialogueText);
             if (runner == null) runner = GetComponentInParent<VNRunner>(true);
             if (advanceClickArea == null && dialogueText != null)
@@ -124,9 +133,17 @@ namespace PPP.BLUE.VN
 
         private void Update()
         {
+            HandleControlButtonState();
+
             if (runner != null && runner.IsWaiting && runner.CallStackCount > 0)
             {
                 return;
+            }
+
+            if (policy != null && policy.IsDrinkPanelOpen && autoPlayEnabled)
+            {
+                autoPlayEnabled = false;
+                runner?.SetAutoPlay(false, "Drink Mode Auto Off");
             }
 
             if (!CanAcceptVNInput()) return;
@@ -174,6 +191,20 @@ namespace PPP.BLUE.VN
             if (runner == null)
                 return;
 
+            if (policy != null && policy.IsDrinkPanelOpen)
+            {
+                if (autoPlayEnabled)
+                {
+                    autoPlayEnabled = false;
+                    runner.SetAutoPlay(false, "Drink Mode Auto Off");
+                }
+
+                if (skipEnabled)
+                    skipEnabled = false;
+
+                return;
+            }
+
             if (autoPlayEnabled != runner.IsAutoPlayEnabled)
                 runner.SetAutoPlay(autoPlayEnabled, "VNDialogueView Sync");
 
@@ -185,6 +216,29 @@ namespace PPP.BLUE.VN
 
             nextSkipStepTime = Time.unscaledTime + skipStepInterval;
             runner.RequestSkipStep("VNDialogueView Skip");
+        }
+
+        private void HandleControlButtonState()
+        {
+            bool isDrinkMode = policy != null && policy.IsDrinkPanelOpen;
+            bool skipAutoInteractable = !isDrinkMode && (policy == null || VNInputGate.CanUseSkipOrAuto(policy));
+            bool exitInteractable = !isDrinkMode;
+
+            SetButtonInteractable(skipButton, skipAutoInteractable, ref lastSkipButtonInteractable);
+            SetButtonInteractable(autoPlayButton, skipAutoInteractable, ref lastAutoButtonInteractable);
+            SetButtonInteractable(exitButton, exitInteractable, ref lastExitButtonInteractable);
+        }
+
+        private static void SetButtonInteractable(Button button, bool interactable, ref bool? cachedState)
+        {
+            if (button == null)
+                return;
+
+            if (cachedState.HasValue && cachedState.Value == interactable)
+                return;
+
+            button.interactable = interactable;
+            cachedState = interactable;
         }
 
 
@@ -263,6 +317,9 @@ namespace PPP.BLUE.VN
 
         public void SetSkip(bool value)
         {
+            if (policy != null && policy.IsDrinkPanelOpen)
+                value = false;
+
             skipEnabled = value;
             if (skipEnabled)
             {
@@ -278,6 +335,9 @@ namespace PPP.BLUE.VN
 
         public void SetAutoPlay(bool value)
         {
+            if (policy != null && policy.IsDrinkPanelOpen)
+                value = false;
+
             autoPlayEnabled = value;
             runner?.SetAutoPlay(autoPlayEnabled, "VNDialogueView UI");
             if (autoPlayEnabled)
@@ -287,6 +347,24 @@ namespace PPP.BLUE.VN
         public void ToggleAuto()
         {
             SetAutoPlay(!autoPlayEnabled);
+        }
+
+        public void OnSkipButtonClicked()
+        {
+            ToggleSkip();
+        }
+
+        public void OnAutoPlayButtonClicked()
+        {
+            ToggleAuto();
+        }
+
+        public void OnExitButtonClicked()
+        {
+            if (policy != null && policy.IsDrinkPanelOpen)
+                return;
+
+            closePopupController?.Show();
         }
 
         private void HandleEnd()
