@@ -40,7 +40,7 @@ namespace PPP.BLUE.VN
         private bool modalPushed;
         private bool busy;
         private bool confirmOpen;
-        private int selectedSlotIndex = -1;
+        private int selectedSlotIndex = 0;
         private PendingAction pendingAction = PendingAction.None;
 
         private enum PendingAction
@@ -59,6 +59,7 @@ namespace PPP.BLUE.VN
 
             BindButtons();
             SetConfirmPopupVisible(false);
+            EnsureValidSelection();
             RefreshSlotVisuals();
             RefreshActionButtonState();
         }
@@ -79,6 +80,7 @@ namespace PPP.BLUE.VN
 
             ForceAutoOff("Open SaveLoad Modal");
             AcquireModal();
+            EnsureValidSelection();
             RefreshSlotStatus();
             RefreshSlotVisuals();
             RefreshActionButtonState();
@@ -343,6 +345,7 @@ namespace PPP.BLUE.VN
 
         private void RefreshActionButtonState()
         {
+            EnsureValidSelection();
             bool slotSelected = selectedSlotIndex >= 0 && selectedSlotIndex < slots.Length;
             bool interactable = slotSelected && !busy && !confirmOpen;
             bool hasSave = SlotHasSave(selectedSlotIndex);
@@ -350,6 +353,18 @@ namespace PPP.BLUE.VN
             if (saveButton != null) saveButton.interactable = interactable;
             if (loadButton != null) loadButton.interactable = interactable && hasSave;
             if (deleteButton != null) deleteButton.interactable = interactable && hasSave;
+        }
+
+        private void EnsureValidSelection()
+        {
+            if (slots == null || slots.Length == 0)
+            {
+                selectedSlotIndex = -1;
+                return;
+            }
+
+            if (selectedSlotIndex < 0 || selectedSlotIndex >= slots.Length)
+                selectedSlotIndex = 0;
         }
 
         private void ShowConfirm(string message, PendingAction action)
