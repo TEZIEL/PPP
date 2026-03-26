@@ -61,7 +61,6 @@ namespace PPP.BLUE.VN
             SetConfirmPopupVisible(false);
             RefreshSlotVisuals();
             RefreshActionButtonState();
-            gameObject.SetActive(false);
         }
 
         private void OnDisable()
@@ -80,7 +79,6 @@ namespace PPP.BLUE.VN
 
             ForceAutoOff("Open SaveLoad Modal");
             AcquireModal();
-            gameObject.SetActive(true);
             RefreshSlotStatus();
             RefreshSlotVisuals();
             RefreshActionButtonState();
@@ -91,7 +89,6 @@ namespace PPP.BLUE.VN
             if (busy)
                 return;
 
-            gameObject.SetActive(false);
             ReleaseModal();
             dialogueView?.LockInputFrames(2);
         }
@@ -181,7 +178,6 @@ namespace PPP.BLUE.VN
                 yield return fadeController.FadeIn(loadFadeInSeconds);
 
             busy = false;
-            gameObject.SetActive(false);
             ReleaseModal();
             dialogueView?.LockInputFrames(2);
         }
