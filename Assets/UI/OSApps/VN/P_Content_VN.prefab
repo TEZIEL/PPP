@@ -3298,6 +3298,7 @@ MonoBehaviour:
   loadFromJsonOnStart: 1
   startDayId: day01
   bridge: {fileID: 8020622904635775800}
+  drinkManager: {fileID: 0}
   typeSpeed: 30
   runner: {fileID: 5088717439015034517}
   policy: {fileID: 5970636519023333258}
@@ -7410,7 +7411,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_Sprite: {fileID: 10907, guid: 0000000000000000f000000000000000, type: 0}
+  m_Sprite: {fileID: 0}
   m_Type: 1
   m_PreserveAspect: 0
   m_FillCenter: 1
@@ -13383,6 +13384,7 @@ MonoBehaviour:
   skipButton: {fileID: 8212970735057202272}
   autoPlayButton: {fileID: 5261307437254180606}
   exitButton: {fileID: 673330969755753658}
+  saveLoadButton: {fileID: 0}
   saveLoadWindow: {fileID: 3270875385100370035}
   autoPlayEnabled: 0
   closeActionLockSeconds: 0.15
