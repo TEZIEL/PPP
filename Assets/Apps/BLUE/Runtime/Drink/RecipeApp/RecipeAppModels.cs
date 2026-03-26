@@ -52,7 +52,10 @@ namespace PPP.BLUE.VN.RecipeApp
         public int total;
         public List<string> tags = new List<string>();
 
-        // JSON 원본의 ingredients(객체)를 key 집합으로 정규화해서 저장한다.
+        // 재료 표시용: 재료 ID -> 수량
+        public Dictionary<string, int> ingredientAmounts = new Dictionary<string, int>(StringComparer.OrdinalIgnoreCase);
+
+        // 필터용: Contains 검사 최적화
         public HashSet<string> ingredientKeys = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
 
         public bool ContainsIngredient(string ingredientId)

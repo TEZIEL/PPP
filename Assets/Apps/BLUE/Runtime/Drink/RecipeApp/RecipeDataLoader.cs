@@ -135,8 +135,12 @@ namespace PPP.BLUE.VN.RecipeApp
                 {
                     foreach (var pair in ingredientMap)
                     {
-                        if (!string.IsNullOrWhiteSpace(pair.Key))
-                            drink.ingredientKeys.Add(pair.Key);
+                        if (string.IsNullOrWhiteSpace(pair.Key))
+                            continue;
+
+                        int amount = GetIntValue(pair.Value);
+                        drink.ingredientAmounts[pair.Key] = amount;
+                        drink.ingredientKeys.Add(pair.Key);
                     }
                 }
 
@@ -160,6 +164,21 @@ namespace PPP.BLUE.VN.RecipeApp
                 return string.Empty;
 
             return System.IO.File.ReadAllText(fullPath);
+        }
+
+        private static int GetIntValue(object value)
+        {
+            if (value == null)
+                return 0;
+
+            if (value is long l)
+                return (int)l;
+            if (value is int i)
+                return i;
+            if (value is double d)
+                return Mathf.RoundToInt((float)d);
+
+            return int.TryParse(value.ToString(), out var parsed) ? parsed : 0;
         }
         private static string GetString(Dictionary<string, object> map, string key)
             => map.TryGetValue(key, out var value) ? value?.ToString() ?? string.Empty : string.Empty;

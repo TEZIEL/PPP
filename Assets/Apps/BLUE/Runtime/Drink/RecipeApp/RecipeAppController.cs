@@ -23,6 +23,7 @@ namespace PPP.BLUE.VN.RecipeApp
         }
 
         private const int MaxSelectedIngredients = 3;
+        private const string ArtheonIngredientId = "INGREDIENT_ARTHEON";
 
         [Header("Data")]
         [SerializeField] private RecipeDataLoader dataLoader;
@@ -35,10 +36,10 @@ namespace PPP.BLUE.VN.RecipeApp
         [SerializeField] private IngredientFilterButtonUI ingredientButtonPrefab;
 
         [Header("Drink List")]
+        [SerializeField] private ScrollRect drinkListScrollRect;
         [SerializeField] private Transform drinkListContent;
         [SerializeField] private DrinkListItemUI drinkListItemPrefab;
         [SerializeField] private TMP_Text emptyStateText;
-        [SerializeField] private ScrollRect drinkScrollRect;
 
         [Header("Detail Panel")]
         [SerializeField] private GameObject detailRoot;
@@ -55,6 +56,7 @@ namespace PPP.BLUE.VN.RecipeApp
         private readonly List<DrinkListItemUI> drinkItems = new List<DrinkListItemUI>();
         private readonly Dictionary<string, Sprite> imageByKey = new Dictionary<string, Sprite>(StringComparer.OrdinalIgnoreCase);
         private readonly HashSet<string> selectedIngredientIds = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+        private readonly Dictionary<string, string> ingredientDisplayNameById = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
 
         private List<IngredientEntry> allIngredients = new List<IngredientEntry>();
         private List<DrinkEntry> allDrinks = new List<DrinkEntry>();
@@ -82,6 +84,16 @@ namespace PPP.BLUE.VN.RecipeApp
 
             allIngredients = ingredientRoot?.ingredients ?? new List<IngredientEntry>();
             allDrinks = drinkRoot?.drinks ?? new List<DrinkEntry>();
+
+            ingredientDisplayNameById.Clear();
+            for (int i = 0; i < allIngredients.Count; i++)
+            {
+                var ingredient = allIngredients[i];
+                if (ingredient == null || string.IsNullOrWhiteSpace(ingredient.id))
+                    continue;
+
+                ingredientDisplayNameById[ingredient.id] = ingredient.DisplayName;
+            }
         }
 
         private void BuildImageMap()
@@ -205,7 +217,7 @@ namespace PPP.BLUE.VN.RecipeApp
                 {
                     var drink = filtered[i];
                     var item = Instantiate(drinkListItemPrefab, drinkListContent);
-                    item.Setup(drink, FindDrinkSprite(drink.imageKey), OnDrinkClicked);
+                    item.Setup(drink, FindDrinkSprite(drink.imageKey), ingredientDisplayNameById, OnDrinkClicked);
                     drinkItems.Add(item);
                 }
             }
@@ -217,22 +229,13 @@ namespace PPP.BLUE.VN.RecipeApp
                 emptyStateText.text = "조건에 맞는 음료가 없습니다.";
             }
 
+            // 필터 후 스크롤을 맨 위로 초기화한다.
+            if (drinkListScrollRect != null)
+                drinkListScrollRect.verticalNormalizedPosition = 1f;
+
             // 현재 열린 상세가 필터 결과에 없으면 상세를 닫는다.
             if (openedDetailDrink != null && !filtered.Contains(openedDetailDrink))
                 ShowDetail(null);
-
-            Canvas.ForceUpdateCanvases();
-
-            if (drinkListContent is RectTransform contentRect)
-            {
-                LayoutRebuilder.ForceRebuildLayoutImmediate(contentRect);
-            }
-
-            if (drinkScrollRect != null)
-            {
-                drinkScrollRect.StopMovement();
-                drinkScrollRect.verticalNormalizedPosition = 1f;
-            }
         }
 
         private List<DrinkEntry> FilterDrinksBySelectedIngredients()
@@ -251,7 +254,19 @@ namespace PPP.BLUE.VN.RecipeApp
                 bool matchAll = true;
                 foreach (var selectedId in selectedIngredientIds)
                 {
-                    if (!drink.ContainsIngredient(selectedId))
+                    bool matchedThisIngredient;
+
+                    if (string.Equals(selectedId, ArtheonIngredientId, StringComparison.OrdinalIgnoreCase))
+                    {
+                        // 아르테온은 ingredients 키가 아니라 artheon_addable 플래그로 판정
+                        matchedThisIngredient = drink.artheon_addable;
+                    }
+                    else
+                    {
+                        matchedThisIngredient = drink.ContainsIngredient(selectedId);
+                    }
+
+                    if (!matchedThisIngredient)
                     {
                         matchAll = false;
                         break;
