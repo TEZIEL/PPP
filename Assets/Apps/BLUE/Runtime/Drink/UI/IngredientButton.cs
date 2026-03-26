@@ -72,13 +72,10 @@ namespace PPP.BLUE.VN.DrinkSystem
 
         public void PlayHotkeyPressFeedback()
         {
-            if (!isActiveAndEnabled)
+            if (!isActiveAndEnabled || button == null || !button.IsInteractable())
                 return;
 
-            if (hotkeyPressCo != null)
-                StopCoroutine(hotkeyPressCo);
-
-            hotkeyPressCo = StartCoroutine(CoPlayHotkeyPressFeedback());
+            button.Select();
         }
 
         private void OnClick()
