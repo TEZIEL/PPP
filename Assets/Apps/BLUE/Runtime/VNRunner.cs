@@ -1563,6 +1563,7 @@ namespace PPP.BLUE.VN
         {
             if (!SaveAllowed) return false;
             if (policy == null) return false;
+            if (policy.IsDrinkModeActive()) return false;
             if (callStack.Count > 0) return false;
             return policy.CanSaveDialogueState();
         }

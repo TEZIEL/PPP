@@ -135,6 +135,11 @@ namespace PPP.BLUE.VN
             return VNInputGate.CanSave(this);
         }
 
+        public bool IsDrinkModeActive()
+        {
+            return IsDrinkPanelOpen;
+        }
+
         public bool CanRequestClose()
         {
             // ClosePopup이 열린 상태에서만 재요청 차단
