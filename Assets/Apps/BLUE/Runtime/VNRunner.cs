@@ -127,6 +127,12 @@ namespace PPP.BLUE.VN
 
         private void Awake()
         {
+            var siblingRunners = transform.root.GetComponentsInChildren<VNRunner>(true);
+            if (siblingRunners != null && siblingRunners.Length > 1)
+            {
+                Debug.LogWarning($"[VN] Multiple VNRunner detected under root='{transform.root.name}' count={siblingRunners.Length} this={GetInstanceID()}");
+            }
+
             TryResolveBridge(silent: true);
 
             BindPolicy("Awake");
@@ -197,6 +203,7 @@ namespace PPP.BLUE.VN
         private VNScript script;
         private int pointer = 0;
         private bool started;
+        private bool initialized;
 
         // 테스트용(나중에 DrinkSave/변수 dict로 교체)
         private int greatCount = 0;
@@ -270,6 +277,14 @@ namespace PPP.BLUE.VN
 
         private void Start()
         {
+            Debug.Log($"[VN] Runner Start Called id={GetInstanceID()} go={gameObject.name} initialized={initialized}");
+            if (initialized)
+            {
+                Debug.LogWarning($"[VN] Runner Start ignored (already initialized) id={GetInstanceID()} go={gameObject.name}");
+                return;
+            }
+            initialized = true;
+
             TryResolveBridge(silent: false);
 
             if (bridge != null)               

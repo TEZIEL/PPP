@@ -179,6 +179,12 @@ public class WindowManager : MonoBehaviour, IVNHostOS
         if (contentPrefab == null) return;
         if (spawned.ContentRoot == null) return;
 
+        var existingRunners = spawned.ContentRoot.GetComponentsInChildren<PPP.BLUE.VN.VNRunner>(true);
+        if (existingRunners != null && existingRunners.Length > 0)
+        {
+            Debug.LogWarning($"[OS] AttachContent called with existing VNRunner count={existingRunners.Length} appId={spawned.AppId}");
+        }
+
         var content = Instantiate(contentPrefab, spawned.ContentRoot);
 
         // ✅ (1) RectTransform 풀스트레치
@@ -195,6 +201,7 @@ public class WindowManager : MonoBehaviour, IVNHostOS
         // ✅ (2) VNOSBridge가 있으면 Host 주입
         var bridge = content.GetComponentInChildren<PPP.BLUE.VN.VNOSBridge>(true);
         var runner = content.GetComponentInChildren<PPP.BLUE.VN.VNRunner>(true);
+        Debug.Log($"[OS] Content attached appId={spawned.AppId} runner={(runner != null ? runner.GetInstanceID().ToString() : "NULL")} bridge={(bridge != null ? bridge.GetInstanceID().ToString() : "NULL")}");
 
         if (bridge != null)
         {
