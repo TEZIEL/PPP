@@ -42,7 +42,7 @@ namespace PPP.BLUE.VN
 
         [Header("Slot Selection Fallback")]
         [SerializeField] private bool useButtonTintWhenNoHighlight = true;
-        [SerializeField] private Color selectedSlotButtonColor = new Color(0.32f, 0.62f, 1f, 1f);
+        [SerializeField] private Color selectedSlotButtonColor = new Color32(128, 128, 184, 255);
         [SerializeField] private Color unselectedSlotButtonColor = Color.white;
 
         private const string ModalReason = "SaveLoadWindow";
