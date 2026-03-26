@@ -673,6 +673,7 @@ namespace PPP.BLUE.VN
                         {
                             string target = node.callTarget ?? string.Empty;
                             string arg = node.callArg ?? string.Empty;
+                            Debug.Log($"[CALL DEBUG] target={target} arg={arg}");
 
                             if (!StartExternalCall(target, arg))
                             {
@@ -813,6 +814,8 @@ namespace PPP.BLUE.VN
 
         private bool StartExternalCall(string target, string arg)
         {
+            Debug.Log($"[CALL EXECUTE] inputRequestId={arg}");
+
             if (skipMode)
             {
                 VNLog("[VN] Skip disabled due to ExternalCall");
