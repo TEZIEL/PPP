@@ -770,6 +770,9 @@ namespace PPP.BLUE.VN
                 return;
             }
 
+            int lastDrink = GetVar("lastDrink", 0);
+            Debug.Log($"[BRANCH CHECK] lastDrink={lastDrink}, great={greatCount}");
+
             if (node.branches != null && node.branches.Length > 0)
             {
                 for (int i = 0; i < node.branches.Length; i++)
@@ -1528,6 +1531,13 @@ namespace PPP.BLUE.VN
                 return;
             }
 
+            int lastDrink = GetVar("lastDrink", 0);
+            Debug.Log(
+            $"[SAVE CHECK] pointer={pointer}, lastDrink={lastDrink}, " +
+            $"great={greatCount}, success={successCount}, fail={failCount}, " +
+            $"varsCount={(vars != null ? vars.Count : 0)}"
+            );
+
             var st = BuildState();
 
             if (logToConsole)
@@ -1618,6 +1628,13 @@ namespace PPP.BLUE.VN
             {
                 VNLog($"[VN] LoadState <- key={key} pointer={pointer} callStack={callStack.Count} target={pendingCallResumeFrame?.target ?? "-"} arg={pendingCallResumeFrame?.arg ?? "-"}");
             }
+
+            int lastDrink = GetVar("lastDrink", 0);
+            Debug.Log(
+            $"[LOAD CHECK] pointer={pointer}, lastDrink={lastDrink}, " +
+            $"great={greatCount}, success={successCount}, fail={failCount}, " +
+            $"varsCount={(vars != null ? vars.Count : 0)}"
+            );
 
             return true;
         }
