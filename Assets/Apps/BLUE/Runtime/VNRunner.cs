@@ -298,6 +298,28 @@ namespace PPP.BLUE.VN
             return false;
         }
 
+        public void SyncPointerAfterRefresh(int displayedLineIndex)
+        {
+            if (script == null || script.nodes == null || script.nodes.Count == 0)
+                return;
+            if (displayedLineIndex < 0 || displayedLineIndex >= script.nodes.Count)
+                return;
+
+            var node = script.nodes[displayedLineIndex];
+            if (node == null || node.type != VNNodeType.Say)
+                return;
+
+            if (pointer <= displayedLineIndex)
+            {
+                pointer = Mathf.Min(displayedLineIndex + 1, script.nodes.Count);
+                VNLog($"[VN] SyncPointerAfterRefresh advance pointer -> {pointer} (displayed={displayedLineIndex})");
+            }
+
+            lastShownPointer = displayedLineIndex;
+            waitPointer = displayedLineIndex;
+            isWaiting = true;
+        }
+
         // VNRunner 메서드
         public void SetVar(string key, int value)
         {

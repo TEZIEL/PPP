@@ -427,6 +427,7 @@ namespace PPP.BLUE.VN
             currentLineIndex = refreshedLineIndex;
             lineDisplayed = true;
             lineCompleted = true;
+            runner.SyncPointerAfterRefresh(refreshedLineIndex);
             if (typer != null && typer.IsTyping)
                 typer.ForceComplete();
             inputLocked = false;
