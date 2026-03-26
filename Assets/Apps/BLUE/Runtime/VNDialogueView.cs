@@ -299,7 +299,7 @@ namespace PPP.BLUE.VN
         private void HandleControlButtonState()
         {
             bool isDrinkMode = policy != null && policy.IsDrinkPanelOpen;
-            bool skipAutoInteractable = !isDrinkMode && (policy == null || VNInputGate.CanUseSkipOrAuto(policy));
+            bool skipAutoInteractable = !isDrinkMode;
             bool exitInteractable = !isDrinkMode;
             bool saveLoadInteractable = !isDrinkMode;
             bool controlLockActive = Time.unscaledTime < controlActionLockedUntil;
@@ -555,6 +555,8 @@ namespace PPP.BLUE.VN
         {
             if (policy != null && policy.IsDrinkPanelOpen)
                 return;
+            if (policy != null && !VNInputGate.CanUseSkipOrAuto(policy))
+                return;
             if (Time.unscaledTime < controlActionLockedUntil)
                 return;
 
@@ -569,6 +571,8 @@ namespace PPP.BLUE.VN
 
         public void OnAutoPlayButtonClicked()
         {
+            if (policy != null && !VNInputGate.CanUseSkipOrAuto(policy))
+                return;
             if (Time.unscaledTime < controlActionLockedUntil)
                 return;
             ToggleAuto();
