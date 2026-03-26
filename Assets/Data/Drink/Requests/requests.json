@@ -11,7 +11,7 @@
       "id": "REQ_TEST_COLA",
       "type": "CATEGORY_REQUEST",
       "category": ["CATEGORY_SODA"],
-      "likedDrink": "DRINK_MORVION_COLA"
+      "likedDrink": ["DRINK_MORVION_COLA", "DRINK_VELTRINE_COLA"]
 
     },
 
