@@ -145,6 +145,7 @@ namespace PPP.BLUE.VN
                 return;
             }
             activeInstance = this;
+            Debug.Log($"[VN] Runner instance id={GetInstanceID()} go={gameObject.name}");
 
             TryResolveBridge(silent: true);
             if (drinkManager == null)
@@ -239,8 +240,85 @@ namespace PPP.BLUE.VN
         private VNCallFrame pendingCallResumeFrame;
         private bool dispatchingRestoredCall;
         private bool isRestoringFromLoad = false;
+        private bool restoreStateInProgress;
         public bool IsDispatchingRestoredCall => dispatchingRestoredCall;
         private VNSettings settings = VNSettings.Default();
+
+        public bool TryGetCurrentSayState(out string currentNodeId, out int currentLineIndex, out string currentText, out string currentSpeaker)
+        {
+            currentNodeId = string.Empty;
+            currentLineIndex = -1;
+            currentText = string.Empty;
+            currentSpeaker = string.Empty;
+
+            if (script == null || script.nodes == null || script.nodes.Count == 0)
+                return false;
+
+            int index = -1;
+            if (isWaiting && waitPointer >= 0 && waitPointer < script.nodes.Count)
+                index = waitPointer;
+            else if (lastShownPointer >= 0 && lastShownPointer < script.nodes.Count)
+                index = lastShownPointer;
+            else if (pointer > 0 && pointer - 1 < script.nodes.Count)
+                index = pointer - 1;
+
+            if (index < 0 || index >= script.nodes.Count)
+                return false;
+
+            var node = script.nodes[index];
+            if (node == null || node.type != VNNodeType.Say)
+                return false;
+
+            currentNodeId = node.id ?? string.Empty;
+            currentLineIndex = index;
+            currentText = RemoveInlineCommands(node.text ?? string.Empty);
+            currentSpeaker = node.speakerId ?? string.Empty;
+            return true;
+        }
+
+        public bool HasValidNode()
+        {
+            if (script == null || script.nodes == null || script.nodes.Count == 0)
+                return false;
+
+            bool IsValid(int index)
+            {
+                return index >= 0 && index < script.nodes.Count && script.nodes[index] != null;
+            }
+
+            if (isWaiting && IsValid(waitPointer))
+                return true;
+            if (IsValid(lastShownPointer))
+                return true;
+            if (IsValid(pointer))
+                return true;
+            if (IsValid(pointer - 1))
+                return true;
+
+            return false;
+        }
+
+        public void SyncPointerAfterRefresh(int displayedLineIndex)
+        {
+            if (script == null || script.nodes == null || script.nodes.Count == 0)
+                return;
+            if (displayedLineIndex < 0 || displayedLineIndex >= script.nodes.Count)
+                return;
+
+            var node = script.nodes[displayedLineIndex];
+            if (node == null || node.type != VNNodeType.Say)
+                return;
+
+            if (pointer <= displayedLineIndex)
+            {
+                pointer = Mathf.Min(displayedLineIndex + 1, script.nodes.Count);
+                VNLog($"[VN] SyncPointerAfterRefresh advance pointer -> {pointer} (displayed={displayedLineIndex})");
+            }
+
+            lastShownPointer = displayedLineIndex;
+            waitPointer = displayedLineIndex;
+            isWaiting = true;
+        }
 
         // VNRunner 메서드
         public void SetVar(string key, int value)
@@ -1328,20 +1406,26 @@ namespace PPP.BLUE.VN
         {
             if (dto == null) return false;
             if (string.IsNullOrWhiteSpace(dto.scriptId)) return false;
-
-            if (script == null || !string.Equals(dto.scriptId, script.ScriptId, StringComparison.Ordinal))
+            if (restoreStateInProgress)
             {
-                var loaded = VNScriptLoader.LoadDay(dto.scriptId);
-                if (loaded == null)
-                    return false;
-                SetScript(loaded);
+                Debug.LogWarning("[VN] RestoreState duplicate call blocked");
+                return false;
             }
 
-            if (script == null || script.nodes == null || script.nodes.Count == 0) return false;
-
+            restoreStateInProgress = true;
             isRestoringFromLoad = true;
             try
             {
+                if (script == null || !string.Equals(dto.scriptId, script.ScriptId, StringComparison.Ordinal))
+                {
+                    var loaded = VNScriptLoader.LoadDay(dto.scriptId);
+                    if (loaded == null)
+                        return false;
+                    SetScript(loaded);
+                }
+
+                if (script == null || script.nodes == null || script.nodes.Count == 0) return false;
+
                 int restoredPointer = dto.pointer;
                 if (!string.IsNullOrWhiteSpace(dto.currentLabel) && script.TryGetLabelIndex(dto.currentLabel, out int labelIndex))
                     restoredPointer = labelIndex + Mathf.Max(0, dto.nodeIndex);
@@ -1422,6 +1506,7 @@ namespace PPP.BLUE.VN
             finally
             {
                 isRestoringFromLoad = false;
+                restoreStateInProgress = false;
             }
         }
 
