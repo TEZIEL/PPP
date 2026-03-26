@@ -238,8 +238,27 @@ namespace PPP.BLUE.VN
             if (source == IngredientInputSource.Keyboard && !CanUseIngredientHotkeys())
                 return;
 
+            if (source == IngredientInputSource.Keyboard)
+                PlayHotkeyButtonFeedback(ingredientId);
+
             lastIngredientInputFrame = Time.frameCount;
             AddIngredient(ingredientId);
+        }
+
+        private void PlayHotkeyButtonFeedback(string ingredientId)
+        {
+            for (int i = 0; i < ingredientButtons.Length; i++)
+            {
+                var ingredientButton = ingredientButtons[i];
+                if (ingredientButton == null)
+                    continue;
+
+                if (!string.Equals(ingredientButton.IngredientID, ingredientId, StringComparison.Ordinal))
+                    continue;
+
+                ingredientButton.PlayHotkeyPressFeedback();
+                return;
+            }
         }
 
         public void SetIngredientHover(string ingredientId, bool isHovering)
