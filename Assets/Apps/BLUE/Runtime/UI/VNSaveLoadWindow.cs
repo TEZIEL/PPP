@@ -42,6 +42,7 @@ namespace PPP.BLUE.VN
         private bool confirmOpen;
         private int selectedSlotIndex = 0;
         private PendingAction pendingAction = PendingAction.None;
+        private readonly System.Collections.Generic.HashSet<int> warnedHighlightBindings = new();
 
         private enum PendingAction
         {
@@ -342,8 +343,28 @@ namespace PPP.BLUE.VN
                 var slot = slots[i];
                 if (slot?.selectedHighlight == null)
                     continue;
+                
+                bool selected = i == selectedSlotIndex;
+                bool highlightIsSlotRoot = slot.selectButton != null &&
+                                           (slot.selectedHighlight == slot.selectButton.gameObject ||
+                                            slot.selectButton.transform.IsChildOf(slot.selectedHighlight.transform));
 
-                slot.selectedHighlight.SetActive(i == selectedSlotIndex);
+                if (highlightIsSlotRoot)
+                {
+                    if (!warnedHighlightBindings.Contains(i))
+                    {
+                        warnedHighlightBindings.Add(i);
+                        Debug.LogWarning($"[VN][SaveLoad] Slot {i + 1} selectedHighlight is bound to slot root. Keeping slot visible and toggling Graphic only.");
+                    }
+
+                    var graphic = slot.selectedHighlight.GetComponent<Graphic>();
+                    if (graphic != null)
+                        graphic.enabled = selected;
+
+                    continue;
+                }
+
+                slot.selectedHighlight.SetActive(selected);
             }
         }
 
