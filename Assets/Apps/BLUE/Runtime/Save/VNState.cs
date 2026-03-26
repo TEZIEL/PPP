@@ -9,7 +9,9 @@ namespace PPP.BLUE.VN
         public string scriptId;
         public int pointer;
         public string currentLabel;
+        public string nodeId;
         public int nodeIndex;
+        public string saveTime; // ISO-8601 local time string
         public bool isWaitingExternalCall;
 
         public List<VNIntVar> vars = new();

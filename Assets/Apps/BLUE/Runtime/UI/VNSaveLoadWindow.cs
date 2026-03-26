@@ -13,7 +13,8 @@ namespace PPP.BLUE.VN
         {
             [SerializeField] public Button selectButton;
             [SerializeField] public GameObject selectedHighlight;
-            [SerializeField] public TMP_Text statusText;
+            [SerializeField] public TMP_Text slotNameText;
+            [SerializeField] public TMP_Text statusText; // legacy fallback
         }
 
         [Header("Refs")]
@@ -29,6 +30,10 @@ namespace PPP.BLUE.VN
         [SerializeField] private Button loadButton;
         [SerializeField] private Button deleteButton;
         [SerializeField] private SlotUI[] slots = new SlotUI[3];
+        [Header("Selected Slot Metadata (Integrated Panel)")]
+        [SerializeField] private TMP_Text selectedSlotNameText;
+        [SerializeField] private TMP_Text selectedSlotInfoText;
+        [SerializeField] private TMP_Text selectedSlotDateText;
         [SerializeField] private GameObject confirmPopupRoot;
         [SerializeField] private TMP_Text confirmMessageText;
         [SerializeField] private Button confirmYesButton;
@@ -55,6 +60,7 @@ namespace PPP.BLUE.VN
         private bool? lastRunnerSaveAllowed;
         private int selectedSlotIndex = 0;
         private PendingAction pendingAction = PendingAction.None;
+        private Coroutine deferredMetadataRefreshRoutine;
         private readonly System.Collections.Generic.HashSet<int> warnedHighlightBindings = new();
         private readonly System.Collections.Generic.Dictionary<int, Color> slotOriginalButtonColors = new();
 
@@ -81,8 +87,11 @@ namespace PPP.BLUE.VN
             if (windowCanvasGroup == null) windowCanvasGroup = windowRoot.AddComponent<CanvasGroup>();
 
             BindButtons();
+            AutoBindIntegratedSlotMetadataTexts();
             SetConfirmPopupVisible(false);
             EnsureValidSelection();
+            RefreshSlotStatus();
+            RefreshSelectedSlotMetadata();
             RefreshSlotVisuals();
             RefreshActionButtonState();
             SetWindowVisible(false);
@@ -97,6 +106,11 @@ namespace PPP.BLUE.VN
             pendingAction = PendingAction.None;
             lastDrinkModeActive = null;
             lastRunnerSaveAllowed = null;
+            if (deferredMetadataRefreshRoutine != null)
+            {
+                StopCoroutine(deferredMetadataRefreshRoutine);
+                deferredMetadataRefreshRoutine = null;
+            }
             SetConfirmPopupVisible(false);
         }
 
@@ -145,6 +159,7 @@ namespace PPP.BLUE.VN
             AcquireModal();
             EnsureValidSelection();
             RefreshSlotStatus();
+            RefreshSelectedSlotMetadataDeferred();
             RefreshSlotVisuals();
             lastDrinkModeActive = null;
             lastRunnerSaveAllowed = null;
@@ -185,6 +200,7 @@ namespace PPP.BLUE.VN
                 return;
 
             selectedSlotIndex = index;
+            RefreshSelectedSlotMetadataDeferred();
             RefreshSlotVisuals();
             RefreshActionButtonState();
         }
@@ -308,6 +324,7 @@ namespace PPP.BLUE.VN
             {
                 Debug.LogWarning($"[VN][SaveLoad] Save blocked/fail slot={slotNumber}");
                 RefreshSlotStatus();
+                RefreshSelectedSlotMetadataDeferred();
                 RefreshSlotVisuals();
                 RefreshActionButtonState();
                 return;
@@ -320,6 +337,7 @@ namespace PPP.BLUE.VN
                 Debug.LogWarning($"[VN][SaveLoad] Saved runtime state but failed to copy slot file. slot={slotNumber}");
 
             RefreshSlotStatus();
+            RefreshSelectedSlotMetadataDeferred();
             RefreshSlotVisuals();
             RefreshActionButtonState();
         }
@@ -340,6 +358,7 @@ namespace PPP.BLUE.VN
             }
 
             RefreshSlotStatus();
+            RefreshSelectedSlotMetadataDeferred();
             RefreshSlotVisuals();
             RefreshActionButtonState();
         }
@@ -448,12 +467,197 @@ namespace PPP.BLUE.VN
         {
             for (int i = 0; i < slots.Length; i++)
             {
-                var slot = slots[i];
-                if (slot?.statusText == null)
+                BindSlotHeaderText(slots[i], i);
+            }
+        }
+
+        private void BindSlotHeaderText(SlotUI slot, int index)
+        {
+            if (slot == null)
+                return;
+
+            string slotName = GetSlotName(index);
+            SetText(slot.slotNameText, slotName);
+
+            // Legacy slot text는 슬롯 번호만 표시(통합 메타데이터 패널과 역할 분리).
+            if (slot.statusText != null)
+                slot.statusText.text = slotName;
+        }
+
+        private void RefreshSelectedSlotMetadata()
+        {
+            EnsureValidSelection();
+            if (selectedSlotIndex < 0 || selectedSlotIndex >= slots.Length)
+            {
+                SetText(selectedSlotNameText, "슬롯00");
+                SetText(selectedSlotInfoText, "비어있음");
+                SetText(selectedSlotDateText, "비어있음");
+                return;
+            }
+
+            string slotName = GetSlotName(selectedSlotIndex);
+            string slotInfo = "비어있음";
+            string slotDate = "비어있음";
+            var state = ReadSlotState(selectedSlotIndex + 1);
+            if (state != null)
+            {
+                slotInfo = ComposeSavePointInfo(state);
+                slotDate = FormatSaveDate(state.saveTime);
+            }
+
+            SetText(selectedSlotNameText, slotName);
+            SetText(selectedSlotInfoText, slotInfo);
+            SetText(selectedSlotDateText, slotDate);
+        }
+
+        private void RefreshSelectedSlotMetadataDeferred()
+        {
+            RefreshSelectedSlotMetadata();
+            Canvas.ForceUpdateCanvases();
+
+            if (!isActiveAndEnabled)
+                return;
+
+            if (deferredMetadataRefreshRoutine != null)
+                StopCoroutine(deferredMetadataRefreshRoutine);
+            deferredMetadataRefreshRoutine = StartCoroutine(CoRefreshSelectedSlotMetadataNextFrame());
+        }
+
+        private IEnumerator CoRefreshSelectedSlotMetadataNextFrame()
+        {
+            yield return null;
+            RefreshSelectedSlotMetadata();
+            Canvas.ForceUpdateCanvases();
+            deferredMetadataRefreshRoutine = null;
+        }
+
+        private void AutoBindIntegratedSlotMetadataTexts()
+        {
+            if (selectedSlotNameText != null && selectedSlotInfoText != null && selectedSlotDateText != null)
+                return;
+
+            var allTexts = windowRoot != null ? windowRoot.GetComponentsInChildren<TMP_Text>(true) : GetComponentsInChildren<TMP_Text>(true);
+            var candidates = new System.Collections.Generic.List<TMP_Text>();
+            foreach (var text in allTexts)
+            {
+                if (text == null)
                     continue;
 
-                bool exists = File.Exists(GetSlotPath(i + 1));
-                slot.statusText.text = exists ? "Saved" : "Empty";
+                if (confirmMessageText != null && text == confirmMessageText)
+                    continue;
+
+                if (IsSlotText(text))
+                    continue;
+                if (IsActionButtonText(text))
+                    continue;
+
+                if (windowRoot != null && text.transform.IsChildOf(windowRoot.transform))
+                    candidates.Add(text);
+            }
+
+            if (candidates.Count < 3)
+                return;
+
+            candidates.Sort((a, b) =>
+            {
+                float ay = ((RectTransform)a.transform).anchoredPosition.y;
+                float by = ((RectTransform)b.transform).anchoredPosition.y;
+                return by.CompareTo(ay);
+            });
+
+            if (selectedSlotNameText == null) selectedSlotNameText = candidates[0];
+            if (selectedSlotInfoText == null) selectedSlotInfoText = candidates[1];
+            if (selectedSlotDateText == null) selectedSlotDateText = candidates[2];
+        }
+
+        private bool IsSlotText(TMP_Text text)
+        {
+            for (int i = 0; i < slots.Length; i++)
+            {
+                var slot = slots[i];
+                if (slot == null)
+                    continue;
+
+                if (slot.slotNameText == text || slot.statusText == text)
+                    return true;
+
+                if (slot.selectButton != null && text.transform.IsChildOf(slot.selectButton.transform))
+                    return true;
+            }
+
+            return false;
+        }
+
+        private bool IsActionButtonText(TMP_Text text)
+        {
+            return IsChildOfButton(text, closeButton)
+                   || IsChildOfButton(text, saveButton)
+                   || IsChildOfButton(text, loadButton)
+                   || IsChildOfButton(text, deleteButton)
+                   || IsChildOfButton(text, confirmYesButton)
+                   || IsChildOfButton(text, confirmNoButton)
+                   || IsChildOfButton(text, confirmOkButton);
+        }
+
+        private static bool IsChildOfButton(TMP_Text text, Button button)
+        {
+            if (text == null || button == null)
+                return false;
+
+            return text.transform.IsChildOf(button.transform);
+        }
+
+        private static string GetSlotName(int index)
+        {
+            return $"슬롯{(index + 1).ToString("00")}";
+        }
+
+        private static void SetText(TMP_Text target, string value)
+        {
+            if (target != null)
+                target.text = value;
+        }
+
+        private static string ComposeSavePointInfo(VNState state)
+        {
+            if (state == null)
+                return "비어있음";
+
+            if (!string.IsNullOrWhiteSpace(state.currentLabel))
+                return state.currentLabel.Trim();
+            if (!string.IsNullOrWhiteSpace(state.nodeId))
+                return state.nodeId.Trim();
+            if (!string.IsNullOrWhiteSpace(state.scriptId))
+                return state.scriptId.Trim();
+            return "비어있음";
+        }
+
+        private static string FormatSaveDate(string saveTime)
+        {
+            if (string.IsNullOrWhiteSpace(saveTime))
+                return "비어있음";
+
+            if (System.DateTime.TryParse(saveTime, out var parsed))
+                return parsed.ToString("yyyy-MM-dd HH:mm");
+
+            return saveTime;
+        }
+
+        private static VNState ReadSlotState(int slotNumber)
+        {
+            string path = GetSlotPath(slotNumber);
+            if (!File.Exists(path))
+                return null;
+
+            try
+            {
+                string json = File.ReadAllText(path);
+                return JsonUtility.FromJson<VNState>(json);
+            }
+            catch (System.Exception ex)
+            {
+                Debug.LogWarning($"[VN][SaveLoad] Failed to read slot metadata. slot={slotNumber} reason={ex.Message}");
+                return null;
             }
         }
 
