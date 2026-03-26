@@ -44,6 +44,7 @@
 - Scroll View의 `ScrollRect` 컴포넌트:
   - `WheelOnlyScrollRect`로 교체해 드래그 스크롤 비활성화
   - 휠 스크롤은 그대로 사용
+  - 관성/탄성 비활성화(`inertia=false`, `movementType=Clamped`)로 미끌림 제거
 - `RecipeAppController`:
   - `scrollUpButton`, `scrollDownButton`에 위/아래 이동 버튼 연결
   - `buttonScrollStep`으로 버튼 1회 이동량 조절

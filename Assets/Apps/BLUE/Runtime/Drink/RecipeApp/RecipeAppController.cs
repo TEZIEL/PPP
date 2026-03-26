@@ -67,6 +67,7 @@ namespace PPP.BLUE.VN.RecipeApp
 
         private void Awake()
         {
+            ConfigureScrollRectForWheelOnly();
             BindScrollButtons();
             BuildImageMap();
             LoadData();
@@ -272,6 +273,19 @@ namespace PPP.BLUE.VN.RecipeApp
                 scrollDownButton.onClick.AddListener(ScrollListDown);
         }
 
+        private void ConfigureScrollRectForWheelOnly()
+        {
+            if (drinkListScrollRect == null)
+                return;
+
+            // 프리팹에서 WheelOnlyScrollRect 교체를 놓쳤더라도 미끌림/탄성을 강제로 제거한다.
+            drinkListScrollRect.inertia = false;
+            drinkListScrollRect.movementType = ScrollRect.MovementType.Clamped;
+            drinkListScrollRect.elasticity = 0f;
+            drinkListScrollRect.decelerationRate = 0f;
+            drinkListScrollRect.StopMovement();
+        }
+
         private void UnbindScrollButtons()
         {
             if (scrollUpButton != null)
@@ -298,6 +312,7 @@ namespace PPP.BLUE.VN.RecipeApp
             float step = Mathf.Clamp01(buttonScrollStep);
             float next = drinkListScrollRect.verticalNormalizedPosition + (direction * step);
             drinkListScrollRect.verticalNormalizedPosition = Mathf.Clamp01(next);
+            drinkListScrollRect.StopMovement();
         }
 
         private List<DrinkEntry> FilterDrinksBySelectedIngredients()
