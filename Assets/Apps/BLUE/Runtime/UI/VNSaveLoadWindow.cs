@@ -703,30 +703,7 @@ namespace PPP.BLUE.VN
                 slot.statusText.color = targetColor;
         }
 
-        private void ApplySlotSelectionTint(int slotIndex, SlotUI slot, bool selected)
-        {
-            if (!useButtonTintWhenNoHighlight || slot?.selectButton == null)
-                return;
-
-            var graphic = slot.selectButton.targetGraphic;
-            if (graphic == null)
-                return;
-
-            if (!slotOriginalButtonColors.ContainsKey(slotIndex))
-                slotOriginalButtonColors[slotIndex] = graphic.color;
-
-            if (selected)
-            {
-                graphic.color = selectedSlotButtonColor;
-                return;
-            }
-
-            Color fallback = unselectedSlotButtonColor;
-            if (unselectedSlotButtonColor == Color.white && slotOriginalButtonColors.TryGetValue(slotIndex, out var original))
-                fallback = original;
-
-            graphic.color = fallback;
-        }
+        
 
         private void ApplySlotSelectionTint(int slotIndex, SlotUI slot, bool selected)
         {
