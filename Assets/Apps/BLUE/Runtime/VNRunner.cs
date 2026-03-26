@@ -10,6 +10,7 @@ namespace PPP.BLUE.VN
 {
     public sealed class VNRunner : MonoBehaviour
     {
+        private static VNRunner activeInstance;
         [Header("Debug")]
         [SerializeField] private bool logToConsole = false;
         [SerializeField] private VNScript testScript;
@@ -127,11 +128,21 @@ namespace PPP.BLUE.VN
 
         private void Awake()
         {
-            var siblingRunners = transform.root.GetComponentsInChildren<VNRunner>(true);
-            if (siblingRunners != null && siblingRunners.Length > 1)
+            var runners = GetComponentsInChildren<VNRunner>(true);
+            if (runners != null && runners.Length > 1)
             {
-                Debug.LogWarning($"[VN] Multiple VNRunner detected under root='{transform.root.name}' count={siblingRunners.Length} this={GetInstanceID()}");
+                Debug.LogError("[VN] Duplicate VNRunner detected. Destroying self.");
+                Destroy(gameObject);
+                return;
             }
+
+            if (activeInstance != null && activeInstance != this)
+            {
+                Debug.LogError($"[VN] Duplicate VNRunner instance detected. Destroying self. keep={activeInstance.GetInstanceID()} remove={GetInstanceID()}");
+                Destroy(gameObject);
+                return;
+            }
+            activeInstance = this;
 
             TryResolveBridge(silent: true);
 
@@ -144,6 +155,12 @@ namespace PPP.BLUE.VN
             StartCoroutine(CoBindPolicyNextFrame());
 
             RebuildExternalCallTargetSet();
+        }
+
+        private void OnDestroy()
+        {
+            if (activeInstance == this)
+                activeInstance = null;
         }
 
 

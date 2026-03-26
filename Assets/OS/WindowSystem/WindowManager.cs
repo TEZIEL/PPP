@@ -182,7 +182,14 @@ public class WindowManager : MonoBehaviour, IVNHostOS
         var existingRunners = spawned.ContentRoot.GetComponentsInChildren<PPP.BLUE.VN.VNRunner>(true);
         if (existingRunners != null && existingRunners.Length > 0)
         {
-            Debug.LogWarning($"[OS] AttachContent called with existing VNRunner count={existingRunners.Length} appId={spawned.AppId}");
+            var existingBridge = spawned.ContentRoot.GetComponentInChildren<PPP.BLUE.VN.VNOSBridge>(true);
+            Debug.LogWarning($"[OS] AttachContent skipped (existing VNRunner count={existingRunners.Length}) appId={spawned.AppId}");
+            if (existingBridge != null)
+            {
+                existingBridge.InjectHost(this, spawned.AppId);
+            }
+
+            return;
         }
 
         var content = Instantiate(contentPrefab, spawned.ContentRoot);
