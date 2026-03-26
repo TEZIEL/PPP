@@ -21,6 +21,7 @@ namespace PPP.BLUE.VN
         [SerializeField] private VNPolicyController policy;
         [SerializeField] private VNDialogueView dialogueView;
         [SerializeField] private VNFadeController fadeController;
+        [SerializeField] private GameObject windowRoot;
         [SerializeField] private CanvasGroup windowCanvasGroup;
         [SerializeField] private Button closeButton;
         [SerializeField] private Button saveButton;
@@ -61,7 +62,9 @@ namespace PPP.BLUE.VN
             if (runner == null) runner = GetComponentInParent<VNRunner>(true);
             if (policy == null) policy = GetComponentInParent<VNPolicyController>(true);
             if (dialogueView == null) dialogueView = GetComponentInParent<VNDialogueView>(true);
-            if (windowCanvasGroup == null) windowCanvasGroup = GetComponent<CanvasGroup>();
+            if (windowRoot == null) windowRoot = gameObject;
+            if (windowCanvasGroup == null) windowCanvasGroup = windowRoot.GetComponent<CanvasGroup>();
+            if (windowCanvasGroup == null) windowCanvasGroup = windowRoot.AddComponent<CanvasGroup>();
 
             BindButtons();
             SetConfirmPopupVisible(false);
@@ -85,9 +88,6 @@ namespace PPP.BLUE.VN
         {
             if (busy)
                 return;
-
-            if (!gameObject.activeSelf)
-                gameObject.SetActive(true);
 
             ForceAutoOff("Open SaveLoad Modal");
             AcquireModal();
@@ -526,12 +526,6 @@ namespace PPP.BLUE.VN
 
         private void SetWindowVisible(bool visible)
         {
-            if (windowCanvasGroup == null)
-            {
-                gameObject.SetActive(visible);
-                return;
-            }
-
             windowCanvasGroup.alpha = visible ? 1f : 0f;
             windowCanvasGroup.interactable = visible;
             windowCanvasGroup.blocksRaycasts = visible;
