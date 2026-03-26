@@ -1,41 +1,103 @@
 {
-  "scriptId": "drink_test_branch_basic",
+  "scriptId": "drink_test_accumulate_2",
   "nodes": [
     { "id": "start", "type": "Label", "label": "start" },
 
-    { "id": "t1", "type": "Say", "text": "분기 테스트 시작", "speakerId": "세나" },
+    { "id": "t1", "type": "Say", "text": "첫 번째 주문", "speakerId": "세나" },
 
     {
-      "id": "call.1",
+      "id": "call1",
       "type": "Call",
       "target": "Drink",
       "arg": "REQ_TEST_COLA"
     },
 
     {
-      "id": "branch.1",
+      "id": "branch1",
       "type": "Branch",
       "branches": [
-        { "expr": "lastDrink==1", "jumpLabel": "great" },
-        { "expr": "lastDrink==2", "jumpLabel": "success" },
-        { "expr": "else", "jumpLabel": "fail" }
+        { "expr": "lastDrink==1", "jumpLabel": "great1" },
+        { "expr": "lastDrink==2", "jumpLabel": "success1" },
+        { "expr": "else", "jumpLabel": "fail1" }
       ]
     },
 
-    { "id": "great", "type": "Label", "label": "great" },
-    { "id": "g1", "type": "Say", "text": "완벽한 한 잔이야.", "speakerId": "세나" },
-    { "id": "jg", "type": "Jump", "label": "end" },
+    { "id": "great1", "type": "Label", "label": "great1" },
+    { "id": "g1", "type": "Say", "text": "첫 잔 완벽", "speakerId": "세나" },
+    { "id": "jg1", "type": "Jump", "label": "phase2" },
 
-    { "id": "success", "type": "Label", "label": "success" },
-    { "id": "s1", "type": "Say", "text": "괜찮은 맛이네.", "speakerId": "세나" },
-    { "id": "js", "type": "Jump", "label": "end" },
+    { "id": "success1", "type": "Label", "label": "success1" },
+    { "id": "s1", "type": "Say", "text": "첫 잔 무난", "speakerId": "세나" },
+    { "id": "js1", "type": "Jump", "label": "phase2" },
 
-    { "id": "fail", "type": "Label", "label": "fail" },
-    { "id": "f1", "type": "Say", "text": "이건 좀 아니다.", "speakerId": "세나" },
-    { "id": "jf", "type": "Jump", "label": "end" },
+    { "id": "fail1", "type": "Label", "label": "fail1" },
+    { "id": "f1", "type": "Say", "text": "첫 잔 실패", "speakerId": "세나" },
+    { "id": "jf1", "type": "Jump", "label": "phase2" },
+
+
+
+    { "id": "phase2", "type": "Label", "label": "phase2" },
+    { "id": "t2", "type": "Say", "text": "두 번째 주문", "speakerId": "세나" },
+
+    {
+      "id": "call2",
+      "type": "Call",
+      "target": "Drink",
+      "arg": "REQ_TEST_COLA"
+    },
+
+    {
+      "id": "branch2",
+      "type": "Branch",
+      "branches": [
+        { "expr": "lastDrink==1", "jumpLabel": "great2" },
+        { "expr": "lastDrink==2", "jumpLabel": "success2" },
+        { "expr": "else", "jumpLabel": "fail2" }
+      ]
+    },
+
+    { "id": "great2", "type": "Label", "label": "great2" },
+    { "id": "g2", "type": "Say", "text": "두 번째도 완벽", "speakerId": "세나" },
+    { "id": "jg2", "type": "Jump", "label": "final" },
+
+    { "id": "success2", "type": "Label", "label": "success2" },
+    { "id": "s2", "type": "Say", "text": "두 번째 무난", "speakerId": "세나" },
+    { "id": "js2", "type": "Jump", "label": "final" },
+
+    { "id": "fail2", "type": "Label", "label": "fail2" },
+    { "id": "f2", "type": "Say", "text": "두 번째 실패", "speakerId": "세나" },
+    { "id": "jf2", "type": "Jump", "label": "final" },
+
+
+
+    { "id": "final", "type": "Label", "label": "final" },
+
+    {
+      "id": "final_branch",
+      "type": "Branch",
+      "branches": [
+        { "expr": "greatCount>=2", "jumpLabel": "great_end" },
+        { "expr": "failCount>=2", "jumpLabel": "fail_end" },
+        { "expr": "else", "jumpLabel": "normal_end" }
+      ]
+    },
+
+    { "id": "great_end", "type": "Label", "label": "great_end" },
+    { "id": "g_end", "type": "Say", "text": "오늘 완벽했어.", "speakerId": "세나" },
+    { "id": "jg_end", "type": "Jump", "label": "end" },
+
+    { "id": "fail_end", "type": "Label", "label": "fail_end" },
+    { "id": "f_end", "type": "Say", "text": "오늘은 최악이네.", "speakerId": "세나" },
+    { "id": "jf_end", "type": "Jump", "label": "end" },
+
+    { "id": "normal_end", "type": "Label", "label": "normal_end" },
+    { "id": "n_end", "type": "Say", "text": "그럭저럭이네.", "speakerId": "세나" },
+    { "id": "jn_end", "type": "Jump", "label": "end" },
+
+
 
     { "id": "end", "type": "Label", "label": "end" },
-    { "id": "tend", "type": "Say", "text": "분기 테스트 종료", "speakerId": "sys" },
+    { "id": "tend", "type": "Say", "text": "테스트 종료", "speakerId": "sys" },
     { "id": "endnode", "type": "End" }
   ]
 }

@@ -1348,14 +1348,14 @@ namespace PPP.BLUE.VN
             ApplyDrinkResult(result.ToLowerInvariant());
         }
 
-        public void ApplyDrinkResult(string result) // "fail" / "success" / "great"
+        public void ApplyDrinkResult(string result)
         {
             lastResult = result;
 
             if (result == "great")
             {
                 greatCount++;
-                successCount++; // great는 success 포함 규칙
+                successCount++;
             }
             else if (result == "success")
             {
@@ -1365,6 +1365,11 @@ namespace PPP.BLUE.VN
             {
                 failCount++;
             }
+
+            // 🔥 추가 (핵심)
+            SetVar("greatCount", greatCount);
+            SetVar("successCount", successCount);
+            SetVar("failCount", failCount);
 
             VNLog($"[VN] DrinkResult = {result} (great={greatCount}, success={successCount}, fail={failCount})");
         }
