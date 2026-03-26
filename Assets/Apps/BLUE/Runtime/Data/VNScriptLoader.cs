@@ -7,6 +7,8 @@ namespace PPP.BLUE.VN
 {
     public static class VNScriptLoader
     {
+        private static int loadRequestSequence;
+
         public static VNScript LoadDay(string dayId)
         {
             return LoadFromStreamingAssets(dayId);
@@ -15,6 +17,8 @@ namespace PPP.BLUE.VN
         public static VNScript LoadFromStreamingAssets(string fileNameNoExt)
         {
             var path = Application.streamingAssetsPath + "/VN/" + fileNameNoExt + ".json";
+            int requestId = ++loadRequestSequence;
+            Debug.Log($"[VN] LoadRequest#{requestId} path={path}");
             string json;
 
             try
@@ -86,8 +90,6 @@ namespace PPP.BLUE.VN
                         choices = ConvertChoices(nodeDto.choices),
                     };
 
-                    Debug.Log("JSON PATH = " + path);
-                    Debug.Log($"DTO label={nodeDto.label} next={nodeDto.next} arg={nodeDto.arg} arg1={nodeDto.arg1}");
                     if (t == VNNodeType.Call)
                         Debug.Log($"[CALL DTO->NODE] target={callTarget} arg={callArg}");
                     nodes.Add(node);
