@@ -194,7 +194,14 @@ namespace PPP.BLUE.VN
             int slotNumber = selectedSlotIndex + 1;
 
             ForceAutoOff($"Save slot {slotNumber}");
+            bool hadModal = modalPushed;
+            if (hadModal)
+                ReleaseModal();
+
             bool ok = runner != null && runner.TrySaveNow($"VN_SAVE_{slotNumber}");
+
+            if (hadModal)
+                AcquireModal();
 
             if (!ok)
             {
