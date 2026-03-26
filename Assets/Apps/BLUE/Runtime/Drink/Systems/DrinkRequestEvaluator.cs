@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -12,6 +12,8 @@ namespace PPP.BLUE.VN.DrinkSystem
         {
             this.database = database;
         }
+
+        
 
         public string Evaluate(string drinkId, DrinkRequest request, string requestIdInput = null)
         {
@@ -31,16 +33,21 @@ namespace PPP.BLUE.VN.DrinkSystem
                     if (categoryDrink == null)
                         return "fail";
 
-                    if (!string.IsNullOrEmpty(request.likedDrink) &&
-                        string.Equals(drinkId, request.likedDrink, StringComparison.OrdinalIgnoreCase))
+                    // ✅ GREAT 먼저 체크
+                    if (request.likedDrink != null &&
+                        request.likedDrink.Contains(drinkId))
                     {
                         return "great";
                     }
 
                     bool categoryMatch = HasAnyCategoryMatch(categoryDrink, request);
+
                     string categoryResult = categoryMatch ? "success" : "fail";
+
                     LogCategoryRequest(requestIdInput, request, categoryDrink, categoryMatch, categoryResult);
+
                     return categoryResult;
+
 
                 case DrinkRequestType.TAG_REQUEST:
                     if (string.IsNullOrEmpty(drinkId))
@@ -50,8 +57,9 @@ namespace PPP.BLUE.VN.DrinkSystem
                     if (tagDrink == null)
                         return "fail";
 
-                    if (!string.IsNullOrEmpty(request.likedDrink) &&
-                        string.Equals(drinkId, request.likedDrink, StringComparison.OrdinalIgnoreCase))
+                    // 🔥 수정된 부분
+                    if (request.likedDrink != null &&
+                        request.likedDrink.Contains(drinkId))
                     {
                         return "great";
                     }
@@ -67,8 +75,9 @@ namespace PPP.BLUE.VN.DrinkSystem
                         return "fail";
                     }
 
-                    if (!string.IsNullOrEmpty(request.likedDrink) &&
-                        string.Equals(drinkId, request.likedDrink, StringComparison.OrdinalIgnoreCase))
+                    // 🔥 수정된 부분
+                    if (request.likedDrink != null &&
+                        request.likedDrink.Contains(drinkId))
                     {
                         return "great";
                     }

@@ -24,6 +24,25 @@ namespace PPP.BLUE.VN.DrinkSystem
             return db;
         }
 
+        List<string> GetStringList(Dictionary<string, object> raw, string key)
+        {
+            if (!raw.TryGetValue(key, out var value) || value == null)
+                return null;
+
+            var list = value as List<object>;
+            if (list == null)
+                return null;
+
+            List<string> result = new List<string>();
+            foreach (var item in list)
+            {
+                if (item != null)
+                    result.Add(item.ToString());
+            }
+
+            return result;
+        }
+
         private void TryLoadDrinks(DrinkDatabase db, string drinksPath)
         {
             string json = ReadJsonFile(drinksPath);
@@ -98,8 +117,8 @@ namespace PPP.BLUE.VN.DrinkSystem
                 var request = new DrinkRequest
                 {
                     drinkID = GetString(rawRequest, "drinkID"),
-                    category = "",   
-                    likedDrink = GetString(rawRequest, "likedDrink"),
+                    category = "",
+                    likedDrink = GetStringList(rawRequest, "likedDrink"),   // ⭕
                     dislikedDrink = GetString(rawRequest, "dislikedDrink")
                 };
 
