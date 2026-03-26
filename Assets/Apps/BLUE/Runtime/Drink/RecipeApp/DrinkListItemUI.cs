@@ -12,7 +12,7 @@ namespace PPP.BLUE.VN.RecipeApp
     /// 표시 규칙:
     /// - 접두사(재료:, 설명:, 태그:) 제거
     /// - 카테고리 + 태그 + 파생 태그를 통합 문자열로 출력
-    /// - 아르테온은 일반 재료가 아닌 특수 문구로 처리
+    /// - 아르테온 문구는 메타(카테고리/태그) 영역에 표시
     /// </summary>
     public sealed class DrinkListItemUI : MonoBehaviour
     {
@@ -138,9 +138,6 @@ namespace PPP.BLUE.VN.RecipeApp
                 parts.Add($"{name} x{pair.Value}");
             }
 
-            if (drink.artheon_addable)
-                parts.Add("아르테온 추가 가능");
-
             return string.Join(", ", parts);
         }
 
@@ -178,7 +175,11 @@ namespace PPP.BLUE.VN.RecipeApp
             // 3) 파생 태그
             tokens.AddRange(GetDerivedTags(drink));
 
-            // 4) 후처리 필터 + 중복 제거
+            // 4) 아르테온 가능 여부는 메타 영역으로 이동
+            if (drink.artheon_addable)
+                tokens.Add("아르테온 추가 가능");
+
+            // 5) 후처리 필터 + 중복 제거
             var unique = new List<string>();
             var seen = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
 
