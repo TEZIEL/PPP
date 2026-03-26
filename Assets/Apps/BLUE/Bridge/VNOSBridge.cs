@@ -164,6 +164,11 @@ namespace PPP.BLUE.VN
         {
             Debug.Log($"[VNBridge] NotifyCloseRequested pending={closeRequestPending}");
             if (closeRequestPending) return;
+            if (policy != null && policy.IsSaveLoadModalOpen)
+            {
+                Debug.Log("[VNBridge] Close request ignored (SaveLoad modal open).");
+                return;
+            }
             if (policy != null && !policy.CanRequestClose())
             {
                 Debug.Log("[VNBridge] Close request ignored (policy blocked).");

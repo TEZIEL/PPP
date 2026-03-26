@@ -62,6 +62,9 @@ namespace PPP.BLUE.VN
                         return null;
                     }
 
+                    string callTarget = FirstNonEmpty(nodeDto.target, nodeDto.arg2);
+                    string callArg = FirstNonEmpty(nodeDto.arg, nodeDto.arg1);
+
                     var node = new VNNode
                     {
                         id = nodeDto.id,
@@ -69,23 +72,22 @@ namespace PPP.BLUE.VN
                         speakerId = FirstNonEmpty(nodeDto.speakerId, nodeDto.speaker),
                         text = nodeDto.text ?? string.Empty,
                         label = FirstNonEmpty(
-            nodeDto.arg,
-            FirstNonEmpty(
-                nodeDto.label,
-                FirstNonEmpty(
-                    nodeDto.next,
-                    nodeDto.arg1
-                )
-            )
-        ),
-                        callTarget = FirstNonEmpty(nodeDto.target, nodeDto.arg2),
-                        callArg = FirstNonEmpty(nodeDto.arg, nodeDto.arg1),
+                            nodeDto.label,
+                            FirstNonEmpty(
+                                nodeDto.next,
+                                nodeDto.arg1
+                            )
+                        ),
+                        callTarget = callTarget,
+                        callArg = callArg,
                         branches = ConvertBranches(nodeDto.branches),
                         choices = ConvertChoices(nodeDto.choices),
                     };
 
                     Debug.Log("JSON PATH = " + path);
                     Debug.Log($"DTO label={nodeDto.label} next={nodeDto.next} arg={nodeDto.arg} arg1={nodeDto.arg1}");
+                    if (t == VNNodeType.Call)
+                        Debug.Log($"[CALL DTO->NODE] target={callTarget} arg={callArg}");
                     nodes.Add(node);
                 }
             }
