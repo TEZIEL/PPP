@@ -592,8 +592,13 @@ namespace PPP.BLUE.VN
                 return;
 
             controlActionLockedUntil = Time.unscaledTime + closeActionLockSeconds;
-
-            closePopupController?.Show();
+            // 키보드 3 / 우측 상단 닫기와 동일한 OS RequestClose 경로 사용.
+            if (bridge != null)
+                bridge.RequestCloseFromUI();
+            else if (osBridge != null)
+                osBridge.RequestCloseFromUI();
+            else
+                closePopupController?.Show(); // legacy fallback
         }
 
         public void OpenSaveLoadWindow()

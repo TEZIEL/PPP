@@ -1246,7 +1246,9 @@ namespace PPP.BLUE.VN
 
             st.pointer = savePointer;
             st.currentLabel = ResolveCurrentLabel(savePointer);
+            st.nodeId = ResolveCurrentNodeId(savePointer);
             st.nodeIndex = ResolveNodeIndexFromLabel(savePointer, st.currentLabel);
+            st.saveTime = System.DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss");
             st.isWaitingExternalCall = callStack.Count > 0;
 
             st.callStack = new List<VNRunner.VNCallFrame>(callStack.Count);
@@ -1301,6 +1303,16 @@ namespace PPP.BLUE.VN
                 };
 
             return st;
+        }
+
+        private string ResolveCurrentNodeId(int index)
+        {
+            if (script == null || script.nodes == null || script.nodes.Count == 0)
+                return string.Empty;
+
+            int safe = Mathf.Clamp(index, 0, script.nodes.Count - 1);
+            var node = script.nodes[safe];
+            return node == null || string.IsNullOrWhiteSpace(node.id) ? string.Empty : node.id.Trim();
         }
 
         private string ResolveCurrentLabel(int index)
