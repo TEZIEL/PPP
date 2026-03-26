@@ -37,6 +37,7 @@ namespace PPP.BLUE.VN
                 appId = injectedAppId;
 
             Debug.Log($"[VNBridge] InjectHost host={(hostBehaviour ? hostBehaviour.name : "NULL")} appId={appId}");
+            Debug.Log($"[VNBridge] InjectHost bridgeId={GetInstanceID()} runnerId={(runner != null ? runner.GetInstanceID().ToString() : "NULL")}");
 
             TryRegisterCloseHandler();
         }
@@ -56,6 +57,7 @@ namespace PPP.BLUE.VN
             TryRegisterCloseHandler();
             if (runner == null) runner = GetComponentInChildren<VNRunner>(true);
             if (policy == null) policy = GetComponentInChildren<VNPolicyController>(true);
+            Debug.Log($"[VNBridge] Awake bridgeId={GetInstanceID()} runnerId={(runner != null ? runner.GetInstanceID().ToString() : "NULL")} appId={appId}");
         }
 
         private void OnDisable()
