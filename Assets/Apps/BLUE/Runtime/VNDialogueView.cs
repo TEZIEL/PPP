@@ -1,5 +1,7 @@
 ﻿using TMPro;
 using UnityEngine;
+using UnityEngine.EventSystems;
+using UnityEngine.UI;
 
 namespace PPP.BLUE.VN
 {
@@ -15,7 +17,17 @@ namespace PPP.BLUE.VN
         [SerializeField] private VNOSBridge osBridge;
         [SerializeField] private VNOSBridge bridge;
         [SerializeField] private RectTransform advanceClickArea;
+        [SerializeField] private RectTransform buttonContainerRoot;
+        [SerializeField] private GraphicRaycaster graphicRaycaster;
         [SerializeField] private Camera uiCamera;
+        [SerializeField] private VNClosePopupController closePopupController;
+        [SerializeField] private Button skipButton;
+        [SerializeField] private Button autoPlayButton;
+        [SerializeField] private Button exitButton;
+        [SerializeField] private Button thirdButton;
+        // Legacy compatibility: kept hidden so partial merges referencing old fields still compile.
+        [SerializeField, HideInInspector] private bool autoPlayEnabled;
+        [SerializeField, Min(0f)] private float closeActionLockSeconds = 0.15f;
 
         [Header("Typing")]
         [SerializeField] private float charsPerSecond = 40f;
@@ -25,6 +37,11 @@ namespace PPP.BLUE.VN
         private bool lineCompleted = true; // true면 Next로 "다음 라인" 가능
         private int inputLockFrames = 0;
         private bool subscribed;
+        private bool? lastSkipButtonInteractable;
+        private bool? lastAutoButtonInteractable;
+        private bool? lastExitButtonInteractable;
+        private bool skipHoldBindingApplied;
+        private float controlActionLockedUntil;
 
         private void Start()
         {
@@ -52,11 +69,53 @@ namespace PPP.BLUE.VN
         {
             if (bridge == null) bridge = GetComponentInParent<VNOSBridge>(true);
             if (bridge == null) bridge = GetComponentInChildren<VNOSBridge>(true);
+            if (closePopupController == null) closePopupController = GetComponentInParent<VNClosePopupController>(true);
+            if (closePopupController == null) closePopupController = GetComponentInChildren<VNClosePopupController>(true);
             if (typer != null) typer.SetTarget(dialogueText);
             if (runner == null) runner = GetComponentInParent<VNRunner>(true);
             if (advanceClickArea == null && dialogueText != null)
                 advanceClickArea = dialogueText.rectTransform;
+            if (graphicRaycaster == null)
+                graphicRaycaster = GetComponentInParent<GraphicRaycaster>(true);
+            SetupSkipHoldBinding();
             Debug.Log($"[VN_UI] bind runner={(runner ? runner.name : "NULL")}");
+        }
+
+        private void SetupSkipHoldBinding()
+        {
+            if (skipHoldBindingApplied || skipButton == null)
+                return;
+
+            var trigger = skipButton.GetComponent<EventTrigger>();
+            if (trigger == null)
+                trigger = skipButton.gameObject.AddComponent<EventTrigger>();
+
+            AddEventTrigger(trigger, EventTriggerType.PointerDown, _ => OnSkipButtonPointerDown());
+            AddEventTrigger(trigger, EventTriggerType.PointerUp, _ => OnSkipButtonPointerUp());
+            AddEventTrigger(trigger, EventTriggerType.PointerExit, _ => OnSkipButtonPointerUp());
+            skipHoldBindingApplied = true;
+        }
+
+        private static void AddEventTrigger(EventTrigger trigger, EventTriggerType eventType, UnityEngine.Events.UnityAction<BaseEventData> callback)
+        {
+            if (trigger == null)
+                return;
+
+            if (trigger.triggers == null)
+                trigger.triggers = new System.Collections.Generic.List<EventTrigger.Entry>();
+
+            for (int i = 0; i < trigger.triggers.Count; i++)
+            {
+                if (trigger.triggers[i].eventID != eventType)
+                    continue;
+
+                trigger.triggers[i].callback.AddListener(callback);
+                return;
+            }
+
+            var entry = new EventTrigger.Entry { eventID = eventType };
+            entry.callback.AddListener(callback);
+            trigger.triggers.Add(entry);
         }
 
         private bool IsPointerInsideAdvanceArea()
@@ -68,6 +127,26 @@ namespace PPP.BLUE.VN
                 advanceClickArea,
                 Input.mousePosition,
                 uiCamera);
+        }
+
+        private bool IsPointerOverBlockedButtonContainer()
+        {
+            if (buttonContainerRoot == null || graphicRaycaster == null || EventSystem.current == null)
+                return false;
+
+            var eventData = new PointerEventData(EventSystem.current) { position = Input.mousePosition };
+            var hits = new System.Collections.Generic.List<RaycastResult>();
+            graphicRaycaster.Raycast(eventData, hits);
+
+            for (int i = 0; i < hits.Count; i++)
+            {
+                var go = hits[i].gameObject;
+                if (go == null) continue;
+                if (go.transform == buttonContainerRoot || go.transform.IsChildOf(buttonContainerRoot))
+                    return true;
+            }
+
+            return false;
         }
 
         private void OnEnable()
@@ -84,6 +163,8 @@ namespace PPP.BLUE.VN
 
         private void OnDisable()
         {
+            OnSkipButtonPointerUp();
+
             if (!subscribed) return;
             if (runner == null) return;
 
@@ -94,6 +175,8 @@ namespace PPP.BLUE.VN
 
         private void Update()
         {
+            HandleControlButtonState();
+
             if (runner != null && runner.IsWaiting && runner.CallStackCount > 0)
             {
                 return;
@@ -113,8 +196,15 @@ namespace PPP.BLUE.VN
             bool clicked = Input.GetMouseButtonDown(0);
             if (!pressedSpace && !clicked) return;
 
-            if (clicked && !IsPointerInsideAdvanceArea())
-                return;
+            if (clicked)
+            {
+                if (IsPointerOverBlockedButtonContainer())
+                    return;
+
+                // dialog 영역 클릭만 허용
+                if (!IsPointerInsideAdvanceArea())
+                    return;
+            }
 
             // ✅ 유저 입력이면 무조건 Auto OFF (타이핑완료/Next 둘 다 포함)
             runner.ForceAutoOff(pressedSpace ? "User input (Space)" : "User input (Click)");
@@ -131,7 +221,39 @@ namespace PPP.BLUE.VN
             Debug.Log("[VN_UI] Next input detected -> runner.Next()");
         }
 
-          
+        // Legacy compatibility: older branches may still call this.
+        private void HandleSkipAutoState()
+        {
+            // Intentionally empty. Skip/Auto behavior is runner-owned.
+        }
+
+        private void HandleControlButtonState()
+        {
+            bool isDrinkMode = policy != null && policy.IsDrinkPanelOpen;
+            bool skipAutoInteractable = !isDrinkMode && (policy == null || VNInputGate.CanUseSkipOrAuto(policy));
+            bool exitInteractable = !isDrinkMode;
+            bool controlLockActive = Time.unscaledTime < controlActionLockedUntil;
+
+            SetButtonInteractable(skipButton, skipAutoInteractable && !controlLockActive, ref lastSkipButtonInteractable);
+            SetButtonInteractable(autoPlayButton, skipAutoInteractable && !controlLockActive, ref lastAutoButtonInteractable);
+            SetButtonInteractable(exitButton, exitInteractable && !controlLockActive, ref lastExitButtonInteractable);
+            SetButtonInteractable(thirdButton, !isDrinkMode && !controlLockActive, ref lastThirdButtonInteractable);
+        }
+
+        private bool? lastThirdButtonInteractable;
+
+        private static void SetButtonInteractable(Button button, bool interactable, ref bool? cachedState)
+        {
+            if (button == null)
+                return;
+
+            if (cachedState.HasValue && cachedState.Value == interactable)
+                return;
+
+            button.interactable = interactable;
+            cachedState = interactable;
+        }
+
 
 
         public void LockInputFrames(int frames = 2)
@@ -204,6 +326,66 @@ namespace PPP.BLUE.VN
             typer.ForceComplete();
             lineCompleted = true;
             return true;
+        }
+
+        public void SetSkip(bool value)
+        {
+            if (!value) return;
+            OnSkipButtonClicked();
+        }
+
+        public void ToggleSkip()
+        {
+            OnSkipButtonClicked();
+        }
+
+        public void SetAutoPlay(bool value)
+        {
+            runner?.SetAutoPlay(value, "VNDialogueView UI");
+        }
+
+        public void ToggleAuto()
+        {
+            runner?.ToggleAuto("VNDialogueView UI");
+        }
+
+        public void OnSkipButtonClicked()
+        {
+            // Hold-based skip only. Keep empty to avoid one-shot skip on click.
+        }
+
+        public void OnSkipButtonPointerDown()
+        {
+            if (policy != null && policy.IsDrinkPanelOpen)
+                return;
+            if (Time.unscaledTime < controlActionLockedUntil)
+                return;
+
+            runner?.SetUiSkipHeld(true, "VNDialogueView Skip Hold");
+        }
+
+        public void OnSkipButtonPointerUp()
+        {
+            runner?.SetUiSkipHeld(false, "VNDialogueView Skip Hold");
+        }
+
+        public void OnAutoPlayButtonClicked()
+        {
+            if (Time.unscaledTime < controlActionLockedUntil)
+                return;
+            ToggleAuto();
+        }
+
+        public void OnExitButtonClicked()
+        {
+            if (policy != null && policy.IsDrinkPanelOpen)
+                return;
+            if (Time.unscaledTime < controlActionLockedUntil)
+                return;
+
+            controlActionLockedUntil = Time.unscaledTime + closeActionLockSeconds;
+
+            closePopupController?.Show();
         }
 
         private void HandleEnd()
