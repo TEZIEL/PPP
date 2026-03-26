@@ -60,6 +60,7 @@ namespace PPP.BLUE.VN
         private bool? lastRunnerSaveAllowed;
         private int selectedSlotIndex = 0;
         private PendingAction pendingAction = PendingAction.None;
+        private Coroutine deferredMetadataRefreshRoutine;
         private readonly System.Collections.Generic.HashSet<int> warnedHighlightBindings = new();
         private readonly System.Collections.Generic.Dictionary<int, Color> slotOriginalButtonColors = new();
 
@@ -86,7 +87,7 @@ namespace PPP.BLUE.VN
             if (windowCanvasGroup == null) windowCanvasGroup = windowRoot.AddComponent<CanvasGroup>();
 
             BindButtons();
-            EnsureSlotHighlights();
+            AutoBindIntegratedSlotMetadataTexts();
             SetConfirmPopupVisible(false);
             EnsureValidSelection();
             RefreshSlotStatus();
@@ -105,6 +106,11 @@ namespace PPP.BLUE.VN
             pendingAction = PendingAction.None;
             lastDrinkModeActive = null;
             lastRunnerSaveAllowed = null;
+            if (deferredMetadataRefreshRoutine != null)
+            {
+                StopCoroutine(deferredMetadataRefreshRoutine);
+                deferredMetadataRefreshRoutine = null;
+            }
             SetConfirmPopupVisible(false);
         }
 
@@ -153,7 +159,7 @@ namespace PPP.BLUE.VN
             AcquireModal();
             EnsureValidSelection();
             RefreshSlotStatus();
-            RefreshSelectedSlotMetadata();
+            RefreshSelectedSlotMetadataDeferred();
             RefreshSlotVisuals();
             lastDrinkModeActive = null;
             lastRunnerSaveAllowed = null;
@@ -194,7 +200,7 @@ namespace PPP.BLUE.VN
                 return;
 
             selectedSlotIndex = index;
-            RefreshSelectedSlotMetadata();
+            RefreshSelectedSlotMetadataDeferred();
             RefreshSlotVisuals();
             RefreshActionButtonState();
         }
@@ -318,6 +324,7 @@ namespace PPP.BLUE.VN
             {
                 Debug.LogWarning($"[VN][SaveLoad] Save blocked/fail slot={slotNumber}");
                 RefreshSlotStatus();
+                RefreshSelectedSlotMetadataDeferred();
                 RefreshSlotVisuals();
                 RefreshActionButtonState();
                 return;
@@ -330,6 +337,7 @@ namespace PPP.BLUE.VN
                 Debug.LogWarning($"[VN][SaveLoad] Saved runtime state but failed to copy slot file. slot={slotNumber}");
 
             RefreshSlotStatus();
+            RefreshSelectedSlotMetadataDeferred();
             RefreshSlotVisuals();
             RefreshActionButtonState();
         }
@@ -350,6 +358,7 @@ namespace PPP.BLUE.VN
             }
 
             RefreshSlotStatus();
+            RefreshSelectedSlotMetadataDeferred();
             RefreshSlotVisuals();
             RefreshActionButtonState();
         }
@@ -499,6 +508,27 @@ namespace PPP.BLUE.VN
             SetText(selectedSlotNameText, slotName);
             SetText(selectedSlotInfoText, slotInfo);
             SetText(selectedSlotDateText, slotDate);
+        }
+
+        private void RefreshSelectedSlotMetadataDeferred()
+        {
+            RefreshSelectedSlotMetadata();
+            Canvas.ForceUpdateCanvases();
+
+            if (!isActiveAndEnabled)
+                return;
+
+            if (deferredMetadataRefreshRoutine != null)
+                StopCoroutine(deferredMetadataRefreshRoutine);
+            deferredMetadataRefreshRoutine = StartCoroutine(CoRefreshSelectedSlotMetadataNextFrame());
+        }
+
+        private IEnumerator CoRefreshSelectedSlotMetadataNextFrame()
+        {
+            yield return null;
+            RefreshSelectedSlotMetadata();
+            Canvas.ForceUpdateCanvases();
+            deferredMetadataRefreshRoutine = null;
         }
 
         private void AutoBindIntegratedSlotMetadataTexts()
