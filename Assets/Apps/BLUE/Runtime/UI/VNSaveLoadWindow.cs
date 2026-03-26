@@ -40,6 +40,13 @@ namespace PPP.BLUE.VN
         [SerializeField, Min(0f)] private float loadFadeInSeconds = 0.35f;
         [SerializeField, Min(0f)] private float loadBlackHoldSeconds = 3f;
 
+        [Header("Slot Selection Fallback")]
+        [SerializeField] private bool useButtonTintWhenNoHighlight = true;
+        [SerializeField] private Color selectedSlotButtonColor = new Color32(128, 128, 184, 255);
+        [SerializeField] private Color unselectedSlotButtonColor = Color.white;
+        [SerializeField] private Color selectedTextColor = Color.white;
+        [SerializeField] private Color normalTextColor = new Color32(30, 30, 30, 255);
+
         private const string ModalReason = "SaveLoadWindow";
         private const string LoadingModalReason = "Loading";
         private bool modalPushed;
@@ -47,9 +54,11 @@ namespace PPP.BLUE.VN
         private bool busy;
         private bool confirmOpen;
         private bool? lastDrinkModeActive;
+        private bool? lastRunnerSaveAllowed;
         private int selectedSlotIndex = 0;
         private PendingAction pendingAction = PendingAction.None;
         private readonly System.Collections.Generic.HashSet<int> warnedHighlightBindings = new();
+        private readonly System.Collections.Generic.Dictionary<int, Color> slotOriginalButtonColors = new();
 
         private enum PendingAction
         {
@@ -89,6 +98,7 @@ namespace PPP.BLUE.VN
             confirmOpen = false;
             pendingAction = PendingAction.None;
             lastDrinkModeActive = null;
+            lastRunnerSaveAllowed = null;
             SetConfirmPopupVisible(false);
         }
 
@@ -98,10 +108,15 @@ namespace PPP.BLUE.VN
                 return;
 
             bool drinkModeActive = policy != null && policy.IsDrinkModeActive();
-            if (lastDrinkModeActive.HasValue && lastDrinkModeActive.Value == drinkModeActive)
+            bool runnerSaveAllowed = runner == null || runner.SaveAllowed;
+
+            bool changed = !lastDrinkModeActive.HasValue || lastDrinkModeActive.Value != drinkModeActive
+                || !lastRunnerSaveAllowed.HasValue || lastRunnerSaveAllowed.Value != runnerSaveAllowed;
+            if (!changed)
                 return;
 
             lastDrinkModeActive = drinkModeActive;
+            lastRunnerSaveAllowed = runnerSaveAllowed;
             RefreshActionButtonState();
         }
 
@@ -133,6 +148,8 @@ namespace PPP.BLUE.VN
             EnsureValidSelection();
             RefreshSlotStatus();
             RefreshSlotVisuals();
+            lastDrinkModeActive = null;
+            lastRunnerSaveAllowed = null;
             RefreshActionButtonState();
             SetWindowVisible(true);
         }
@@ -264,9 +281,6 @@ namespace PPP.BLUE.VN
                         ? $"[VN][SaveLoad] Loaded slot={slotNumber}"
                         : $"[VN][SaveLoad] Load blocked/fail slot={slotNumber}");
 
-                if (ok && runner != null)
-                    runner.Next();
-
                 if (fadeController != null)
                     yield return fadeController.FadeIn(loadFadeInSeconds);
             }
@@ -296,6 +310,7 @@ namespace PPP.BLUE.VN
             {
                 Debug.LogWarning($"[VN][SaveLoad] Save blocked/fail slot={slotNumber}");
                 RefreshSlotStatus();
+                RefreshSlotVisuals();
                 RefreshActionButtonState();
                 return;
             }
@@ -307,6 +322,7 @@ namespace PPP.BLUE.VN
                 Debug.LogWarning($"[VN][SaveLoad] Saved runtime state but failed to copy slot file. slot={slotNumber}");
 
             RefreshSlotStatus();
+            RefreshSlotVisuals();
             RefreshActionButtonState();
         }
 
@@ -326,6 +342,7 @@ namespace PPP.BLUE.VN
             }
 
             RefreshSlotStatus();
+            RefreshSlotVisuals();
             RefreshActionButtonState();
         }
 
@@ -447,10 +464,18 @@ namespace PPP.BLUE.VN
             for (int i = 0; i < slots.Length; i++)
             {
                 var slot = slots[i];
-                if (slot?.selectedHighlight == null)
+                if (slot == null)
                     continue;
                 
                 bool selected = i == selectedSlotIndex;
+                ApplySlotTextSelection(slot, selected);
+
+                if (slot.selectedHighlight == null)
+                {
+                    ApplySlotSelectionTint(i, slot, selected);
+                    continue;
+                }
+
                 bool highlightIsSlotRoot = slot.selectButton != null &&
                                            (slot.selectedHighlight == slot.selectButton.gameObject ||
                                             slot.selectButton.transform.IsChildOf(slot.selectedHighlight.transform));
@@ -465,13 +490,65 @@ namespace PPP.BLUE.VN
 
                     var graphic = slot.selectedHighlight.GetComponent<Graphic>();
                     if (graphic != null)
+                    {
                         graphic.enabled = selected;
+                        graphic.color = selectedSlotButtonColor;
+                    }
 
                     continue;
                 }
 
                 slot.selectedHighlight.SetActive(selected);
+
+                var highlightGraphic = slot.selectedHighlight.GetComponent<Graphic>();
+                if (highlightGraphic != null)
+                    highlightGraphic.color = selectedSlotButtonColor;
             }
+        }
+
+        private void ApplySlotTextSelection(SlotUI slot, bool selected)
+        {
+            if (slot == null)
+                return;
+
+            var texts = slot.selectButton != null
+                ? slot.selectButton.GetComponentsInChildren<TMP_Text>(true)
+                : System.Array.Empty<TMP_Text>();
+
+            Color targetColor = selected ? selectedTextColor : normalTextColor;
+            for (int i = 0; i < texts.Length; i++)
+            {
+                if (texts[i] != null)
+                    texts[i].color = targetColor;
+            }
+
+            if (slot.statusText != null)
+                slot.statusText.color = targetColor;
+        }
+
+        private void ApplySlotSelectionTint(int slotIndex, SlotUI slot, bool selected)
+        {
+            if (!useButtonTintWhenNoHighlight || slot?.selectButton == null)
+                return;
+
+            var graphic = slot.selectButton.targetGraphic;
+            if (graphic == null)
+                return;
+
+            if (!slotOriginalButtonColors.ContainsKey(slotIndex))
+                slotOriginalButtonColors[slotIndex] = graphic.color;
+
+            if (selected)
+            {
+                graphic.color = selectedSlotButtonColor;
+                return;
+            }
+
+            Color fallback = unselectedSlotButtonColor;
+            if (unselectedSlotButtonColor == Color.white && slotOriginalButtonColors.TryGetValue(slotIndex, out var original))
+                fallback = original;
+
+            graphic.color = fallback;
         }
 
         private bool SlotHasSave(int slotIndex)
@@ -488,9 +565,11 @@ namespace PPP.BLUE.VN
             bool slotSelected = selectedSlotIndex >= 0 && selectedSlotIndex < slots.Length;
             bool interactable = slotSelected && !busy && !confirmOpen;
             bool hasSave = SlotHasSave(selectedSlotIndex);
-            bool canSaveNow = policy == null || !policy.IsDrinkModeActive();
+            bool notDrinkMode = policy == null || !policy.IsDrinkModeActive();
+            bool runnerReady = runner == null || runner.SaveAllowed;
+            bool canSaveNow = interactable && notDrinkMode && runnerReady;
 
-            if (saveButton != null) saveButton.interactable = interactable && canSaveNow;
+            if (saveButton != null) saveButton.interactable = canSaveNow;
             if (loadButton != null) loadButton.interactable = interactable && hasSave;
             if (deleteButton != null) deleteButton.interactable = interactable && hasSave;
         }
@@ -520,6 +599,7 @@ namespace PPP.BLUE.VN
             if (confirmOkButton != null) confirmOkButton.gameObject.SetActive(false);
 
             SetConfirmPopupVisible(true);
+            RefreshSlotVisuals();
             RefreshActionButtonState();
         }
 
@@ -536,6 +616,7 @@ namespace PPP.BLUE.VN
             if (confirmOkButton != null) confirmOkButton.gameObject.SetActive(true);
 
             SetConfirmPopupVisible(true);
+            RefreshSlotVisuals();
             RefreshActionButtonState();
         }
 
@@ -548,6 +629,7 @@ namespace PPP.BLUE.VN
             pendingAction = PendingAction.None;
             confirmOpen = false;
             SetConfirmPopupVisible(false);
+            RefreshSlotVisuals();
             RefreshActionButtonState();
 
             switch (action)
@@ -569,6 +651,7 @@ namespace PPP.BLUE.VN
             pendingAction = PendingAction.None;
             confirmOpen = false;
             SetConfirmPopupVisible(false);
+            RefreshSlotVisuals();
             RefreshActionButtonState();
         }
 
