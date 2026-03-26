@@ -21,7 +21,6 @@ namespace PPP.BLUE.VN
         public bool ExitLocked { get; private set; }
         public bool BlockClose { get; private set; } = true;
         private bool closeRequestPending;
-        private bool closeRequestDeferred;
 
         private bool registered; // ✅ 중복 등록 방지
         private bool allowCloseOnce;
@@ -164,7 +163,17 @@ namespace PPP.BLUE.VN
         // ✅ OS가 호출하는 함수
         public void NotifyCloseRequested()
         {
-            Debug.Log($"[VNBridge] NotifyCloseRequested pending={closeRequestPending}");
+            bool isDrinkModalOpen = policy != null && policy.IsDrinkPanelOpen;
+            bool isCloseModalOpen = policy != null && policy.IsClosePopupOpen;
+
+            Debug.Log($"[UI] RequestCloseModal | drinkOpen={isDrinkModalOpen} closeOpen={isCloseModalOpen} pending={closeRequestPending}");
+
+            if (isDrinkModalOpen)
+            {
+                Debug.Log("[UI] Close modal request ignored (drink modal active)");
+                return;
+            }
+
             if (closeRequestPending) return;
             if (policy != null && policy.IsSaveLoadModalOpen)
             {
@@ -176,40 +185,24 @@ namespace PPP.BLUE.VN
                 Debug.Log("[VNBridge] Close request ignored (policy blocked).");
                 return;
             }
+            if (policy != null && policy.IsModalOpen)
+            {
+                Debug.Log("[VNBridge] Close request ignored (modal active; no queue).");
+                return;
+            }
 
             closeRequestPending = true;
 
             // ✅ Close 요청 시 Auto 상태 자체를 OFF로 전환 (취소 후 1회 토글 복귀 보장)
             runner?.ForceAutoOff("CloseRequested");
 
-            if (policy != null && policy.IsModalOpen)
-            {
-                closeRequestDeferred = true;
-                Debug.Log("[VNBridge] Close request deferred until modal closes.");
-                return;
-            }
-
             // ClosePopup 모달 카운트는 VNClosePopupController.Show/Hide에서만 관리
-            OnCloseRequested?.Invoke();
-        }
-
-        private void Update()
-        {
-            if (!closeRequestPending || !closeRequestDeferred)
-                return;
-
-            if (policy != null && policy.IsModalOpen)
-                return;
-
-            closeRequestDeferred = false;
-            Debug.Log("[VNBridge] Deferred close request resumed.");
             OnCloseRequested?.Invoke();
         }
 
         public void ClearCloseRequestPending()
         {
             closeRequestPending = false;
-            closeRequestDeferred = false;
         }
 
         public void SaveVN(string key, object data) => Host?.SaveSubBlock(key, data);
