@@ -59,7 +59,8 @@ namespace PPP.BLUE.VN
         [SerializeField] private float holdSkipStepInterval = 0.1f;
         [SerializeField, Min(1)] private int skipBurstPerFrame = 20;
         private float nextHoldSkipAllowedTime;
-        private bool wasF1Held;
+        private bool wasHoldSkipHeld;
+        private bool uiSkipHeld;
 
         private string lastDrinkResult = "";
 
@@ -194,6 +195,7 @@ namespace PPP.BLUE.VN
         public event Action OnEnd;
 
         public bool HasScript => script != null;
+        public bool IsAutoPlayEnabled => settings.auto;
         private VNScript script;
         private int pointer = 0;
         private bool started;
@@ -364,16 +366,16 @@ namespace PPP.BLUE.VN
             lastBlocked = blocked;
 
 
-            bool f1Held = Input.GetKey(KeyCode.F1);
+            bool holdSkip = Input.GetKey(KeyCode.F1) || uiSkipHeld;
 
-            if (f1Held && !wasF1Held)
+            if (holdSkip && !wasHoldSkipHeld)
             {
                 ForceAutoOff("Hold Skip");
             }
 
-            wasF1Held = f1Held;
+            wasHoldSkipHeld = holdSkip;
 
-            if (f1Held && VNInputGate.CanUseSkipOrAuto(policy))
+            if (holdSkip && VNInputGate.CanUseSkipOrAuto(policy))
             {
                 if (Time.time >= nextHoldSkipAllowedTime)
                 {
@@ -2049,6 +2051,37 @@ namespace PPP.BLUE.VN
             SkipStep();
 
             VNLog($"[VN] SkipStep triggered source={source}");
+        }
+
+        public void RequestSkipStep(string source = "UI Button")
+        {
+            ToggleSkip(source);
+        }
+
+        public void SetUiSkipHeld(bool held, string source = "UI Hold Skip")
+        {
+            if (uiSkipHeld == held)
+                return;
+
+            uiSkipHeld = held;
+            if (held)
+            {
+                ForceAutoOff(source);
+                nextHoldSkipAllowedTime = 0f;
+            }
+        }
+
+        public void ToggleAuto(string source = "UI Button")
+        {
+            ToggleAutoFromInput(source);
+        }
+
+        public void SetAutoPlay(bool value, string source = "UI Button")
+        {
+            if (settings.auto == value)
+                return;
+
+            ToggleAutoFromInput(source);
         }
 
         private void SkipStep()
