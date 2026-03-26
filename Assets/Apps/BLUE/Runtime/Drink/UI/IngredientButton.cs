@@ -1,4 +1,5 @@
 using TMPro;
+using System.Collections;
 using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
@@ -16,8 +17,11 @@ namespace PPP.BLUE.VN.DrinkSystem
         [SerializeField] private Image stateTarget;
         [SerializeField] private Color defaultColor = Color.white;
         [SerializeField] private Color enabledColor = new Color(0.65f, 0.45f, 1f, 1f);
+        [SerializeField] private float hotkeyPressScale = 0.92f;
+        [SerializeField] private float hotkeyPressDuration = 0.08f;
 
         public string IngredientID => ingredientID;
+        private Coroutine hotkeyPressCo;
 
         private void Awake()
         {
@@ -66,6 +70,17 @@ namespace PPP.BLUE.VN.DrinkSystem
             label.text = displayId;
         }
 
+        public void PlayHotkeyPressFeedback()
+        {
+            if (!isActiveAndEnabled)
+                return;
+
+            if (hotkeyPressCo != null)
+                StopCoroutine(hotkeyPressCo);
+
+            hotkeyPressCo = StartCoroutine(CoPlayHotkeyPressFeedback());
+        }
+
         private void OnClick()
         {
             manager?.AddIngredientFromClick(ingredientID);
@@ -79,6 +94,35 @@ namespace PPP.BLUE.VN.DrinkSystem
         public void OnPointerExit(PointerEventData eventData)
         {
             manager?.SetIngredientHover(ingredientID, false);
+        }
+
+        private IEnumerator CoPlayHotkeyPressFeedback()
+        {
+            Vector3 originalScale = transform.localScale;
+            Vector3 pressedScale = originalScale * Mathf.Max(0.1f, hotkeyPressScale);
+            float duration = Mathf.Max(0.01f, hotkeyPressDuration);
+            float half = duration * 0.5f;
+
+            float t = 0f;
+            while (t < half)
+            {
+                t += Time.unscaledDeltaTime;
+                float p = Mathf.Clamp01(t / half);
+                transform.localScale = Vector3.LerpUnclamped(originalScale, pressedScale, p);
+                yield return null;
+            }
+
+            t = 0f;
+            while (t < half)
+            {
+                t += Time.unscaledDeltaTime;
+                float p = Mathf.Clamp01(t / half);
+                transform.localScale = Vector3.LerpUnclamped(pressedScale, originalScale, p);
+                yield return null;
+            }
+
+            transform.localScale = originalScale;
+            hotkeyPressCo = null;
         }
     }
 }
