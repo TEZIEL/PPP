@@ -11,7 +11,7 @@ namespace PPP.BLUE.VN.RecipeApp
     /// 스크롤 리스트의 음료 아이템 1개를 담당.
     /// - drinks.json 의 category/tags key를 기반으로 메타 문자열 생성
     /// - 로컬라이징 키-값 테이블(인스펙터) 기반으로 표시 텍스트 변환
-    /// - 긴 단어가 잘리는 경우 강제 줄바꿈(문자수 기준)
+    /// - 줄바꿈은 TMP 기본 동작 사용
     /// </summary>
     public sealed class DrinkListItemUI : MonoBehaviour
     {
@@ -33,10 +33,6 @@ namespace PPP.BLUE.VN.RecipeApp
         [Header("Localization (Inspector)")]
         [SerializeField] private LocalizedEntry[] localizedEntries = Array.Empty<LocalizedEntry>();
         [SerializeField] private string[] hiddenRawTagKeys = { "TAG_SIMPLE", "TAG_COMPLEX", "TAG_LIGHT", "TAG_STRONG", "TAG_STIMULATING", "TAG_BALANCED", "TAG_VELTRINE_NONE", "TAG_BELTRINE_NONE", "TAG_NONE" };
-
-        [Header("강제 줄바꿈")]
-        [SerializeField] private bool forceWrapByCharCount = true;
-        [SerializeField] private int maxCharsPerLine = 26;
 
         private const string DerivedStimulating = "DERIVED_STIMULATING";
         private const string DerivedBalanced = "DERIVED_BALANCED";
@@ -326,46 +322,9 @@ namespace PPP.BLUE.VN.RecipeApp
             if (text == null)
                 return;
 
+            // 텍스트 줄바꿈은 TMP 기본 동작에 맡긴다.
             text.enableWordWrapping = true;
-            string safe = value ?? string.Empty;
-
-            if (forceWrapByCharCount && maxCharsPerLine > 0)
-                safe = ForceWrapLongTokens(safe, maxCharsPerLine);
-
-            text.text = safe;
-        }
-
-        // 공백 여부와 상관없이 라인 길이가 maxChars를 넘으면 강제로 줄바꿈한다.
-        private static string ForceWrapLongTokens(string src, int maxChars)
-        {
-            if (string.IsNullOrEmpty(src) || maxChars <= 0)
-                return src;
-
-            var result = new System.Text.StringBuilder(src.Length + (src.Length / maxChars));
-            int lineCount = 0;
-
-            for (int i = 0; i < src.Length; i++)
-            {
-                char ch = src[i];
-
-                if (ch == '\n')
-                {
-                    result.Append(ch);
-                    lineCount = 0;
-                    continue;
-                }
-
-                if (lineCount >= maxChars)
-                {
-                    result.Append('\n');
-                    lineCount = 0;
-                }
-
-                result.Append(ch);
-                lineCount++;
-            }
-
-            return result.ToString();
+            text.text = value ?? string.Empty;
         }
 
         private void HandleClick()
