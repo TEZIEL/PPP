@@ -319,6 +319,7 @@ namespace PPP.BLUE.VN
 
             RebuildExternalCallTargetSet();
             var bootState = VNFileSaveSystem.Load(VN_STATE_KEY);
+<<<<<<< codex/add-save/load-recovery-feature-to-vnrunner-w8h75m
             if (bootState != null)
             {
                 Debug.Log($"[VN] Loaded scriptId = {bootState.scriptId}");
@@ -334,6 +335,13 @@ namespace PPP.BLUE.VN
                         return;
                     }
                 }
+=======
+            if (bootState != null && RestoreState(bootState))
+            {
+                Debug.Log("[VN] Restored saved state at Start().");
+                GetComponentInChildren<VNDialogueView>(true)?.LockInputFrames(1);
+                return;
+>>>>>>> main
             }
 
             if (testScript != null)
@@ -1343,6 +1351,7 @@ namespace PPP.BLUE.VN
         {
             if (dto == null) return false;
             if (string.IsNullOrWhiteSpace(dto.scriptId)) return false;
+<<<<<<< codex/add-save/load-recovery-feature-to-vnrunner-w8h75m
             if (script == null || script.nodes == null || script.nodes.Count == 0) return false;
             if (!string.Equals(dto.scriptId, script.ScriptId, StringComparison.Ordinal)) return false;
 
@@ -1383,6 +1392,56 @@ namespace PPP.BLUE.VN
                 failCount = dto.failCount;
                 lastResult = string.IsNullOrEmpty(dto.lastResult) ? "success" : dto.lastResult;
 
+=======
+
+            if (script == null || !string.Equals(dto.scriptId, script.ScriptId, StringComparison.Ordinal))
+            {
+                var loaded = VNScriptLoader.LoadDay(dto.scriptId);
+                if (loaded == null)
+                    return false;
+                SetScript(loaded);
+            }
+
+            if (script == null || script.nodes == null || script.nodes.Count == 0) return false;
+
+            isRestoringFromLoad = true;
+            try
+            {
+                int restoredPointer = dto.pointer;
+                if (!string.IsNullOrWhiteSpace(dto.currentLabel) && script.TryGetLabelIndex(dto.currentLabel, out int labelIndex))
+                    restoredPointer = labelIndex + Mathf.Max(0, dto.nodeIndex);
+                pointer = Mathf.Clamp(restoredPointer, 0, script.nodes.Count - 1);
+                lastShownPointer = pointer;
+                lastStopIndex = pointer;
+
+                vars.Clear();
+                if (dto.vars != null)
+                {
+                    for (int i = 0; i < dto.vars.Count; i++)
+                    {
+                        var v = dto.vars[i];
+                        if (v == null || string.IsNullOrEmpty(v.key)) continue;
+                        vars[v.key] = v.value;
+                    }
+                }
+
+                dto.seen ??= new List<string>();
+                dto.settings ??= VNSettings.Default();
+                seenLineIds.Clear();
+                for (int i = 0; i < dto.seen.Count; i++)
+                {
+                    var lineId = dto.seen[i];
+                    if (!string.IsNullOrEmpty(lineId))
+                        seenLineIds.Add(lineId);
+                }
+                settings = dto.settings;
+
+                greatCount = dto.greatCount;
+                successCount = dto.successCount;
+                failCount = dto.failCount;
+                lastResult = string.IsNullOrEmpty(dto.lastResult) ? "success" : dto.lastResult;
+
+>>>>>>> main
                 callStack.Clear();
                 pendingCallResumeFrame = null;
                 if (dto.callStack != null)
@@ -1765,6 +1824,7 @@ namespace PPP.BLUE.VN
             if (st == null)
                 return false;
 
+<<<<<<< codex/add-save/load-recovery-feature-to-vnrunner-w8h75m
             if (script == null || !string.Equals(script.ScriptId, st.scriptId, StringComparison.Ordinal))
             {
                 var loadedScript = VNScriptLoader.LoadDay(st.scriptId);
@@ -1776,6 +1836,11 @@ namespace PPP.BLUE.VN
             bool ok = RestoreState(st);
             if (ok)
             {
+=======
+            bool ok = RestoreState(st);
+            if (ok)
+            {
+>>>>>>> main
                 int lastDrink = GetVar("lastDrink", 0);
                 Debug.Log(
                 $"[LOAD CHECK] pointer={pointer}, lastDrink={lastDrink}, " +
