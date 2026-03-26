@@ -1,39 +1,44 @@
 # Recipe App UI 표시 규칙 가이드 (`P_Content_Recipe` 기준)
 
 ## 핵심 변경
-- 리스트 아이템 표시 규칙 정리:
-  - `재료:` / `설명:` / `태그:` 접두사 제거
-  - 카테고리 + 태그 + 파생 태그를 한 줄로 통합
-  - `INGREDIENT_ARTHEON`은 재료 문자열이 아니라 메타(카테고리/태그) 문자열에 `아르테온 추가 가능`으로 표기
-- 기존 필터/선택/상세 토글 흐름은 유지
+- 리스트 아이템 표시 규칙:
+  - 접두사 제거(재료:/설명:/태그:)
+  - 카테고리 + 태그 + 파생 태그 + 아르테온 가능 여부를 메타 한 줄로 통합
+- 로컬라이징 친화 구조:
+  - `drinks.json`의 `category`, `tags` raw key를 그대로 사용
+  - `DrinkListItemUI.localizedEntries`(키-값 테이블)에서 표시 언어를 해석
+  - 언어 변경 시 코드 수정 대신 테이블 교체/수정
+- 단어 잘림 대응:
+  - `forceWrapByCharCount` + `maxCharsPerLine`로 긴 토큰 강제 줄바꿈
 
 ## DrinkListItem 표시 필드
 - 이름: 음료명
 - 재료: `벨트린 x5, 레듈린 x4, ...`
-- 설명: 원문 설명 본문만 표시
-- 메타(카테고리/태그/파생/아르테온): `주스, 벨트린+, 복잡함, 강렬함, 아르테온 추가 가능`
+- 설명: 원문 설명 본문
+- 메타: `주스, 벨트린+, 복잡함, 강렬함, 아르테온 추가 가능`
 
-## 메타 문자열 생성 순서
-1. 카테고리 번역값
-2. 기존 태그 번역값
-3. 파생 태그 계산값
-4. none 계열/빈 문자열 제거
-5. 중복 제거
-6. `, `로 join
+## 메타 생성 순서
+1. category key 로컬라이즈
+2. tag key 로컬라이즈(+ 숨김 태그 제외)
+3. 파생 태그 계산 후 로컬라이즈
+4. `artheon_addable` true면 메타 문구 추가
+5. 중복 제거 후 join
 
 ## 파생 태그 기준
-- 자극적: 수량 5 이상 재료가 2개 이상
-- 무난함: 수량 5 이상 재료가 0개
+- 자극적: 수량 5 이상 재료 2개 이상
+- 무난함: 수량 5 이상 재료 0개
 - 단순함: 재료 종류 3개
 - 복잡함: 재료 종류 5개 이상
 - 가벼움: 총합 11 이하
 - 강렬함: 총합 15 이상
 
-## 인스펙터 연결
-- `DrinkListItemUI`
-  - `nameText`: 이름 TMP
-  - `ingredientsText`: 재료 TMP
-  - `descriptionText`: 설명 TMP
-  - `categoryText`: **통합 메타 문자열 TMP**
-  - `tagsText`: 호환용(통합 방식에서는 비워둠)
-  - `actionButton`: 우측 버튼
+## 인스펙터 연결 포인트
+- `DrinkListItemUI.localizedEntries`:
+  - 예) `CATEGORY_JUICE -> 주스`
+  - 예) `TAG_VELTRINE_PLUS -> 벨트린+`
+  - 예) `DERIVED_COMPLEX -> 복잡함`
+  - 예) `META_ARTHEON_ADDABLE -> 아르테온 추가 가능`
+- `DrinkListItemUI.hiddenRawTagKeys`:
+  - 내부 태그(`TAG_SIMPLE`, `TAG_COMPLEX` 등) 숨김 키 설정
+- `forceWrapByCharCount` / `maxCharsPerLine`:
+  - 긴 단어 강제 줄바꿈 동작 조절

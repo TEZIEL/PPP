@@ -9,84 +9,63 @@ namespace PPP.BLUE.VN.RecipeApp
 {
     /// <summary>
     /// 스크롤 리스트의 음료 아이템 1개를 담당.
-    /// 표시 규칙:
-    /// - 접두사(재료:, 설명:, 태그:) 제거
-    /// - 카테고리 + 태그 + 파생 태그를 통합 문자열로 출력
-    /// - 아르테온 문구는 메타(카테고리/태그) 영역에 표시
+    /// - drinks.json 의 category/tags key를 기반으로 메타 문자열 생성
+    /// - 로컬라이징 키-값 테이블(인스펙터) 기반으로 표시 텍스트 변환
+    /// - 긴 단어가 잘리는 경우 강제 줄바꿈(문자수 기준)
     /// </summary>
     public sealed class DrinkListItemUI : MonoBehaviour
     {
+        [Serializable]
+        private struct LocalizedEntry
+        {
+            public string key;
+            public string value;
+        }
+
         [SerializeField] private Image drinkImage;
         [SerializeField] private TMP_Text nameText;
-
-        // 기존 프리팹의 CategoryText 슬롯을 메타(카테고리+태그) 통합 라인으로 재활용한다.
-        [SerializeField] private TMP_Text categoryText;
-
+        [SerializeField] private TMP_Text categoryText;     // 통합 메타 라인
         [SerializeField] private TMP_Text descriptionText;
         [SerializeField] private TMP_Text ingredientsText;
-
-        // 기존 프리팹 호환을 위해 남겨둔다. (통합 메타를 categoryText로 쓰므로 비워둔다)
-        [SerializeField] private TMP_Text tagsText;
-
+        [SerializeField] private TMP_Text tagsText;         // 호환용(현재는 미사용)
         [SerializeField] private Button actionButton;
+
+        [Header("Localization (Inspector)")]
+        [SerializeField] private LocalizedEntry[] localizedEntries = Array.Empty<LocalizedEntry>();
+        [SerializeField] private string[] hiddenRawTagKeys = { "TAG_SIMPLE", "TAG_COMPLEX", "TAG_LIGHT", "TAG_STRONG", "TAG_STIMULATING", "TAG_BALANCED", "TAG_VELTRINE_NONE", "TAG_BELTRINE_NONE", "TAG_NONE" };
+
+        [Header("강제 줄바꿈")]
+        [SerializeField] private bool forceWrapByCharCount = true;
+        [SerializeField] private int maxCharsPerLine = 26;
+
+        private const string DerivedStimulating = "DERIVED_STIMULATING";
+        private const string DerivedBalanced = "DERIVED_BALANCED";
+        private const string DerivedSimple = "DERIVED_SIMPLE";
+        private const string DerivedComplex = "DERIVED_COMPLEX";
+        private const string DerivedLight = "DERIVED_LIGHT";
+        private const string DerivedStrong = "DERIVED_STRONG";
+        private const string MetaArtheonAddable = "META_ARTHEON_ADDABLE";
+
+        private readonly Dictionary<string, string> localizedByKey = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
+        private readonly HashSet<string> hiddenTagKeys = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
 
         private DrinkEntry current;
         private Action<DrinkEntry> onClicked;
-
-        private static readonly Dictionary<string, string> CategoryMap = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
-        {
-            { "CATEGORY_JUICE", "주스" },
-            { "CATEGORY_DAIRY", "유제품" },
-            { "CATEGORY_SODA", "탄산음료" },
-            { "CATEGORY_CHOCOLATE", "초콜릿" },
-            { "CATEGORY_TEA", "차" },
-            { "CATEGORY_COFFEE", "커피" },
-            { "CATEGORY_YOGURT", "요거트" },
-            { "CATEGORY_ENERGY", "에너지드링크" },
-            { "CATEGORY_ENERGY_DRINK", "에너지드링크" },
-            { "CATEGORY_TRADITIONAL_TEA", "전통차" },
-            { "CATEGORY_PLANT_MILK", "식물성음료" },
-            { "CATEGORY_PLANT_DRINK", "식물성음료" },
-            { "CATEGORY_NONE", string.Empty },
-            { "NONE", string.Empty }
-        };
-
-        private static readonly Dictionary<string, string> TagMap = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
-        {
-            { "TAG_VELTRINE_PLUS", "벨트린+" },
-            { "TAG_ZYPHRATE_PLUS", "자이프레이트+" },
-            { "TAG_REDULINE_PLUS", "레듈린+" },
-            { "TAG_MORVION_PLUS", "모르비온+" },
-            { "TAG_KRATYLEN_PLUS", "크라틸렌+" },
-            { "TAG_CYMENTOL_PLUS", "사이멘톨+" },
-            { "TAG_BRAXIUM_PLUS", "브랙시움+" },
-
-            { "TAG_CHOCOLATE", "초콜릿" },
-            { "TAG_COFFEE", "커피" },
-            { "TAG_TEA", "차" },
-            { "TAG_YOGURT", "요거트" },
-            { "TAG_COLA", "콜라" },
-            { "TAG_ENERGY_DRINK", "에너지드링크" },
-
-            // 아래는 파생 태그와 의미가 겹치므로 내부 태그는 숨긴다.
-            { "TAG_SIMPLE", string.Empty },
-            { "TAG_COMPLEX", string.Empty },
-            { "TAG_LIGHT", string.Empty },
-            { "TAG_STRONG", string.Empty },
-            { "TAG_STIMULATING", string.Empty },
-            { "TAG_BALANCED", string.Empty },
-
-            // none 계열은 출력 제외
-            { "TAG_VELTRINE_NONE", string.Empty },
-            { "TAG_BELTRINE_NONE", string.Empty },
-            { "TAG_NONE", string.Empty }
-        };
 
         private void Awake()
         {
             if (actionButton != null)
                 actionButton.onClick.AddListener(HandleClick);
+
+            RebuildLocalizationTable();
         }
+
+#if UNITY_EDITOR
+        private void OnValidate()
+        {
+            RebuildLocalizationTable();
+        }
+#endif
 
         public void Setup(
             DrinkEntry drink,
@@ -97,20 +76,11 @@ namespace PPP.BLUE.VN.RecipeApp
             current = drink;
             onClicked = clickHandler;
 
-            if (nameText != null)
-                nameText.text = drink?.name ?? "(이름 없음)";
+            SetText(nameText, drink?.name ?? "(이름 없음)");
+            SetText(ingredientsText, BuildIngredientsText(drink, ingredientDisplayNames));
+            SetText(descriptionText, BuildDescriptionText(drink));
+            SetText(categoryText, BuildMetaText(drink));
 
-            if (ingredientsText != null)
-                ingredientsText.text = BuildIngredientsText(drink, ingredientDisplayNames);
-
-            if (descriptionText != null)
-                descriptionText.text = BuildDescriptionText(drink);
-
-            string metaText = BuildMetaText(drink);
-            if (categoryText != null)
-                categoryText.text = metaText;
-
-            // 카테고리/태그 분리 출력 대신 통합 출력으로 전환
             if (tagsText != null)
                 tagsText.text = string.Empty;
 
@@ -121,7 +91,7 @@ namespace PPP.BLUE.VN.RecipeApp
             }
         }
 
-        private static string BuildIngredientsText(DrinkEntry drink, IReadOnlyDictionary<string, string> ingredientDisplayNames)
+        private string BuildIngredientsText(DrinkEntry drink, IReadOnlyDictionary<string, string> ingredientDisplayNames)
         {
             if (drink == null || drink.ingredientAmounts == null || drink.ingredientAmounts.Count == 0)
                 return string.Empty;
@@ -131,11 +101,11 @@ namespace PPP.BLUE.VN.RecipeApp
 
             foreach (var pair in ordered)
             {
-                string name = pair.Key;
+                string displayName = pair.Key;
                 if (ingredientDisplayNames != null && ingredientDisplayNames.TryGetValue(pair.Key, out var mappedName) && !string.IsNullOrWhiteSpace(mappedName))
-                    name = mappedName;
+                    displayName = mappedName;
 
-                parts.Add($"{name} x{pair.Value}");
+                parts.Add($"{displayName} x{pair.Value}");
             }
 
             return string.Join(", ", parts);
@@ -149,141 +119,104 @@ namespace PPP.BLUE.VN.RecipeApp
             return drink.description.Trim();
         }
 
-        private static string BuildMetaText(DrinkEntry drink)
+        private string BuildMetaText(DrinkEntry drink)
         {
             if (drink == null)
                 return string.Empty;
 
             var tokens = new List<string>();
 
-            // 1) 카테고리
-            string translatedCategory = TranslateCategory(drink.category);
-            if (!string.IsNullOrWhiteSpace(translatedCategory))
-                tokens.Add(translatedCategory);
+            // 1) category key -> localized
+            string categoryText = LocalizeCategory(drink.category);
+            if (!string.IsNullOrWhiteSpace(categoryText))
+                tokens.Add(categoryText);
 
-            // 2) 기존 태그 번역
+            // 2) raw tag key -> localized
             if (drink.tags != null)
             {
                 for (int i = 0; i < drink.tags.Count; i++)
                 {
-                    string translatedTag = TranslateTag(drink.tags[i]);
-                    if (!string.IsNullOrWhiteSpace(translatedTag))
-                        tokens.Add(translatedTag);
+                    string translated = LocalizeTag(drink.tags[i]);
+                    if (!string.IsNullOrWhiteSpace(translated))
+                        tokens.Add(translated);
                 }
             }
 
-            // 3) 파생 태그
-            tokens.AddRange(GetDerivedTags(drink));
+            // 3) derived tags (key 기반으로 계산 후 localized)
+            foreach (string derivedKey in GetDerivedTagKeys(drink))
+            {
+                string localized = LocalizeKey(derivedKey);
+                if (!string.IsNullOrWhiteSpace(localized))
+                    tokens.Add(localized);
+            }
 
-            // 4) 아르테온 가능 여부는 메타 영역으로 이동
+            // 4) artheon 가능 여부
             if (drink.artheon_addable)
-                tokens.Add("아르테온 추가 가능");
+                tokens.Add(LocalizeKey(MetaArtheonAddable));
 
-            // 5) 후처리 필터 + 중복 제거
-            var unique = new List<string>();
+            // 5) dedupe + cleanup
+            var result = new List<string>();
             var seen = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
-
             for (int i = 0; i < tokens.Count; i++)
             {
                 string token = tokens[i]?.Trim() ?? string.Empty;
                 if (string.IsNullOrWhiteSpace(token))
                     continue;
 
-                // none/none계열 방어
-                if (token.Equals("none", StringComparison.OrdinalIgnoreCase) || token.Equals("CATEGORY_NONE", StringComparison.OrdinalIgnoreCase))
-                    continue;
-
                 if (!seen.Add(token))
                     continue;
 
-                unique.Add(token);
+                result.Add(token);
             }
 
-            return string.Join(", ", unique);
+            return string.Join(", ", result);
         }
 
-        private static string TranslateCategory(string category)
+        private string LocalizeCategory(string rawCategory)
         {
-            if (string.IsNullOrWhiteSpace(category))
+            if (string.IsNullOrWhiteSpace(rawCategory))
                 return string.Empty;
 
-            string raw = category.Trim();
-
-            if (CategoryMap.TryGetValue(raw, out var mapped))
-                return mapped;
-
-            // 유사 키 대응
-            if (raw.IndexOf("NONE", StringComparison.OrdinalIgnoreCase) >= 0)
+            if (rawCategory.IndexOf("NONE", StringComparison.OrdinalIgnoreCase) >= 0)
                 return string.Empty;
-            if (raw.IndexOf("JUICE", StringComparison.OrdinalIgnoreCase) >= 0)
-                return "주스";
-            if (raw.IndexOf("DAIRY", StringComparison.OrdinalIgnoreCase) >= 0)
-                return "유제품";
-            if (raw.IndexOf("SODA", StringComparison.OrdinalIgnoreCase) >= 0)
-                return "탄산음료";
-            if (raw.IndexOf("TRADITIONAL_TEA", StringComparison.OrdinalIgnoreCase) >= 0)
-                return "전통차";
-            if (raw.IndexOf("TEA", StringComparison.OrdinalIgnoreCase) >= 0)
-                return "차";
-            if (raw.IndexOf("COFFEE", StringComparison.OrdinalIgnoreCase) >= 0)
-                return "커피";
-            if (raw.IndexOf("YOGURT", StringComparison.OrdinalIgnoreCase) >= 0)
-                return "요거트";
-            if (raw.IndexOf("PLANT", StringComparison.OrdinalIgnoreCase) >= 0)
-                return "식물성음료";
-            if (raw.IndexOf("ENERGY", StringComparison.OrdinalIgnoreCase) >= 0)
-                return "에너지드링크";
-            if (raw.IndexOf("CHOCOLATE", StringComparison.OrdinalIgnoreCase) >= 0)
-                return "초콜릿";
 
-            return raw;
+            return LocalizeKey(rawCategory);
         }
 
-        private static string TranslateTag(string rawTag)
+        private string LocalizeTag(string rawTag)
         {
             if (string.IsNullOrWhiteSpace(rawTag))
                 return string.Empty;
 
-            string tag = rawTag.Trim();
-            if (TagMap.TryGetValue(tag, out var mapped))
-                return mapped;
-
-            // 안전 장치: none 계열은 표시 금지
-            if (tag.IndexOf("NONE", StringComparison.OrdinalIgnoreCase) >= 0)
+            if (hiddenTagKeys.Contains(rawTag))
                 return string.Empty;
 
-            // PLUS 키 자동 변환 (플러스 -> +)
-            if (tag.IndexOf("PLUS", StringComparison.OrdinalIgnoreCase) >= 0)
+            if (rawTag.IndexOf("NONE", StringComparison.OrdinalIgnoreCase) >= 0)
+                return string.Empty;
+
+            // 직접 매핑
+            string direct = LocalizeKey(rawTag);
+            if (!string.IsNullOrWhiteSpace(direct) && !string.Equals(direct, rawTag, StringComparison.OrdinalIgnoreCase))
+                return direct;
+
+            // TAG_xxx_PLUS -> 재료명+
+            if (rawTag.EndsWith("_PLUS", StringComparison.OrdinalIgnoreCase))
             {
-                var baseName = tag
+                string token = rawTag
                     .Replace("TAG_", string.Empty, StringComparison.OrdinalIgnoreCase)
                     .Replace("_PLUS", string.Empty, StringComparison.OrdinalIgnoreCase)
                     .Trim();
 
-                string translated = TranslateIngredientToken(baseName);
-                if (!string.IsNullOrWhiteSpace(translated))
-                    return translated + "+";
+                string ingredientKey = $"INGREDIENT_{token}";
+                string ingredientName = LocalizeKey(ingredientKey);
+                if (!string.IsNullOrWhiteSpace(ingredientName) && !ingredientName.Equals(ingredientKey, StringComparison.OrdinalIgnoreCase))
+                    return ingredientName + "+";
             }
 
             return string.Empty;
         }
 
-        private static string TranslateIngredientToken(string token)
-        {
-            if (string.IsNullOrWhiteSpace(token))
-                return string.Empty;
-
-            if (token.Equals("VELTRINE", StringComparison.OrdinalIgnoreCase)) return "벨트린";
-            if (token.Equals("ZYPHRATE", StringComparison.OrdinalIgnoreCase)) return "자이프레이트";
-            if (token.Equals("REDULINE", StringComparison.OrdinalIgnoreCase)) return "레듈린";
-            if (token.Equals("MORVION", StringComparison.OrdinalIgnoreCase)) return "모르비온";
-            if (token.Equals("KRATYLEN", StringComparison.OrdinalIgnoreCase)) return "크라틸렌";
-            if (token.Equals("CYMENTOL", StringComparison.OrdinalIgnoreCase)) return "사이멘톨";
-            if (token.Equals("BRAXIUM", StringComparison.OrdinalIgnoreCase)) return "브랙시움";
-            return token;
-        }
-
-        private static IEnumerable<string> GetDerivedTags(DrinkEntry drink)
+        private IEnumerable<string> GetDerivedTagKeys(DrinkEntry drink)
         {
             if (drink == null || drink.ingredientAmounts == null || drink.ingredientAmounts.Count == 0)
                 yield break;
@@ -299,29 +232,141 @@ namespace PPP.BLUE.VN.RecipeApp
                     atLeastFiveCount++;
             }
 
-            // 자극적: 5개 이상 재료가 2개 이상
-            if (atLeastFiveCount >= 2)
-                yield return "자극적";
+            if (atLeastFiveCount >= 2) yield return DerivedStimulating;
+            if (atLeastFiveCount == 0) yield return DerivedBalanced;
+            if (ingredientKindCount == 3) yield return DerivedSimple;
+            if (ingredientKindCount >= 5) yield return DerivedComplex;
+            if (totalAmount <= 11) yield return DerivedLight;
+            if (totalAmount >= 15) yield return DerivedStrong;
+        }
 
-            // 무난함: 5개 이상 재료가 없음
-            if (atLeastFiveCount == 0)
-                yield return "무난함";
+        private string LocalizeKey(string rawKey)
+        {
+            if (string.IsNullOrWhiteSpace(rawKey))
+                return string.Empty;
 
-            // 단순함: 재료 종류 3개
-            if (ingredientKindCount == 3)
-                yield return "단순함";
+            if (localizedByKey.TryGetValue(rawKey, out var mapped) && !string.IsNullOrWhiteSpace(mapped))
+                return mapped;
 
-            // 복잡함: 재료 종류 5개 이상
-            if (ingredientKindCount >= 5)
-                yield return "복잡함";
+            // fallback: key를 보기 좋은 문자열로 단순 정리
+            return rawKey.Replace("CATEGORY_", string.Empty)
+                         .Replace("TAG_", string.Empty)
+                         .Replace("DERIVED_", string.Empty)
+                         .Replace('_', ' ')
+                         .Trim();
+        }
 
-            // 가벼움: 총합 11 이하
-            if (totalAmount <= 11)
-                yield return "가벼움";
+        private void RebuildLocalizationTable()
+        {
+            localizedByKey.Clear();
+            hiddenTagKeys.Clear();
 
-            // 강렬함: 총합 15 이상
-            if (totalAmount >= 15)
-                yield return "강렬함";
+            // 인스펙터 입력 우선
+            if (localizedEntries != null)
+            {
+                for (int i = 0; i < localizedEntries.Length; i++)
+                {
+                    var row = localizedEntries[i];
+                    if (string.IsNullOrWhiteSpace(row.key))
+                        continue;
+
+                    localizedByKey[row.key.Trim()] = row.value ?? string.Empty;
+                }
+            }
+
+            if (hiddenRawTagKeys != null)
+            {
+                for (int i = 0; i < hiddenRawTagKeys.Length; i++)
+                {
+                    if (!string.IsNullOrWhiteSpace(hiddenRawTagKeys[i]))
+                        hiddenTagKeys.Add(hiddenRawTagKeys[i].Trim());
+                }
+            }
+
+            // 기본 한국어 fallback (인스펙터에 값이 없을 때만)
+            AddDefault("CATEGORY_JUICE", "주스");
+            AddDefault("CATEGORY_DAIRY", "유제품");
+            AddDefault("CATEGORY_SODA", "탄산음료");
+            AddDefault("CATEGORY_TRADITIONAL_TEA", "전통차");
+            AddDefault("CATEGORY_PLANT_DRINK", "식물성음료");
+            AddDefault("CATEGORY_PLANT_MILK", "식물성음료");
+            AddDefault("CATEGORY_NONE", string.Empty);
+
+            AddDefault("TAG_CHOCOLATE", "초콜릿");
+            AddDefault("TAG_COFFEE", "커피");
+            AddDefault("TAG_TEA", "차");
+            AddDefault("TAG_YOGURT", "요거트");
+            AddDefault("TAG_COLA", "콜라");
+            AddDefault("TAG_ENERGY_DRINK", "에너지드링크");
+
+            AddDefault("INGREDIENT_VELTRINE", "벨트린");
+            AddDefault("INGREDIENT_ZYPHRATE", "자이프레이트");
+            AddDefault("INGREDIENT_REDULINE", "레듈린");
+            AddDefault("INGREDIENT_MORVION", "모르비온");
+            AddDefault("INGREDIENT_KRATYLEN", "크라틸렌");
+            AddDefault("INGREDIENT_CYMENTOL", "사이멘톨");
+            AddDefault("INGREDIENT_BRAXIUM", "브랙시움");
+
+            AddDefault(DerivedStimulating, "자극적");
+            AddDefault(DerivedBalanced, "무난함");
+            AddDefault(DerivedSimple, "단순함");
+            AddDefault(DerivedComplex, "복잡함");
+            AddDefault(DerivedLight, "가벼움");
+            AddDefault(DerivedStrong, "강렬함");
+            AddDefault(MetaArtheonAddable, "아르테온 추가 가능");
+        }
+
+        private void AddDefault(string key, string value)
+        {
+            if (!localizedByKey.ContainsKey(key))
+                localizedByKey[key] = value;
+        }
+
+        private void SetText(TMP_Text text, string value)
+        {
+            if (text == null)
+                return;
+
+            text.enableWordWrapping = true;
+            string safe = value ?? string.Empty;
+
+            if (forceWrapByCharCount && maxCharsPerLine > 0)
+                safe = ForceWrapLongTokens(safe, maxCharsPerLine);
+
+            text.text = safe;
+        }
+
+        // 공백 없는 긴 토큰(예: 내부 키/긴 영문)이 잘리는 경우를 대비해 강제 줄바꿈을 넣는다.
+        private static string ForceWrapLongTokens(string src, int maxChars)
+        {
+            if (string.IsNullOrEmpty(src) || maxChars <= 0)
+                return src;
+
+            var words = src.Split(' ');
+            for (int i = 0; i < words.Length; i++)
+            {
+                if (words[i].Length <= maxChars)
+                    continue;
+
+                words[i] = InsertNewLineEvery(words[i], maxChars);
+            }
+
+            return string.Join(" ", words);
+        }
+
+        private static string InsertNewLineEvery(string text, int interval)
+        {
+            if (string.IsNullOrEmpty(text) || interval <= 0)
+                return text;
+
+            var chunks = new List<string>();
+            for (int i = 0; i < text.Length; i += interval)
+            {
+                int len = Mathf.Min(interval, text.Length - i);
+                chunks.Add(text.Substring(i, len));
+            }
+
+            return string.Join("\n", chunks);
         }
 
         private void HandleClick()
