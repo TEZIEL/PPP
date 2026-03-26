@@ -68,7 +68,7 @@ namespace PPP.BLUE.VN.DrinkSystem
 
         private void OnClick()
         {
-            manager?.AddIngredient(ingredientID);
+            manager?.AddIngredientFromClick(ingredientID);
         }
 
         public void OnPointerEnter(PointerEventData eventData)

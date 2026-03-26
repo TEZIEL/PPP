@@ -70,6 +70,13 @@ namespace PPP.BLUE.VN
         private bool resultLocked;
         private bool confirmCompleted;
         private string hoveredIngredientId;
+        private int lastIngredientInputFrame = -1;
+
+        private enum IngredientInputSource
+        {
+            Keyboard,
+            Click
+        }
 
         private void Awake()
         {
@@ -110,6 +117,11 @@ namespace PPP.BLUE.VN
 
 
 
+        private void Update()
+        {
+            HandleIngredientHotkeys();
+        }
+
         public void SetRequest(string requestId)
         {
             currentRequestId = requestId;
@@ -128,6 +140,11 @@ namespace PPP.BLUE.VN
         public void AddIngredientById(string ingredientId)
         {
             AddIngredient(ingredientId);
+        }
+
+        public void AddIngredientFromClick(string ingredientId)
+        {
+            TryAddIngredientFromInput(ingredientId, IngredientInputSource.Click);
         }
 
         public void AddIngredient(string ingredientID)
@@ -168,6 +185,61 @@ namespace PPP.BLUE.VN
 
             if (totalCount >= MaxIngredients)
                 SetIngredientButtonsInteractable(false);
+        }
+
+        private void HandleIngredientHotkeys()
+        {
+            if (!CanUseIngredientHotkeys())
+                return;
+
+            if (Input.GetKeyDown(KeyCode.Q))
+                TryAddIngredientFromInput("INGREDIENT_VELTRINE", IngredientInputSource.Keyboard);
+            else if (Input.GetKeyDown(KeyCode.W))
+                TryAddIngredientFromInput("INGREDIENT_ZYPHRATE", IngredientInputSource.Keyboard);
+            else if (Input.GetKeyDown(KeyCode.E))
+                TryAddIngredientFromInput("INGREDIENT_KRATYLEN", IngredientInputSource.Keyboard);
+            else if (Input.GetKeyDown(KeyCode.R))
+                TryAddIngredientFromInput("INGREDIENT_MORVION", IngredientInputSource.Keyboard);
+            else if (Input.GetKeyDown(KeyCode.A))
+                TryAddIngredientFromInput("INGREDIENT_REDULINE", IngredientInputSource.Keyboard);
+            else if (Input.GetKeyDown(KeyCode.S))
+                TryAddIngredientFromInput("INGREDIENT_CYMENTOL", IngredientInputSource.Keyboard);
+            else if (Input.GetKeyDown(KeyCode.D))
+                TryAddIngredientFromInput("INGREDIENT_BRAXIUM", IngredientInputSource.Keyboard);
+            else if (Input.GetKeyDown(KeyCode.F))
+                TryAddIngredientFromInput("INGREDIENT_ARTHEON", IngredientInputSource.Keyboard);
+        }
+
+        private bool CanUseIngredientHotkeys()
+        {
+            if (policy == null || !policy.CanAcceptVNInput())
+                return false;
+
+            if (!policy.IsInDrinkMode)
+                return false;
+
+            if (drinkPanel != null && !drinkPanel.IsOpenOrOpening)
+                return false;
+
+            if (resultLocked || IsConfirmOpen())
+                return false;
+
+            return true;
+        }
+
+        private void TryAddIngredientFromInput(string ingredientId, IngredientInputSource source)
+        {
+            if (string.IsNullOrEmpty(ingredientId))
+                return;
+
+            if (lastIngredientInputFrame == Time.frameCount)
+                return;
+
+            if (source == IngredientInputSource.Keyboard && !CanUseIngredientHotkeys())
+                return;
+
+            lastIngredientInputFrame = Time.frameCount;
+            AddIngredient(ingredientId);
         }
 
         public void SetIngredientHover(string ingredientId, bool isHovering)
