@@ -28,6 +28,9 @@ namespace PPP.BLUE.VN.RecipeApp
         [SerializeField] private RecipeDataLoader dataLoader;
 
         [Header("Top Filter")]
+        [Tooltip("기존 프리팹(예: P_Content_Recipe) 안의 고정 버튼들을 직접 연결할 때 사용")]
+        [SerializeField] private IngredientFilterButtonUI[] fixedIngredientButtons = Array.Empty<IngredientFilterButtonUI>();
+        [Tooltip("고정 버튼을 쓰지 않을 때, 런타임으로 버튼을 생성할 부모")]
         [SerializeField] private Transform ingredientButtonParent;
         [SerializeField] private IngredientFilterButtonUI ingredientButtonPrefab;
 
@@ -97,6 +100,33 @@ namespace PPP.BLUE.VN.RecipeApp
         {
             ClearCreatedButtons();
 
+            // 1) 기존 프리팹에 이미 버튼이 배치된 경우: 해당 버튼들을 재사용한다.
+            if (fixedIngredientButtons != null && fixedIngredientButtons.Length > 0)
+            {
+                int bindCount = Mathf.Min(fixedIngredientButtons.Length, allIngredients.Count);
+                for (int i = 0; i < bindCount; i++)
+                {
+                    var ui = fixedIngredientButtons[i];
+                    if (ui == null)
+                        continue;
+
+                    ui.gameObject.SetActive(true);
+                    ui.Setup(allIngredients[i], OnIngredientButtonClicked);
+                    ingredientButtons.Add(ui);
+                }
+
+                // 남는 버튼은 숨긴다(데이터 수와 버튼 수가 다를 때 안전 처리)
+                for (int i = bindCount; i < fixedIngredientButtons.Length; i++)
+                {
+                    if (fixedIngredientButtons[i] != null)
+                        fixedIngredientButtons[i].gameObject.SetActive(false);
+                }
+
+                UpdateIngredientButtonInteractableState();
+                return;
+            }
+
+            // 2) 고정 버튼이 없으면 프리팹을 런타임 생성한다.
             if (ingredientButtonParent == null || ingredientButtonPrefab == null)
                 return;
 
@@ -279,8 +309,14 @@ namespace PPP.BLUE.VN.RecipeApp
         {
             for (int i = 0; i < ingredientButtons.Count; i++)
             {
-                if (ingredientButtons[i] != null)
-                    Destroy(ingredientButtons[i].gameObject);
+                var button = ingredientButtons[i];
+                if (button == null)
+                    continue;
+
+                // 고정 버튼 배열에 포함된 버튼은 삭제하지 않고 재사용한다.
+                bool isFixed = fixedIngredientButtons != null && Array.IndexOf(fixedIngredientButtons, button) >= 0;
+                if (!isFixed)
+                    Destroy(button.gameObject);
             }
 
             ingredientButtons.Clear();

@@ -10,33 +10,55 @@ namespace PPP.BLUE.VN.RecipeApp
     /// </summary>
     public sealed class RecipeDataLoader : MonoBehaviour
     {
-        [Header("Resources 경로 (확장자 제외)")]
+        [Header("파일 경로 (Assets 기준)")]
+        [SerializeField] private string ingredientsFolderFromAssets = "Data/Drink/Ingredients";
+        [SerializeField] private string ingredientsFileName = "ingredients.json";
+        [SerializeField] private string drinksFolderFromAssets = "Data/Drink/Drinks";
+        [SerializeField] private string drinksFileName = "drinks.json";
+
+        [Header("Fallback: Resources 경로 (확장자 제외)")]
         [SerializeField] private string ingredientsResourcePath = "DrinkData/ingredients";
         [SerializeField] private string drinksResourcePath = "DrinkData/drinks";
 
         public IngredientRoot LoadIngredients()
         {
-            var text = Resources.Load<TextAsset>(ingredientsResourcePath);
-            if (text == null)
+            string json = ReadJsonFromAssets(ingredientsFolderFromAssets, ingredientsFileName);
+            if (string.IsNullOrWhiteSpace(json))
             {
-                Debug.LogError($"[RecipeDataLoader] ingredients json not found: {ingredientsResourcePath}");
+                // 폴더 기반 로딩 실패 시 Resources로 한 번 더 시도한다.
+                var text = Resources.Load<TextAsset>(ingredientsResourcePath);
+                if (text != null)
+                    json = text.text;
+            }
+
+            if (string.IsNullOrWhiteSpace(json))
+            {
+                Debug.LogError($"[RecipeDataLoader] ingredients json not found. folder={ingredientsFolderFromAssets}, file={ingredientsFileName}, resource={ingredientsResourcePath}");
                 return new IngredientRoot();
             }
 
-            var root = ParseIngredients(text.text);
+            var root = ParseIngredients(json);
             return root ?? new IngredientRoot();
         }
 
         public DrinkRoot LoadDrinks()
         {
-            var text = Resources.Load<TextAsset>(drinksResourcePath);
-            if (text == null)
+            string json = ReadJsonFromAssets(drinksFolderFromAssets, drinksFileName);
+            if (string.IsNullOrWhiteSpace(json))
             {
-                Debug.LogError($"[RecipeDataLoader] drinks json not found: {drinksResourcePath}");
+                // 폴더 기반 로딩 실패 시 Resources로 한 번 더 시도한다.
+                var text = Resources.Load<TextAsset>(drinksResourcePath);
+                if (text != null)
+                    json = text.text;
+            }
+
+            if (string.IsNullOrWhiteSpace(json))
+            {
+                Debug.LogError($"[RecipeDataLoader] drinks json not found. folder={drinksFolderFromAssets}, file={drinksFileName}, resource={drinksResourcePath}");
                 return new DrinkRoot();
             }
 
-            var root = ParseDrinks(text.text);
+            var root = ParseDrinks(json);
             return root ?? new DrinkRoot();
         }
 
@@ -125,6 +147,20 @@ namespace PPP.BLUE.VN.RecipeApp
             return result;
         }
 
+
+        private static string ReadJsonFromAssets(string folderFromAssets, string fileName)
+        {
+            if (string.IsNullOrWhiteSpace(folderFromAssets) || string.IsNullOrWhiteSpace(fileName))
+                return string.Empty;
+
+            string folderPath = System.IO.Path.Combine(Application.dataPath, folderFromAssets);
+            string fullPath = System.IO.Path.Combine(folderPath, fileName);
+
+            if (!System.IO.File.Exists(fullPath))
+                return string.Empty;
+
+            return System.IO.File.ReadAllText(fullPath);
+        }
         private static string GetString(Dictionary<string, object> map, string key)
             => map.TryGetValue(key, out var value) ? value?.ToString() ?? string.Empty : string.Empty;
 

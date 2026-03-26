@@ -1,71 +1,68 @@
-# Recipe App UI 구현 가이드 (Unity uGUI + TMP)
+# Recipe App UI 구현 가이드 (기존 `P_Content_Recipe` 프리팹 기준)
 
 ## 1) 전체 구조 요약
-- 핵심 오브젝트: `RecipeAppRoot`, `TopFilterArea`, `DrinkListArea(Scroll View)`, `DetailArea`.
-- 핵심 프리팹: `IngredientFilterButton`, `DrinkListItem`.
-- 핵심 스크립트:
-  - `RecipeAppController`: 선택/필터/리스트/상세 토글 전체 흐름.
-  - `RecipeDataLoader`: `Resources`의 `ingredients.json`, `drinks.json` 로딩.
-  - `IngredientFilterButtonUI`: 재료 버튼 1개 UI.
-  - `DrinkListItemUI`: 리스트 아이템 1개 UI.
-  - `RecipeAppModels`: JSON 모델.
+- 기존 프리팹 `Assets/UI/OSApps/Recipe/P_Content_Recipe.prefab`을 베이스로 사용.
+- 데이터는 **Resources가 아니라 실제 파일 경로**(`Assets/Data/Drink/Ingredients`, `Assets/Data/Drink/Drinks`)에서 우선 로딩.
+- 스크립트 구성:
+  - `RecipeAppController`: 필터/리스트/상세 토글 전체 제어
+  - `RecipeDataLoader`: 지정된 Assets 폴더의 JSON 로딩
+  - `IngredientFilterButtonUI`: 상단 필터 버튼 1개
+  - `DrinkListItemUI`: 리스트 아이템 1개
+  - `RecipeAppModels`: JSON 모델
 
-## 2) 하이어라키
+## 2) 하이어라키 (현재 프리팹에 맞춘 연결)
 ```text
-Canvas
-└─ RecipeAppRoot
-   ├─ TopFilterArea
-   │  ├─ HeaderText (TMP_Text)
-   │  └─ FilterButtonContainer (GridLayoutGroup)
-   ├─ DrinkListArea
-   │  ├─ Scroll View
-   │  │  ├─ Viewport (Mask + Image)
-   │  │  │  └─ Content (VerticalLayoutGroup + ContentSizeFitter)
-   │  └─ EmptyStateText (TMP_Text)
-   └─ DetailArea
-      ├─ Left
-      │  ├─ DrinkImage (Image)
-      │  └─ DrinkNameText (TMP_Text)
-      └─ Right
-         ├─ IngredientsTitle / IngredientsText
-         ├─ TagsTitle / TagsText
-         └─ DescriptionTitle / DescriptionText
+P_Content_Recipe
+ └─ BG_Full
+    ├─ Upper
+    │  └─ ButtonRow (여기에 재료 버튼 8개 배치/연결)
+    ├─ listView (ScrollRect)
+    │  └─ Viewport
+    │     └─ Content (DrinkListItem 생성 위치)
+    └─ BottomBar (상세 영역 루트로 사용 권장)
+       ├─ (좌) DrinkImage, DrinkName
+       └─ (우) Ingredients/Tags/Description Text
 ```
 
-## 3) JSON 로딩 권장
-- **간단함 우선** 기준으로 `Resources` 사용.
-- 배치 경로:
-  - `Assets/Resources/DrinkData/ingredients.json`
-  - `Assets/Resources/DrinkData/drinks.json`
-- 로더의 기본 경로는 `DrinkData/ingredients`, `DrinkData/drinks`.
+## 3) JSON 경로
+`RecipeDataLoader` 기본값:
+- `ingredientsFolderFromAssets = Data/Drink/Ingredients`
+- `ingredientsFileName = ingredients.json`
+- `drinksFolderFromAssets = Data/Drink/Drinks`
+- `drinksFileName = drinks.json`
 
-## 4) 필수 동작
-- 재료는 최대 3개 선택.
-- 3개 선택 시 미선택 버튼 비활성화.
-- 음료 필터는 선택 재료의 **AND** 조건.
+즉 실제 파일은 아래 경로를 읽습니다.
+- `Assets/Data/Drink/Ingredients/ingredients.json`
+- `Assets/Data/Drink/Drinks/drinks.json`
+
+## 4) 프리팹/오브젝트 연결 핵심
+1. `P_Content_Recipe` 루트(또는 자식 컨트롤러 오브젝트)에 `RecipeAppController` 부착.
+2. 같은 위치에 `RecipeDataLoader` 부착.
+3. `RecipeAppController` 연결:
+   - `dataLoader` → `RecipeDataLoader`
+   - `fixedIngredientButtons` → 상단 8개 버튼의 `IngredientFilterButtonUI` 컴포넌트들
+   - `drinkListContent` → `listView/Viewport/Content`
+   - `drinkListItemPrefab` → `DrinkListItem` 프리팹
+   - `emptyStateText` → 빈 상태 메시지 TMP
+   - `detailRoot` → 상세 패널 루트(`BottomBar` 권장)
+   - `detailImage`, `detailNameText`, `detailIngredientsText`, `detailTagsText`, `detailDescriptionText` 연결
+4. `IngredientFilterButtonUI` 각 버튼에 연결:
+   - `button`: 해당 버튼 컴포넌트
+   - `labelText`: 버튼 내부 `Text (TMP)`
+   - `selectionBackground`: 버튼 배경 Image
+
+## 5) 동작 규칙
+- 최대 3개 선택, 3개 선택 시 나머지 버튼 비활성화.
+- 선택 재료 기준 AND 필터.
 - 같은 음료 재클릭 시 상세 닫힘.
-- 다른 음료 클릭 시 상세 갱신 후 열림.
-- 결과 0개면 빈 상태 문구 표시.
-
-## 5) 인스펙터 연결 핵심
-1. `RecipeAppRoot`에 `RecipeAppController` 추가.
-2. `RecipeAppRoot` 또는 하위에 `RecipeDataLoader` 추가.
-3. `RecipeAppController` 필드 연결:
-   - `dataLoader`: `RecipeDataLoader`
-   - `ingredientButtonParent`: `TopFilterArea/FilterButtonContainer`
-   - `ingredientButtonPrefab`: `IngredientFilterButton` 프리팹
-   - `drinkListContent`: `Scroll View/Viewport/Content`
-   - `drinkListItemPrefab`: `DrinkListItem` 프리팹
-   - `emptyStateText`: `DrinkListArea/EmptyStateText`
-   - `detailRoot`: `DetailArea`
-   - `detailImage`, `detailNameText`, `detailIngredientsText`, `detailTagsText`, `detailDescriptionText`
-4. 프리팹 내부의 스크립트 필드(`Button`, `TMP_Text`, `Image`)도 빠짐없이 연결.
+- 다른 음료 클릭 시 상세 교체.
+- 결과 0개면 “조건에 맞는 음료가 없습니다.” 출력.
 
 ## 6) 테스트 체크리스트
-- 재료 1/2/3개 선택 각각 필터 확인.
-- 3개 선택 후 미선택 버튼 비활성화 확인.
-- 선택 해제 시 버튼 interactable 복구 확인.
-- 필터 0개 시 EmptyStateText 표시 확인.
-- 같은 음료 재클릭 시 상세 닫힘 확인.
-- 다른 음료 클릭 시 상세 변경 확인.
-- ScrollRect 스크롤 정상 동작 확인.
+- 재료 1/2/3개 선택 시 결과 확인
+- 3개 선택 후 미선택 버튼 비활성화 확인
+- 선택 해제 시 버튼 복구 확인
+- 필터 결과 0개 문구 확인
+- 같은 음료 재클릭 상세 닫힘 확인
+- 다른 음료 클릭 상세 갱신 확인
+- 리스트 스크롤 확인
