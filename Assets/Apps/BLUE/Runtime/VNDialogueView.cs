@@ -81,8 +81,37 @@ namespace PPP.BLUE.VN
                 advanceClickArea = dialogueText.rectTransform;
             if (graphicRaycaster == null)
                 graphicRaycaster = GetComponentInParent<GraphicRaycaster>(true);
+            AutoBindSaveLoadButton();
             SetupSkipHoldBinding();
             Debug.Log($"[VN_UI] bind runner={(runner ? runner.name : "NULL")}");
+        }
+
+        private void AutoBindSaveLoadButton()
+        {
+            if (saveLoadButton != null)
+                return;
+
+            var buttons = GetComponentsInChildren<Button>(true);
+            for (int i = 0; i < buttons.Length; i++)
+            {
+                var button = buttons[i];
+                if (button == null)
+                    continue;
+
+                var onClick = button.onClick;
+                int count = onClick.GetPersistentEventCount();
+                for (int j = 0; j < count; j++)
+                {
+                    if (onClick.GetPersistentTarget(j) != (Object)this)
+                        continue;
+
+                    if (onClick.GetPersistentMethodName(j) != nameof(OpenSaveLoadWindow))
+                        continue;
+
+                    saveLoadButton = button;
+                    return;
+                }
+            }
         }
 
         private void SetupSkipHoldBinding()
