@@ -13,7 +13,10 @@ namespace PPP.BLUE.VN
         {
             [SerializeField] public Button selectButton;
             [SerializeField] public GameObject selectedHighlight;
-            [SerializeField] public TMP_Text statusText;
+            [SerializeField] public TMP_Text slotNameText;
+            [SerializeField] public TMP_Text slotInfoText;
+            [SerializeField] public TMP_Text slotDateText;
+            [SerializeField] public TMP_Text statusText; // legacy fallback
         }
 
         [Header("Refs")]
@@ -450,12 +453,86 @@ namespace PPP.BLUE.VN
         {
             for (int i = 0; i < slots.Length; i++)
             {
-                var slot = slots[i];
-                if (slot?.statusText == null)
-                    continue;
+                BindSlotMetaText(slots[i], i);
+            }
+        }
 
-                bool exists = File.Exists(GetSlotPath(i + 1));
-                slot.statusText.text = exists ? "Saved" : "Empty";
+        private void BindSlotMetaText(SlotUI slot, int index)
+        {
+            if (slot == null)
+                return;
+
+            string slotName = GetSlotName(index);
+            string slotInfo = "비어있음";
+            string slotDate = "비어있음";
+
+            var state = ReadSlotState(index + 1);
+            if (state != null)
+            {
+                slotInfo = ComposeSavePointInfo(state);
+                slotDate = FormatSaveDate(state.saveTime);
+            }
+
+            SetText(slot.slotNameText, slotName);
+            SetText(slot.slotInfoText, slotInfo);
+            SetText(slot.slotDateText, slotDate);
+
+            // Backward compatibility when prefab still has a single status label.
+            if (slot.statusText != null)
+                slot.statusText.text = $"{slotName}\n{slotInfo}\n{slotDate}";
+        }
+
+        private static string GetSlotName(int index)
+        {
+            return $"슬롯{(index + 1).ToString("00")}";
+        }
+
+        private static void SetText(TMP_Text target, string value)
+        {
+            if (target != null)
+                target.text = value;
+        }
+
+        private static string ComposeSavePointInfo(VNState state)
+        {
+            if (state == null)
+                return "비어있음";
+
+            if (!string.IsNullOrWhiteSpace(state.currentLabel))
+                return state.currentLabel.Trim();
+            if (!string.IsNullOrWhiteSpace(state.nodeId))
+                return state.nodeId.Trim();
+            if (!string.IsNullOrWhiteSpace(state.scriptId))
+                return state.scriptId.Trim();
+            return "비어있음";
+        }
+
+        private static string FormatSaveDate(string saveTime)
+        {
+            if (string.IsNullOrWhiteSpace(saveTime))
+                return "비어있음";
+
+            if (System.DateTime.TryParse(saveTime, out var parsed))
+                return parsed.ToString("yyyy-MM-dd HH:mm");
+
+            return saveTime;
+        }
+
+        private static VNState ReadSlotState(int slotNumber)
+        {
+            string path = GetSlotPath(slotNumber);
+            if (!File.Exists(path))
+                return null;
+
+            try
+            {
+                string json = File.ReadAllText(path);
+                return JsonUtility.FromJson<VNState>(json);
+            }
+            catch (System.Exception ex)
+            {
+                Debug.LogWarning($"[VN][SaveLoad] Failed to read slot metadata. slot={slotNumber} reason={ex.Message}");
+                return null;
             }
         }
 
@@ -524,6 +601,31 @@ namespace PPP.BLUE.VN
 
             if (slot.statusText != null)
                 slot.statusText.color = targetColor;
+        }
+
+        private void ApplySlotSelectionTint(int slotIndex, SlotUI slot, bool selected)
+        {
+            if (!useButtonTintWhenNoHighlight || slot?.selectButton == null)
+                return;
+
+            var graphic = slot.selectButton.targetGraphic;
+            if (graphic == null)
+                return;
+
+            if (!slotOriginalButtonColors.ContainsKey(slotIndex))
+                slotOriginalButtonColors[slotIndex] = graphic.color;
+
+            if (selected)
+            {
+                graphic.color = selectedSlotButtonColor;
+                return;
+            }
+
+            Color fallback = unselectedSlotButtonColor;
+            if (unselectedSlotButtonColor == Color.white && slotOriginalButtonColors.TryGetValue(slotIndex, out var original))
+                fallback = original;
+
+            graphic.color = fallback;
         }
 
         private void ApplySlotSelectionTint(int slotIndex, SlotUI slot, bool selected)
