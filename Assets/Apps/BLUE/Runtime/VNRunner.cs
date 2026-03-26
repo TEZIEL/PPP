@@ -31,6 +31,7 @@ namespace PPP.BLUE.VN
         private int waitPointer = -1;   // 화면에 보여주고 '기다리는' 노드 인덱스
         private bool isWaiting;         // 지금 입력/선택 대기 상태인지
         public bool IsWaiting => isWaiting;
+        public bool IsHoldSkipInputActive => holdSkipInputActive;
 
         private List<VNNode> nodes = new List<VNNode>();
         public bool IsSkipMode => skipMode;
@@ -62,6 +63,7 @@ namespace PPP.BLUE.VN
         private float nextHoldSkipAllowedTime;
         private bool wasHoldSkipHeld;
         private bool uiSkipHeld;
+        private bool holdSkipInputActive;
 
         private string lastDrinkResult = "";
 
@@ -369,6 +371,7 @@ namespace PPP.BLUE.VN
 
             bool keyboardSkipHeld = Input.GetKey(KeyCode.F1);
             bool holdSkip = keyboardSkipHeld ^ uiSkipHeld; // 동시 입력은 무시 (둘 중 하나만 허용)
+            holdSkipInputActive = holdSkip;
 
             if (holdSkip && !wasHoldSkipHeld)
             {

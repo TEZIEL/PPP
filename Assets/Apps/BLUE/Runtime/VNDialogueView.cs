@@ -291,7 +291,7 @@ namespace PPP.BLUE.VN
                 return;
             }
 
-            if (runner != null && runner.IsSkipMode)
+            if (runner != null && runner.IsSkipMode && !runner.IsHoldSkipInputActive)
             {
                 dialogueText.text = currentFullText;
                 lineCompleted = true;
@@ -364,6 +364,7 @@ namespace PPP.BLUE.VN
             if (Time.unscaledTime < controlActionLockedUntil)
                 return;
 
+            runner?.ForceAutoOff("Skip Hold Button");
             runner?.SetUiSkipHeld(true, "VNDialogueView Skip Hold");
         }
 
