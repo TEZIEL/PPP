@@ -40,6 +40,7 @@ namespace PPP.BLUE.VN
         private bool lineCompleted = true; // true면 Next로 "다음 라인" 가능
         private bool lineDisplayed;
         private int currentLineIndex = -1;
+        private bool inputLocked = true;
         private int inputLockFrames = 0;
         private bool subscribed;
         private bool? lastSkipButtonInteractable;
@@ -187,6 +188,7 @@ namespace PPP.BLUE.VN
 
         private void OnEnable()
         {
+            inputLocked = true;
             LockInputFrames(5); // 여기 추가 (2 말고 5 추천)
             Debug.Log($"[VN] DialogueView OnEnable text={(dialogueText != null ? dialogueText.text : "<null>")}");
             if (dialogueText != null && dialogueText.text == "New Text")
@@ -205,6 +207,7 @@ namespace PPP.BLUE.VN
         private void OnDisable()
         {
             OnSkipButtonPointerUp();
+            inputLocked = true;
             StopWaitAndRefresh();
 
             if (!subscribed) return;
@@ -256,6 +259,18 @@ namespace PPP.BLUE.VN
             }
 
             // ✅ 유저 입력이면 무조건 Auto OFF (타이핑완료/Next 둘 다 포함)
+            if (inputLocked)
+            {
+                Debug.Log("[VN] input blocked (not ready)");
+                return;
+            }
+
+            if (!runner.HasValidNode())
+            {
+                Debug.Log("[VN] input blocked (no node)");
+                return;
+            }
+
             runner.ForceAutoOff(pressedSpace ? "User input (Space)" : "User input (Click)");
             if (runner.TryGetCurrentSayState(out _, out var debugLineIndex, out _, out _))
                 currentLineIndex = debugLineIndex;
@@ -414,6 +429,7 @@ namespace PPP.BLUE.VN
             lineCompleted = true;
             if (typer != null && typer.IsTyping)
                 typer.ForceComplete();
+            inputLocked = false;
 
             bool isTyping = typer != null && typer.IsTyping;
             bool isWaitingInput = lineCompleted;
