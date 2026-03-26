@@ -185,6 +185,7 @@ namespace PPP.BLUE.VN
         private void OnEnable()
         {
             LockInputFrames(5); // 여기 추가 (2 말고 5 추천)
+            Debug.Log($"[VN] DialogueView OnEnable text={(dialogueText != null ? dialogueText.text : "<null>")}");
 
             if (subscribed) return;
             if (runner == null) return;
@@ -192,6 +193,8 @@ namespace PPP.BLUE.VN
             runner.OnSay += HandleSay;
             runner.OnEnd += HandleEnd;
             subscribed = true;
+
+            RefreshCurrentLine();
         }
 
         private void OnDisable()
@@ -298,6 +301,37 @@ namespace PPP.BLUE.VN
         public void LockInputFrames(int frames = 2)
         {
             inputLockFrames = Mathf.Max(inputLockFrames, frames);
+        }
+
+        public void Open()
+        {
+            Debug.Log("[VN] Open called");
+            gameObject.SetActive(true);
+            RefreshCurrentLine();
+        }
+
+        private void RefreshCurrentLine()
+        {
+            if (runner == null)
+                return;
+
+            if (!runner.TryGetCurrentSayState(out var currentNodeId, out var currentLineIndex, out var currentText, out var currentSpeaker))
+                return;
+
+            if (nameText != null)
+                nameText.text = currentSpeaker;
+
+            if (dialogueText != null)
+                dialogueText.text = currentText;
+
+            currentFullText = currentText ?? string.Empty;
+            lineCompleted = true;
+
+            bool isTyping = typer != null && typer.IsTyping;
+            bool isWaitingInput = lineCompleted;
+            Debug.Log($"[VN] CurrentNode={currentNodeId}, LineIndex={currentLineIndex}");
+            Debug.Log($"[VN] CurrentText={currentFullText}");
+            Debug.Log($"[VN] isWaitingInput={isWaitingInput}, isTyping={isTyping}");
         }
 
         private void HandleSay(string speakerId, string text, string lineId)

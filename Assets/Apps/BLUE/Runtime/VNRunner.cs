@@ -242,6 +242,36 @@ namespace PPP.BLUE.VN
         public bool IsDispatchingRestoredCall => dispatchingRestoredCall;
         private VNSettings settings = VNSettings.Default();
 
+        public bool TryGetCurrentSayState(out string currentNodeId, out int currentLineIndex, out string currentText, out string currentSpeaker)
+        {
+            currentNodeId = string.Empty;
+            currentLineIndex = -1;
+            currentText = string.Empty;
+            currentSpeaker = string.Empty;
+
+            if (script == null || script.nodes == null || script.nodes.Count == 0)
+                return false;
+
+            int index = -1;
+            if (isWaiting && waitPointer >= 0 && waitPointer < script.nodes.Count)
+                index = waitPointer;
+            else if (pointer > 0 && pointer - 1 < script.nodes.Count)
+                index = pointer - 1;
+
+            if (index < 0 || index >= script.nodes.Count)
+                return false;
+
+            var node = script.nodes[index];
+            if (node == null || node.type != VNNodeType.Say)
+                return false;
+
+            currentNodeId = node.id ?? string.Empty;
+            currentLineIndex = index;
+            currentText = RemoveInlineCommands(node.text ?? string.Empty);
+            currentSpeaker = node.speakerId ?? string.Empty;
+            return true;
+        }
+
         // VNRunner 메서드
         public void SetVar(string key, int value)
         {
