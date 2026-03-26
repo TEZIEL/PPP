@@ -38,6 +38,7 @@ namespace PPP.BLUE.VN
         private bool? lastSkipButtonInteractable;
         private bool? lastAutoButtonInteractable;
         private bool? lastExitButtonInteractable;
+        private bool skipHoldBindingApplied;
 
         private void Start()
         {
@@ -73,7 +74,45 @@ namespace PPP.BLUE.VN
                 advanceClickArea = dialogueText.rectTransform;
             if (graphicRaycaster == null)
                 graphicRaycaster = GetComponentInParent<GraphicRaycaster>(true);
+            SetupSkipHoldBinding();
             Debug.Log($"[VN_UI] bind runner={(runner ? runner.name : "NULL")}");
+        }
+
+        private void SetupSkipHoldBinding()
+        {
+            if (skipHoldBindingApplied || skipButton == null)
+                return;
+
+            var trigger = skipButton.GetComponent<EventTrigger>();
+            if (trigger == null)
+                trigger = skipButton.gameObject.AddComponent<EventTrigger>();
+
+            AddEventTrigger(trigger, EventTriggerType.PointerDown, _ => OnSkipButtonPointerDown());
+            AddEventTrigger(trigger, EventTriggerType.PointerUp, _ => OnSkipButtonPointerUp());
+            AddEventTrigger(trigger, EventTriggerType.PointerExit, _ => OnSkipButtonPointerUp());
+            skipHoldBindingApplied = true;
+        }
+
+        private static void AddEventTrigger(EventTrigger trigger, EventTriggerType eventType, UnityEngine.Events.UnityAction<BaseEventData> callback)
+        {
+            if (trigger == null)
+                return;
+
+            if (trigger.triggers == null)
+                trigger.triggers = new System.Collections.Generic.List<EventTrigger.Entry>();
+
+            for (int i = 0; i < trigger.triggers.Count; i++)
+            {
+                if (trigger.triggers[i].eventID != eventType)
+                    continue;
+
+                trigger.triggers[i].callback.AddListener(callback);
+                return;
+            }
+
+            var entry = new EventTrigger.Entry { eventID = eventType };
+            entry.callback.AddListener(callback);
+            trigger.triggers.Add(entry);
         }
 
         private bool IsPointerInsideAdvanceArea()
@@ -121,6 +160,8 @@ namespace PPP.BLUE.VN
 
         private void OnDisable()
         {
+            OnSkipButtonPointerUp();
+
             if (!subscribed) return;
             if (runner == null) return;
 
@@ -310,10 +351,20 @@ namespace PPP.BLUE.VN
 
         public void OnSkipButtonClicked()
         {
+            // Hold-based skip only. Keep empty to avoid one-shot skip on click.
+        }
+
+        public void OnSkipButtonPointerDown()
+        {
             if (policy != null && policy.IsDrinkPanelOpen)
                 return;
 
-            runner?.RequestSkipStep("VNDialogueView Skip Button");
+            runner?.SetUiSkipHeld(true, "VNDialogueView Skip Hold");
+        }
+
+        public void OnSkipButtonPointerUp()
+        {
+            runner?.SetUiSkipHeld(false, "VNDialogueView Skip Hold");
         }
 
         public void OnAutoPlayButtonClicked()
