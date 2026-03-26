@@ -10,6 +10,7 @@ namespace PPP.BLUE.VN
 {
     public sealed class VNRunner : MonoBehaviour
     {
+        private static VNRunner activeInstance;
         [Header("Debug")]
         [SerializeField] private bool logToConsole = false;
         [SerializeField] private VNScript testScript;
@@ -127,6 +128,22 @@ namespace PPP.BLUE.VN
 
         private void Awake()
         {
+            var runners = GetComponentsInChildren<VNRunner>(true);
+            if (runners != null && runners.Length > 1)
+            {
+                Debug.LogError("[VN] Duplicate VNRunner detected. Destroying self.");
+                Destroy(gameObject);
+                return;
+            }
+
+            if (activeInstance != null && activeInstance != this)
+            {
+                Debug.LogError($"[VN] Duplicate VNRunner instance detected. Destroying self. keep={activeInstance.GetInstanceID()} remove={GetInstanceID()}");
+                Destroy(gameObject);
+                return;
+            }
+            activeInstance = this;
+
             TryResolveBridge(silent: true);
 
             BindPolicy("Awake");
@@ -138,6 +155,12 @@ namespace PPP.BLUE.VN
             StartCoroutine(CoBindPolicyNextFrame());
 
             RebuildExternalCallTargetSet();
+        }
+
+        private void OnDestroy()
+        {
+            if (activeInstance == this)
+                activeInstance = null;
         }
 
 
@@ -197,6 +220,7 @@ namespace PPP.BLUE.VN
         private VNScript script;
         private int pointer = 0;
         private bool started;
+        private bool initialized;
 
         // 테스트용(나중에 DrinkSave/변수 dict로 교체)
         private int greatCount = 0;
@@ -270,6 +294,14 @@ namespace PPP.BLUE.VN
 
         private void Start()
         {
+            Debug.Log($"[VN] Runner Start Called id={GetInstanceID()} go={gameObject.name} initialized={initialized}");
+            if (initialized)
+            {
+                Debug.LogWarning($"[VN] Runner Start ignored (already initialized) id={GetInstanceID()} go={gameObject.name}");
+                return;
+            }
+            initialized = true;
+
             TryResolveBridge(silent: false);
 
             if (bridge != null)               
@@ -674,10 +706,10 @@ namespace PPP.BLUE.VN
                     case VNNodeType.Call:
                         {
                             string target = node.callTarget ?? string.Empty;
-                            string arg = node.callArg ?? string.Empty;
+                            string arg = !string.IsNullOrWhiteSpace(node.arg) ? node.arg : (node.callArg ?? string.Empty);
                             Debug.Log($"[CALL DEBUG] target={target} arg={arg}");
 
-                            if (!StartExternalCall(target, arg))
+                            if (!ExecuteCall(target, arg))
                             {
                                 pointer++;
                                 if (pointer == previousPointer)
@@ -812,6 +844,11 @@ namespace PPP.BLUE.VN
 
             VNLog("[VN_TEST] Branch resolved route=" + node.label);
             DoBranch(node.label);
+        }
+
+        private bool ExecuteCall(string target, string arg)
+        {
+            return StartExternalCall(target, arg);
         }
 
         private bool StartExternalCall(string target, string arg)

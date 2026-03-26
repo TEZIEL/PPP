@@ -124,8 +124,14 @@ namespace PPP.BLUE.VN
 
         public void SetRequest(string requestId)
         {
+            StartDrink(requestId);
+        }
+
+        public void StartDrink(string requestId)
+        {
             currentRequestId = requestId;
             currentRequest = database?.FindRequest(requestId);
+            Debug.Log("[Drink] StartDrink requestId=" + (requestId ?? string.Empty));
             LogDrink($"request set inputRequestId={currentRequestId} resolvedRequestId={(currentRequest != null ? currentRequest.requestID : "(null)")}");
         }
 

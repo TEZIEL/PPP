@@ -67,6 +67,7 @@ namespace PPP.BLUE.VN
             if (!string.Equals(target, "Drink", StringComparison.OrdinalIgnoreCase))
                 return;
 
+            Debug.Log($"[DrinkPanel] HandleVNCall target={target} arg={arg ?? string.Empty}");
             Open(arg);
         }
 
@@ -91,7 +92,7 @@ namespace PPP.BLUE.VN
             Debug.Log($"[DrinkPanel] Open requested requestId={requestId ?? ""}");
             Debug.Log("[VN_TEST] DrinkPanel Open request=" + (requestId ?? string.Empty));
 
-            drinkManager?.SetRequest(requestId);
+            drinkManager?.StartDrink(requestId);
             drinkManager?.HideConfirmPanel();
             drinkManager?.ResetIngredients();
             runner?.StopAutoExternal("DrinkPanel Open:" + (requestId ?? string.Empty));
