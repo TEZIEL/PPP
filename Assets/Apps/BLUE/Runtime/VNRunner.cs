@@ -38,7 +38,8 @@ namespace PPP.BLUE.VN
         private const string SAVE_KEY = "vn.state";
         private const string VN_STATE_KEY = "vn.state";
         private const string VN_STATE_KEY_DBG = "vn.state.dbg";
-        private const float AutoDelaySeconds = 0.35f;
+        [Header("Timing")]
+        [SerializeField, Min(0.05f)] private float autoPlayDelaySeconds = 0.35f;
         private int lastShownPointer = -1;
         private int lastStopIndex = 0; // 마지막으로 '멈춘' 노드(Say/Choice)의 인덱스
         private Dictionary<string, int> flags = new Dictionary<string, int>();
@@ -366,7 +367,8 @@ namespace PPP.BLUE.VN
             lastBlocked = blocked;
 
 
-            bool holdSkip = Input.GetKey(KeyCode.F1) || uiSkipHeld;
+            bool keyboardSkipHeld = Input.GetKey(KeyCode.F1);
+            bool holdSkip = keyboardSkipHeld ^ uiSkipHeld; // 동시 입력은 무시 (둘 중 하나만 허용)
 
             if (holdSkip && !wasHoldSkipHeld)
             {
@@ -1445,9 +1447,9 @@ namespace PPP.BLUE.VN
 
         private IEnumerator CoAutoNext()
         {
-            if (logToConsole) VNLog($"[VN] AutoTimer Start ({AutoDelaySeconds:0.00}s)");
+            if (logToConsole) VNLog($"[VN] AutoTimer Start ({autoPlayDelaySeconds:0.00}s)");
 
-            yield return new WaitForSeconds(AutoDelaySeconds);
+            yield return new WaitForSeconds(autoPlayDelaySeconds);
 
             autoCo = null;
 

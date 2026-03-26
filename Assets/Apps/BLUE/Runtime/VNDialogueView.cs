@@ -24,8 +24,10 @@ namespace PPP.BLUE.VN
         [SerializeField] private Button skipButton;
         [SerializeField] private Button autoPlayButton;
         [SerializeField] private Button exitButton;
+        [SerializeField] private Button thirdButton;
         // Legacy compatibility: kept hidden so partial merges referencing old fields still compile.
         [SerializeField, HideInInspector] private bool autoPlayEnabled;
+        [SerializeField, Min(0f)] private float closeActionLockSeconds = 0.15f;
 
         [Header("Typing")]
         [SerializeField] private float charsPerSecond = 40f;
@@ -39,6 +41,7 @@ namespace PPP.BLUE.VN
         private bool? lastAutoButtonInteractable;
         private bool? lastExitButtonInteractable;
         private bool skipHoldBindingApplied;
+        private float controlActionLockedUntil;
 
         private void Start()
         {
@@ -236,11 +239,15 @@ namespace PPP.BLUE.VN
             bool isDrinkMode = policy != null && policy.IsDrinkPanelOpen;
             bool skipAutoInteractable = !isDrinkMode && (policy == null || VNInputGate.CanUseSkipOrAuto(policy));
             bool exitInteractable = !isDrinkMode;
+            bool controlLockActive = Time.unscaledTime < controlActionLockedUntil;
 
-            SetButtonInteractable(skipButton, skipAutoInteractable, ref lastSkipButtonInteractable);
-            SetButtonInteractable(autoPlayButton, skipAutoInteractable, ref lastAutoButtonInteractable);
-            SetButtonInteractable(exitButton, exitInteractable, ref lastExitButtonInteractable);
+            SetButtonInteractable(skipButton, skipAutoInteractable && !controlLockActive, ref lastSkipButtonInteractable);
+            SetButtonInteractable(autoPlayButton, skipAutoInteractable && !controlLockActive, ref lastAutoButtonInteractable);
+            SetButtonInteractable(exitButton, exitInteractable && !controlLockActive, ref lastExitButtonInteractable);
+            SetButtonInteractable(thirdButton, !isDrinkMode && !controlLockActive, ref lastThirdButtonInteractable);
         }
+
+        private bool? lastThirdButtonInteractable;
 
         private static void SetButtonInteractable(Button button, bool interactable, ref bool? cachedState)
         {
@@ -358,6 +365,8 @@ namespace PPP.BLUE.VN
         {
             if (policy != null && policy.IsDrinkPanelOpen)
                 return;
+            if (Time.unscaledTime < controlActionLockedUntil)
+                return;
 
             runner?.SetUiSkipHeld(true, "VNDialogueView Skip Hold");
         }
@@ -369,6 +378,8 @@ namespace PPP.BLUE.VN
 
         public void OnAutoPlayButtonClicked()
         {
+            if (Time.unscaledTime < controlActionLockedUntil)
+                return;
             ToggleAuto();
         }
 
@@ -376,6 +387,10 @@ namespace PPP.BLUE.VN
         {
             if (policy != null && policy.IsDrinkPanelOpen)
                 return;
+            if (Time.unscaledTime < controlActionLockedUntil)
+                return;
+
+            controlActionLockedUntil = Time.unscaledTime + closeActionLockSeconds;
 
             closePopupController?.Show();
         }
