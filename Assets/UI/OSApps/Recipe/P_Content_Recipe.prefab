@@ -6279,8 +6279,8 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_Sprite: {fileID: 10907, guid: 0000000000000000f000000000000000, type: 0}
-  m_Type: 1
+  m_Sprite: {fileID: 21300000, guid: aa7ec146054cf0642adf632a4b640540, type: 3}
+  m_Type: 0
   m_PreserveAspect: 0
   m_FillCenter: 1
   m_FillMethod: 4
@@ -9097,12 +9097,12 @@ MonoBehaviour:
   - {fileID: 151960221605730229}
   ingredientButtonParent: {fileID: 365608562162863020}
   ingredientButtonPrefab: {fileID: 0}
-  drinkListScrollRect: {fileID: 0}
+  drinkListScrollRect: {fileID: 4410519104751854499}
   drinkListContent: {fileID: 7152995609392239410}
   drinkListItemPrefab: {fileID: 4448220594180630362, guid: da79d96316b3c6347b2f19a0299b7579, type: 3}
   emptyStateText: {fileID: 0}
-  scrollUpButton: {fileID: 0}
-  scrollDownButton: {fileID: 0}
+  scrollUpButton: {fileID: 4853299359961231164}
+  scrollDownButton: {fileID: 8916132726625350822}
   buttonScrollStep: 0.2
   detailRoot: {fileID: 6732139250622527086}
   detailImage: {fileID: 9103627196336382479}
@@ -10239,12 +10239,12 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_Content: {fileID: 0}
-  m_Horizontal: 1
+  m_Horizontal: 0
   m_Vertical: 1
-  m_MovementType: 1
-  m_Elasticity: 0.1
-  m_Inertia: 1
-  m_DecelerationRate: 0.135
+  m_MovementType: 2
+  m_Elasticity: 0
+  m_Inertia: 0
+  m_DecelerationRate: 0
   m_ScrollSensitivity: 1
   m_Viewport: {fileID: 0}
   m_HorizontalScrollbar: {fileID: 0}
