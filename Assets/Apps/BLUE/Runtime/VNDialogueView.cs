@@ -270,6 +270,7 @@ namespace PPP.BLUE.VN
             }
 
             // ✅ 그 외에는 다음 라인
+            lineDisplayed = false;
             runner.Next();
             Debug.Log("[VN_UI] Next input detected -> runner.Next()");
         }
