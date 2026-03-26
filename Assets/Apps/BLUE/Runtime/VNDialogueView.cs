@@ -24,6 +24,8 @@ namespace PPP.BLUE.VN
         [SerializeField] private Button skipButton;
         [SerializeField] private Button autoPlayButton;
         [SerializeField] private Button exitButton;
+        // Legacy compatibility: kept hidden so partial merges referencing old fields still compile.
+        [SerializeField, HideInInspector] private bool autoPlayEnabled;
 
         [Header("Typing")]
         [SerializeField] private float charsPerSecond = 40f;
@@ -180,6 +182,12 @@ namespace PPP.BLUE.VN
             // ✅ 그 외에는 다음 라인
             runner.Next();
             Debug.Log("[VN_UI] Next input detected -> runner.Next()");
+        }
+
+        // Legacy compatibility: older branches may still call this.
+        private void HandleSkipAutoState()
+        {
+            // Intentionally empty. Skip/Auto behavior is runner-owned.
         }
 
         private void HandleControlButtonState()
