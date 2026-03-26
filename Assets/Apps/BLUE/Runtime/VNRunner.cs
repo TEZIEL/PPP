@@ -17,6 +17,7 @@ namespace PPP.BLUE.VN
         [SerializeField] private bool loadFromJsonOnStart;
         [SerializeField] private string startDayId = "day01";
         [SerializeField] private VNOSBridge bridge;
+        [SerializeField] private DrinkManager drinkManager;
         public bool SaveAllowed { get; private set; }
         [SerializeField] private float typeSpeed = 30f;
 
@@ -99,6 +100,7 @@ namespace PPP.BLUE.VN
             public int returnPointer;
             public string target;
             public string arg;
+            public bool dispatched;
 
             
         }
@@ -145,6 +147,8 @@ namespace PPP.BLUE.VN
             activeInstance = this;
 
             TryResolveBridge(silent: true);
+            if (drinkManager == null)
+                drinkManager = GetComponentInChildren<DrinkManager>(true);
 
             BindPolicy("Awake");
             if (dialogueView == null) dialogueView = GetComponentInChildren<VNDialogueView>(true);
@@ -309,10 +313,11 @@ namespace PPP.BLUE.VN
             StartCoroutine(CoBindPolicyNextFrame());
 
             RebuildExternalCallTargetSet();
-
-            if (isRestoringFromLoad)
+            var bootState = VNFileSaveSystem.Load(VN_STATE_KEY);
+            if (bootState != null && RestoreState(bootState))
             {
-                Debug.Log("[VN] Skip Start initialization (Load Restore)");
+                Debug.Log("[VN] Restored saved state at Start().");
+                GetComponentInChildren<VNDialogueView>(true)?.LockInputFrames(1);
                 return;
             }
 
@@ -881,6 +886,7 @@ namespace PPP.BLUE.VN
                 returnPointer = pointer + 1,
                 target = target,
                 arg = arg,
+                dispatched = true,
             });
 
             Debug.Log("[TRACE 2-1] OnCall listener count = " + (OnCall == null ? 0 : OnCall.GetInvocationList().Length));
@@ -1141,6 +1147,9 @@ namespace PPP.BLUE.VN
                 savePointer = waitPointer;
 
             st.pointer = savePointer;
+            st.currentLabel = ResolveCurrentLabel(savePointer);
+            st.nodeIndex = ResolveNodeIndexFromLabel(savePointer, st.currentLabel);
+            st.isWaitingExternalCall = callStack.Count > 0;
 
             st.callStack = new List<VNRunner.VNCallFrame>(callStack.Count);
             foreach (var frame in callStack)
@@ -1152,6 +1161,7 @@ namespace PPP.BLUE.VN
                     returnPointer = frame.returnPointer,
                     target = frame.target,
                     arg = frame.arg,
+                    dispatched = frame.dispatched,
                 });
             }
 
@@ -1180,8 +1190,49 @@ namespace PPP.BLUE.VN
             st.successCount = successCount;
             st.failCount = failCount;
             st.lastResult = lastResult;
+            if (drinkManager == null)
+                drinkManager = GetComponentInChildren<DrinkManager>(true);
+
+            var drinkState = drinkManager?.ExportState();
+            st.drink = drinkState == null
+                ? new VNDrinkState()
+                : new VNDrinkState
+                {
+                    currentRequestId = drinkState.currentRequestId,
+                    isActive = drinkState.isActive
+                };
 
             return st;
+        }
+
+        private string ResolveCurrentLabel(int index)
+        {
+            if (script == null || script.nodes == null || script.nodes.Count == 0)
+                return string.Empty;
+
+            int safe = Mathf.Clamp(index, 0, script.nodes.Count - 1);
+            for (int i = safe; i >= 0; i--)
+            {
+                var node = script.nodes[i];
+                if (node == null || node.type != VNNodeType.Label || string.IsNullOrWhiteSpace(node.label))
+                    continue;
+
+                return node.label.Trim();
+            }
+
+            return string.Empty;
+        }
+
+        private int ResolveNodeIndexFromLabel(int index, string label)
+        {
+            if (script == null || script.nodes == null || script.nodes.Count == 0)
+                return 0;
+
+            int safe = Mathf.Clamp(index, 0, script.nodes.Count - 1);
+            if (!string.IsNullOrWhiteSpace(label) && script.TryGetLabelIndex(label, out int labelIndex))
+                return Mathf.Max(0, safe - labelIndex);
+
+            return safe;
         }
 
 
@@ -1276,24 +1327,102 @@ namespace PPP.BLUE.VN
         public bool RestoreState(VNState dto)
         {
             if (dto == null) return false;
-            if (script == null || script.nodes == null) return false;
+            if (string.IsNullOrWhiteSpace(dto.scriptId)) return false;
 
-            // 스크립트가 다르면 로드 실패 (원하면 여기서 리셋로직)
-            if (!string.Equals(dto.scriptId, script.ScriptId, StringComparison.Ordinal))
-                return false;
+            if (script == null || !string.Equals(dto.scriptId, script.ScriptId, StringComparison.Ordinal))
+            {
+                var loaded = VNScriptLoader.LoadDay(dto.scriptId);
+                if (loaded == null)
+                    return false;
+                SetScript(loaded);
+            }
 
-            // pointer 범위 보정
-            pointer = Mathf.Clamp(dto.pointer, 0, script.nodes.Count);
+            if (script == null || script.nodes == null || script.nodes.Count == 0) return false;
 
-            vars.Clear();
-            
+            isRestoringFromLoad = true;
+            try
+            {
+                int restoredPointer = dto.pointer;
+                if (!string.IsNullOrWhiteSpace(dto.currentLabel) && script.TryGetLabelIndex(dto.currentLabel, out int labelIndex))
+                    restoredPointer = labelIndex + Mathf.Max(0, dto.nodeIndex);
+                pointer = Mathf.Clamp(restoredPointer, 0, script.nodes.Count - 1);
+                lastShownPointer = pointer;
+                lastStopIndex = pointer;
 
-            greatCount = dto.greatCount;
-            successCount = dto.successCount;
-            failCount = dto.failCount;
-            lastResult = dto.lastResult;
+                vars.Clear();
+                if (dto.vars != null)
+                {
+                    for (int i = 0; i < dto.vars.Count; i++)
+                    {
+                        var v = dto.vars[i];
+                        if (v == null || string.IsNullOrEmpty(v.key)) continue;
+                        vars[v.key] = v.value;
+                    }
+                }
 
-            return true;
+                dto.seen ??= new List<string>();
+                dto.settings ??= VNSettings.Default();
+                seenLineIds.Clear();
+                for (int i = 0; i < dto.seen.Count; i++)
+                {
+                    var lineId = dto.seen[i];
+                    if (!string.IsNullOrEmpty(lineId))
+                        seenLineIds.Add(lineId);
+                }
+                settings = dto.settings;
+
+                greatCount = dto.greatCount;
+                successCount = dto.successCount;
+                failCount = dto.failCount;
+                lastResult = string.IsNullOrEmpty(dto.lastResult) ? "success" : dto.lastResult;
+
+                callStack.Clear();
+                pendingCallResumeFrame = null;
+                if (dto.callStack != null)
+                {
+                    for (int i = dto.callStack.Count - 1; i >= 0; i--)
+                    {
+                        var frame = dto.callStack[i];
+                        if (frame == null) continue;
+                        callStack.Push(new VNCallFrame
+                        {
+                            returnPointer = frame.returnPointer,
+                            target = frame.target,
+                            arg = frame.arg,
+                            dispatched = frame.dispatched
+                        });
+                    }
+                }
+
+                if (drinkManager == null)
+                    drinkManager = GetComponentInChildren<DrinkManager>(true);
+                drinkManager?.RestoreState(new DrinkManager.DrinkRuntimeState
+                {
+                    currentRequestId = dto.drink?.currentRequestId,
+                    isActive = dto.drink != null && dto.drink.isActive
+                });
+
+                if (dto.isWaitingExternalCall && callStack.Count > 0)
+                {
+                    var frame = callStack.Peek();
+                    isWaiting = true;
+                    waitPointer = Mathf.Max(0, frame.returnPointer - 1);
+                    pendingCallResumeFrame = frame.dispatched ? null : frame;
+                }
+                else
+                {
+                    isWaiting = false;
+                    waitPointer = -1;
+                }
+
+                started = true;
+                EmitCurrent();
+                return true;
+            }
+            finally
+            {
+                isRestoringFromLoad = false;
+            }
         }
 
 
@@ -1326,6 +1455,8 @@ namespace PPP.BLUE.VN
 
             var frame = pendingCallResumeFrame;
             pendingCallResumeFrame = null;
+            if (frame.dispatched)
+                return false;
 
             StopAutoExternal("ResumePendingCall");
             isWaiting = true;
@@ -1339,6 +1470,7 @@ namespace PPP.BLUE.VN
             dispatchingRestoredCall = true;
             OnCall?.Invoke(frame.target ?? string.Empty, frame.arg ?? string.Empty);
             dispatchingRestoredCall = false;
+            frame.dispatched = true;
 
             if (string.Equals(frame.target, "Drink", StringComparison.OrdinalIgnoreCase))
                 VNLog($"[VN] Drink restore opened target={frame.target} arg={frame.arg}");
@@ -1622,93 +1754,21 @@ namespace PPP.BLUE.VN
 
         private bool LoadStateFromKey(string key)
         {
-            if (script == null)
-                return false;
-
             var st = VNFileSaveSystem.Load(key);
             if (st == null)
                 return false;
 
-            if (!string.Equals(st.scriptId, script.ScriptId, StringComparison.Ordinal))
-                return false;
-
-            isRestoringFromLoad = true;
-            try
+            bool ok = RestoreState(st);
+            if (ok)
             {
-                pointer = Mathf.Clamp(st.pointer, 0, script.nodes.Count - 1);
-                lastShownPointer = pointer;
-                lastStopIndex = pointer;
-
-                vars.Clear();
-                if (st.vars != null)
-                {
-                    foreach (var kv in st.vars)
-                        if (!string.IsNullOrEmpty(kv.key))
-                            vars[kv.key] = kv.value;
-                }
-
-                st.seen ??= new List<string>();
-                st.settings ??= VNSettings.Default();
-
-                seenLineIds.Clear();
-                foreach (var lineId in st.seen)
-                    if (!string.IsNullOrEmpty(lineId))
-                        seenLineIds.Add(lineId);
-
-                settings = st.settings;
-
-                greatCount = st.greatCount;
-                successCount = st.successCount;
-                failCount = st.failCount;
-                lastResult = string.IsNullOrEmpty(st.lastResult) ? "success" : st.lastResult;
-
-                Debug.Log($"[LOAD STATE] great={greatCount}, success={successCount}, fail={failCount}");
-
-                callStack.Clear();
-                pendingCallResumeFrame = null;
-
-                if (st.callStack != null && st.callStack.Count > 0)
-                {
-                    for (int i = st.callStack.Count - 1; i >= 0; i--)
-                    {
-                        var frame = st.callStack[i];
-                        if (frame == null) continue;
-
-                        callStack.Push(new VNRunner.VNCallFrame
-                        {
-                            returnPointer = frame.returnPointer,
-                            target = frame.target,
-                            arg = frame.arg
-                        });
-                    }
-
-                    pendingCallResumeFrame = callStack.Peek();
-                    isWaiting = true;
-                    waitPointer = Mathf.Max(0, pendingCallResumeFrame.returnPointer - 1);
-
-                    VNLog("[VN] Restoring pending external call");
-                }
-
-                if (logToConsole)
-                {
-                    VNLog($"[VN] LoadState <- key={key} pointer={pointer} callStack={callStack.Count} target={pendingCallResumeFrame?.target ?? "-"} arg={pendingCallResumeFrame?.arg ?? "-"}");
-                }
-
                 int lastDrink = GetVar("lastDrink", 0);
                 Debug.Log(
                 $"[LOAD CHECK] pointer={pointer}, lastDrink={lastDrink}, " +
                 $"great={greatCount}, success={successCount}, fail={failCount}, " +
                 $"varsCount={(vars != null ? vars.Count : 0)}"
                 );
-
-                EmitCurrent();
-                return true;
             }
-            finally
-            {
-                isRestoringFromLoad = false;
-            }
-
+            return ok;
         }
 
         public VNRuntimeState CaptureState()
@@ -1997,7 +2057,8 @@ namespace PPP.BLUE.VN
                 {
                     returnPointer = f.returnPointer,
                     target = f.target,
-                    arg = f.arg
+                    arg = f.arg,
+                    dispatched = f.dispatched
                 });
             }
 
@@ -2027,7 +2088,8 @@ namespace PPP.BLUE.VN
                 {
                     returnPointer = f.returnPointer,
                     target = f.target,
-                    arg = f.arg
+                    arg = f.arg,
+                    dispatched = f.dispatched
                 });
             }
         }
