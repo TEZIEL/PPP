@@ -46,6 +46,7 @@ namespace PPP.BLUE.VN
         private bool loadingModalPushed;
         private bool busy;
         private bool confirmOpen;
+        private bool? lastDrinkModeActive;
         private int selectedSlotIndex = 0;
         private PendingAction pendingAction = PendingAction.None;
         private readonly System.Collections.Generic.HashSet<int> warnedHighlightBindings = new();
@@ -87,7 +88,21 @@ namespace PPP.BLUE.VN
             busy = false;
             confirmOpen = false;
             pendingAction = PendingAction.None;
+            lastDrinkModeActive = null;
             SetConfirmPopupVisible(false);
+        }
+
+        private void Update()
+        {
+            if (windowRoot == null || !windowRoot.activeInHierarchy)
+                return;
+
+            bool drinkModeActive = policy != null && policy.IsDrinkModeActive();
+            if (lastDrinkModeActive.HasValue && lastDrinkModeActive.Value == drinkModeActive)
+                return;
+
+            lastDrinkModeActive = drinkModeActive;
+            RefreshActionButtonState();
         }
 
         public void Open()
@@ -163,6 +178,11 @@ namespace PPP.BLUE.VN
         {
             if (!CanExecuteAction())
                 return;
+            if (policy != null && policy.IsDrinkModeActive())
+            {
+                ShowNotice("지금은 저장할 수 없습니다");
+                return;
+            }
 
             bool exists = SlotHasSave(selectedSlotIndex);
             ShowConfirm(exists ? "덮어쓰시겠습니까?" : "저장하시겠습니까?", PendingAction.Save);
@@ -468,8 +488,9 @@ namespace PPP.BLUE.VN
             bool slotSelected = selectedSlotIndex >= 0 && selectedSlotIndex < slots.Length;
             bool interactable = slotSelected && !busy && !confirmOpen;
             bool hasSave = SlotHasSave(selectedSlotIndex);
+            bool canSaveNow = policy == null || !policy.IsDrinkModeActive();
 
-            if (saveButton != null) saveButton.interactable = interactable;
+            if (saveButton != null) saveButton.interactable = interactable && canSaveNow;
             if (loadButton != null) loadButton.interactable = interactable && hasSave;
             if (deleteButton != null) deleteButton.interactable = interactable && hasSave;
         }

@@ -26,6 +26,7 @@ namespace PPP.BLUE.VN
         [SerializeField] private Button skipButton;
         [SerializeField] private Button autoPlayButton;
         [SerializeField] private Button exitButton;
+        [SerializeField] private Button saveLoadButton;
         [SerializeField] private VNSaveLoadWindow saveLoadWindow;
         // Legacy compatibility: kept hidden so partial merges referencing old fields still compile.
         [SerializeField, HideInInspector] private bool autoPlayEnabled;
@@ -42,6 +43,7 @@ namespace PPP.BLUE.VN
         private bool? lastSkipButtonInteractable;
         private bool? lastAutoButtonInteractable;
         private bool? lastExitButtonInteractable;
+        private bool? lastSaveLoadButtonInteractable;
         private bool skipHoldBindingApplied;
         private float controlActionLockedUntil;
 
@@ -241,11 +243,13 @@ namespace PPP.BLUE.VN
             bool isDrinkMode = policy != null && policy.IsDrinkPanelOpen;
             bool skipAutoInteractable = !isDrinkMode && (policy == null || VNInputGate.CanUseSkipOrAuto(policy));
             bool exitInteractable = !isDrinkMode;
+            bool saveLoadInteractable = !isDrinkMode;
             bool controlLockActive = Time.unscaledTime < controlActionLockedUntil;
 
             SetButtonInteractable(skipButton, skipAutoInteractable && !controlLockActive, ref lastSkipButtonInteractable);
             SetButtonInteractable(autoPlayButton, skipAutoInteractable && !controlLockActive, ref lastAutoButtonInteractable);
             SetButtonInteractable(exitButton, exitInteractable && !controlLockActive, ref lastExitButtonInteractable);
+            SetButtonInteractable(saveLoadButton, saveLoadInteractable && !controlLockActive, ref lastSaveLoadButtonInteractable);
         }
 
         private static void SetButtonInteractable(Button button, bool interactable, ref bool? cachedState)
@@ -387,6 +391,8 @@ namespace PPP.BLUE.VN
         {
             if (policy != null && policy.IsDrinkPanelOpen)
                 return;
+            if (policy != null && policy.IsSaveLoadModalOpen)
+                return;
             if (Time.unscaledTime < controlActionLockedUntil)
                 return;
             if (Input.GetKeyDown(KeyCode.Alpha3) || Input.GetKeyDown(KeyCode.Keypad3))
@@ -399,6 +405,9 @@ namespace PPP.BLUE.VN
 
         public void OpenSaveLoadWindow()
         {
+            if (policy != null && policy.IsDrinkModeActive())
+                return;
+
             if (saveLoadWindow == null)
             {
                 Debug.LogWarning("[VN_UI] SaveLoadWindow reference missing.");
