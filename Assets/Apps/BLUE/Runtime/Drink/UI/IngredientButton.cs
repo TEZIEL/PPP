@@ -66,9 +66,17 @@ namespace PPP.BLUE.VN.DrinkSystem
             label.text = displayId;
         }
 
+        public void PlayHotkeyPressFeedback()
+        {
+            if (!isActiveAndEnabled || button == null || !button.IsInteractable())
+                return;
+
+            button.Select();
+        }
+
         private void OnClick()
         {
-            manager?.AddIngredient(ingredientID);
+            manager?.AddIngredientFromClick(ingredientID);
         }
 
         public void OnPointerEnter(PointerEventData eventData)
