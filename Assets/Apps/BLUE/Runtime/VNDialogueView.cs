@@ -1,5 +1,7 @@
 ﻿using TMPro;
 using UnityEngine;
+using UnityEngine.EventSystems;
+using UnityEngine.UI;
 
 namespace PPP.BLUE.VN
 {
@@ -15,7 +17,12 @@ namespace PPP.BLUE.VN
         [SerializeField] private VNOSBridge osBridge;
         [SerializeField] private VNOSBridge bridge;
         [SerializeField] private RectTransform advanceClickArea;
+        [SerializeField] private RectTransform buttonContainerRoot;
+        [SerializeField] private GraphicRaycaster graphicRaycaster;
         [SerializeField] private Camera uiCamera;
+        [SerializeField] private bool skipEnabled;
+        [SerializeField] private bool autoPlayEnabled;
+        [SerializeField, Min(0.02f)] private float skipStepInterval = 0.08f;
 
         [Header("Typing")]
         [SerializeField] private float charsPerSecond = 40f;
@@ -25,6 +32,7 @@ namespace PPP.BLUE.VN
         private bool lineCompleted = true; // true면 Next로 "다음 라인" 가능
         private int inputLockFrames = 0;
         private bool subscribed;
+        private float nextSkipStepTime;
 
         private void Start()
         {
@@ -56,6 +64,8 @@ namespace PPP.BLUE.VN
             if (runner == null) runner = GetComponentInParent<VNRunner>(true);
             if (advanceClickArea == null && dialogueText != null)
                 advanceClickArea = dialogueText.rectTransform;
+            if (graphicRaycaster == null)
+                graphicRaycaster = GetComponentInParent<GraphicRaycaster>(true);
             Debug.Log($"[VN_UI] bind runner={(runner ? runner.name : "NULL")}");
         }
 
@@ -68,6 +78,26 @@ namespace PPP.BLUE.VN
                 advanceClickArea,
                 Input.mousePosition,
                 uiCamera);
+        }
+
+        private bool IsPointerOverBlockedButtonContainer()
+        {
+            if (buttonContainerRoot == null || graphicRaycaster == null || EventSystem.current == null)
+                return false;
+
+            var eventData = new PointerEventData(EventSystem.current) { position = Input.mousePosition };
+            var hits = new System.Collections.Generic.List<RaycastResult>();
+            graphicRaycaster.Raycast(eventData, hits);
+
+            for (int i = 0; i < hits.Count; i++)
+            {
+                var go = hits[i].gameObject;
+                if (go == null) continue;
+                if (go.transform == buttonContainerRoot || go.transform.IsChildOf(buttonContainerRoot))
+                    return true;
+            }
+
+            return false;
         }
 
         private void OnEnable()
@@ -103,6 +133,7 @@ namespace PPP.BLUE.VN
             if (inputLockFrames > 0) { inputLockFrames--; return; }
             if (runner == null) return;
             if (!runner.HasScript) return;
+            HandleSkipAutoState();
 
             // InputGate를 통과한 입력만 대사 진행에 사용
             if (policy != null && !VNInputGate.CanAdvanceDialogue(policy))
@@ -113,8 +144,15 @@ namespace PPP.BLUE.VN
             bool clicked = Input.GetMouseButtonDown(0);
             if (!pressedSpace && !clicked) return;
 
-            if (clicked && !IsPointerInsideAdvanceArea())
-                return;
+            if (clicked)
+            {
+                if (IsPointerOverBlockedButtonContainer())
+                    return;
+
+                // dialog 영역 클릭만 허용
+                if (!IsPointerInsideAdvanceArea())
+                    return;
+            }
 
             // ✅ 유저 입력이면 무조건 Auto OFF (타이핑완료/Next 둘 다 포함)
             runner.ForceAutoOff(pressedSpace ? "User input (Space)" : "User input (Click)");
@@ -131,7 +169,24 @@ namespace PPP.BLUE.VN
             Debug.Log("[VN_UI] Next input detected -> runner.Next()");
         }
 
-          
+        private void HandleSkipAutoState()
+        {
+            if (runner == null)
+                return;
+
+            if (autoPlayEnabled != runner.IsAutoPlayEnabled)
+                runner.SetAutoPlay(autoPlayEnabled, "VNDialogueView Sync");
+
+            if (!skipEnabled)
+                return;
+
+            if (Time.unscaledTime < nextSkipStepTime)
+                return;
+
+            nextSkipStepTime = Time.unscaledTime + skipStepInterval;
+            runner.RequestSkipStep("VNDialogueView Skip");
+        }
+
 
 
         public void LockInputFrames(int frames = 2)
@@ -204,6 +259,34 @@ namespace PPP.BLUE.VN
             typer.ForceComplete();
             lineCompleted = true;
             return true;
+        }
+
+        public void SetSkip(bool value)
+        {
+            skipEnabled = value;
+            if (skipEnabled)
+            {
+                autoPlayEnabled = false;
+                runner?.SetAutoPlay(false, "Skip Enabled");
+            }
+        }
+
+        public void ToggleSkip()
+        {
+            SetSkip(!skipEnabled);
+        }
+
+        public void SetAutoPlay(bool value)
+        {
+            autoPlayEnabled = value;
+            runner?.SetAutoPlay(autoPlayEnabled, "VNDialogueView UI");
+            if (autoPlayEnabled)
+                skipEnabled = false;
+        }
+
+        public void ToggleAuto()
+        {
+            SetAutoPlay(!autoPlayEnabled);
         }
 
         private void HandleEnd()
