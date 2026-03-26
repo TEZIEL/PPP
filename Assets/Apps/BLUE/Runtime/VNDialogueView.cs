@@ -1,4 +1,6 @@
-﻿using TMPro;
+﻿using System.Collections;
+using System.Collections.Generic;
+using TMPro;
 using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
@@ -24,6 +26,7 @@ namespace PPP.BLUE.VN
         [SerializeField] private Button skipButton;
         [SerializeField] private Button autoPlayButton;
         [SerializeField] private Button exitButton;
+        [SerializeField] private VNSaveLoadWindow saveLoadWindow;
         // Legacy compatibility: kept hidden so partial merges referencing old fields still compile.
         [SerializeField, HideInInspector] private bool autoPlayEnabled;
         [SerializeField, Min(0f)] private float closeActionLockSeconds = 0.15f;
@@ -392,6 +395,45 @@ namespace PPP.BLUE.VN
             controlActionLockedUntil = Time.unscaledTime + closeActionLockSeconds;
 
             closePopupController?.Show();
+        }
+
+        public void OpenSaveLoadWindow()
+        {
+            if (saveLoadWindow == null)
+            {
+                Debug.LogWarning("[VN_UI] SaveLoadWindow reference missing.");
+                return;
+            }
+
+            runner?.ForceAutoOff("Open SaveLoad Window");
+            runner?.SetUiSkipHeld(false, "Open SaveLoad Window");
+            saveLoadWindow.Open();
+        }
+
+        private IEnumerator ReplayClick()
+        {
+            yield return null;
+
+            var eventSystem = EventSystem.current;
+            if (eventSystem == null)
+                yield break;
+
+            var pointerData = new PointerEventData(eventSystem)
+            {
+                position = Input.mousePosition
+            };
+
+            var results = new List<RaycastResult>();
+            eventSystem.RaycastAll(pointerData, results);
+
+            for (int i = 0; i < results.Count; i++)
+            {
+                var go = results[i].gameObject;
+                if (go == null)
+                    continue;
+
+                ExecuteEvents.Execute(go, pointerData, ExecuteEvents.pointerClickHandler);
+            }
         }
 
         private void HandleEnd()
