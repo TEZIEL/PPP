@@ -20,6 +20,7 @@ namespace PPP.BLUE.VN
         private bool isRebuilding;
         private bool pendingRebuild;
         private Coroutine deferredLayoutCoroutine;
+        private bool pendingUiRefresh;
         public bool IsOpen => root != null ? root.activeInHierarchy : gameObject.activeInHierarchy;
         public event Action<bool> OnOpenStateChanged;
 
@@ -75,7 +76,10 @@ namespace PPP.BLUE.VN
             SyncOpenState();
 
             if (open)
+            {
+                pendingUiRefresh = false;
                 RebuildAll();
+            }
         }
 
         private void HandleEntryChanged(VNBacklogEntry entry)
@@ -83,6 +87,12 @@ namespace PPP.BLUE.VN
             Debug.Log($"[VNBacklogView] HandleEntryChanged key={(entry != null ? entry.CompositeKey : "<null>")}");
             if (entry == null || contentRoot == null)
                 return;
+
+            if (!IsOpen)
+            {
+                pendingUiRefresh = true;
+                return;
+            }
 
             if (isRebuilding)
             {
@@ -138,6 +148,11 @@ namespace PPP.BLUE.VN
             Debug.Log($"[VNBacklogView] RebuildAll entries={entryCount}");
             if (manager == null || contentRoot == null)
                 return;
+            if (!IsOpen)
+            {
+                pendingUiRefresh = true;
+                return;
+            }
 
             isRebuilding = true;
             try
@@ -185,6 +200,11 @@ namespace PPP.BLUE.VN
         private void LateUpdate()
         {
             SyncOpenState();
+            if (IsOpen && pendingUiRefresh && !isRebuilding)
+            {
+                pendingUiRefresh = false;
+                RebuildAll();
+            }
         }
 
         private void LogReferenceState(string phase)
@@ -381,6 +401,8 @@ namespace PPP.BLUE.VN
 
             if (contentRoot == null)
                 return;
+            if (!IsOpen)
+                return;
 
             LayoutRebuilder.ForceRebuildLayoutImmediate(contentRoot);
             Canvas.ForceUpdateCanvases();
@@ -395,6 +417,11 @@ namespace PPP.BLUE.VN
 
         private void ScheduleDeferredLayout(bool alignToTop)
         {
+            if (!isActiveAndEnabled || gameObject == null || !gameObject.activeInHierarchy)
+                return;
+            if (root != null && !root.activeInHierarchy)
+                return;
+
             if (deferredLayoutCoroutine != null)
                 StopCoroutine(deferredLayoutCoroutine);
 
