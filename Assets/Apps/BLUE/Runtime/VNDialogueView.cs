@@ -616,22 +616,13 @@ namespace PPP.BLUE.VN
 
         private void Update()
         {
-            if (IsAnyBacklogOpen)
-            {
-                EventSystem.current?.SetSelectedGameObject(null);
-                return;
-            }
-
-            if (IsBacklogOpen)
-            {
-                HandleControlButtonState();
-                EventSystem.current?.SetSelectedGameObject(null);
-                return;
-            }
-
             HandleControlButtonState();
             if (isUIHidden || isUIAnimating)
                 return;
+
+            bool manualInputBlockedByBacklog = IsAnyBacklogOpen || IsBacklogOpen;
+            if (manualInputBlockedByBacklog)
+                EventSystem.current?.SetSelectedGameObject(null);
 
             if (runner != null && runner.IsWaiting && runner.CallStackCount > 0)
             {
@@ -643,6 +634,9 @@ namespace PPP.BLUE.VN
                 autoPlayEnabled = false;
                 runner?.SetAutoPlay(false, "Drink Mode Auto Off");
             }
+
+            if (manualInputBlockedByBacklog)
+                return;
 
             if (!CanAcceptVNInput()) return;
             if (inputLockFrames > 0) { inputLockFrames--; return; }
