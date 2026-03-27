@@ -82,7 +82,7 @@ namespace PPP.BLUE.VN
         public IReadOnlyList<VNBacklogEntry> GetEntriesForDisplay()
         {
             var result = new List<VNBacklogEntry>(entriesBySequence.Count);
-            for (int i = entriesBySequence.Count - 1; i >= 0; i--)
+            for (int i = 0; i < entriesBySequence.Count; i++)
                 result.Add(entriesBySequence[i].Clone());
 
             return result;
