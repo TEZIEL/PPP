@@ -70,8 +70,20 @@ namespace PPP.BLUE.VN
         private float controlActionLockedUntil;
         private Coroutine waitAndRefreshCoroutine;
         private VNBacklogView backlogStateObservedView;
-        private static int openBacklogViewCount;
-        public static bool IsAnyBacklogOpen => openBacklogViewCount > 0;
+        private static readonly HashSet<VNDialogueView> activeDialogueViews = new();
+        public static bool IsAnyBacklogOpen
+        {
+            get
+            {
+                foreach (var view in activeDialogueViews)
+                {
+                    if (view != null && view.IsBacklogOpen)
+                        return true;
+                }
+
+                return false;
+            }
+        }
         public bool IsBacklogOpen => backlogView != null && backlogView.IsOpen;
 
         private enum ButtonVisualMode
@@ -426,6 +438,7 @@ namespace PPP.BLUE.VN
 
         private void OnEnable()
         {
+            activeDialogueViews.Add(this);
             inputLocked = true;
             LockInputFrames(5); // 여기 추가 (2 말고 5 추천)
             Debug.Log($"[VN] DialogueView OnEnable text={(dialogueText != null ? dialogueText.text : "<null>")}");
@@ -446,6 +459,7 @@ namespace PPP.BLUE.VN
 
         private void OnDisable()
         {
+            activeDialogueViews.Remove(this);
             OnSkipButtonPointerUp();
             if (interactableVisualPressedStates.Count > 0)
             {
@@ -466,8 +480,6 @@ namespace PPP.BLUE.VN
             if (backlogStateObservedView != null)
             {
                 backlogStateObservedView.OnOpenStateChanged -= HandleBacklogOpenStateChanged;
-                if (backlogStateObservedView.IsOpen)
-                    openBacklogViewCount = Mathf.Max(0, openBacklogViewCount - 1);
                 backlogStateObservedView = null;
             }
         }
@@ -580,23 +592,14 @@ namespace PPP.BLUE.VN
             if (backlogStateObservedView != null)
             {
                 backlogStateObservedView.OnOpenStateChanged -= HandleBacklogOpenStateChanged;
-                if (backlogStateObservedView.IsOpen)
-                    openBacklogViewCount = Mathf.Max(0, openBacklogViewCount - 1);
             }
 
             backlogStateObservedView = view;
             backlogStateObservedView.OnOpenStateChanged += HandleBacklogOpenStateChanged;
-            if (backlogStateObservedView.IsOpen)
-                openBacklogViewCount++;
         }
 
         private void HandleBacklogOpenStateChanged(bool isOpenNow)
         {
-            if (isOpenNow)
-                openBacklogViewCount++;
-            else
-                openBacklogViewCount = Mathf.Max(0, openBacklogViewCount - 1);
-
             if (isOpenNow)
                 runner?.SetUiSkipHeld(false, "Backlog Open");
 

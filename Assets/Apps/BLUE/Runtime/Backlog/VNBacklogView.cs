@@ -16,8 +16,8 @@ namespace PPP.BLUE.VN
 
         private VNBacklogManager manager;
         private readonly Dictionary<string, VNBacklogItemView> itemByKey = new();
-        private bool isOpen;
-        public bool IsOpen => isOpen;
+        private bool lastKnownOpen;
+        public bool IsOpen => root != null ? root.activeInHierarchy : gameObject.activeInHierarchy;
         public event Action<bool> OnOpenStateChanged;
 
         public void ConfigureFallbackTextTemplates(TMP_Text speakerTemplate, TMP_Text bodyTemplate)
@@ -69,11 +69,7 @@ namespace PPP.BLUE.VN
             else
                 gameObject.SetActive(open);
 
-            if (isOpen != open)
-            {
-                isOpen = open;
-                OnOpenStateChanged?.Invoke(open);
-            }
+            SyncOpenState();
 
             if (open)
                 RebuildAll();
@@ -88,6 +84,7 @@ namespace PPP.BLUE.VN
             var item = GetOrCreateItem(entry.CompositeKey);
             if (item != null)
             {
+                NormalizeItemLayout(item);
                 item.Bind(entry);
                 RebuildItemLayout(item);
             }
@@ -129,9 +126,12 @@ namespace PPP.BLUE.VN
             {
                 var entry = entries[i];
                 var item = GetOrCreateItem(entry.CompositeKey);
-                item?.Bind(entry);
                 if (item != null)
+                {
+                    NormalizeItemLayout(item);
+                    item.Bind(entry);
                     RebuildItemLayout(item);
+                }
             }
 
             RebuildContentLayout();
@@ -141,9 +141,14 @@ namespace PPP.BLUE.VN
         {
             if (contentRoot == null)
                 contentRoot = FindContentRoot();
-            isOpen = root != null ? root.activeSelf : gameObject.activeSelf;
+            lastKnownOpen = IsOpen;
             EnsureContentLayoutComponents();
             LogReferenceState("Awake");
+        }
+
+        private void LateUpdate()
+        {
+            SyncOpenState();
         }
 
         private void LogReferenceState(string phase)
@@ -188,6 +193,7 @@ namespace PPP.BLUE.VN
 
             var view = row.GetComponent<VNBacklogItemView>();
             view.SetupRuntimeTexts(speakerGo, bodyGo);
+            NormalizeItemLayout(view);
             return view;
         }
 
@@ -303,6 +309,13 @@ namespace PPP.BLUE.VN
                 if (scrollRect.viewport != null && scrollRect.viewport.GetComponent<RectMask2D>() == null)
                     scrollRect.viewport.gameObject.AddComponent<RectMask2D>();
             }
+
+            var viewport = contentRoot.parent as RectTransform;
+            if (viewport != null)
+            {
+                if (viewport.GetComponent<RectMask2D>() == null && viewport.GetComponent<Mask>() == null)
+                    viewport.gameObject.AddComponent<RectMask2D>();
+            }
         }
 
         private void RebuildItemLayout(VNBacklogItemView item)
@@ -324,93 +337,88 @@ namespace PPP.BLUE.VN
             Canvas.ForceUpdateCanvases();
         }
 
-        private void Awake()
+        private void SyncOpenState()
         {
-            if (contentRoot == null)
-                contentRoot = transform.Find("Content") as RectTransform;
-            isOpen = root != null ? root.activeSelf : gameObject.activeSelf;
-            LogReferenceState("Awake");
-        }
-
-        private void LogReferenceState(string phase)
-        {
-            Debug.Log($"[VNBacklogView] {phase} refs root={(root != null)} contentRoot={(contentRoot != null)} itemPrefab={(itemPrefab != null)}");
-        }
-
-        private VNBacklogItemView CreateRuntimeItem(RectTransform parent)
-        {
-            if (parent == null)
-                return null;
-
-            var row = new GameObject("BacklogItem_Runtime", typeof(RectTransform), typeof(LayoutElement), typeof(VNBacklogItemView));
-            var rowRect = row.GetComponent<RectTransform>();
-            rowRect.SetParent(parent, false);
-            rowRect.anchorMin = new Vector2(0f, 1f);
-            rowRect.anchorMax = new Vector2(1f, 1f);
-            rowRect.pivot = new Vector2(0.5f, 1f);
-
-            var speakerTemplate = ResolveSpeakerTemplate();
-            var bodyTemplate = ResolveBodyTemplate();
-            var speakerGo = CreateRuntimeText("Speaker", rowRect, new Vector2(8f, -8f), speakerTemplate);
-            var bodyGo = CreateRuntimeText("Body", rowRect, new Vector2(8f, -34f), bodyTemplate);
-            var bodyRect = bodyGo.rectTransform;
-            bodyRect.anchorMax = new Vector2(1f, 1f);
-            bodyRect.sizeDelta = new Vector2(-16f, 0f);
-
-            var view = row.GetComponent<VNBacklogItemView>();
-            view.SetupRuntimeTexts(speakerGo, bodyGo);
-            return view;
-        }
-
-        private TMP_Text ResolveSpeakerTemplate()
-        {
-            if (itemPrefab != null && itemPrefab.SpeakerTemplateText != null)
-                return itemPrefab.SpeakerTemplateText;
-            return fallbackSpeakerTemplate != null ? fallbackSpeakerTemplate : fallbackBodyTemplate;
-        }
-
-        private TMP_Text ResolveBodyTemplate()
-        {
-            if (itemPrefab != null && itemPrefab.BodyTemplateText != null)
-                return itemPrefab.BodyTemplateText;
-            return fallbackBodyTemplate != null ? fallbackBodyTemplate : fallbackSpeakerTemplate;
-        }
-
-        private static TextMeshProUGUI CreateRuntimeText(string name, RectTransform parent, Vector2 anchoredPos, TMP_Text template)
-        {
-            var go = new GameObject(name, typeof(RectTransform), typeof(TextMeshProUGUI));
-            var rect = go.GetComponent<RectTransform>();
-            rect.SetParent(parent, false);
-            rect.anchorMin = new Vector2(0f, 1f);
-            rect.anchorMax = new Vector2(1f, 1f);
-            rect.pivot = new Vector2(0f, 1f);
-            rect.anchoredPosition = anchoredPos;
-            rect.sizeDelta = new Vector2(-16f, 24f);
-
-            var text = go.GetComponent<TextMeshProUGUI>();
-            text.text = string.Empty;
-            if (template != null)
-                CopyTextStyle(template, text);
-            return text;
-        }
-
-        private static void CopyTextStyle(TMP_Text source, TMP_Text target)
-        {
-            if (source == null || target == null)
+            bool openNow = IsOpen;
+            if (lastKnownOpen == openNow)
                 return;
 
-            target.font = source.font;
-            target.fontSharedMaterial = source.fontSharedMaterial;
-            target.fontSize = source.fontSize;
-            target.fontStyle = source.fontStyle;
-            target.alignment = source.alignment;
-            target.enableWordWrapping = source.enableWordWrapping;
-            target.overflowMode = source.overflowMode;
-            target.color = source.color;
-            target.raycastTarget = source.raycastTarget;
-            target.richText = source.richText;
-            target.isRightToLeftText = source.isRightToLeftText;
-            target.enableAutoSizing = source.enableAutoSizing;
+            lastKnownOpen = openNow;
+            OnOpenStateChanged?.Invoke(openNow);
+        }
+
+        private void NormalizeItemLayout(VNBacklogItemView item)
+        {
+            if (item == null)
+                return;
+
+            var rootRect = item.transform as RectTransform;
+            if (rootRect != null)
+            {
+                rootRect.anchorMin = new Vector2(0f, 1f);
+                rootRect.anchorMax = new Vector2(1f, 1f);
+                rootRect.pivot = new Vector2(0.5f, 1f);
+                rootRect.sizeDelta = new Vector2(0f, rootRect.sizeDelta.y);
+            }
+
+            var rootLayout = item.GetComponent<VerticalLayoutGroup>();
+            if (rootLayout == null)
+                rootLayout = item.gameObject.AddComponent<VerticalLayoutGroup>();
+            rootLayout.childAlignment = TextAnchor.UpperLeft;
+            rootLayout.childControlWidth = true;
+            rootLayout.childControlHeight = true;
+            rootLayout.childForceExpandWidth = true;
+            rootLayout.childForceExpandHeight = false;
+            rootLayout.spacing = 4f;
+            rootLayout.padding = new RectOffset(8, 8, 6, 8);
+
+            var rootFitter = item.GetComponent<ContentSizeFitter>();
+            if (rootFitter == null)
+                rootFitter = item.gameObject.AddComponent<ContentSizeFitter>();
+            rootFitter.horizontalFit = ContentSizeFitter.FitMode.Unconstrained;
+            rootFitter.verticalFit = ContentSizeFitter.FitMode.PreferredSize;
+
+            var rootElement = item.GetComponent<LayoutElement>();
+            if (rootElement == null)
+                rootElement = item.gameObject.AddComponent<LayoutElement>();
+            rootElement.minHeight = 24f;
+            rootElement.flexibleHeight = 0f;
+
+            NormalizeTextLayout(item.SpeakerTemplateText, isBody: false);
+            NormalizeTextLayout(item.BodyTemplateText, isBody: true);
+        }
+
+        private static void NormalizeTextLayout(TMP_Text text, bool isBody)
+        {
+            if (text == null)
+                return;
+
+            text.alignment = TextAlignmentOptions.TopLeft;
+            text.enableWordWrapping = isBody;
+            text.overflowMode = TextOverflowModes.Overflow;
+            text.enableAutoSizing = false;
+
+            if (text.rectTransform != null)
+            {
+                var rect = text.rectTransform;
+                rect.anchorMin = new Vector2(0f, 1f);
+                rect.anchorMax = new Vector2(1f, 1f);
+                rect.pivot = new Vector2(0.5f, 1f);
+                rect.anchoredPosition = Vector2.zero;
+                rect.sizeDelta = new Vector2(0f, rect.sizeDelta.y);
+            }
+
+            var fitter = text.GetComponent<ContentSizeFitter>();
+            if (fitter == null)
+                fitter = text.gameObject.AddComponent<ContentSizeFitter>();
+            fitter.horizontalFit = ContentSizeFitter.FitMode.Unconstrained;
+            fitter.verticalFit = ContentSizeFitter.FitMode.PreferredSize;
+
+            var element = text.GetComponent<LayoutElement>();
+            if (element == null)
+                element = text.gameObject.AddComponent<LayoutElement>();
+            element.minHeight = isBody ? 22f : 18f;
+            element.flexibleHeight = 0f;
         }
     }
 }
