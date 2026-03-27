@@ -616,16 +616,13 @@ namespace PPP.BLUE.VN
 
         private void Update()
         {
-            if (IsBacklogOpen)
-            {
-                HandleControlButtonState();
-                EventSystem.current?.SetSelectedGameObject(null);
-                return;
-            }
-
             HandleControlButtonState();
             if (isUIHidden || isUIAnimating)
                 return;
+
+            bool manualInputBlockedByBacklog = IsAnyBacklogOpen || IsBacklogOpen;
+            if (manualInputBlockedByBacklog)
+                EventSystem.current?.SetSelectedGameObject(null);
 
             if (runner != null && runner.IsWaiting && runner.CallStackCount > 0)
             {
@@ -637,6 +634,9 @@ namespace PPP.BLUE.VN
                 autoPlayEnabled = false;
                 runner?.SetAutoPlay(false, "Drink Mode Auto Off");
             }
+
+            if (manualInputBlockedByBacklog)
+                return;
 
             if (!CanAcceptVNInput()) return;
             if (inputLockFrames > 0) { inputLockFrames--; return; }
@@ -991,11 +991,17 @@ namespace PPP.BLUE.VN
 
         public void ToggleSkip()
         {
+            if (IsAnyBacklogOpen)
+                return;
+
             OnSkipButtonClicked();
         }
 
         public void SetAutoPlay(bool value)
         {
+            if (IsAnyBacklogOpen)
+                return;
+
             if ((isUIHidden || isUIAnimating) && value)
                 return;
             if (IsBacklogInputBlocked())
@@ -1007,6 +1013,9 @@ namespace PPP.BLUE.VN
 
         public void ToggleAuto()
         {
+            if (IsAnyBacklogOpen)
+                return;
+
             if (isUIHidden || isUIAnimating)
                 return;
             if (IsBacklogInputBlocked())
@@ -1023,6 +1032,9 @@ namespace PPP.BLUE.VN
 
         public void OnSkipButtonPointerDown()
         {
+            if (IsAnyBacklogOpen)
+                return;
+
             if (isUIHidden || isUIAnimating)
                 return;
             if (IsBacklogInputBlocked())
@@ -1047,6 +1059,9 @@ namespace PPP.BLUE.VN
 
         public void OnAutoPlayButtonClicked()
         {
+            if (IsAnyBacklogOpen)
+                return;
+
             if (isUIHidden || isUIAnimating)
                 return;
             if (IsBacklogInputBlocked())
