@@ -34,6 +34,7 @@ namespace PPP.BLUE.VN
         [SerializeField] private RectTransform dialogueRoot;
         [SerializeField] private GameObject minimizedUIRoot;
         private VNBacklogKey lastHandledKey;
+        private VNBacklogKey currentLineBacklogKey;
         private string lastHandledLineId;
        
 
@@ -942,11 +943,12 @@ namespace PPP.BLUE.VN
             lineCompleted = false;
             lineDisplayed = true;
             currentFullText = text ?? "";
+            currentLineBacklogKey = backlogKey;
 
             runner?.MarkSeen(lineId);
             runner?.BacklogSetCurrentLineTyping(true);
             if (backlogKey != null)
-                runner?.BacklogUpdateCurrentLineText(string.Empty);
+                runner?.BacklogUpdateLineText(backlogKey, string.Empty);
 
             if (nameText != null) nameText.text = speakerId ?? "";
             if (dialogueText != null && !lineDisplayed)
@@ -960,8 +962,8 @@ namespace PPP.BLUE.VN
                 if (dialogueText != null) dialogueText.text = currentFullText;
                 lineCompleted = true;
                 lineDisplayed = true;
-                runner?.BacklogUpdateCurrentLineText(currentFullText);
-                runner?.BacklogFinalizeCurrentLine(currentFullText);
+                runner?.BacklogUpdateLineText(currentLineBacklogKey, currentFullText);
+                runner?.BacklogFinalizeLine(currentLineBacklogKey, currentFullText);
 
                 runner?.MarkSaveAllowed(true, "No Typer => Immediate");
                 runner?.NotifyLineTypedEnd();
@@ -974,8 +976,8 @@ namespace PPP.BLUE.VN
                 dialogueText.text = currentFullText;
                 lineCompleted = true;
                 lineDisplayed = true;
-                runner?.BacklogUpdateCurrentLineText(currentFullText);
-                runner?.BacklogFinalizeCurrentLine(currentFullText);
+                runner?.BacklogUpdateLineText(currentLineBacklogKey, currentFullText);
+                runner?.BacklogFinalizeLine(currentLineBacklogKey, currentFullText);
 
                 runner?.NotifyLineTypedEnd();
                 runner?.MarkSaveAllowed(true, "Skip Immediate");
@@ -988,14 +990,14 @@ namespace PPP.BLUE.VN
             {
                 lineCompleted = true;
                 lineDisplayed = true;
-                runner?.BacklogFinalizeCurrentLine(currentFullText);
+                runner?.BacklogFinalizeLine(currentLineBacklogKey, currentFullText);
                 runner?.NotifyLineTypedEnd();
 
                 runner?.MarkSaveAllowed(true, "Typing Completed");
                 Debug.Log("[VN] SaveAllowed TRUE (Typing Completed)");
             }, onUpdated: partial =>
             {
-                runner?.BacklogUpdateCurrentLineText(partial);
+                runner?.BacklogUpdateLineText(currentLineBacklogKey, partial);
             });
         }
 
@@ -1006,7 +1008,7 @@ namespace PPP.BLUE.VN
 
             lineDisplayed = true;
             lineCompleted = true; // 안전하게 유지
-            runner?.BacklogFinalizeCurrentLine(currentFullText);
+            runner?.BacklogFinalizeLine(currentLineBacklogKey, currentFullText);
             runner?.MarkJustForceCompletedThisFrame();
         }
 
@@ -1017,7 +1019,7 @@ namespace PPP.BLUE.VN
             typer.ForceComplete();
             lineDisplayed = true;
             lineCompleted = true;
-            runner?.BacklogFinalizeCurrentLine(currentFullText);
+            runner?.BacklogFinalizeLine(currentLineBacklogKey, currentFullText);
             runner?.MarkJustForceCompletedThisFrame();
             return true;
         }
@@ -1031,7 +1033,7 @@ namespace PPP.BLUE.VN
         {
             lineDisplayed = true;
             lineCompleted = true;
-            runner?.BacklogFinalizeCurrentLine(currentFullText);
+            runner?.BacklogFinalizeLine(currentLineBacklogKey, currentFullText);
             runner?.MarkJustForceCompletedThisFrame();
         }
 

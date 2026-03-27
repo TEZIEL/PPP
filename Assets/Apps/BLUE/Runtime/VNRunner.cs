@@ -2554,6 +2554,14 @@ namespace PPP.BLUE.VN
             backlogManager.UpdateEntryText(currentBacklogKey, text ?? string.Empty);
         }
 
+        public void BacklogUpdateLineText(VNBacklogKey key, string text)
+        {
+            if (key == null || string.IsNullOrEmpty(key.nodeId))
+                return;
+
+            backlogManager.UpdateEntryText(key, text ?? string.Empty);
+        }
+
         public void BacklogFinalizeCurrentLine(string fullText)
         {
             if (currentBacklogKey == null || string.IsNullOrEmpty(currentBacklogKey.nodeId))
@@ -2561,6 +2569,16 @@ namespace PPP.BLUE.VN
 
             backlogManager.FinalizeEntry(currentBacklogKey, fullText ?? string.Empty);
             isCurrentLineTyping = false;
+        }
+
+        public void BacklogFinalizeLine(VNBacklogKey key, string fullText)
+        {
+            if (key == null || string.IsNullOrEmpty(key.nodeId))
+                return;
+
+            backlogManager.FinalizeEntry(key, fullText ?? string.Empty);
+            if (currentBacklogKey != null && key.ToCompositeKey() == currentBacklogKey.ToCompositeKey())
+                isCurrentLineTyping = false;
         }
 
         public void BacklogSetCurrentLineTyping(bool isTyping)
