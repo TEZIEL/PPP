@@ -388,8 +388,8 @@ MonoBehaviour:
   button: {fileID: 4069558303449280313}
   labelText: {fileID: 7358142900499021339}
   selectionBackground: {fileID: 8016418643097735584}
-  normalColor: {r: 1, g: 1, b: 1, a: 1}
-  selectedColor: {r: 1, g: 1, b: 1, a: 1}
+  normalSprite: {fileID: 21300000, guid: 5b830c498723ddf4f89a14b5c8c3d324, type: 3}
+  selectedSprite: {fileID: 21300000, guid: 2e4015f092f81d544953e5df573adb26, type: 3}
 --- !u!1 &399341157436354368
 GameObject:
   m_ObjectHideFlags: 0
@@ -873,8 +873,8 @@ MonoBehaviour:
   button: {fileID: 581024529064369449}
   labelText: {fileID: 6778645628205164437}
   selectionBackground: {fileID: 7081766044610444074}
-  normalColor: {r: 1, g: 1, b: 1, a: 1}
-  selectedColor: {r: 1, g: 1, b: 1, a: 1}
+  normalSprite: {fileID: 21300000, guid: 5b830c498723ddf4f89a14b5c8c3d324, type: 3}
+  selectedSprite: {fileID: 21300000, guid: 2e4015f092f81d544953e5df573adb26, type: 3}
 --- !u!1 &733698800138236653
 GameObject:
   m_ObjectHideFlags: 0
@@ -1328,8 +1328,8 @@ MonoBehaviour:
   button: {fileID: 3417080542850187788}
   labelText: {fileID: 1516336757981823595}
   selectionBackground: {fileID: 693829391484748215}
-  normalColor: {r: 1, g: 1, b: 1, a: 1}
-  selectedColor: {r: 1, g: 1, b: 1, a: 1}
+  normalSprite: {fileID: 21300000, guid: 5b830c498723ddf4f89a14b5c8c3d324, type: 3}
+  selectedSprite: {fileID: 21300000, guid: 2e4015f092f81d544953e5df573adb26, type: 3}
 --- !u!1 &930076057782833440
 GameObject:
   m_ObjectHideFlags: 0
@@ -1467,8 +1467,8 @@ MonoBehaviour:
   button: {fileID: 4825615368801180437}
   labelText: {fileID: 2907783618816701063}
   selectionBackground: {fileID: 8360732288863666994}
-  normalColor: {r: 1, g: 1, b: 1, a: 1}
-  selectedColor: {r: 1, g: 1, b: 1, a: 1}
+  normalSprite: {fileID: 21300000, guid: 5b830c498723ddf4f89a14b5c8c3d324, type: 3}
+  selectedSprite: {fileID: 21300000, guid: 2e4015f092f81d544953e5df573adb26, type: 3}
 --- !u!1 &955662466108595311
 GameObject:
   m_ObjectHideFlags: 0
@@ -1950,8 +1950,8 @@ MonoBehaviour:
   button: {fileID: 5684532902431387876}
   labelText: {fileID: 1987314129904323009}
   selectionBackground: {fileID: 5706563449435267776}
-  normalColor: {r: 1, g: 1, b: 1, a: 1}
-  selectedColor: {r: 1, g: 1, b: 1, a: 1}
+  normalSprite: {fileID: 21300000, guid: 5b830c498723ddf4f89a14b5c8c3d324, type: 3}
+  selectedSprite: {fileID: 21300000, guid: 2e4015f092f81d544953e5df573adb26, type: 3}
 --- !u!1 &1281815458270370703
 GameObject:
   m_ObjectHideFlags: 0
@@ -3976,8 +3976,8 @@ MonoBehaviour:
   button: {fileID: 8230289753283880747}
   labelText: {fileID: 2209385421986408445}
   selectionBackground: {fileID: 1350851068048693589}
-  normalColor: {r: 1, g: 1, b: 1, a: 1}
-  selectedColor: {r: 1, g: 1, b: 1, a: 1}
+  normalSprite: {fileID: 21300000, guid: 5b830c498723ddf4f89a14b5c8c3d324, type: 3}
+  selectedSprite: {fileID: 21300000, guid: 2e4015f092f81d544953e5df573adb26, type: 3}
 --- !u!1 &4220286529899331485
 GameObject:
   m_ObjectHideFlags: 0
@@ -7190,8 +7190,8 @@ MonoBehaviour:
   button: {fileID: 5330988839911641622}
   labelText: {fileID: 3851281165783106294}
   selectionBackground: {fileID: 8947018628739164741}
-  normalColor: {r: 1, g: 1, b: 1, a: 1}
-  selectedColor: {r: 1, g: 1, b: 1, a: 1}
+  normalSprite: {fileID: 21300000, guid: 5b830c498723ddf4f89a14b5c8c3d324, type: 3}
+  selectedSprite: {fileID: 21300000, guid: 2e4015f092f81d544953e5df573adb26, type: 3}
 --- !u!1 &7647355849600130876
 GameObject:
   m_ObjectHideFlags: 0
@@ -7394,8 +7394,8 @@ MonoBehaviour:
   button: {fileID: 9005711572104429179}
   labelText: {fileID: 207901085951002437}
   selectionBackground: {fileID: 6987855949611573727}
-  normalColor: {r: 1, g: 1, b: 1, a: 1}
-  selectedColor: {r: 1, g: 1, b: 1, a: 1}
+  normalSprite: {fileID: 21300000, guid: 5b830c498723ddf4f89a14b5c8c3d324, type: 3}
+  selectedSprite: {fileID: 21300000, guid: 2e4015f092f81d544953e5df573adb26, type: 3}
 --- !u!1 &8048431091942844681
 GameObject:
   m_ObjectHideFlags: 0
@@ -8573,15 +8573,15 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_Material: {fileID: 0}
-  m_Color: {r: 1, g: 1, b: 1, a: 0.392}
+  m_Color: {r: 0.2, g: 0.2, b: 0.2, a: 1}
   m_RaycastTarget: 1
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_Sprite: {fileID: 10907, guid: 0000000000000000f000000000000000, type: 0}
-  m_Type: 1
+  m_Sprite: {fileID: 0}
+  m_Type: 0
   m_PreserveAspect: 0
   m_FillCenter: 1
   m_FillMethod: 4
