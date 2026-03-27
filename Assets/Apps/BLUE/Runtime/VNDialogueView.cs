@@ -30,6 +30,7 @@ namespace PPP.BLUE.VN
         [SerializeField] private VNSaveLoadWindow saveLoadWindow;
         [SerializeField] private CanvasGroup dialogueCanvasGroup;
         [SerializeField] private RectTransform dialogueRoot;
+        [SerializeField] private GameObject minimizedUIRoot;
         [Header("Button Image States")]
         [SerializeField] private ButtonVisualBinding[] buttonVisualBindings = System.Array.Empty<ButtonVisualBinding>();
         // Legacy compatibility: kept hidden so partial merges referencing old fields still compile.
@@ -113,6 +114,8 @@ namespace PPP.BLUE.VN
             if (graphicRaycaster == null)
                 graphicRaycaster = GetComponentInParent<GraphicRaycaster>(true);
             ResolveDialogueUIRefs();
+            ResolveMinimizedUIRefs();
+            SetMinimizedUIVisible(false);
             AutoBindSaveLoadButton();
             SetupSkipHoldBinding();
             SetupInteractableVisualBindingEvents();
@@ -151,6 +154,44 @@ namespace PPP.BLUE.VN
 
             if (dialogueCanvasGroup == null && dialogueRoot != null)
                 dialogueCanvasGroup = dialogueRoot.gameObject.AddComponent<CanvasGroup>();
+        }
+
+        private void ResolveMinimizedUIRefs()
+        {
+            if (minimizedUIRoot != null)
+                return;
+
+            var root = transform.root;
+            if (root == null)
+                return;
+
+            var candidates = root.GetComponentsInChildren<Transform>(true);
+            for (int i = 0; i < candidates.Length; i++)
+            {
+                var candidate = candidates[i];
+                if (candidate == null)
+                    continue;
+
+                string lower = candidate.name.ToLowerInvariant();
+                bool isMinimizedName = lower.Contains("mini") || lower.Contains("minimized");
+                bool isShowUIName = lower.Contains("showui") || lower.Contains("restoreui") || lower.Contains("ui_show");
+                if (!isMinimizedName && !isShowUIName)
+                    continue;
+
+                if (dialogueRoot != null && (candidate == dialogueRoot || candidate.IsChildOf(dialogueRoot)))
+                    continue;
+
+                minimizedUIRoot = candidate.gameObject;
+                break;
+            }
+        }
+
+        private void SetMinimizedUIVisible(bool visible)
+        {
+            if (minimizedUIRoot == null)
+                return;
+
+            minimizedUIRoot.SetActive(visible);
         }
 
         private void AutoBindSaveLoadButton()
@@ -796,6 +837,7 @@ namespace PPP.BLUE.VN
                 return;
 
             ResolveDialogueUIRefs();
+            ResolveMinimizedUIRefs();
             StartCoroutine(HideUICoroutine());
         }
 
@@ -805,6 +847,7 @@ namespace PPP.BLUE.VN
                 return;
 
             ResolveDialogueUIRefs();
+            ResolveMinimizedUIRefs();
             StartCoroutine(ShowUICoroutine());
         }
 
@@ -839,6 +882,7 @@ namespace PPP.BLUE.VN
 
             dialogueCanvasGroup.alpha = 0f;
             dialogueRoot.gameObject.SetActive(false);
+            SetMinimizedUIVisible(true);
 
             isUIHidden = true;
             isUIAnimating = false;
@@ -877,6 +921,7 @@ namespace PPP.BLUE.VN
 
             dialogueCanvasGroup.alpha = 1f;
             dialogueRoot.localScale = endScale;
+            SetMinimizedUIVisible(false);
 
             isUIHidden = false;
             isUIAnimating = false;
