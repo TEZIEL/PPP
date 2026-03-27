@@ -7625,6 +7625,10 @@ MonoBehaviour:
   saveButton: {fileID: 3891139322739500589}
   loadButton: {fileID: 5996084823346543562}
   deleteButton: {fileID: 6428581638760747367}
+  slotListScrollRect: {fileID: 6240709093728955788}
+  scrollUpButton: {fileID: 5982142106629175625}
+  scrollDownButton: {fileID: 7749686755427682370}
+  buttonScrollStep: 0.2
   slots:
   - selectButton: {fileID: 7805887846553023622}
     selectedHighlight: {fileID: 7768581424123041980}
@@ -16817,6 +16821,9 @@ MonoBehaviour:
   itemPrefab: {fileID: 1977917371903546910, guid: 2235ea1b8066e6646a3523150df58274, type: 3}
   fallbackSpeakerTemplate: {fileID: 0}
   fallbackBodyTemplate: {fileID: 0}
+  scrollUpButton: {fileID: 8991571607540963320}
+  scrollDownButton: {fileID: 4767432400177816597}
+  buttonScrollStep: 0.2
 --- !u!1 &5972274358350971471
 GameObject:
   m_ObjectHideFlags: 0
