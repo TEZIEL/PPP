@@ -33,6 +33,10 @@ namespace PPP.BLUE.VN
         [SerializeField] private CanvasGroup dialogueCanvasGroup;
         [SerializeField] private RectTransform dialogueRoot;
         [SerializeField] private GameObject minimizedUIRoot;
+        private VNBacklogKey lastHandledKey;
+        private string lastHandledLineId;
+       
+
         [Header("Hide/Show Animation (Window Style)")]
         [SerializeField] private float dialogueShowDuration = 0.12f;
         [SerializeField] private float dialogueHideDuration = 0.10f;
@@ -891,8 +895,11 @@ namespace PPP.BLUE.VN
             lineDisplayed = true;
             lineCompleted = true;
             runner.SyncPointerAfterRefresh(refreshedLineIndex);
-            if (typer != null && typer.IsTyping)
-                typer.ForceComplete();
+            if (typer != null)
+            {
+                typer.ForceComplete(); // 무조건 죽여
+            }
+
             inputLocked = false;
 
             bool isTyping = typer != null && typer.IsTyping;
@@ -918,7 +925,18 @@ namespace PPP.BLUE.VN
 
         private void HandleSay(string speakerId, string text, string lineId, VNBacklogKey backlogKey)
         {
-          
+            if (typer != null)
+            {
+                typer.ForceComplete(); // 기존 타이퍼 무조건 죽여
+            }
+
+            if (lastHandledLineId == lineId)
+            {
+                Debug.Log("[VN] HandleSay duplicate blocked");
+                return;
+            }
+            lastHandledLineId = lineId;
+
             inputLockFrames = 1;
 
             lineCompleted = false;
@@ -931,7 +949,8 @@ namespace PPP.BLUE.VN
                 runner?.BacklogUpdateCurrentLineText(string.Empty);
 
             if (nameText != null) nameText.text = speakerId ?? "";
-            if (dialogueText != null) dialogueText.text = "";
+            if (dialogueText != null && !lineDisplayed)
+                dialogueText.text = "";
 
             runner?.MarkSaveAllowed(false, "Typing Start");
 

@@ -22,6 +22,8 @@ namespace PPP.BLUE.VN
 
         public void StartTyping(string fullText, Action onCompleted, Action<string> onUpdated = null)
         {
+            StopAllCoroutines();
+
             if (target == null)
             {
                 Debug.LogError("[VNTextTyper] target TMP_Text is null.");
@@ -40,15 +42,21 @@ namespace PPP.BLUE.VN
 
         public void ForceComplete()
         {
-            if (!IsTyping || target == null)
+            if (target == null)
                 return;
 
             StopAllCoroutines();
             typingToken++;
             co = null;
-            target.maxVisibleCharacters = 999999;
+
             target.text = fullTextCache;
+
+            target.ForceMeshUpdate(); // 🔥 중요
+
+            target.maxVisibleCharacters = target.textInfo.characterCount; // 🔥 핵심
+
             IsTyping = false;
+
             onUpdatedCache?.Invoke(fullTextCache);
 
             var cb = onCompletedCache;
