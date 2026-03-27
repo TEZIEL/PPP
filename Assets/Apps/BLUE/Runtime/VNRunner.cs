@@ -669,7 +669,7 @@ namespace PPP.BLUE.VN
         {
             if (JustForceCompletedThisFrame)
             {
-                VNLog("[VN/SKIP] blocked Next (same frame)");
+                VNLog("[VN/SKIP] blocked Next due to same-frame force complete");
                 return;
             }
 
@@ -708,7 +708,7 @@ namespace PPP.BLUE.VN
         {
             if (JustForceCompletedThisFrame)
             {
-                VNLog("[VN/SKIP] blocked Next (same frame)");
+                VNLog("[VN/SKIP] blocked Next due to same-frame force complete");
                 return;
             }
 
@@ -2576,6 +2576,7 @@ namespace PPP.BLUE.VN
             // 타이핑 중이면 문장 완성
             if (dialogueView?.TryCompleteCurrentLineForSkip() == true)
             {
+                justForceCompletedThisFrame = true;
                 VNLog("[VN/SKIP] force complete only");
                 VNLog("[VN/SKIP] finalize and return");
                 skipMode = false;
@@ -2599,7 +2600,7 @@ namespace PPP.BLUE.VN
             {
                 if (JustForceCompletedThisFrame)
                 {
-                    VNLog("[VN/SKIP] blocked Next (same frame)");
+                    VNLog("[VN/SKIP] blocked Next due to same-frame force complete");
                     return;
                 }
 
