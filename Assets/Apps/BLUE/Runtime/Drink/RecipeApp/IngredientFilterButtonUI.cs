@@ -14,8 +14,8 @@ namespace PPP.BLUE.VN.RecipeApp
         [SerializeField] private Button button;
         [SerializeField] private TMP_Text labelText;
         [SerializeField] private Image selectionBackground;
-        [SerializeField] private Color normalColor = Color.white;
-        [SerializeField] private Color selectedColor = new Color(0.65f, 0.95f, 1f, 1f);
+        [SerializeField] private Sprite normalSprite;
+        [SerializeField] private Sprite selectedSprite;
 
         private string ingredientId;
         private bool isSelected;
@@ -67,7 +67,7 @@ namespace PPP.BLUE.VN.RecipeApp
         private void RefreshVisual()
         {
             if (selectionBackground != null)
-                selectionBackground.color = isSelected ? selectedColor : normalColor;
+                selectionBackground.sprite = isSelected ? selectedSprite : normalSprite;
         }
     }
 }
