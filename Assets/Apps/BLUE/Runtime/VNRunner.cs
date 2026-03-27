@@ -469,12 +469,9 @@ namespace PPP.BLUE.VN
         private void Update()
         {
             if (!HasScript) return;
-            if (VNDialogueView.IsAnyBacklogOpen)
-            {
-                if (UnityEngine.EventSystems.EventSystem.current != null)
-                    UnityEngine.EventSystems.EventSystem.current.SetSelectedGameObject(null);
-                return;
-            }
+            bool manualInputBlockedByBacklog = VNDialogueView.IsAnyBacklogOpen;
+            if (manualInputBlockedByBacklog && UnityEngine.EventSystems.EventSystem.current != null)
+                UnityEngine.EventSystems.EventSystem.current.SetSelectedGameObject(null);
 
             SyncFocusLinkedImages();
             if (dialogueView == null)
@@ -525,9 +522,9 @@ namespace PPP.BLUE.VN
             lastBlocked = blocked;
 
 
-            bool keyboardSkipHeld = Input.GetKey(KeyCode.F1);
+            bool keyboardSkipHeld = !manualInputBlockedByBacklog && Input.GetKey(KeyCode.F1);
             bool holdSkip = keyboardSkipHeld ^ uiSkipHeld; // 동시 입력은 무시 (둘 중 하나만 허용)
-            if (backlogOpen)
+            if (manualInputBlockedByBacklog || backlogOpen)
             {
                 holdSkip = false;
                 if (uiSkipHeld)
@@ -551,7 +548,7 @@ namespace PPP.BLUE.VN
                 }
             }
 
-            if (!backlogOpen && Input.GetKeyDown(KeyCode.F2))
+            if (!manualInputBlockedByBacklog && !backlogOpen && Input.GetKeyDown(KeyCode.F2))
             {
                 ToggleAutoFromInput("Hotkey F2");
             }
