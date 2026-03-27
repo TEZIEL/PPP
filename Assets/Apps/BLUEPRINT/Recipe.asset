@@ -12,12 +12,12 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 29c65b859b9529546a48d49229159c35, type: 3}
   m_Name: Recipe
   m_EditorClassIdentifier: 
-  appId: Recipe
+  appId: recipe
   displayName: BluePrint
   windowPrefab: {fileID: 7342045915086621803, guid: 93109acf87296bf4cade05dd86f28f2b, type: 3}
   contentPrefab: {fileID: 8132136970174023561, guid: 270a05c60a016d740899fbfebc546006, type: 3}
   defaultPos: {x: -580, y: -150}
-  defaultSize: {x: 630, y: 720}
+  defaultSize: {x: 540, y: 720}
   iconSprite: {fileID: 10905, guid: 0000000000000000f000000000000000, type: 0}
   windowIconSprite: {fileID: 21300000, guid: 5844c28656572ef438fc253f4999af0c, type: 3}
   taskbarIconSprite: {fileID: 21300000, guid: 5844c28656572ef438fc253f4999af0c, type: 3}
