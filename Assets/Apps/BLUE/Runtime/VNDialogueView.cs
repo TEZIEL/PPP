@@ -916,6 +916,7 @@ namespace PPP.BLUE.VN
 
         public void OnStateLoadedForValidation()
         {
+            lastHandledLineId = null;
             ForceRefreshCurrentLine();
 
             bool isTyping = typer != null && typer.IsTyping;

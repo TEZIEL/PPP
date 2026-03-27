@@ -247,6 +247,7 @@ namespace PPP.BLUE.VN
         private readonly VNBacklogManager backlogManager = new();
         private VNCallFrame pendingCallResumeFrame;
         private bool dispatchingRestoredCall;
+        private bool isExternalCallWaiting;
         private bool isRestoringFromLoad = false;
         private bool restoreStateInProgress;
         public bool IsDispatchingRestoredCall => dispatchingRestoredCall;
@@ -726,6 +727,12 @@ namespace PPP.BLUE.VN
 
         public void NextInternal()
         {
+            if (isExternalCallWaiting && pendingCallResumeFrame == null)
+            {
+                VNLog("[VN] Blocked: waiting external call");
+                return;
+            }
+
             if (IsSameFrameForceCompleteBlocked())
             {
                 VNLog("[VN/SKIP] blocked Next due to same-frame force complete");
@@ -1085,6 +1092,7 @@ namespace PPP.BLUE.VN
             isWaiting = true;
             waitPointer = pointer;
             lastStopIndex = pointer;
+            isExternalCallWaiting = true;
 
             callStack.Push(new VNCallFrame
             {
@@ -1151,6 +1159,7 @@ namespace PPP.BLUE.VN
             started = false;
             currentBacklogKey = new VNBacklogKey();
             isCurrentLineTyping = false;
+            isExternalCallWaiting = false;
             backlogManager.RestoreBacklog(null);
         }
 
@@ -1648,6 +1657,7 @@ namespace PPP.BLUE.VN
                     isWaiting = true;
                     waitPointer = Mathf.Max(0, frame.returnPointer - 1);
                     pendingCallResumeFrame = frame.dispatched ? null : frame;
+                    isExternalCallWaiting = frame.dispatched;
                 }
                 else
                 {
@@ -1665,6 +1675,8 @@ namespace PPP.BLUE.VN
                         isWaiting = false;
                         waitPointer = -1;
                     }
+
+                    isExternalCallWaiting = false;
                 }
 
                 started = true;
@@ -1751,6 +1763,7 @@ namespace PPP.BLUE.VN
                 // 🔴 waiting 상태 복구
                 isWaiting = false;
                 waitPointer = -1;
+                isExternalCallWaiting = false;
 
                 return;
             }
@@ -1761,6 +1774,7 @@ namespace PPP.BLUE.VN
             pointer = frame.returnPointer;
             isWaiting = false;
             waitPointer = -1;
+            isExternalCallWaiting = false;
 
             // 🔴 ExternalCall 복귀 후 자동 진행
             Next();
