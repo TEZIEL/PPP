@@ -29,6 +29,15 @@ namespace PPP.BLUE.VN
         [SerializeField] private Button saveLoadButton;
         [SerializeField] private VNSaveLoadWindow saveLoadWindow;
         [SerializeField] private VNBacklogView backlogView;
+        [SerializeField] private CanvasGroup dialogueCanvasGroup;
+        [SerializeField] private RectTransform dialogueRoot;
+        [SerializeField] private GameObject minimizedUIRoot;
+        [Header("Hide/Show Animation (Window Style)")]
+        [SerializeField] private float dialogueShowDuration = 0.12f;
+        [SerializeField] private float dialogueHideDuration = 0.10f;
+        [SerializeField] private float minimizedShowDuration = 0.12f;
+        [SerializeField] private float minimizedHideDuration = 0.10f;
+        [SerializeField] private Vector3 animFromScale = new Vector3(0.92f, 0.92f, 1f);
         [Header("Button Image States")]
         [SerializeField] private ButtonVisualBinding[] buttonVisualBindings = System.Array.Empty<ButtonVisualBinding>();
         // Legacy compatibility: kept hidden so partial merges referencing old fields still compile.
@@ -46,6 +55,9 @@ namespace PPP.BLUE.VN
         private bool inputLocked = true;
         private int inputLockFrames = 0;
         private bool subscribed;
+        private bool isUIDisappearing = false;
+        private bool isUIHidden = false;
+        private bool isUIAnimating = false;
         private bool? lastSkipButtonInteractable;
         private bool? lastAutoButtonInteractable;
         private bool? lastExitButtonInteractable;
@@ -110,10 +122,128 @@ namespace PPP.BLUE.VN
                 advanceClickArea = dialogueText.rectTransform;
             if (graphicRaycaster == null)
                 graphicRaycaster = GetComponentInParent<GraphicRaycaster>(true);
+            ResolveDialogueUIRefs();
+            ResolveMinimizedUIRefs();
+            SetMinimizedUIVisible(false);
             AutoBindSaveLoadButton();
             SetupSkipHoldBinding();
             SetupInteractableVisualBindingEvents();
             Debug.Log($"[VN_UI] bind runner={(runner ? runner.name : "NULL")}");
+        }
+
+        private void ResolveDialogueUIRefs()
+        {
+            if (dialogueRoot == null)
+            {
+                var selfRect = transform as RectTransform;
+                var namedDialogRoot = transform.Find("DialogRoot") as RectTransform;
+                dialogueRoot = namedDialogRoot != null ? namedDialogRoot : selfRect;
+            }
+
+            if (dialogueRoot == null && dialogueText != null)
+            {
+                var walker = dialogueText.rectTransform;
+                while (walker != null)
+                {
+                    if (walker.name.IndexOf("dialogroot", System.StringComparison.OrdinalIgnoreCase) >= 0)
+                    {
+                        dialogueRoot = walker;
+                        break;
+                    }
+
+                    walker = walker.parent as RectTransform;
+                }
+            }
+
+            if (dialogueCanvasGroup == null && dialogueRoot != null)
+                dialogueCanvasGroup = dialogueRoot.GetComponent<CanvasGroup>();
+
+            if (dialogueCanvasGroup == null)
+                dialogueCanvasGroup = GetComponentInParent<CanvasGroup>(true);
+
+            if (dialogueCanvasGroup == null && dialogueRoot != null)
+                dialogueCanvasGroup = dialogueRoot.gameObject.AddComponent<CanvasGroup>();
+        }
+
+        private void ResolveMinimizedUIRefs()
+        {
+            if (minimizedUIRoot != null)
+                return;
+
+            var root = transform.root;
+            if (root == null)
+                return;
+
+            var candidates = root.GetComponentsInChildren<Transform>(true);
+            for (int i = 0; i < candidates.Length; i++)
+            {
+                var candidate = candidates[i];
+                if (candidate == null)
+                    continue;
+
+                string lower = candidate.name.ToLowerInvariant();
+                bool isMinimizedName = lower.Contains("mini") || lower.Contains("minimized");
+                bool isShowUIName = lower.Contains("showui") || lower.Contains("restoreui") || lower.Contains("ui_show");
+                if (!isMinimizedName && !isShowUIName)
+                    continue;
+
+                if (dialogueRoot != null && (candidate == dialogueRoot || candidate.IsChildOf(dialogueRoot)))
+                    continue;
+
+                minimizedUIRoot = candidate.gameObject;
+                break;
+            }
+        }
+
+        private void SetMinimizedUIVisible(bool visible)
+        {
+            if (minimizedUIRoot == null)
+                return;
+
+            minimizedUIRoot.SetActive(visible);
+        }
+
+        private static CanvasGroup GetOrAddCanvasGroup(GameObject target)
+        {
+            if (target == null)
+                return null;
+
+            var group = target.GetComponent<CanvasGroup>();
+            if (group == null)
+                group = target.AddComponent<CanvasGroup>();
+            return group;
+        }
+
+        private static IEnumerator CoAnimateScaleAlpha(
+            RectTransform targetRoot,
+            CanvasGroup targetGroup,
+            Vector3 fromScale,
+            Vector3 toScale,
+            float fromAlpha,
+            float toAlpha,
+            float duration)
+        {
+            if (targetRoot == null || targetGroup == null)
+                yield break;
+
+            float t = 0f;
+            float safeDuration = Mathf.Max(0.01f, duration);
+
+            targetRoot.localScale = fromScale;
+            targetGroup.alpha = fromAlpha;
+
+            while (t < 1f)
+            {
+                t += Time.unscaledDeltaTime / safeDuration;
+                float s = Mathf.SmoothStep(0f, 1f, t);
+
+                targetRoot.localScale = Vector3.LerpUnclamped(fromScale, toScale, s);
+                targetGroup.alpha = Mathf.LerpUnclamped(fromAlpha, toAlpha, s);
+                yield return null;
+            }
+
+            targetRoot.localScale = toScale;
+            targetGroup.alpha = toAlpha;
         }
 
         private void AutoBindSaveLoadButton()
@@ -306,6 +436,8 @@ namespace PPP.BLUE.VN
         private void Update()
         {
             HandleControlButtonState();
+            if (isUIHidden || isUIAnimating)
+                return;
 
             if (runner != null && runner.IsWaiting && runner.CallStackCount > 0)
             {
@@ -384,11 +516,12 @@ namespace PPP.BLUE.VN
         private void HandleControlButtonState()
         {
             bool isDrinkMode = policy != null && policy.IsDrinkPanelOpen;
-            bool skipAutoInteractable = !isDrinkMode;
-            bool exitInteractable = !isDrinkMode;
+            bool controlsBlockedByUI = isUIHidden || isUIAnimating;
+            bool skipAutoInteractable = !isDrinkMode && !controlsBlockedByUI;
+            bool exitInteractable = !isDrinkMode && !controlsBlockedByUI;
             bool typingInProgress = (typer != null && typer.IsTyping) || !lineCompleted || inputLocked;
             bool saveAllowedByRunner = runner == null || runner.SaveAllowed;
-            bool saveLoadInteractable = !isDrinkMode && !typingInProgress && saveAllowedByRunner;
+            bool saveLoadInteractable = !isDrinkMode && !typingInProgress && saveAllowedByRunner && !controlsBlockedByUI;
             bool controlLockActive = Time.unscaledTime < controlActionLockedUntil;
 
             SetButtonInteractable(skipButton, skipAutoInteractable && !controlLockActive, ref lastSkipButtonInteractable);
@@ -671,12 +804,20 @@ namespace PPP.BLUE.VN
 
         public void SetAutoPlay(bool value)
         {
+            if ((isUIHidden || isUIAnimating) && value)
+                return;
+
+            autoPlayEnabled = value;
             runner?.SetAutoPlay(value, "VNDialogueView UI");
         }
 
         public void ToggleAuto()
         {
-            runner?.ToggleAuto("VNDialogueView UI");
+            if (isUIHidden || isUIAnimating)
+                return;
+
+            bool nextValue = !(runner != null && runner.IsAutoPlayEnabled);
+            SetAutoPlay(nextValue);
         }
 
         public void OnSkipButtonClicked()
@@ -686,6 +827,8 @@ namespace PPP.BLUE.VN
 
         public void OnSkipButtonPointerDown()
         {
+            if (isUIHidden || isUIAnimating)
+                return;
             if (policy != null && policy.IsDrinkPanelOpen)
                 return;
             if (policy != null && !VNInputGate.CanUseSkipOrAuto(policy))
@@ -706,6 +849,8 @@ namespace PPP.BLUE.VN
 
         public void OnAutoPlayButtonClicked()
         {
+            if (isUIHidden || isUIAnimating)
+                return;
             if (policy != null && !VNInputGate.CanUseSkipOrAuto(policy))
                 return;
             if (Time.unscaledTime < controlActionLockedUntil)
@@ -716,6 +861,8 @@ namespace PPP.BLUE.VN
 
         public void OnExitButtonClicked()
         {
+            if (isUIHidden || isUIAnimating)
+                return;
             if (policy != null && policy.IsDrinkPanelOpen)
                 return;
             if (policy != null && policy.IsSaveLoadModalOpen)
@@ -737,6 +884,8 @@ namespace PPP.BLUE.VN
 
         public void OpenSaveLoadWindow()
         {
+            if (isUIHidden || isUIAnimating)
+                return;
             if (policy != null && policy.IsDrinkModeActive())
                 return;
 
@@ -754,6 +903,138 @@ namespace PPP.BLUE.VN
         public void ToggleBacklogWindow()
         {
             backlogView?.Toggle();
+        public void HideUI()
+        {
+            if (isUIAnimating || isUIHidden)
+                return;
+
+            ResolveDialogueUIRefs();
+            ResolveMinimizedUIRefs();
+            StartCoroutine(HideUICoroutine());
+        }
+
+        public void ShowUI()
+        {
+            if (isUIAnimating || !isUIHidden)
+                return;
+
+            ResolveDialogueUIRefs();
+            ResolveMinimizedUIRefs();
+            StartCoroutine(ShowUICoroutine());
+        }
+
+        private IEnumerator HideUICoroutine()
+        {
+            if (dialogueRoot == null || dialogueCanvasGroup == null)
+            {
+                Debug.LogWarning("[VN_UI] HideUI failed: dialogueRoot/dialogueCanvasGroup not resolved.");
+                yield break;
+            }
+
+            isUIAnimating = true;
+            isUIDisappearing = true;
+            LockAllInput(true);
+            runner?.SetUiSkipHeld(false, "Hide UI");
+            SetAutoPlay(false);
+
+            yield return CoAnimateScaleAlpha(
+                dialogueRoot,
+                dialogueCanvasGroup,
+                fromScale: Vector3.one,
+                toScale: animFromScale,
+                fromAlpha: 1f,
+                toAlpha: 0f,
+                duration: dialogueHideDuration);
+
+            dialogueRoot.gameObject.SetActive(false);
+
+            if (minimizedUIRoot != null)
+            {
+                minimizedUIRoot.SetActive(true);
+                var miniRoot = minimizedUIRoot.transform as RectTransform;
+                var miniGroup = GetOrAddCanvasGroup(minimizedUIRoot);
+
+                if (miniRoot != null && miniGroup != null)
+                {
+                    miniGroup.interactable = false;
+                    miniGroup.blocksRaycasts = false;
+                    yield return CoAnimateScaleAlpha(
+                        miniRoot,
+                        miniGroup,
+                        fromScale: animFromScale,
+                        toScale: Vector3.one,
+                        fromAlpha: 0f,
+                        toAlpha: 1f,
+                        duration: minimizedShowDuration);
+                    miniGroup.interactable = true;
+                    miniGroup.blocksRaycasts = true;
+                }
+            }
+
+            isUIHidden = true;
+            isUIAnimating = false;
+        }
+
+        private IEnumerator ShowUICoroutine()
+        {
+            if (dialogueRoot == null || dialogueCanvasGroup == null)
+            {
+                Debug.LogWarning("[VN_UI] ShowUI failed: dialogueRoot/dialogueCanvasGroup not resolved.");
+                yield break;
+            }
+
+            isUIAnimating = true;
+            isUIDisappearing = false;
+            LockAllInput(true);
+
+            if (minimizedUIRoot != null && minimizedUIRoot.activeSelf)
+            {
+                var miniRoot = minimizedUIRoot.transform as RectTransform;
+                var miniGroup = GetOrAddCanvasGroup(minimizedUIRoot);
+                if (miniRoot != null && miniGroup != null)
+                {
+                    miniGroup.interactable = false;
+                    miniGroup.blocksRaycasts = false;
+                    yield return CoAnimateScaleAlpha(
+                        miniRoot,
+                        miniGroup,
+                        fromScale: Vector3.one,
+                        toScale: animFromScale,
+                        fromAlpha: miniGroup.alpha,
+                        toAlpha: 0f,
+                        duration: minimizedHideDuration);
+                }
+
+                minimizedUIRoot.SetActive(false);
+            }
+
+            dialogueRoot.gameObject.SetActive(true);
+            yield return CoAnimateScaleAlpha(
+                dialogueRoot,
+                dialogueCanvasGroup,
+                fromScale: animFromScale,
+                toScale: Vector3.one,
+                fromAlpha: 0f,
+                toAlpha: 1f,
+                duration: dialogueShowDuration);
+
+            isUIHidden = false;
+            isUIAnimating = false;
+            LockAllInput(false);
+        }
+
+        private void LockAllInput(bool locked)
+        {
+            if (dialogueCanvasGroup != null)
+            {
+                dialogueCanvasGroup.interactable = !locked;
+                dialogueCanvasGroup.blocksRaycasts = !locked;
+            }
+
+            inputLocked = locked;
+            runner?.SetUiInputBlocked(locked, "Dialogue UI Hide/Show");
+            if (locked)
+                OnSkipButtonPointerUp();
         }
 
         private IEnumerator ReplayClick()
