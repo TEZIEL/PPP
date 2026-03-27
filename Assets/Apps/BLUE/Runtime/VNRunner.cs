@@ -2596,13 +2596,10 @@ namespace PPP.BLUE.VN
             skipMode = true;
 
             // 타이핑 중이면 문장 완성 후 같은 흐름에서 즉시 종료 (Next 금지)
-            if (textTyper != null && textTyper.IsTyping)
+            if (dialogueView != null && dialogueView.IsCurrentLineTyping())
             {
                 if (dialogueView?.TryCompleteCurrentLineForSkip() != true)
-                {
-                    textTyper.ForceComplete();
                     dialogueView?.FinalizeCurrentLineAfterForceComplete();
-                }
 
                 MarkJustForceCompletedThisFrame();
                 VNLog("[VN/SKIP] force complete only (SkipStep immediate return)");

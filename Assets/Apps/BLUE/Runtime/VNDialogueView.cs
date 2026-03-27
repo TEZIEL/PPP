@@ -1003,6 +1003,11 @@ namespace PPP.BLUE.VN
             return true;
         }
 
+        public bool IsCurrentLineTyping()
+        {
+            return typer != null && typer.IsTyping;
+        }
+
         public void FinalizeCurrentLineAfterForceComplete()
         {
             lineDisplayed = true;
