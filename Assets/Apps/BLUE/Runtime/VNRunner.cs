@@ -65,6 +65,7 @@ namespace PPP.BLUE.VN
         private float nextHoldSkipAllowedTime;
         private bool wasHoldSkipHeld;
         private bool uiSkipHeld;
+        private int lastSkipForceCompleteFrame = -1;
         private bool holdSkipInputActive;
         private bool uiInputBlocked;
 
@@ -701,7 +702,7 @@ namespace PPP.BLUE.VN
                 if (dialogueView?.TryCompleteCurrentLineForSkip() == true)
                 {
                     VNLog("[VN/SKIP] typing detected -> force complete only");
-                    VNLog("[VN/SKIP] finalize current line and return");
+                    VNLog("[VN/SKIP] finalized current line and returned");
                     return;
                 }
             }
@@ -2546,6 +2547,9 @@ namespace PPP.BLUE.VN
             if (!CanRunSkipStep())
                 return;
 
+            if (lastSkipForceCompleteFrame == Time.frameCount)
+                return;
+
             if (dialogueView == null)
                 dialogueView = GetComponentInChildren<VNDialogueView>(true);
 
@@ -2555,7 +2559,8 @@ namespace PPP.BLUE.VN
             if (dialogueView?.TryCompleteCurrentLineForSkip() == true)
             {
                 VNLog("[VN/SKIP] typing detected -> force complete only");
-                VNLog("[VN/SKIP] finalize current line and return");
+                VNLog("[VN/SKIP] finalized current line and returned");
+                lastSkipForceCompleteFrame = Time.frameCount;
                 skipMode = false;
                 return;
             }
@@ -2575,6 +2580,9 @@ namespace PPP.BLUE.VN
 
             try
             {
+                if (lastSkipForceCompleteFrame == Time.frameCount)
+                    return;
+
                 VNLog("[VN/SKIP] advancing to next node");
                 Next();
             }
