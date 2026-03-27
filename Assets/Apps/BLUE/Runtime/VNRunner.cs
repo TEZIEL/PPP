@@ -154,6 +154,7 @@ namespace PPP.BLUE.VN
 
             BindPolicy("Awake");
             if (dialogueView == null) dialogueView = GetComponentInChildren<VNDialogueView>(true);
+            dialogueView?.EnsureBacklogBindingFromRunner();
             skipMode = false; // 인스펙터 값과 무관하게 런타임 기본 OFF
             
 
@@ -414,6 +415,9 @@ namespace PPP.BLUE.VN
             if (bridge != null)               
 
             StartCoroutine(CoBindPolicyNextFrame());
+            if (dialogueView == null)
+                dialogueView = GetComponentInChildren<VNDialogueView>(true);
+            dialogueView?.EnsureBacklogBindingFromRunner();
 
             RebuildExternalCallTargetSet();
             var bootState = VNFileSaveSystem.Load(VN_STATE_KEY);
@@ -466,6 +470,9 @@ namespace PPP.BLUE.VN
             if (!HasScript) return;
 
             SyncFocusLinkedImages();
+            if (dialogueView == null)
+                dialogueView = GetComponentInChildren<VNDialogueView>(true);
+            bool backlogOpen = dialogueView != null && dialogueView.IsBacklogOpen;
 
             if (policy != null && !VNInputGate.CanRouteInput(policy))
                 return;
@@ -513,6 +520,12 @@ namespace PPP.BLUE.VN
 
             bool keyboardSkipHeld = Input.GetKey(KeyCode.F1);
             bool holdSkip = keyboardSkipHeld ^ uiSkipHeld; // 동시 입력은 무시 (둘 중 하나만 허용)
+            if (backlogOpen)
+            {
+                holdSkip = false;
+                if (uiSkipHeld)
+                    SetUiSkipHeld(false, "Backlog Open");
+            }
             holdSkipInputActive = holdSkip;
 
             if (holdSkip && !wasHoldSkipHeld)
@@ -531,7 +544,7 @@ namespace PPP.BLUE.VN
                 }
             }
 
-            if (Input.GetKeyDown(KeyCode.F2))
+            if (!backlogOpen && Input.GetKeyDown(KeyCode.F2))
             {
                 ToggleAutoFromInput("Hotkey F2");
             }
@@ -617,10 +630,17 @@ namespace PPP.BLUE.VN
 
         private bool CanRunSkipStep()
         {
-         
+            if (IsBacklogOpenByUI()) return false;
             if (!HasScript) return false;
             if (policy == null) return false;
             return VNInputGate.CanUseSkipOrAuto(policy);
+        }
+
+        private bool IsBacklogOpenByUI()
+        {
+            if (dialogueView == null)
+                dialogueView = GetComponentInChildren<VNDialogueView>(true);
+            return dialogueView != null && dialogueView.IsBacklogOpen;
         }
 
         private void ForceSkipOff(string reason)
@@ -656,6 +676,12 @@ namespace PPP.BLUE.VN
             if (uiInputBlocked)
             {
                 VNLog("[VN] Next blocked (UI hidden/animating).");
+                return;
+            }
+
+            if (IsBacklogOpenByUI())
+            {
+                VNLog("[VN] Next blocked (Backlog Open).");
                 return;
             }
 
@@ -1735,6 +1761,7 @@ namespace PPP.BLUE.VN
         private bool CanToggleAuto()
         {
             if (uiInputBlocked) return false;
+            if (IsBacklogOpenByUI()) return false;
             if (policy == null) return false;
             return VNInputGate.CanUseSkipOrAuto(policy);
         }
@@ -2369,6 +2396,12 @@ namespace PPP.BLUE.VN
 
         public void ToggleSkip(string source = "UI Button")
         {
+            if (IsBacklogOpenByUI())
+            {
+                VNLog($"[VN] SkipMode toggle ignored (Backlog Open) source={source}");
+                return;
+            }
+
             if (!HasScript || policy == null || !VNInputGate.CanUseSkipOrAuto(policy))
             {
                 VNLog($"[VN] SkipMode toggle ignored (blocked) source={source}");

@@ -62,6 +62,9 @@ public class WindowShortcutController : MonoBehaviour
         // --- 3 : 닫기 ---
         if (Input.GetKeyDown(KeyCode.Alpha3) || Input.GetKeyDown(KeyCode.Keypad3))
         {
+            if (PPP.BLUE.VN.VNDialogueView.IsAnyBacklogOpen)
+                return;
+
             // UI 버튼 클릭 프레임과 단축키 3 동시입력 충돌 방지
             if (Input.GetMouseButtonDown(0))
                 return;
