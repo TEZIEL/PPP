@@ -28,6 +28,8 @@ namespace PPP.BLUE.VN
         [SerializeField] private Button exitButton;
         [SerializeField] private Button saveLoadButton;
         [SerializeField] private VNSaveLoadWindow saveLoadWindow;
+        [Header("Button Image States")]
+        [SerializeField] private ButtonVisualBinding[] buttonVisualBindings = System.Array.Empty<ButtonVisualBinding>();
         // Legacy compatibility: kept hidden so partial merges referencing old fields still compile.
         [SerializeField, HideInInspector] private bool autoPlayEnabled;
         [SerializeField, Min(0f)] private float closeActionLockSeconds = 0.15f;
@@ -48,8 +50,28 @@ namespace PPP.BLUE.VN
         private bool? lastExitButtonInteractable;
         private bool? lastSaveLoadButtonInteractable;
         private bool skipHoldBindingApplied;
+        private readonly HashSet<Button> interactableVisualBindingEventBoundButtons = new();
+        private readonly Dictionary<Button, bool> interactableVisualPressedStates = new();
         private float controlActionLockedUntil;
         private Coroutine waitAndRefreshCoroutine;
+
+        private enum ButtonVisualMode
+        {
+            Interactable = 0,
+            ToggleAutoPlay = 1,
+            HoldSkip = 2
+        }
+
+        [System.Serializable]
+        private struct ButtonVisualBinding
+        {
+            public string label;
+            public Button button;
+            public Image targetImage;
+            public Sprite activeSprite;
+            public Sprite inactiveSprite;
+            public ButtonVisualMode visualMode;
+        }
 
         private void Start()
         {
@@ -87,6 +109,7 @@ namespace PPP.BLUE.VN
                 graphicRaycaster = GetComponentInParent<GraphicRaycaster>(true);
             AutoBindSaveLoadButton();
             SetupSkipHoldBinding();
+            SetupInteractableVisualBindingEvents();
             Debug.Log($"[VN_UI] bind runner={(runner ? runner.name : "NULL")}");
         }
 
@@ -131,6 +154,53 @@ namespace PPP.BLUE.VN
             AddEventTrigger(trigger, EventTriggerType.PointerUp, _ => OnSkipButtonPointerUp());
             AddEventTrigger(trigger, EventTriggerType.PointerExit, _ => OnSkipButtonPointerUp());
             skipHoldBindingApplied = true;
+        }
+
+        private void SetupInteractableVisualBindingEvents()
+        {
+            if (buttonVisualBindings == null || buttonVisualBindings.Length == 0)
+                return;
+
+            for (int i = 0; i < buttonVisualBindings.Length; i++)
+            {
+                var binding = buttonVisualBindings[i];
+                var button = binding.button;
+                if (button == null || binding.visualMode != ButtonVisualMode.Interactable)
+                    continue;
+
+                if (!interactableVisualPressedStates.ContainsKey(button))
+                    interactableVisualPressedStates.Add(button, false);
+
+                if (interactableVisualBindingEventBoundButtons.Contains(button))
+                    continue;
+
+                var trigger = button.GetComponent<EventTrigger>();
+                if (trigger == null)
+                    trigger = button.gameObject.AddComponent<EventTrigger>();
+
+                AddEventTrigger(trigger, EventTriggerType.PointerDown, _ => OnInteractableVisualPointerDown(button));
+                AddEventTrigger(trigger, EventTriggerType.PointerUp, _ => OnInteractableVisualPointerUp(button));
+                AddEventTrigger(trigger, EventTriggerType.PointerExit, _ => OnInteractableVisualPointerUp(button));
+                interactableVisualBindingEventBoundButtons.Add(button);
+            }
+        }
+
+        private void OnInteractableVisualPointerDown(Button button)
+        {
+            if (button == null || !interactableVisualPressedStates.ContainsKey(button))
+                return;
+
+            interactableVisualPressedStates[button] = true;
+            RefreshButtonVisualStates();
+        }
+
+        private void OnInteractableVisualPointerUp(Button button)
+        {
+            if (button == null || !interactableVisualPressedStates.ContainsKey(button))
+                return;
+
+            interactableVisualPressedStates[button] = false;
+            RefreshButtonVisualStates();
         }
 
         private static void AddEventTrigger(EventTrigger trigger, EventTriggerType eventType, UnityEngine.Events.UnityAction<BaseEventData> callback)
@@ -202,11 +272,18 @@ namespace PPP.BLUE.VN
             subscribed = true;
 
             StartWaitAndRefresh();
+            RefreshButtonVisualStates();
         }
 
         private void OnDisable()
         {
             OnSkipButtonPointerUp();
+            if (interactableVisualPressedStates.Count > 0)
+            {
+                var keys = new List<Button>(interactableVisualPressedStates.Keys);
+                for (int i = 0; i < keys.Count; i++)
+                    interactableVisualPressedStates[keys[i]] = false;
+            }
             inputLocked = true;
             StopWaitAndRefresh();
 
@@ -310,6 +387,7 @@ namespace PPP.BLUE.VN
             SetButtonInteractable(autoPlayButton, skipAutoInteractable && !controlLockActive, ref lastAutoButtonInteractable);
             SetButtonInteractable(exitButton, exitInteractable && !controlLockActive, ref lastExitButtonInteractable);
             SetButtonInteractable(saveLoadButton, saveLoadInteractable && !controlLockActive, ref lastSaveLoadButtonInteractable);
+            RefreshButtonVisualStates();
         }
 
         private static void SetButtonInteractable(Button button, bool interactable, ref bool? cachedState)
@@ -322,6 +400,39 @@ namespace PPP.BLUE.VN
 
             button.interactable = interactable;
             cachedState = interactable;
+        }
+
+        private void RefreshButtonVisualStates()
+        {
+            if (buttonVisualBindings == null || buttonVisualBindings.Length == 0)
+                return;
+
+            for (int i = 0; i < buttonVisualBindings.Length; i++)
+            {
+                var binding = buttonVisualBindings[i];
+                var button = binding.button;
+                if (button == null)
+                    continue;
+
+                var targetImage = binding.targetImage != null ? binding.targetImage : button.image;
+                if (targetImage == null)
+                    continue;
+
+                bool isActive = binding.visualMode switch
+                {
+                    ButtonVisualMode.ToggleAutoPlay => runner != null && runner.IsAutoPlayEnabled && button.interactable,
+                    ButtonVisualMode.HoldSkip => runner != null && runner.IsHoldSkipInputActive && button.interactable,
+                    _ => button.interactable
+                         && interactableVisualPressedStates.TryGetValue(button, out var isPressed)
+                         && isPressed
+                };
+
+                var nextSprite = isActive ? binding.activeSprite : binding.inactiveSprite;
+                if (nextSprite == null || targetImage.sprite == nextSprite)
+                    continue;
+
+                targetImage.sprite = nextSprite;
+            }
         }
 
 
@@ -564,11 +675,13 @@ namespace PPP.BLUE.VN
 
             runner?.ForceAutoOff("Skip Hold Button");
             runner?.SetUiSkipHeld(true, "VNDialogueView Skip Hold");
+            RefreshButtonVisualStates();
         }
 
         public void OnSkipButtonPointerUp()
         {
             runner?.SetUiSkipHeld(false, "VNDialogueView Skip Hold");
+            RefreshButtonVisualStates();
         }
 
         public void OnAutoPlayButtonClicked()
@@ -578,6 +691,7 @@ namespace PPP.BLUE.VN
             if (Time.unscaledTime < controlActionLockedUntil)
                 return;
             ToggleAuto();
+            RefreshButtonVisualStates();
         }
 
         public void OnExitButtonClicked()
