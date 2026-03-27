@@ -1777,6 +1777,9 @@ namespace PPP.BLUE.VN
 
         private void ToggleAutoFromInput(string source)
         {
+            if (VNDialogueView.IsAnyBacklogOpen)
+                return;
+
             if (!CanToggleAuto())
             {
                 if (logToConsole) VNLog("[VN] Auto toggle ignored (blocked).");
@@ -2405,6 +2408,9 @@ namespace PPP.BLUE.VN
 
         public void ToggleSkip(string source = "UI Button")
         {
+            if (VNDialogueView.IsAnyBacklogOpen)
+                return;
+
             if (IsBacklogOpenByUI())
             {
                 VNLog($"[VN] SkipMode toggle ignored (Backlog Open) source={source}");
