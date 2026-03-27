@@ -633,6 +633,10 @@ namespace PPP.BLUE.VN
             if (isUIHidden || isUIAnimating)
                 return;
 
+            bool manualInputBlockedByBacklog = IsAnyBacklogOpen || IsBacklogOpen;
+            if (manualInputBlockedByBacklog)
+                EventSystem.current?.SetSelectedGameObject(null);
+
             if (runner != null && runner.IsWaiting && runner.CallStackCount > 0)
             {
                 return;
@@ -643,6 +647,9 @@ namespace PPP.BLUE.VN
                 autoPlayEnabled = false;
                 runner?.SetAutoPlay(false, "Drink Mode Auto Off");
             }
+
+            if (manualInputBlockedByBacklog)
+                return;
 
             if (!CanAcceptVNInput()) return;
             if (inputLockFrames > 0) { inputLockFrames--; return; }
