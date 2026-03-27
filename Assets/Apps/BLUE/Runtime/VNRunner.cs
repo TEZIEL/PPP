@@ -65,9 +65,10 @@ namespace PPP.BLUE.VN
         private float nextHoldSkipAllowedTime;
         private bool wasHoldSkipHeld;
         private bool uiSkipHeld;
-        private int lastSkipForceCompleteFrame = -1;
+        private int justForceCompletedFrame = -1;
         private bool holdSkipInputActive;
         private bool uiInputBlocked;
+        public bool JustForceCompletedThisFrame => justForceCompletedFrame == Time.frameCount;
 
         private string lastDrinkResult = "";
 
@@ -661,6 +662,9 @@ namespace PPP.BLUE.VN
 
         public void Next()
         {
+            if (JustForceCompletedThisFrame)
+                return;
+
             if (VNDialogueView.IsAnyBacklogOpen)
                 return;
 
@@ -694,6 +698,9 @@ namespace PPP.BLUE.VN
 
         public void NextInternal()
         {
+            if (JustForceCompletedThisFrame)
+                return;
+
             if (skipMode)
             {
                 if (dialogueView == null)
@@ -2547,7 +2554,7 @@ namespace PPP.BLUE.VN
             if (!CanRunSkipStep())
                 return;
 
-            if (lastSkipForceCompleteFrame == Time.frameCount)
+            if (JustForceCompletedThisFrame)
                 return;
 
             if (dialogueView == null)
@@ -2560,7 +2567,6 @@ namespace PPP.BLUE.VN
             {
                 VNLog("[VN/SKIP] typing detected -> force complete only");
                 VNLog("[VN/SKIP] finalized current line and returned");
-                lastSkipForceCompleteFrame = Time.frameCount;
                 skipMode = false;
                 return;
             }
@@ -2580,7 +2586,7 @@ namespace PPP.BLUE.VN
 
             try
             {
-                if (lastSkipForceCompleteFrame == Time.frameCount)
+                if (JustForceCompletedThisFrame)
                     return;
 
                 VNLog("[VN/SKIP] advancing to next node");
@@ -2590,6 +2596,11 @@ namespace PPP.BLUE.VN
             {
                 skipMode = false;
             }
+        }
+
+        public void MarkJustForceCompletedThisFrame()
+        {
+            justForceCompletedFrame = Time.frameCount;
         }
 
 

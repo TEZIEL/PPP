@@ -654,6 +654,7 @@ namespace PPP.BLUE.VN
             if (!CanAcceptVNInput()) return;
             if (inputLockFrames > 0) { inputLockFrames--; return; }
             if (runner == null) return;
+            if (runner.JustForceCompletedThisFrame) return;
             if (!runner.HasScript) return;
             if (IsBacklogInputBlocked()) return;
             HandleSkipAutoState();
@@ -984,6 +985,7 @@ namespace PPP.BLUE.VN
             lineDisplayed = true;
             lineCompleted = true; // 안전하게 유지
             runner?.BacklogFinalizeCurrentLine(currentFullText);
+            runner?.MarkJustForceCompletedThisFrame();
         }
 
         public bool TryCompleteCurrentLineForSkip()
@@ -994,6 +996,7 @@ namespace PPP.BLUE.VN
             lineDisplayed = true;
             lineCompleted = true;
             runner?.BacklogFinalizeCurrentLine(currentFullText);
+            runner?.MarkJustForceCompletedThisFrame();
             return true;
         }
 
