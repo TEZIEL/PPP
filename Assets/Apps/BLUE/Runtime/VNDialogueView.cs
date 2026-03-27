@@ -27,6 +27,7 @@ namespace PPP.BLUE.VN
         [SerializeField] private Button autoPlayButton;
         [SerializeField] private Button exitButton;
         [SerializeField] private Button saveLoadButton;
+        [SerializeField] private Button hideUIButton;
         [SerializeField] private VNSaveLoadWindow saveLoadWindow;
         [SerializeField] private VNBacklogView backlogView;
         [SerializeField] private CanvasGroup dialogueCanvasGroup;
@@ -62,6 +63,7 @@ namespace PPP.BLUE.VN
         private bool? lastAutoButtonInteractable;
         private bool? lastExitButtonInteractable;
         private bool? lastSaveLoadButtonInteractable;
+        private bool? lastHideUIButtonInteractable;
         private bool skipHoldBindingApplied;
         private readonly HashSet<Button> interactableVisualBindingEventBoundButtons = new();
         private readonly Dictionary<Button, bool> interactableVisualPressedStates = new();
@@ -126,6 +128,7 @@ namespace PPP.BLUE.VN
             ResolveMinimizedUIRefs();
             SetMinimizedUIVisible(false);
             AutoBindSaveLoadButton();
+            AutoBindHideUIButton();
             SetupSkipHoldBinding();
             SetupInteractableVisualBindingEvents();
             Debug.Log($"[VN_UI] bind runner={(runner ? runner.name : "NULL")}");
@@ -269,6 +272,34 @@ namespace PPP.BLUE.VN
                         continue;
 
                     saveLoadButton = button;
+                    return;
+                }
+            }
+        }
+
+        private void AutoBindHideUIButton()
+        {
+            if (hideUIButton != null)
+                return;
+
+            var buttons = GetComponentsInChildren<Button>(true);
+            for (int i = 0; i < buttons.Length; i++)
+            {
+                var button = buttons[i];
+                if (button == null)
+                    continue;
+
+                var onClick = button.onClick;
+                int count = onClick.GetPersistentEventCount();
+                for (int j = 0; j < count; j++)
+                {
+                    if (onClick.GetPersistentTarget(j) != (Object)this)
+                        continue;
+
+                    if (onClick.GetPersistentMethodName(j) != nameof(HideUI))
+                        continue;
+
+                    hideUIButton = button;
                     return;
                 }
             }
@@ -515,10 +546,11 @@ namespace PPP.BLUE.VN
 
         private void HandleControlButtonState()
         {
-            bool isDrinkMode = policy != null && policy.IsDrinkPanelOpen;
+            bool isDrinkMode = policy != null && policy.IsDrinkModeActive();
             bool controlsBlockedByUI = isUIHidden || isUIAnimating;
             bool skipAutoInteractable = !isDrinkMode && !controlsBlockedByUI;
             bool exitInteractable = !isDrinkMode && !controlsBlockedByUI;
+            bool hideUIInteractable = !isDrinkMode && !controlsBlockedByUI;
             bool typingInProgress = (typer != null && typer.IsTyping) || !lineCompleted || inputLocked;
             bool saveAllowedByRunner = runner == null || runner.SaveAllowed;
             bool saveLoadInteractable = !isDrinkMode && !typingInProgress && saveAllowedByRunner && !controlsBlockedByUI;
@@ -528,6 +560,7 @@ namespace PPP.BLUE.VN
             SetButtonInteractable(autoPlayButton, skipAutoInteractable && !controlLockActive, ref lastAutoButtonInteractable);
             SetButtonInteractable(exitButton, exitInteractable && !controlLockActive, ref lastExitButtonInteractable);
             SetButtonInteractable(saveLoadButton, saveLoadInteractable && !controlLockActive, ref lastSaveLoadButtonInteractable);
+            SetButtonInteractable(hideUIButton, hideUIInteractable && !controlLockActive, ref lastHideUIButtonInteractable);
             RefreshButtonVisualStates();
         }
 
@@ -900,12 +933,11 @@ namespace PPP.BLUE.VN
             saveLoadWindow.Open();
         }
 
-        public void ToggleBacklogWindow()
-        {
-            backlogView?.Toggle();
         public void HideUI()
         {
             if (isUIAnimating || isUIHidden)
+                return;
+            if (policy != null && policy.IsDrinkModeActive())
                 return;
 
             ResolveDialogueUIRefs();
