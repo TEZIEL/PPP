@@ -154,6 +154,7 @@ namespace PPP.BLUE.VN
 
             BindPolicy("Awake");
             if (dialogueView == null) dialogueView = GetComponentInChildren<VNDialogueView>(true);
+            dialogueView?.EnsureBacklogBindingFromRunner();
             skipMode = false; // 인스펙터 값과 무관하게 런타임 기본 OFF
             
 
@@ -414,6 +415,9 @@ namespace PPP.BLUE.VN
             if (bridge != null)               
 
             StartCoroutine(CoBindPolicyNextFrame());
+            if (dialogueView == null)
+                dialogueView = GetComponentInChildren<VNDialogueView>(true);
+            dialogueView?.EnsureBacklogBindingFromRunner();
 
             RebuildExternalCallTargetSet();
             var bootState = VNFileSaveSystem.Load(VN_STATE_KEY);
