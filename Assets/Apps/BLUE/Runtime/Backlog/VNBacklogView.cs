@@ -350,7 +350,7 @@ namespace PPP.BLUE.VN
                     if (scrollbar != null)
                         scrollRect.verticalScrollbar = scrollbar;
                 }
-                scrollRect.verticalScrollbarVisibility = ScrollRect.ScrollbarVisibility.AutoHideAndExpandViewport;
+                scrollRect.verticalScrollbarVisibility = ScrollRect.ScrollbarVisibility.Permanent;
             }
 
             var viewport = contentRoot.parent as RectTransform;
@@ -389,7 +389,7 @@ namespace PPP.BLUE.VN
                 if (!TryGetValidScrollRect(out var scrollRect))
                     return;
 
-                scrollRect.verticalNormalizedPosition = 1f; // 최신순(상단) 정책 고정
+                scrollRect.verticalNormalizedPosition = 0f; // 오름차순(상단→하단)에서 최신 로그가 보이는 위치
             }
         }
 
