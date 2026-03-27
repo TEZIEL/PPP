@@ -65,10 +65,10 @@ namespace PPP.BLUE.VN
         private float nextHoldSkipAllowedTime;
         private bool wasHoldSkipHeld;
         private bool uiSkipHeld;
-        private int justForceCompletedFrame = -1;
+        private bool justForceCompletedThisFrame;
         private bool holdSkipInputActive;
         private bool uiInputBlocked;
-        public bool JustForceCompletedThisFrame => justForceCompletedFrame == Time.frameCount;
+        public bool JustForceCompletedThisFrame => justForceCompletedThisFrame;
 
         private string lastDrinkResult = "";
 
@@ -562,6 +562,11 @@ namespace PPP.BLUE.VN
             // (여기 아래에 네 기존 autoPending 방식 로직이 있으면 그대로 두면 됨)
         }
 
+        private void LateUpdate()
+        {
+            justForceCompletedThisFrame = false;
+        }
+
         private void SyncFocusLinkedImages()
         {
             if (!syncFocusLinkedImages || focusLinkedImages == null || focusLinkedImages.Length == 0)
@@ -663,7 +668,10 @@ namespace PPP.BLUE.VN
         public void Next()
         {
             if (JustForceCompletedThisFrame)
+            {
+                VNLog("[VN/SKIP] blocked Next (same frame)");
                 return;
+            }
 
             if (VNDialogueView.IsAnyBacklogOpen)
                 return;
@@ -699,7 +707,10 @@ namespace PPP.BLUE.VN
         public void NextInternal()
         {
             if (JustForceCompletedThisFrame)
+            {
+                VNLog("[VN/SKIP] blocked Next (same frame)");
                 return;
+            }
 
             if (skipMode)
             {
@@ -708,8 +719,8 @@ namespace PPP.BLUE.VN
 
                 if (dialogueView?.TryCompleteCurrentLineForSkip() == true)
                 {
-                    VNLog("[VN/SKIP] typing detected -> force complete only");
-                    VNLog("[VN/SKIP] finalized current line and returned");
+                    VNLog("[VN/SKIP] force complete only");
+                    VNLog("[VN/SKIP] finalize and return");
                     return;
                 }
             }
@@ -2565,8 +2576,8 @@ namespace PPP.BLUE.VN
             // 타이핑 중이면 문장 완성
             if (dialogueView?.TryCompleteCurrentLineForSkip() == true)
             {
-                VNLog("[VN/SKIP] typing detected -> force complete only");
-                VNLog("[VN/SKIP] finalized current line and returned");
+                VNLog("[VN/SKIP] force complete only");
+                VNLog("[VN/SKIP] finalize and return");
                 skipMode = false;
                 return;
             }
@@ -2587,9 +2598,12 @@ namespace PPP.BLUE.VN
             try
             {
                 if (JustForceCompletedThisFrame)
+                {
+                    VNLog("[VN/SKIP] blocked Next (same frame)");
                     return;
+                }
 
-                VNLog("[VN/SKIP] advancing to next node");
+                VNLog("[VN/SKIP] advancing next (next frame)");
                 Next();
             }
             finally
@@ -2600,7 +2614,7 @@ namespace PPP.BLUE.VN
 
         public void MarkJustForceCompletedThisFrame()
         {
-            justForceCompletedFrame = Time.frameCount;
+            justForceCompletedThisFrame = true;
         }
 
 
