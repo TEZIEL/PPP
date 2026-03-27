@@ -17,6 +17,9 @@ namespace PPP.BLUE.VN
         private VNBacklogManager manager;
         private readonly Dictionary<string, VNBacklogItemView> itemByKey = new();
         private bool lastKnownOpen;
+        private bool isRebuilding;
+        private bool pendingRebuild;
+        private Coroutine deferredLayoutCoroutine;
         public bool IsOpen => root != null ? root.activeInHierarchy : gameObject.activeInHierarchy;
         public event Action<bool> OnOpenStateChanged;
 
@@ -81,6 +84,12 @@ namespace PPP.BLUE.VN
             if (entry == null || contentRoot == null)
                 return;
 
+            if (isRebuilding)
+            {
+                pendingRebuild = true;
+                return;
+            }
+
             if (!itemByKey.ContainsKey(entry.CompositeKey))
             {
                 RebuildAll();
@@ -119,29 +128,49 @@ namespace PPP.BLUE.VN
 
         private void RebuildAll()
         {
+            if (isRebuilding)
+            {
+                pendingRebuild = true;
+                return;
+            }
+
             int entryCount = manager != null ? manager.GetEntriesForDisplay().Count : -1;
             Debug.Log($"[VNBacklogView] RebuildAll entries={entryCount}");
             if (manager == null || contentRoot == null)
                 return;
 
-            for (int i = contentRoot.childCount - 1; i >= 0; i--)
-                Destroy(contentRoot.GetChild(i).gameObject);
-            itemByKey.Clear();
-
-            var entries = manager.GetEntriesForDisplay();
-            for (int i = 0; i < entries.Count; i++)
+            isRebuilding = true;
+            try
             {
-                var entry = entries[i];
-                var item = GetOrCreateItem(entry.CompositeKey);
-                if (item != null)
+                for (int i = contentRoot.childCount - 1; i >= 0; i--)
+                    Destroy(contentRoot.GetChild(i).gameObject);
+                itemByKey.Clear();
+
+                var entries = manager.GetEntriesForDisplay();
+                for (int i = 0; i < entries.Count; i++)
                 {
+                    var entry = entries[i];
+                    var item = GetOrCreateItem(entry.CompositeKey);
+                    if (item == null)
+                        continue;
+
                     NormalizeItemLayout(item);
                     item.Bind(entry);
                     RebuildItemLayout(item);
                 }
             }
+            finally
+            {
+                isRebuilding = false;
+            }
 
-            RebuildContentLayout(alignToTop: true);
+            ScheduleDeferredLayout(alignToTop: true);
+
+            if (pendingRebuild)
+            {
+                pendingRebuild = false;
+                RebuildAll();
+            }
         }
 
         private void Awake()
@@ -344,6 +373,12 @@ namespace PPP.BLUE.VN
 
         private void RebuildContentLayout(bool alignToTop)
         {
+            if (isRebuilding)
+            {
+                pendingRebuild = true;
+                return;
+            }
+
             if (contentRoot == null)
                 return;
 
@@ -351,10 +386,45 @@ namespace PPP.BLUE.VN
             Canvas.ForceUpdateCanvases();
             if (alignToTop && IsOpen)
             {
-                var scrollRect = contentRoot.GetComponentInParent<ScrollRect>();
-                if (scrollRect != null)
-                    scrollRect.verticalNormalizedPosition = 1f; // 최신순(상단) 정책 고정
+                if (!TryGetValidScrollRect(out var scrollRect))
+                    return;
+
+                scrollRect.verticalNormalizedPosition = 1f; // 최신순(상단) 정책 고정
             }
+        }
+
+        private void ScheduleDeferredLayout(bool alignToTop)
+        {
+            if (deferredLayoutCoroutine != null)
+                StopCoroutine(deferredLayoutCoroutine);
+
+            deferredLayoutCoroutine = StartCoroutine(CoDeferredLayout(alignToTop));
+        }
+
+        private System.Collections.IEnumerator CoDeferredLayout(bool alignToTop)
+        {
+            yield return null; // Destroy 반영 후
+            deferredLayoutCoroutine = null;
+            if (this == null || !isActiveAndEnabled)
+                yield break;
+
+            RebuildContentLayout(alignToTop);
+        }
+
+        private bool TryGetValidScrollRect(out ScrollRect scrollRect)
+        {
+            scrollRect = null;
+            if (contentRoot == null)
+                return false;
+
+            var sr = contentRoot.GetComponentInParent<ScrollRect>();
+            if (sr == null || sr.viewport == null || sr.content == null)
+                return false;
+            if (sr.content != contentRoot)
+                return false;
+
+            scrollRect = sr;
+            return true;
         }
 
         private void SyncOpenState()
