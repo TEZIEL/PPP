@@ -855,6 +855,7 @@ namespace PPP.BLUE.VN
             }
 
             inputLocked = locked;
+            runner?.SetUiInputBlocked(locked, "Dialogue UI Hide/Show");
             if (locked)
                 OnSkipButtonPointerUp();
         }
