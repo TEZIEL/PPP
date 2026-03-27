@@ -699,7 +699,11 @@ namespace PPP.BLUE.VN
                     dialogueView = GetComponentInChildren<VNDialogueView>(true);
 
                 if (dialogueView?.TryCompleteCurrentLineForSkip() == true)
+                {
+                    VNLog("[VN/SKIP] typing detected -> force complete only");
+                    VNLog("[VN/SKIP] finalize current line and return");
                     return;
+                }
             }
 
             if (uiInputBlocked)
@@ -2550,6 +2554,8 @@ namespace PPP.BLUE.VN
             // 타이핑 중이면 문장 완성
             if (dialogueView?.TryCompleteCurrentLineForSkip() == true)
             {
+                VNLog("[VN/SKIP] typing detected -> force complete only");
+                VNLog("[VN/SKIP] finalize current line and return");
                 skipMode = false;
                 return;
             }
@@ -2569,6 +2575,7 @@ namespace PPP.BLUE.VN
 
             try
             {
+                VNLog("[VN/SKIP] advancing to next node");
                 Next();
             }
             finally

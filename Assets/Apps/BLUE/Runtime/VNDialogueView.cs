@@ -988,12 +988,12 @@ namespace PPP.BLUE.VN
 
         public bool TryCompleteCurrentLineForSkip()
         {
-            if (lineCompleted) return false;
             if (typer == null || !typer.IsTyping) return false;
 
             typer.ForceComplete();
             lineDisplayed = true;
             lineCompleted = true;
+            runner?.BacklogFinalizeCurrentLine(currentFullText);
             return true;
         }
 
@@ -1045,10 +1045,7 @@ namespace PPP.BLUE.VN
                 return;
 
             if (TryCompleteCurrentLineForSkip())
-            {
-                runner?.BacklogFinalizeCurrentLine(currentFullText);
                 return;
-            }
         }
 
         public void OnSkipButtonPointerDown()
@@ -1074,8 +1071,7 @@ namespace PPP.BLUE.VN
 
         public void OnSkipButtonPointerUp()
         {
-            if (TryCompleteCurrentLineForSkip())
-                runner?.BacklogFinalizeCurrentLine(currentFullText);
+            TryCompleteCurrentLineForSkip();
 
             runner?.SetUiSkipHeld(false, "VNDialogueView Skip Hold");
             RefreshButtonVisualStates();
