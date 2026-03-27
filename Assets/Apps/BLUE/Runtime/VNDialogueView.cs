@@ -601,7 +601,10 @@ namespace PPP.BLUE.VN
         private void HandleBacklogOpenStateChanged(bool isOpenNow)
         {
             if (isOpenNow)
+            {
                 runner?.SetUiSkipHeld(false, "Backlog Open");
+                EventSystem.current?.SetSelectedGameObject(null);
+            }
 
             HandleControlButtonState();
         }

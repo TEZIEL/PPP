@@ -81,12 +81,19 @@ namespace PPP.BLUE.VN
             if (entry == null || contentRoot == null)
                 return;
 
+            if (!itemByKey.ContainsKey(entry.CompositeKey))
+            {
+                RebuildAll();
+                return;
+            }
+
             var item = GetOrCreateItem(entry.CompositeKey);
             if (item != null)
             {
                 NormalizeItemLayout(item);
                 item.Bind(entry);
                 RebuildItemLayout(item);
+                RebuildContentLayout(alignToTop: false);
             }
         }
 
@@ -134,7 +141,7 @@ namespace PPP.BLUE.VN
                 }
             }
 
-            RebuildContentLayout();
+            RebuildContentLayout(alignToTop: true);
         }
 
         private void Awake()
@@ -308,6 +315,13 @@ namespace PPP.BLUE.VN
                 scrollRect.vertical = true;
                 if (scrollRect.viewport != null && scrollRect.viewport.GetComponent<RectMask2D>() == null)
                     scrollRect.viewport.gameObject.AddComponent<RectMask2D>();
+                if (scrollRect.verticalScrollbar == null)
+                {
+                    var scrollbar = scrollRect.GetComponentInChildren<Scrollbar>(true);
+                    if (scrollbar != null)
+                        scrollRect.verticalScrollbar = scrollbar;
+                }
+                scrollRect.verticalScrollbarVisibility = ScrollRect.ScrollbarVisibility.AutoHideAndExpandViewport;
             }
 
             var viewport = contentRoot.parent as RectTransform;
@@ -328,13 +342,19 @@ namespace PPP.BLUE.VN
                 LayoutRebuilder.ForceRebuildLayoutImmediate(rect);
         }
 
-        private void RebuildContentLayout()
+        private void RebuildContentLayout(bool alignToTop)
         {
             if (contentRoot == null)
                 return;
 
             LayoutRebuilder.ForceRebuildLayoutImmediate(contentRoot);
             Canvas.ForceUpdateCanvases();
+            if (alignToTop && IsOpen)
+            {
+                var scrollRect = contentRoot.GetComponentInParent<ScrollRect>();
+                if (scrollRect != null)
+                    scrollRect.verticalNormalizedPosition = 1f; // 최신순(상단) 정책 고정
+            }
         }
 
         private void SyncOpenState()
