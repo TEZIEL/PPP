@@ -7,6 +7,14 @@ namespace PPP.BLUE.VN
     {
         [SerializeField] private TMP_Text speakerText;
         [SerializeField] private TMP_Text bodyText;
+        public TMP_Text SpeakerTemplateText => speakerText;
+        public TMP_Text BodyTemplateText => bodyText;
+
+        public void SetupRuntimeTexts(TMP_Text speaker, TMP_Text body)
+        {
+            speakerText = speaker;
+            bodyText = body;
+        }
 
         public void SetupRuntimeTexts(TMP_Text speaker, TMP_Text body)
         {

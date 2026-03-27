@@ -69,6 +69,10 @@ namespace PPP.BLUE.VN
         private readonly Dictionary<Button, bool> interactableVisualPressedStates = new();
         private float controlActionLockedUntil;
         private Coroutine waitAndRefreshCoroutine;
+        private VNBacklogView backlogStateObservedView;
+        private static int openBacklogViewCount;
+        public static bool IsAnyBacklogOpen => openBacklogViewCount > 0;
+        public bool IsBacklogOpen => backlogView != null && backlogView.IsOpen;
 
         private enum ButtonVisualMode
         {
@@ -458,6 +462,14 @@ namespace PPP.BLUE.VN
             runner.OnSay -= HandleSay;
             runner.OnEnd -= HandleEnd;
             subscribed = false;
+
+            if (backlogStateObservedView != null)
+            {
+                backlogStateObservedView.OnOpenStateChanged -= HandleBacklogOpenStateChanged;
+                if (backlogStateObservedView.IsOpen)
+                    openBacklogViewCount = Mathf.Max(0, openBacklogViewCount - 1);
+                backlogStateObservedView = null;
+            }
         }
 
         private void OnDestroy()
@@ -493,7 +505,9 @@ namespace PPP.BLUE.VN
             }
 
             Debug.Log($"[VN_UI] Binding backlog view ({reason}) with runner={runner.name}");
+            backlogView.ConfigureFallbackTextTemplates(nameText, dialogueText);
             backlogView.BindManager(runner.BacklogManager);
+            ObserveBacklogState(backlogView);
         }
 
         private VNBacklogView CreateRuntimeBacklogView()
@@ -550,8 +564,48 @@ namespace PPP.BLUE.VN
             scrollRect.vertical = true;
 
             var view = backlogRootGo.AddComponent<VNBacklogView>();
+            backlogRootGo.SetActive(false);
             Debug.LogWarning("[VN_UI] VNBacklogView missing in scene/prefab. Runtime backlog UI fallback was created.");
             return view;
+        }
+
+        private void ObserveBacklogState(VNBacklogView view)
+        {
+            if (view == null)
+                return;
+
+            if (backlogStateObservedView == view)
+                return;
+
+            if (backlogStateObservedView != null)
+            {
+                backlogStateObservedView.OnOpenStateChanged -= HandleBacklogOpenStateChanged;
+                if (backlogStateObservedView.IsOpen)
+                    openBacklogViewCount = Mathf.Max(0, openBacklogViewCount - 1);
+            }
+
+            backlogStateObservedView = view;
+            backlogStateObservedView.OnOpenStateChanged += HandleBacklogOpenStateChanged;
+            if (backlogStateObservedView.IsOpen)
+                openBacklogViewCount++;
+        }
+
+        private void HandleBacklogOpenStateChanged(bool isOpenNow)
+        {
+            if (isOpenNow)
+                openBacklogViewCount++;
+            else
+                openBacklogViewCount = Mathf.Max(0, openBacklogViewCount - 1);
+
+            if (isOpenNow)
+                runner?.SetUiSkipHeld(false, "Backlog Open");
+
+            HandleControlButtonState();
+        }
+
+        private bool IsBacklogInputBlocked()
+        {
+            return IsBacklogOpen;
         }
 
         private void Update()
@@ -575,6 +629,7 @@ namespace PPP.BLUE.VN
             if (inputLockFrames > 0) { inputLockFrames--; return; }
             if (runner == null) return;
             if (!runner.HasScript) return;
+            if (IsBacklogInputBlocked()) return;
             HandleSkipAutoState();
 
             // InputGate를 통과한 입력만 대사 진행에 사용
@@ -638,8 +693,9 @@ namespace PPP.BLUE.VN
         {
             bool isDrinkMode = policy != null && policy.IsDrinkModeActive();
             bool controlsBlockedByUI = isUIHidden || isUIAnimating;
-            bool skipAutoInteractable = !isDrinkMode && !controlsBlockedByUI;
-            bool exitInteractable = !isDrinkMode && !controlsBlockedByUI;
+            bool backlogOpen = IsBacklogOpen;
+            bool skipAutoInteractable = !isDrinkMode && !controlsBlockedByUI && !backlogOpen;
+            bool exitInteractable = !isDrinkMode && !controlsBlockedByUI && !backlogOpen;
             bool hideUIInteractable = !isDrinkMode && !controlsBlockedByUI;
             bool typingInProgress = (typer != null && typer.IsTyping) || !lineCompleted || inputLocked;
             bool saveAllowedByRunner = runner == null || runner.SaveAllowed;
@@ -929,6 +985,8 @@ namespace PPP.BLUE.VN
         {
             if ((isUIHidden || isUIAnimating) && value)
                 return;
+            if (IsBacklogInputBlocked())
+                return;
 
             autoPlayEnabled = value;
             runner?.SetAutoPlay(value, "VNDialogueView UI");
@@ -937,6 +995,8 @@ namespace PPP.BLUE.VN
         public void ToggleAuto()
         {
             if (isUIHidden || isUIAnimating)
+                return;
+            if (IsBacklogInputBlocked())
                 return;
 
             bool nextValue = !(runner != null && runner.IsAutoPlayEnabled);
@@ -951,6 +1011,8 @@ namespace PPP.BLUE.VN
         public void OnSkipButtonPointerDown()
         {
             if (isUIHidden || isUIAnimating)
+                return;
+            if (IsBacklogInputBlocked())
                 return;
             if (policy != null && policy.IsDrinkPanelOpen)
                 return;
@@ -974,6 +1036,8 @@ namespace PPP.BLUE.VN
         {
             if (isUIHidden || isUIAnimating)
                 return;
+            if (IsBacklogInputBlocked())
+                return;
             if (policy != null && !VNInputGate.CanUseSkipOrAuto(policy))
                 return;
             if (Time.unscaledTime < controlActionLockedUntil)
@@ -985,6 +1049,8 @@ namespace PPP.BLUE.VN
         public void OnExitButtonClicked()
         {
             if (isUIHidden || isUIAnimating)
+                return;
+            if (IsBacklogInputBlocked())
                 return;
             if (policy != null && policy.IsDrinkPanelOpen)
                 return;

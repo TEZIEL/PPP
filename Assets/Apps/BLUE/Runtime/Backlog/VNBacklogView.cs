@@ -2,6 +2,7 @@ using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
+using System;
 
 namespace PPP.BLUE.VN
 {
@@ -10,9 +11,22 @@ namespace PPP.BLUE.VN
         [SerializeField] private GameObject root;
         [SerializeField] private RectTransform contentRoot;
         [SerializeField] private VNBacklogItemView itemPrefab;
+        [SerializeField] private TMP_Text fallbackSpeakerTemplate;
+        [SerializeField] private TMP_Text fallbackBodyTemplate;
 
         private VNBacklogManager manager;
         private readonly Dictionary<string, VNBacklogItemView> itemByKey = new();
+        private bool isOpen;
+        public bool IsOpen => isOpen;
+        public event Action<bool> OnOpenStateChanged;
+
+        public void ConfigureFallbackTextTemplates(TMP_Text speakerTemplate, TMP_Text bodyTemplate)
+        {
+            if (speakerTemplate != null)
+                fallbackSpeakerTemplate = speakerTemplate;
+            if (bodyTemplate != null)
+                fallbackBodyTemplate = bodyTemplate;
+        }
 
         public void BindManager(VNBacklogManager backlogManager)
         {
@@ -54,6 +68,12 @@ namespace PPP.BLUE.VN
                 root.SetActive(open);
             else
                 gameObject.SetActive(open);
+
+            if (isOpen != open)
+            {
+                isOpen = open;
+                OnOpenStateChanged?.Invoke(open);
+            }
 
             if (open)
                 RebuildAll();
@@ -117,6 +137,7 @@ namespace PPP.BLUE.VN
         {
             if (contentRoot == null)
                 contentRoot = transform.Find("Content") as RectTransform;
+            isOpen = root != null ? root.activeSelf : gameObject.activeSelf;
             LogReferenceState("Awake");
         }
 
@@ -125,7 +146,7 @@ namespace PPP.BLUE.VN
             Debug.Log($"[VNBacklogView] {phase} refs root={(root != null)} contentRoot={(contentRoot != null)} itemPrefab={(itemPrefab != null)}");
         }
 
-        private static VNBacklogItemView CreateRuntimeItem(RectTransform parent)
+        private VNBacklogItemView CreateRuntimeItem(RectTransform parent)
         {
             if (parent == null)
                 return null;
@@ -137,8 +158,10 @@ namespace PPP.BLUE.VN
             rowRect.anchorMax = new Vector2(1f, 1f);
             rowRect.pivot = new Vector2(0.5f, 1f);
 
-            var speakerGo = CreateRuntimeText("Speaker", rowRect, new Vector2(8f, -8f), 20, FontStyles.Bold);
-            var bodyGo = CreateRuntimeText("Body", rowRect, new Vector2(8f, -34f), 18, FontStyles.Normal);
+            var speakerTemplate = ResolveSpeakerTemplate();
+            var bodyTemplate = ResolveBodyTemplate();
+            var speakerGo = CreateRuntimeText("Speaker", rowRect, new Vector2(8f, -8f), speakerTemplate);
+            var bodyGo = CreateRuntimeText("Body", rowRect, new Vector2(8f, -34f), bodyTemplate);
             var bodyRect = bodyGo.rectTransform;
             bodyRect.anchorMax = new Vector2(1f, 1f);
             bodyRect.sizeDelta = new Vector2(-16f, 0f);
@@ -148,7 +171,21 @@ namespace PPP.BLUE.VN
             return view;
         }
 
-        private static TextMeshProUGUI CreateRuntimeText(string name, RectTransform parent, Vector2 anchoredPos, float fontSize, FontStyles fontStyle)
+        private TMP_Text ResolveSpeakerTemplate()
+        {
+            if (itemPrefab != null && itemPrefab.SpeakerTemplateText != null)
+                return itemPrefab.SpeakerTemplateText;
+            return fallbackSpeakerTemplate != null ? fallbackSpeakerTemplate : fallbackBodyTemplate;
+        }
+
+        private TMP_Text ResolveBodyTemplate()
+        {
+            if (itemPrefab != null && itemPrefab.BodyTemplateText != null)
+                return itemPrefab.BodyTemplateText;
+            return fallbackBodyTemplate != null ? fallbackBodyTemplate : fallbackSpeakerTemplate;
+        }
+
+        private static TextMeshProUGUI CreateRuntimeText(string name, RectTransform parent, Vector2 anchoredPos, TMP_Text template)
         {
             var go = new GameObject(name, typeof(RectTransform), typeof(TextMeshProUGUI));
             var rect = go.GetComponent<RectTransform>();
@@ -161,11 +198,28 @@ namespace PPP.BLUE.VN
 
             var text = go.GetComponent<TextMeshProUGUI>();
             text.text = string.Empty;
-            text.enableWordWrapping = true;
-            text.fontSize = fontSize;
-            text.fontStyle = fontStyle;
-            text.color = Color.white;
+            if (template != null)
+                CopyTextStyle(template, text);
             return text;
+        }
+
+        private static void CopyTextStyle(TMP_Text source, TMP_Text target)
+        {
+            if (source == null || target == null)
+                return;
+
+            target.font = source.font;
+            target.fontSharedMaterial = source.fontSharedMaterial;
+            target.fontSize = source.fontSize;
+            target.fontStyle = source.fontStyle;
+            target.alignment = source.alignment;
+            target.enableWordWrapping = source.enableWordWrapping;
+            target.overflowMode = source.overflowMode;
+            target.color = source.color;
+            target.raycastTarget = source.raycastTarget;
+            target.richText = source.richText;
+            target.isRightToLeftText = source.isRightToLeftText;
+            target.enableAutoSizing = source.enableAutoSizing;
         }
     }
 }
