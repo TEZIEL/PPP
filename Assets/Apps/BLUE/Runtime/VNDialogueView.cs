@@ -366,7 +366,9 @@ namespace PPP.BLUE.VN
                 {
                     ButtonVisualMode.ToggleAutoPlay => runner != null && runner.IsAutoPlayEnabled && button.interactable,
                     ButtonVisualMode.HoldSkip => runner != null && runner.IsHoldSkipInputActive && button.interactable,
-                    _ => button.interactable
+                    // 일반 버튼은 기본 상태를 "꺼짐(평상시)"으로 두고,
+                    // 실제 상호작용 불가 상태에서만 Active 스프라이트를 표시한다.
+                    _ => !button.interactable
                 };
 
                 var nextSprite = isActive ? binding.activeSprite : binding.inactiveSprite;
