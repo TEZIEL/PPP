@@ -18881,7 +18881,7 @@ MonoBehaviour:
   skipButton: {fileID: 8212970735057202272}
   autoPlayButton: {fileID: 5261307437254180606}
   exitButton: {fileID: 673330969755753658}
-  saveLoadButton: {fileID: 0}
+  saveLoadButton: {fileID: 310943238779110831}
   saveLoadWindow: {fileID: 3270875385100370035}
   buttonVisualBindings:
   - label: 
