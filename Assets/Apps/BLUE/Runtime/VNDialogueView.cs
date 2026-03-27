@@ -705,6 +705,9 @@ namespace PPP.BLUE.VN
             }
 
             // ✅ 그 외에는 다음 라인
+            if (runner != null && runner.JustForceCompletedThisFrame)
+                return;
+
             lineDisplayed = false;
             runner.Next();
             Debug.Log("[VN_UI] Next input detected -> runner.Next()");
@@ -998,6 +1001,19 @@ namespace PPP.BLUE.VN
             runner?.BacklogFinalizeCurrentLine(currentFullText);
             runner?.MarkJustForceCompletedThisFrame();
             return true;
+        }
+
+        public bool IsCurrentLineTyping()
+        {
+            return typer != null && typer.IsTyping;
+        }
+
+        public void FinalizeCurrentLineAfterForceComplete()
+        {
+            lineDisplayed = true;
+            lineCompleted = true;
+            runner?.BacklogFinalizeCurrentLine(currentFullText);
+            runner?.MarkJustForceCompletedThisFrame();
         }
 
         public void SetSkip(bool value)

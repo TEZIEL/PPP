@@ -66,6 +66,7 @@ namespace PPP.BLUE.VN
         private bool wasHoldSkipHeld;
         private bool uiSkipHeld;
         private bool justForceCompletedThisFrame;
+        private int justForceCompletedFrame = -1;
         private bool holdSkipInputActive;
         private bool uiInputBlocked;
         public bool JustForceCompletedThisFrame => justForceCompletedThisFrame;
@@ -567,6 +568,17 @@ namespace PPP.BLUE.VN
             justForceCompletedThisFrame = false;
         }
 
+        private bool IsSameFrameForceCompleteBlocked()
+        {
+            if (!justForceCompletedThisFrame)
+                return false;
+
+            if (justForceCompletedFrame < 0)
+                return true;
+
+            return justForceCompletedFrame == Time.frameCount;
+        }
+
         private void SyncFocusLinkedImages()
         {
             if (!syncFocusLinkedImages || focusLinkedImages == null || focusLinkedImages.Length == 0)
@@ -667,9 +679,9 @@ namespace PPP.BLUE.VN
 
         public void Next()
         {
-            if (JustForceCompletedThisFrame)
+            if (IsSameFrameForceCompleteBlocked())
             {
-                VNLog("[VN/SKIP] blocked Next (same frame)");
+                VNLog("[VN/SKIP] blocked Next due to same-frame force complete");
                 return;
             }
 
@@ -686,6 +698,12 @@ namespace PPP.BLUE.VN
 
         private void AdvanceCore(bool allowBacklogWhileOpen = false)
         {
+            if (IsSameFrameForceCompleteBlocked())
+            {
+                VNLog("[VN/SKIP] blocked AdvanceCore due to same-frame force complete");
+                return;
+            }
+
             if (isAdvancing)
                 return;
 
@@ -706,9 +724,9 @@ namespace PPP.BLUE.VN
 
         public void NextInternal()
         {
-            if (JustForceCompletedThisFrame)
+            if (IsSameFrameForceCompleteBlocked())
             {
-                VNLog("[VN/SKIP] blocked Next (same frame)");
+                VNLog("[VN/SKIP] blocked Next due to same-frame force complete");
                 return;
             }
 
@@ -2565,7 +2583,7 @@ namespace PPP.BLUE.VN
             if (!CanRunSkipStep())
                 return;
 
-            if (JustForceCompletedThisFrame)
+            if (IsSameFrameForceCompleteBlocked())
                 return;
 
             if (dialogueView == null)
@@ -2573,11 +2591,14 @@ namespace PPP.BLUE.VN
 
             skipMode = true;
 
-            // 타이핑 중이면 문장 완성
-            if (dialogueView?.TryCompleteCurrentLineForSkip() == true)
+            // 타이핑 중이면 문장 완성 후 같은 흐름에서 즉시 종료 (Next 금지)
+            if (dialogueView != null && dialogueView.IsCurrentLineTyping())
             {
-                VNLog("[VN/SKIP] force complete only");
-                VNLog("[VN/SKIP] finalize and return");
+                if (dialogueView?.TryCompleteCurrentLineForSkip() != true)
+                    dialogueView?.FinalizeCurrentLineAfterForceComplete();
+
+                MarkJustForceCompletedThisFrame();
+                VNLog("[VN/SKIP] force complete only (SkipStep immediate return)");
                 skipMode = false;
                 return;
             }
@@ -2597,9 +2618,9 @@ namespace PPP.BLUE.VN
 
             try
             {
-                if (JustForceCompletedThisFrame)
+                if (IsSameFrameForceCompleteBlocked())
                 {
-                    VNLog("[VN/SKIP] blocked Next (same frame)");
+                    VNLog("[VN/SKIP] blocked Next due to same-frame force complete");
                     return;
                 }
 
@@ -2615,6 +2636,7 @@ namespace PPP.BLUE.VN
         public void MarkJustForceCompletedThisFrame()
         {
             justForceCompletedThisFrame = true;
+            justForceCompletedFrame = Time.frameCount;
         }
 
 
