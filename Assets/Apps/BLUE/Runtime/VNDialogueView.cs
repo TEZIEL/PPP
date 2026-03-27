@@ -27,10 +27,20 @@ namespace PPP.BLUE.VN
         [SerializeField] private Button autoPlayButton;
         [SerializeField] private Button exitButton;
         [SerializeField] private Button saveLoadButton;
+        [SerializeField] private Button hideUIButton;
         [SerializeField] private VNSaveLoadWindow saveLoadWindow;
         [SerializeField] private VNBacklogView backlogView;
         [SerializeField] private Button openBacklogButton;
         [SerializeField] private Button closeBacklogButton;
+        [SerializeField] private CanvasGroup dialogueCanvasGroup;
+        [SerializeField] private RectTransform dialogueRoot;
+        [SerializeField] private GameObject minimizedUIRoot;
+        [Header("Hide/Show Animation (Window Style)")]
+        [SerializeField] private float dialogueShowDuration = 0.12f;
+        [SerializeField] private float dialogueHideDuration = 0.10f;
+        [SerializeField] private float minimizedShowDuration = 0.12f;
+        [SerializeField] private float minimizedHideDuration = 0.10f;
+        [SerializeField] private Vector3 animFromScale = new Vector3(0.92f, 0.92f, 1f);
         [Header("Button Image States")]
         [SerializeField] private ButtonVisualBinding[] buttonVisualBindings = System.Array.Empty<ButtonVisualBinding>();
         // Legacy compatibility: kept hidden so partial merges referencing old fields still compile.
@@ -48,10 +58,14 @@ namespace PPP.BLUE.VN
         private bool inputLocked = true;
         private int inputLockFrames = 0;
         private bool subscribed;
+        private bool isUIDisappearing = false;
+        private bool isUIHidden = false;
+        private bool isUIAnimating = false;
         private bool? lastSkipButtonInteractable;
         private bool? lastAutoButtonInteractable;
         private bool? lastExitButtonInteractable;
         private bool? lastSaveLoadButtonInteractable;
+        private bool? lastHideUIButtonInteractable;
         private bool skipHoldBindingApplied;
         private readonly HashSet<Button> interactableVisualBindingEventBoundButtons = new();
         private readonly Dictionary<Button, bool> interactableVisualPressedStates = new();
@@ -113,7 +127,11 @@ namespace PPP.BLUE.VN
                 advanceClickArea = dialogueText.rectTransform;
             if (graphicRaycaster == null)
                 graphicRaycaster = GetComponentInParent<GraphicRaycaster>(true);
+            ResolveDialogueUIRefs();
+            ResolveMinimizedUIRefs();
+            SetMinimizedUIVisible(false);
             AutoBindSaveLoadButton();
+            AutoBindHideUIButton();
             SetupSkipHoldBinding();
             SetupInteractableVisualBindingEvents();
             BindBacklogButtons();
@@ -383,6 +401,34 @@ namespace PPP.BLUE.VN
             }
         }
 
+        private void AutoBindHideUIButton()
+        {
+            if (hideUIButton != null)
+                return;
+
+            var buttons = GetComponentsInChildren<Button>(true);
+            for (int i = 0; i < buttons.Length; i++)
+            {
+                var button = buttons[i];
+                if (button == null)
+                    continue;
+
+                var onClick = button.onClick;
+                int count = onClick.GetPersistentEventCount();
+                for (int j = 0; j < count; j++)
+                {
+                    if (onClick.GetPersistentTarget(j) != (Object)this)
+                        continue;
+
+                    if (onClick.GetPersistentMethodName(j) != nameof(HideUI))
+                        continue;
+
+                    hideUIButton = button;
+                    return;
+                }
+            }
+        }
+
         private void SetupSkipHoldBinding()
         {
             if (skipHoldBindingApplied || skipButton == null)
@@ -545,6 +591,8 @@ namespace PPP.BLUE.VN
         private void Update()
         {
             HandleControlButtonState();
+            if (isUIHidden || isUIAnimating)
+                return;
 
             if (runner != null && runner.IsWaiting && runner.CallStackCount > 0)
             {
@@ -622,18 +670,21 @@ namespace PPP.BLUE.VN
 
         private void HandleControlButtonState()
         {
-            bool isDrinkMode = policy != null && policy.IsDrinkPanelOpen;
-            bool skipAutoInteractable = !isDrinkMode;
-            bool exitInteractable = !isDrinkMode;
+            bool isDrinkMode = policy != null && policy.IsDrinkModeActive();
+            bool controlsBlockedByUI = isUIHidden || isUIAnimating;
+            bool skipAutoInteractable = !isDrinkMode && !controlsBlockedByUI;
+            bool exitInteractable = !isDrinkMode && !controlsBlockedByUI;
+            bool hideUIInteractable = !isDrinkMode && !controlsBlockedByUI;
             bool typingInProgress = (typer != null && typer.IsTyping) || !lineCompleted || inputLocked;
             bool saveAllowedByRunner = runner == null || runner.SaveAllowed;
-            bool saveLoadInteractable = !isDrinkMode && !typingInProgress && saveAllowedByRunner;
+            bool saveLoadInteractable = !isDrinkMode && !typingInProgress && saveAllowedByRunner && !controlsBlockedByUI;
             bool controlLockActive = Time.unscaledTime < controlActionLockedUntil;
 
             SetButtonInteractable(skipButton, skipAutoInteractable && !controlLockActive, ref lastSkipButtonInteractable);
             SetButtonInteractable(autoPlayButton, skipAutoInteractable && !controlLockActive, ref lastAutoButtonInteractable);
             SetButtonInteractable(exitButton, exitInteractable && !controlLockActive, ref lastExitButtonInteractable);
             SetButtonInteractable(saveLoadButton, saveLoadInteractable && !controlLockActive, ref lastSaveLoadButtonInteractable);
+            SetButtonInteractable(hideUIButton, hideUIInteractable && !controlLockActive, ref lastHideUIButtonInteractable);
             RefreshButtonVisualStates();
         }
 
@@ -910,12 +961,20 @@ namespace PPP.BLUE.VN
 
         public void SetAutoPlay(bool value)
         {
+            if ((isUIHidden || isUIAnimating) && value)
+                return;
+
+            autoPlayEnabled = value;
             runner?.SetAutoPlay(value, "VNDialogueView UI");
         }
 
         public void ToggleAuto()
         {
-            runner?.ToggleAuto("VNDialogueView UI");
+            if (isUIHidden || isUIAnimating)
+                return;
+
+            bool nextValue = !(runner != null && runner.IsAutoPlayEnabled);
+            SetAutoPlay(nextValue);
         }
 
         public void OnSkipButtonClicked()
@@ -925,6 +984,8 @@ namespace PPP.BLUE.VN
 
         public void OnSkipButtonPointerDown()
         {
+            if (isUIHidden || isUIAnimating)
+                return;
             if (policy != null && policy.IsDrinkPanelOpen)
                 return;
             if (policy != null && !VNInputGate.CanUseSkipOrAuto(policy))
@@ -945,6 +1006,8 @@ namespace PPP.BLUE.VN
 
         public void OnAutoPlayButtonClicked()
         {
+            if (isUIHidden || isUIAnimating)
+                return;
             if (policy != null && !VNInputGate.CanUseSkipOrAuto(policy))
                 return;
             if (Time.unscaledTime < controlActionLockedUntil)
@@ -955,6 +1018,8 @@ namespace PPP.BLUE.VN
 
         public void OnExitButtonClicked()
         {
+            if (isUIHidden || isUIAnimating)
+                return;
             if (policy != null && policy.IsDrinkPanelOpen)
                 return;
             if (policy != null && policy.IsSaveLoadModalOpen)
@@ -976,6 +1041,8 @@ namespace PPP.BLUE.VN
 
         public void OpenSaveLoadWindow()
         {
+            if (isUIHidden || isUIAnimating)
+                return;
             if (policy != null && policy.IsDrinkModeActive())
                 return;
 
