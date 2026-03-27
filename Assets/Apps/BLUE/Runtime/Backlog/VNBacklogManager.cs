@@ -58,6 +58,12 @@ namespace PPP.BLUE.VN
             if (entry == null)
                 return;
 
+            if (entry.isFinal)
+            {
+                DebugLog($"entry update ignored (already final) key={entry.CompositeKey}");
+                return;
+            }
+
             entry.text = partialText ?? string.Empty;
             entry.isFinal = false;
             DebugLog($"entry updated key={entry.CompositeKey} chars={entry.text.Length}");
@@ -73,7 +79,11 @@ namespace PPP.BLUE.VN
             if (entry == null)
                 return;
 
-            entry.text = fullText ?? string.Empty;
+            string normalized = fullText ?? string.Empty;
+            if (string.IsNullOrEmpty(normalized) && !string.IsNullOrEmpty(entry.text))
+                normalized = entry.text;
+
+            entry.text = normalized;
             entry.isFinal = true;
             DebugLog($"entry finalized key={entry.CompositeKey} chars={entry.text.Length}");
             RaiseChanged(entry);
