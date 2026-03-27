@@ -28,6 +28,9 @@ namespace PPP.BLUE.VN
         [SerializeField] private Button exitButton;
         [SerializeField] private Button saveLoadButton;
         [SerializeField] private VNSaveLoadWindow saveLoadWindow;
+        [SerializeField] private VNBacklogView backlogView;
+        [SerializeField] private Button openBacklogButton;
+        [SerializeField] private Button closeBacklogButton;
         [Header("Button Image States")]
         [SerializeField] private ButtonVisualBinding[] buttonVisualBindings = System.Array.Empty<ButtonVisualBinding>();
         // Legacy compatibility: kept hidden so partial merges referencing old fields still compile.
@@ -103,6 +106,9 @@ namespace PPP.BLUE.VN
             if (closePopupController == null) closePopupController = GetComponentInChildren<VNClosePopupController>(true);
             if (typer != null) typer.SetTarget(dialogueText);
             if (runner == null) runner = GetComponentInParent<VNRunner>(true);
+            EnsureBacklogRuntimeSetup();
+            if (backlogView == null) backlogView = GetComponentInChildren<VNBacklogView>(true);
+            backlogView?.BindManager(runner != null ? runner.BacklogManager : null);
             if (advanceClickArea == null && dialogueText != null)
                 advanceClickArea = dialogueText.rectTransform;
             if (graphicRaycaster == null)
@@ -110,7 +116,243 @@ namespace PPP.BLUE.VN
             AutoBindSaveLoadButton();
             SetupSkipHoldBinding();
             SetupInteractableVisualBindingEvents();
+            BindBacklogButtons();
             Debug.Log($"[VN_UI] bind runner={(runner ? runner.name : "NULL")}");
+        }
+
+        private void EnsureBacklogRuntimeSetup()
+        {
+            if (backlogView != null)
+                return;
+
+            var existing = transform.Find("BacklogWindow");
+            if (existing != null)
+            {
+                backlogView = existing.GetComponent<VNBacklogView>();
+                if (backlogView != null)
+                    return;
+            }
+
+            var backlogWindow = new GameObject("BacklogWindow", typeof(RectTransform), typeof(CanvasGroup), typeof(VNBacklogView));
+            var backlogRect = backlogWindow.GetComponent<RectTransform>();
+            backlogRect.SetParent(transform, false);
+            backlogRect.anchorMin = Vector2.zero;
+            backlogRect.anchorMax = Vector2.one;
+            backlogRect.offsetMin = Vector2.zero;
+            backlogRect.offsetMax = Vector2.zero;
+
+            var group = backlogWindow.GetComponent<CanvasGroup>();
+            group.alpha = 0f;
+            group.interactable = false;
+            group.blocksRaycasts = false;
+
+            var dimmer = new GameObject("BacklogDimmer", typeof(RectTransform), typeof(Image), typeof(Button));
+            var dimmerRect = dimmer.GetComponent<RectTransform>();
+            dimmerRect.SetParent(backlogRect, false);
+            dimmerRect.anchorMin = Vector2.zero;
+            dimmerRect.anchorMax = Vector2.one;
+            dimmerRect.offsetMin = Vector2.zero;
+            dimmerRect.offsetMax = Vector2.zero;
+            var dimmerImage = dimmer.GetComponent<Image>();
+            dimmerImage.color = new Color(0f, 0f, 0f, 0.55f);
+            var dimmerButton = dimmer.GetComponent<Button>();
+            dimmerButton.onClick.AddListener(CloseBacklogWindow);
+
+            var panel = new GameObject("BacklogPanel", typeof(RectTransform), typeof(Image));
+            var panelRect = panel.GetComponent<RectTransform>();
+            panelRect.SetParent(backlogRect, false);
+            panelRect.anchorMin = new Vector2(0.12f, 0.15f);
+            panelRect.anchorMax = new Vector2(0.88f, 0.85f);
+            panelRect.offsetMin = Vector2.zero;
+            panelRect.offsetMax = Vector2.zero;
+            panel.GetComponent<Image>().color = new Color(0.91f, 0.91f, 0.91f, 1f);
+
+            var header = CreateTMPText("Header", panelRect, "Backlog", 30f, 1f, 1f, 56f, FontStyles.Bold);
+            header.alignment = TextAlignmentOptions.Left;
+            header.margin = new Vector4(18f, 10f, 0f, 0f);
+
+            var closeBtn = CreateButton("CloseButton", panelRect, new Vector2(64f, 42f), new Vector2(1f, 1f), new Vector2(-12f, -8f), "닫기");
+            closeBtn.onClick.AddListener(CloseBacklogWindow);
+            closeBacklogButton = closeBtn;
+
+            var scrollGO = new GameObject("ScrollView", typeof(RectTransform), typeof(Image), typeof(ScrollRect));
+            var scrollRect = scrollGO.GetComponent<RectTransform>();
+            scrollRect.SetParent(panelRect, false);
+            scrollRect.anchorMin = new Vector2(0.03f, 0.08f);
+            scrollRect.anchorMax = new Vector2(0.97f, 0.88f);
+            scrollRect.offsetMin = Vector2.zero;
+            scrollRect.offsetMax = Vector2.zero;
+            scrollGO.GetComponent<Image>().color = new Color(1f, 1f, 1f, 0.95f);
+
+            var viewportGO = new GameObject("Viewport", typeof(RectTransform), typeof(Image), typeof(RectMask2D));
+            var viewportRect = viewportGO.GetComponent<RectTransform>();
+            viewportRect.SetParent(scrollRect, false);
+            viewportRect.anchorMin = Vector2.zero;
+            viewportRect.anchorMax = Vector2.one;
+            viewportRect.offsetMin = Vector2.zero;
+            viewportRect.offsetMax = Vector2.zero;
+            viewportGO.GetComponent<Image>().color = new Color(1f, 1f, 1f, 0.02f);
+
+            var contentGO = new GameObject("Content", typeof(RectTransform), typeof(VerticalLayoutGroup), typeof(ContentSizeFitter));
+            var contentRect = contentGO.GetComponent<RectTransform>();
+            contentRect.SetParent(viewportRect, false);
+            contentRect.anchorMin = new Vector2(0f, 1f);
+            contentRect.anchorMax = new Vector2(1f, 1f);
+            contentRect.pivot = new Vector2(0.5f, 1f);
+            contentRect.anchoredPosition = Vector2.zero;
+            contentRect.sizeDelta = new Vector2(0f, 0f);
+
+            var layout = contentGO.GetComponent<VerticalLayoutGroup>();
+            layout.padding = new RectOffset(12, 12, 12, 12);
+            layout.spacing = 10f;
+            layout.childAlignment = TextAnchor.UpperLeft;
+            layout.childControlWidth = true;
+            layout.childControlHeight = true;
+            layout.childForceExpandWidth = true;
+            layout.childForceExpandHeight = false;
+
+            var fitter = contentGO.GetComponent<ContentSizeFitter>();
+            fitter.horizontalFit = ContentSizeFitter.FitMode.Unconstrained;
+            fitter.verticalFit = ContentSizeFitter.FitMode.PreferredSize;
+
+            var scroll = scrollGO.GetComponent<ScrollRect>();
+            scroll.content = contentRect;
+            scroll.viewport = viewportRect;
+            scroll.horizontal = false;
+            scroll.vertical = true;
+            scroll.movementType = ScrollRect.MovementType.Clamped;
+            scroll.scrollSensitivity = 30f;
+
+            var emptyText = CreateTMPText("EmptyText", panelRect, "기록이 없습니다.", 28f, 0f, 1f, 46f, FontStyles.Normal);
+            emptyText.alignment = TextAlignmentOptions.Center;
+            emptyText.color = new Color(0f, 0f, 0f, 0.7f);
+
+            var template = CreateBacklogItemTemplate(contentRect);
+            template.gameObject.SetActive(false);
+
+            backlogView = backlogWindow.GetComponent<VNBacklogView>();
+            backlogView.Configure(backlogWindow, scroll, contentRect, template, emptyText, group);
+            backlogView.Close();
+        }
+
+        private VNBacklogItemView CreateBacklogItemTemplate(Transform parent)
+        {
+            var item = new GameObject("BacklogItemTemplate", typeof(RectTransform), typeof(LayoutElement), typeof(Image), typeof(VNBacklogItemView));
+            var rect = item.GetComponent<RectTransform>();
+            rect.SetParent(parent, false);
+            rect.anchorMin = new Vector2(0f, 1f);
+            rect.anchorMax = new Vector2(1f, 1f);
+            rect.pivot = new Vector2(0.5f, 1f);
+            rect.sizeDelta = new Vector2(0f, 110f);
+
+            var layout = item.GetComponent<LayoutElement>();
+            layout.minHeight = 96f;
+            layout.preferredHeight = 110f;
+            layout.flexibleHeight = 0f;
+
+            var bg = item.GetComponent<Image>();
+            bg.color = new Color(1f, 1f, 1f, 0.9f);
+
+            var speaker = CreateTMPText("SpeakerText", rect, "Speaker", 24f, 0f, 1f, 34f, FontStyles.Bold);
+            speaker.alignment = TextAlignmentOptions.TopLeft;
+            speaker.margin = new Vector4(12f, 6f, 0f, 0f);
+
+            var body = CreateTMPText("BodyText", rect, "Dialogue", 22f, 0f, 1f, 72f, FontStyles.Normal);
+            body.alignment = TextAlignmentOptions.TopLeft;
+            body.margin = new Vector4(12f, 40f, 12f, 0f);
+            body.enableWordWrapping = true;
+
+            var itemView = item.GetComponent<VNBacklogItemView>();
+            itemView.Configure(speaker, body);
+            return itemView;
+        }
+
+        private static Button CreateButton(string name, Transform parent, Vector2 size, Vector2 anchor, Vector2 anchoredPos, string label)
+        {
+            var go = new GameObject(name, typeof(RectTransform), typeof(Image), typeof(Button));
+            var rect = go.GetComponent<RectTransform>();
+            rect.SetParent(parent, false);
+            rect.anchorMin = anchor;
+            rect.anchorMax = anchor;
+            rect.pivot = new Vector2(0.5f, 0.5f);
+            rect.sizeDelta = size;
+            rect.anchoredPosition = anchoredPos;
+
+            go.GetComponent<Image>().color = new Color(0.86f, 0.86f, 0.86f, 1f);
+            var button = go.GetComponent<Button>();
+            button.targetGraphic = go.GetComponent<Image>();
+
+            var text = CreateTMPText("Text", rect, label, 20f, 0f, 1f, size.y, FontStyles.Bold);
+            text.alignment = TextAlignmentOptions.Center;
+            return button;
+        }
+
+        private static TextMeshProUGUI CreateTMPText(
+            string name,
+            Transform parent,
+            string text,
+            float fontSize,
+            float anchorMinY,
+            float anchorMaxY,
+            float height,
+            FontStyles fontStyle)
+        {
+            var go = new GameObject(name, typeof(RectTransform), typeof(TextMeshProUGUI));
+            var rect = go.GetComponent<RectTransform>();
+            rect.SetParent(parent, false);
+            rect.anchorMin = new Vector2(0f, anchorMinY);
+            rect.anchorMax = new Vector2(1f, anchorMaxY);
+            rect.offsetMin = new Vector2(0f, 0f);
+            rect.offsetMax = new Vector2(0f, height * -1f);
+
+            var tmp = go.GetComponent<TextMeshProUGUI>();
+            tmp.text = text;
+            tmp.fontSize = fontSize;
+            tmp.fontStyle = fontStyle;
+            tmp.color = Color.black;
+            tmp.raycastTarget = false;
+            return tmp;
+        }
+
+        private void BindBacklogButtons()
+        {
+            if (openBacklogButton == null)
+                openBacklogButton = FindButtonByLabel("이전대사");
+
+            if (openBacklogButton != null)
+            {
+                openBacklogButton.onClick.RemoveListener(ToggleBacklogWindow);
+                openBacklogButton.onClick.AddListener(ToggleBacklogWindow);
+            }
+
+            if (closeBacklogButton != null)
+            {
+                closeBacklogButton.onClick.RemoveListener(CloseBacklogWindow);
+                closeBacklogButton.onClick.AddListener(CloseBacklogWindow);
+            }
+        }
+
+        private Button FindButtonByLabel(string label)
+        {
+            if (string.IsNullOrEmpty(label))
+                return null;
+
+            var buttons = buttonContainerRoot != null
+                ? buttonContainerRoot.GetComponentsInChildren<Button>(true)
+                : GetComponentsInChildren<Button>(true);
+
+            for (int i = 0; i < buttons.Length; i++)
+            {
+                var btn = buttons[i];
+                if (btn == null)
+                    continue;
+
+                var text = btn.GetComponentInChildren<TextMeshProUGUI>(true);
+                if (text != null && text.text != null && text.text.IndexOf(label, System.StringComparison.Ordinal) >= 0)
+                    return btn;
+            }
+
+            return null;
         }
 
         private void AutoBindSaveLoadButton()
@@ -293,6 +535,11 @@ namespace PPP.BLUE.VN
             runner.OnSay -= HandleSay;
             runner.OnEnd -= HandleEnd;
             subscribed = false;
+        }
+
+        private void OnDestroy()
+        {
+            backlogView?.UnbindManager();
         }
 
         private void Update()
@@ -566,7 +813,7 @@ namespace PPP.BLUE.VN
             Debug.Log($"[CHECK] inputLocked={inputLocked}");
         }
 
-        private void HandleSay(string speakerId, string text, string lineId)
+        private void HandleSay(string speakerId, string text, string lineId, VNBacklogKey backlogKey)
         {
           
             inputLockFrames = 1;
@@ -576,6 +823,9 @@ namespace PPP.BLUE.VN
             currentFullText = text ?? "";
 
             runner?.MarkSeen(lineId);
+            runner?.BacklogSetCurrentLineTyping(true);
+            if (backlogKey != null)
+                runner?.BacklogUpdateCurrentLineText(string.Empty);
 
             if (nameText != null) nameText.text = speakerId ?? "";
             if (dialogueText != null) dialogueText.text = "";
@@ -588,6 +838,8 @@ namespace PPP.BLUE.VN
                 if (dialogueText != null) dialogueText.text = currentFullText;
                 lineCompleted = true;
                 lineDisplayed = true;
+                runner?.BacklogUpdateCurrentLineText(currentFullText);
+                runner?.BacklogFinalizeCurrentLine(currentFullText);
 
                 runner?.MarkSaveAllowed(true, "No Typer => Immediate");
                 runner?.NotifyLineTypedEnd();
@@ -600,6 +852,8 @@ namespace PPP.BLUE.VN
                 dialogueText.text = currentFullText;
                 lineCompleted = true;
                 lineDisplayed = true;
+                runner?.BacklogUpdateCurrentLineText(currentFullText);
+                runner?.BacklogFinalizeCurrentLine(currentFullText);
 
                 runner?.NotifyLineTypedEnd();
                 runner?.MarkSaveAllowed(true, "Skip Immediate");
@@ -612,10 +866,14 @@ namespace PPP.BLUE.VN
             {
                 lineCompleted = true;
                 lineDisplayed = true;
+                runner?.BacklogFinalizeCurrentLine(currentFullText);
                 runner?.NotifyLineTypedEnd();
 
                 runner?.MarkSaveAllowed(true, "Typing Completed");
                 Debug.Log("[VN] SaveAllowed TRUE (Typing Completed)");
+            }, onUpdated: partial =>
+            {
+                runner?.BacklogUpdateCurrentLineText(partial);
             });
         }
 
@@ -626,6 +884,7 @@ namespace PPP.BLUE.VN
 
             lineDisplayed = true;
             lineCompleted = true; // 안전하게 유지
+            runner?.BacklogFinalizeCurrentLine(currentFullText);
         }
 
         public bool TryCompleteCurrentLineForSkip()
@@ -729,6 +988,21 @@ namespace PPP.BLUE.VN
             runner?.ForceAutoOff("Open SaveLoad Window");
             runner?.SetUiSkipHeld(false, "Open SaveLoad Window");
             saveLoadWindow.Open();
+        }
+
+        public void ToggleBacklogWindow()
+        {
+            backlogView?.Toggle();
+        }
+
+        public void OpenBacklogWindow()
+        {
+            backlogView?.Open();
+        }
+
+        public void CloseBacklogWindow()
+        {
+            backlogView?.Close();
         }
 
         private IEnumerator ReplayClick()
