@@ -34,6 +34,7 @@ namespace PPP.BLUE.VN
             fullTextCache = fullText ?? "";
             onCompletedCache = onCompleted;
             onUpdatedCache = onUpdated;
+            target.maxVisibleCharacters = int.MaxValue;
 
             typingToken++;
             int token = typingToken;
@@ -53,7 +54,7 @@ namespace PPP.BLUE.VN
 
             target.ForceMeshUpdate(); // 🔥 중요
 
-            target.maxVisibleCharacters = target.textInfo.characterCount; // 🔥 핵심
+            target.maxVisibleCharacters = int.MaxValue; // 다음 라인 타이핑이 잘리지 않도록 초기화
 
             IsTyping = false;
 
