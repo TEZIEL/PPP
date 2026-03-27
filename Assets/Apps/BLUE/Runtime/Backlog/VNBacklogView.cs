@@ -323,5 +323,94 @@ namespace PPP.BLUE.VN
             LayoutRebuilder.ForceRebuildLayoutImmediate(contentRoot);
             Canvas.ForceUpdateCanvases();
         }
+
+        private void Awake()
+        {
+            if (contentRoot == null)
+                contentRoot = transform.Find("Content") as RectTransform;
+            isOpen = root != null ? root.activeSelf : gameObject.activeSelf;
+            LogReferenceState("Awake");
+        }
+
+        private void LogReferenceState(string phase)
+        {
+            Debug.Log($"[VNBacklogView] {phase} refs root={(root != null)} contentRoot={(contentRoot != null)} itemPrefab={(itemPrefab != null)}");
+        }
+
+        private VNBacklogItemView CreateRuntimeItem(RectTransform parent)
+        {
+            if (parent == null)
+                return null;
+
+            var row = new GameObject("BacklogItem_Runtime", typeof(RectTransform), typeof(LayoutElement), typeof(VNBacklogItemView));
+            var rowRect = row.GetComponent<RectTransform>();
+            rowRect.SetParent(parent, false);
+            rowRect.anchorMin = new Vector2(0f, 1f);
+            rowRect.anchorMax = new Vector2(1f, 1f);
+            rowRect.pivot = new Vector2(0.5f, 1f);
+
+            var speakerTemplate = ResolveSpeakerTemplate();
+            var bodyTemplate = ResolveBodyTemplate();
+            var speakerGo = CreateRuntimeText("Speaker", rowRect, new Vector2(8f, -8f), speakerTemplate);
+            var bodyGo = CreateRuntimeText("Body", rowRect, new Vector2(8f, -34f), bodyTemplate);
+            var bodyRect = bodyGo.rectTransform;
+            bodyRect.anchorMax = new Vector2(1f, 1f);
+            bodyRect.sizeDelta = new Vector2(-16f, 0f);
+
+            var view = row.GetComponent<VNBacklogItemView>();
+            view.SetupRuntimeTexts(speakerGo, bodyGo);
+            return view;
+        }
+
+        private TMP_Text ResolveSpeakerTemplate()
+        {
+            if (itemPrefab != null && itemPrefab.SpeakerTemplateText != null)
+                return itemPrefab.SpeakerTemplateText;
+            return fallbackSpeakerTemplate != null ? fallbackSpeakerTemplate : fallbackBodyTemplate;
+        }
+
+        private TMP_Text ResolveBodyTemplate()
+        {
+            if (itemPrefab != null && itemPrefab.BodyTemplateText != null)
+                return itemPrefab.BodyTemplateText;
+            return fallbackBodyTemplate != null ? fallbackBodyTemplate : fallbackSpeakerTemplate;
+        }
+
+        private static TextMeshProUGUI CreateRuntimeText(string name, RectTransform parent, Vector2 anchoredPos, TMP_Text template)
+        {
+            var go = new GameObject(name, typeof(RectTransform), typeof(TextMeshProUGUI));
+            var rect = go.GetComponent<RectTransform>();
+            rect.SetParent(parent, false);
+            rect.anchorMin = new Vector2(0f, 1f);
+            rect.anchorMax = new Vector2(1f, 1f);
+            rect.pivot = new Vector2(0f, 1f);
+            rect.anchoredPosition = anchoredPos;
+            rect.sizeDelta = new Vector2(-16f, 24f);
+
+            var text = go.GetComponent<TextMeshProUGUI>();
+            text.text = string.Empty;
+            if (template != null)
+                CopyTextStyle(template, text);
+            return text;
+        }
+
+        private static void CopyTextStyle(TMP_Text source, TMP_Text target)
+        {
+            if (source == null || target == null)
+                return;
+
+            target.font = source.font;
+            target.fontSharedMaterial = source.fontSharedMaterial;
+            target.fontSize = source.fontSize;
+            target.fontStyle = source.fontStyle;
+            target.alignment = source.alignment;
+            target.enableWordWrapping = source.enableWordWrapping;
+            target.overflowMode = source.overflowMode;
+            target.color = source.color;
+            target.raycastTarget = source.raycastTarget;
+            target.richText = source.richText;
+            target.isRightToLeftText = source.isRightToLeftText;
+            target.enableAutoSizing = source.enableAutoSizing;
+        }
     }
 }
