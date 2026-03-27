@@ -66,6 +66,7 @@ namespace PPP.BLUE.VN
         private bool wasHoldSkipHeld;
         private bool uiSkipHeld;
         private bool holdSkipInputActive;
+        private bool uiInputBlocked;
 
         private string lastDrinkResult = "";
 
@@ -648,7 +649,11 @@ namespace PPP.BLUE.VN
 
         public void NextInternal()
         {
-
+            if (uiInputBlocked)
+            {
+                VNLog("[VN] Next blocked (UI hidden/animating).");
+                return;
+            }
 
             if (!started)
             {
@@ -1699,12 +1704,14 @@ namespace PPP.BLUE.VN
             if (!settings.auto) return false;
             if (!started) return false;
             if (policy == null) return false;
+            if (uiInputBlocked) return false;
 
             return VNInputGate.CanAutoAdvanceInBackground(policy) && SaveAllowed;
         }
 
         private bool CanToggleAuto()
         {
+            if (uiInputBlocked) return false;
             if (policy == null) return false;
             return VNInputGate.CanUseSkipOrAuto(policy);
         }
@@ -2365,6 +2372,19 @@ namespace PPP.BLUE.VN
             if (held)
             {
                 ForceAutoOff(source);
+            }
+        }
+
+        public void SetUiInputBlocked(bool blocked, string source = "VN UI")
+        {
+            if (uiInputBlocked == blocked)
+                return;
+
+            uiInputBlocked = blocked;
+            if (blocked)
+            {
+                ForceAutoOff($"{source} Input Block");
+                SetUiSkipHeld(false, $"{source} Input Block");
             }
         }
 
