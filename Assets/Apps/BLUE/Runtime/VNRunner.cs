@@ -217,7 +217,7 @@ namespace PPP.BLUE.VN
         }
 
 
-        public event Action<string, string, string> OnSay; // speakerId, text, lineId
+        public event Action<string, string, string, VNBacklogKey> OnSay; // speakerId, text, lineId, backlogKey
         public event Action OnEnd;
 
         public bool HasScript => script != null;
@@ -237,12 +237,16 @@ namespace PPP.BLUE.VN
         private readonly Dictionary<string, int> vars = new();
         private readonly HashSet<string> seenLineIds = new();
         private readonly Stack<VNCallFrame> callStack = new();
+        private readonly VNBacklogManager backlogManager = new();
         private VNCallFrame pendingCallResumeFrame;
         private bool dispatchingRestoredCall;
         private bool isRestoringFromLoad = false;
         private bool restoreStateInProgress;
         public bool IsDispatchingRestoredCall => dispatchingRestoredCall;
         private VNSettings settings = VNSettings.Default();
+        private VNBacklogKey currentBacklogKey = new();
+        private bool isCurrentLineTyping;
+        public VNBacklogManager BacklogManager => backlogManager;
 
         public bool TryGetCurrentSayState(out string currentNodeId, out int currentLineIndex, out string currentText, out string currentSpeaker)
         {
@@ -1042,6 +1046,9 @@ namespace PPP.BLUE.VN
             script = s;
             pointer = 0;
             started = false;
+            currentBacklogKey = new VNBacklogKey();
+            isCurrentLineTyping = false;
+            backlogManager.RestoreBacklog(null);
         }
 
         private void EmitSay(VNNode node)
@@ -1050,10 +1057,14 @@ namespace PPP.BLUE.VN
             var commands = ParseInlineCommands(text);
 
             string cleanText = RemoveInlineCommands(text);
+            var backlogKey = BuildBacklogKey(node);
+            backlogManager.BeginOrGetEntry(backlogKey, node?.speakerId ?? string.Empty);
+            currentBacklogKey = backlogKey;
+            isCurrentLineTyping = true;
 
             VNLog($"[VN] {node.speakerId}: {cleanText} (id={node.id})");
 
-            OnSay?.Invoke(node.speakerId, cleanText, node.id);
+            OnSay?.Invoke(node.speakerId, cleanText, node.id, backlogKey);
 
             foreach (var cmd in commands)
                 ExecuteInline(cmd);
@@ -1301,6 +1312,11 @@ namespace PPP.BLUE.VN
                     currentRequestId = drinkState.currentRequestId,
                     isActive = drinkState.isActive
                 };
+            st.backlog = backlogManager.SerializeBacklog();
+            st.currentLineKey = currentBacklogKey != null
+                ? new VNBacklogKey(currentBacklogKey.scriptId, currentBacklogKey.nodeId, currentBacklogKey.lineIndex)
+                : new VNBacklogKey();
+            st.isCurrentLineTyping = isCurrentLineTyping;
 
             return st;
         }
@@ -1486,6 +1502,7 @@ namespace PPP.BLUE.VN
                         seenLineIds.Add(lineId);
                 }
                 settings = dto.settings;
+                backlogManager.RestoreBacklog(dto.backlog);
 
                 greatCount = dto.greatCount;
                 successCount = dto.successCount;
@@ -1517,6 +1534,10 @@ namespace PPP.BLUE.VN
                     currentRequestId = dto.drink?.currentRequestId,
                     isActive = dto.drink != null && dto.drink.isActive
                 });
+                currentBacklogKey = dto.currentLineKey != null
+                    ? new VNBacklogKey(dto.currentLineKey.scriptId, dto.currentLineKey.nodeId, dto.currentLineKey.lineIndex)
+                    : new VNBacklogKey();
+                isCurrentLineTyping = dto.isCurrentLineTyping;
 
                 if (dto.isWaitingExternalCall && callStack.Count > 0)
                 {
@@ -1545,6 +1566,8 @@ namespace PPP.BLUE.VN
 
                 started = true;
                 EmitCurrent();
+                if (isCurrentLineTyping && currentBacklogKey != null && !string.IsNullOrEmpty(currentBacklogKey.nodeId))
+                    Debug.Log($"[VN/BACKLOG] current line rebound after load key={currentBacklogKey.ToCompositeKey()}");
                 return true;
             }
             finally
@@ -2379,6 +2402,40 @@ namespace PPP.BLUE.VN
                 return;
 
             ToggleAutoFromInput(source);
+        }
+
+        public void BacklogUpdateCurrentLineText(string text)
+        {
+            if (currentBacklogKey == null || string.IsNullOrEmpty(currentBacklogKey.nodeId))
+                return;
+
+            backlogManager.UpdateEntryText(currentBacklogKey, text ?? string.Empty);
+        }
+
+        public void BacklogFinalizeCurrentLine(string fullText)
+        {
+            if (currentBacklogKey == null || string.IsNullOrEmpty(currentBacklogKey.nodeId))
+                return;
+
+            backlogManager.FinalizeEntry(currentBacklogKey, fullText ?? string.Empty);
+            isCurrentLineTyping = false;
+        }
+
+        public void BacklogSetCurrentLineTyping(bool isTyping)
+        {
+            isCurrentLineTyping = isTyping;
+        }
+
+        private VNBacklogKey BuildBacklogKey(VNNode node)
+        {
+            string scriptId = script?.ScriptId ?? string.Empty;
+            string nodeId = node?.id ?? string.Empty;
+            int lineIndex = lastShownPointer;
+
+            if (lineIndex < 0 || script == null || script.nodes == null || lineIndex >= script.nodes.Count)
+                lineIndex = pointer;
+
+            return new VNBacklogKey(scriptId, nodeId, lineIndex);
         }
 
         private void SkipStep()

@@ -25,6 +25,9 @@ namespace PPP.BLUE.VN
 
         public List<VNRunner.VNCallFrame> callStack = new();
         public VNDrinkState drink = new();
+        public VNBacklogState backlog = new();
+        public VNBacklogKey currentLineKey = new();
+        public bool isCurrentLineTyping;
     }
 
     [Serializable]
