@@ -616,6 +616,13 @@ namespace PPP.BLUE.VN
 
         private void Update()
         {
+            if (IsBacklogOpen)
+            {
+                HandleControlButtonState();
+                EventSystem.current?.SetSelectedGameObject(null);
+                return;
+            }
+
             HandleControlButtonState();
             if (isUIHidden || isUIAnimating)
                 return;

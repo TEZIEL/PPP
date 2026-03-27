@@ -468,6 +468,12 @@ namespace PPP.BLUE.VN
         private void Update()
         {
             if (!HasScript) return;
+            if (VNDialogueView.IsAnyBacklogOpen)
+            {
+                if (UnityEngine.EventSystems.EventSystem.current != null)
+                    UnityEngine.EventSystems.EventSystem.current.SetSelectedGameObject(null);
+                return;
+            }
 
             SyncFocusLinkedImages();
             if (dialogueView == null)
@@ -656,6 +662,9 @@ namespace PPP.BLUE.VN
 
         public void Next()
         {
+            if (VNDialogueView.IsAnyBacklogOpen)
+                return;
+
             if (isAdvancing)
                 return;
 
@@ -2446,6 +2455,9 @@ namespace PPP.BLUE.VN
 
         public void ToggleAuto(string source = "UI Button")
         {
+            if (VNDialogueView.IsAnyBacklogOpen)
+                return;
+
             ToggleAutoFromInput(source);
         }
 
