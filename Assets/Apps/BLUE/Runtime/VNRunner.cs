@@ -693,6 +693,15 @@ namespace PPP.BLUE.VN
 
         public void NextInternal()
         {
+            if (skipMode)
+            {
+                if (dialogueView == null)
+                    dialogueView = GetComponentInChildren<VNDialogueView>(true);
+
+                if (dialogueView?.TryCompleteCurrentLineForSkip() == true)
+                    return;
+            }
+
             if (uiInputBlocked)
             {
                 VNLog("[VN] Next blocked (UI hidden/animating).");
