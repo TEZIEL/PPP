@@ -659,16 +659,29 @@ namespace PPP.BLUE.VN
         }
 
         bool isAdvancing;
+        bool allowBacklogAdvance;
 
         public void Next()
         {
             if (VNDialogueView.IsAnyBacklogOpen)
                 return;
 
+            AdvanceCore();
+        }
+
+        private void AdvanceFromAuto()
+        {
+            AdvanceCore(allowBacklogWhileOpen: true);
+        }
+
+        private void AdvanceCore(bool allowBacklogWhileOpen = false)
+        {
             if (isAdvancing)
                 return;
 
             isAdvancing = true;
+            bool prevAllowBacklogAdvance = allowBacklogAdvance;
+            allowBacklogAdvance = allowBacklogWhileOpen;
 
             try
             {
@@ -676,19 +689,29 @@ namespace PPP.BLUE.VN
             }
             finally
             {
+                allowBacklogAdvance = prevAllowBacklogAdvance;
                 isAdvancing = false;
             }
         }
 
         public void NextInternal()
         {
+            if (skipMode)
+            {
+                if (dialogueView == null)
+                    dialogueView = GetComponentInChildren<VNDialogueView>(true);
+
+                if (dialogueView?.TryCompleteCurrentLineForSkip() == true)
+                    return;
+            }
+
             if (uiInputBlocked)
             {
                 VNLog("[VN] Next blocked (UI hidden/animating).");
                 return;
             }
 
-            if (IsBacklogOpenByUI())
+            if (!allowBacklogAdvance && IsBacklogOpenByUI())
             {
                 VNLog("[VN] Next blocked (Backlog Open).");
                 return;
@@ -1777,6 +1800,9 @@ namespace PPP.BLUE.VN
 
         private void ToggleAutoFromInput(string source)
         {
+            if (VNDialogueView.IsAnyBacklogOpen)
+                return;
+
             if (!CanToggleAuto())
             {
                 if (logToConsole) VNLog("[VN] Auto toggle ignored (blocked).");
@@ -1839,6 +1865,7 @@ namespace PPP.BLUE.VN
 
         private IEnumerator CoAutoNext()
         {
+            VNLog("[VN/AUTO] CoAutoNext started");
             if (logToConsole) VNLog($"[VN] AutoTimer Start ({autoPlayDelaySeconds:0.00}s)");
 
             yield return new WaitForSeconds(autoPlayDelaySeconds);
@@ -1849,7 +1876,14 @@ namespace PPP.BLUE.VN
             if (!CanAutoAdvance()) yield break;
 
             if (logToConsole) VNLog("[VN] AutoNext");
-            Next();
+            VNLog("[VN/AUTO] AutoNext calling Next");
+
+            int prevPointer = pointer;
+            AdvanceFromAuto();
+            if (VNDialogueView.IsAnyBacklogOpen && pointer == prevPointer)
+                VNLog("[VN/AUTO] AutoNext blocked by backlog");
+            if (pointer != prevPointer)
+                VNLog("[VN/AUTO] AutoNext advanced successfully");
         }
 
         public void ForceAutoOff(string reason)
@@ -2405,6 +2439,9 @@ namespace PPP.BLUE.VN
 
         public void ToggleSkip(string source = "UI Button")
         {
+            if (VNDialogueView.IsAnyBacklogOpen)
+                return;
+
             if (IsBacklogOpenByUI())
             {
                 VNLog($"[VN] SkipMode toggle ignored (Backlog Open) source={source}");

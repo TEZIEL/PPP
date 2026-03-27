@@ -40,14 +40,16 @@ namespace PPP.BLUE.VN
 
         public void ForceComplete()
         {
-            if (target == null)
+            if (!IsTyping || target == null)
                 return;
 
-            CancelTyping();
-
+            StopAllCoroutines();
+            typingToken++;
+            co = null;
+            target.maxVisibleCharacters = 999999;
             target.text = fullTextCache;
             IsTyping = false;
-            onUpdatedCache?.Invoke(target.text);
+            onUpdatedCache?.Invoke(fullTextCache);
 
             var cb = onCompletedCache;
             onCompletedCache = null;
