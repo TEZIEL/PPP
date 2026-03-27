@@ -69,6 +69,22 @@ namespace PPP.BLUE.VN
         private readonly Dictionary<Button, bool> interactableVisualPressedStates = new();
         private float controlActionLockedUntil;
         private Coroutine waitAndRefreshCoroutine;
+        private VNBacklogView backlogStateObservedView;
+        private static readonly HashSet<VNDialogueView> activeDialogueViews = new();
+        public static bool IsAnyBacklogOpen
+        {
+            get
+            {
+                foreach (var view in activeDialogueViews)
+                {
+                    if (view != null && view.IsBacklogOpen)
+                        return true;
+                }
+
+                return false;
+            }
+        }
+        public bool IsBacklogOpen => backlogView != null && backlogView.IsOpen;
 
         private enum ButtonVisualMode
         {
@@ -119,7 +135,7 @@ namespace PPP.BLUE.VN
             if (typer != null) typer.SetTarget(dialogueText);
             if (runner == null) runner = GetComponentInParent<VNRunner>(true);
             if (backlogView == null) backlogView = GetComponentInChildren<VNBacklogView>(true);
-            backlogView?.BindManager(runner != null ? runner.BacklogManager : null);
+            EnsureBacklogBinding("Awake");
             if (advanceClickArea == null && dialogueText != null)
                 advanceClickArea = dialogueText.rectTransform;
             if (graphicRaycaster == null)
@@ -422,6 +438,7 @@ namespace PPP.BLUE.VN
 
         private void OnEnable()
         {
+            activeDialogueViews.Add(this);
             inputLocked = true;
             LockInputFrames(5); // 여기 추가 (2 말고 5 추천)
             Debug.Log($"[VN] DialogueView OnEnable text={(dialogueText != null ? dialogueText.text : "<null>")}");
@@ -435,12 +452,14 @@ namespace PPP.BLUE.VN
             runner.OnEnd += HandleEnd;
             subscribed = true;
 
+            EnsureBacklogBinding("OnEnable");
             StartWaitAndRefresh();
             RefreshButtonVisualStates();
         }
 
         private void OnDisable()
         {
+            activeDialogueViews.Remove(this);
             OnSkipButtonPointerUp();
             if (interactableVisualPressedStates.Count > 0)
             {
@@ -457,6 +476,12 @@ namespace PPP.BLUE.VN
             runner.OnSay -= HandleSay;
             runner.OnEnd -= HandleEnd;
             subscribed = false;
+
+            if (backlogStateObservedView != null)
+            {
+                backlogStateObservedView.OnOpenStateChanged -= HandleBacklogOpenStateChanged;
+                backlogStateObservedView = null;
+            }
         }
 
         private void OnDestroy()
@@ -464,8 +489,140 @@ namespace PPP.BLUE.VN
             backlogView?.UnbindManager();
         }
 
+        public void EnsureBacklogBindingFromRunner()
+        {
+            EnsureBacklogBinding("Runner");
+        }
+
+        private void EnsureBacklogBinding(string reason)
+        {
+            if (runner == null)
+                runner = GetComponentInParent<VNRunner>(true);
+            if (backlogView == null)
+                backlogView = GetComponentInChildren<VNBacklogView>(true);
+            if (backlogView == null)
+                backlogView = CreateRuntimeBacklogView();
+
+            if (backlogView == null)
+            {
+                Debug.LogWarning($"[VN_UI] Backlog bind skipped ({reason}): backlogView is null");
+                return;
+            }
+
+            if (runner == null)
+            {
+                Debug.LogWarning($"[VN_UI] Backlog bind skipped ({reason}): runner is null");
+                backlogView.BindManager(null);
+                return;
+            }
+
+            Debug.Log($"[VN_UI] Binding backlog view ({reason}) with runner={runner.name}");
+            backlogView.ConfigureFallbackTextTemplates(nameText, dialogueText);
+            backlogView.BindManager(runner.BacklogManager);
+            ObserveBacklogState(backlogView);
+        }
+
+        private VNBacklogView CreateRuntimeBacklogView()
+        {
+            RectTransform parent = transform as RectTransform;
+            if (parent == null)
+                return null;
+
+            var backlogRootGo = new GameObject("Backlog_Runtime", typeof(RectTransform), typeof(Image));
+            var backlogRootRect = backlogRootGo.GetComponent<RectTransform>();
+            backlogRootRect.SetParent(parent, false);
+            backlogRootRect.anchorMin = new Vector2(0f, 0f);
+            backlogRootRect.anchorMax = new Vector2(1f, 1f);
+            backlogRootRect.offsetMin = new Vector2(80f, 60f);
+            backlogRootRect.offsetMax = new Vector2(-80f, -60f);
+
+            var bg = backlogRootGo.GetComponent<Image>();
+            bg.color = new Color(0f, 0f, 0f, 0.75f);
+
+            var viewportGo = new GameObject("Viewport", typeof(RectTransform), typeof(Image), typeof(Mask));
+            var viewportRect = viewportGo.GetComponent<RectTransform>();
+            viewportRect.SetParent(backlogRootRect, false);
+            viewportRect.anchorMin = new Vector2(0f, 0f);
+            viewportRect.anchorMax = new Vector2(1f, 1f);
+            viewportRect.offsetMin = new Vector2(20f, 20f);
+            viewportRect.offsetMax = new Vector2(-20f, -20f);
+            var viewportImage = viewportGo.GetComponent<Image>();
+            viewportImage.color = new Color(0f, 0f, 0f, 0.01f);
+            viewportGo.GetComponent<Mask>().showMaskGraphic = false;
+
+            var contentGo = new GameObject("Content", typeof(RectTransform), typeof(VerticalLayoutGroup), typeof(ContentSizeFitter));
+            var contentRect = contentGo.GetComponent<RectTransform>();
+            contentRect.SetParent(viewportRect, false);
+            contentRect.anchorMin = new Vector2(0f, 1f);
+            contentRect.anchorMax = new Vector2(1f, 1f);
+            contentRect.pivot = new Vector2(0.5f, 1f);
+            contentRect.anchoredPosition = Vector2.zero;
+            contentRect.sizeDelta = new Vector2(0f, 0f);
+            var layout = contentGo.GetComponent<VerticalLayoutGroup>();
+            layout.childControlWidth = true;
+            layout.childControlHeight = true;
+            layout.childForceExpandHeight = false;
+            layout.childForceExpandWidth = true;
+            layout.spacing = 8f;
+            layout.padding = new RectOffset(8, 8, 8, 8);
+            var fitter = contentGo.GetComponent<ContentSizeFitter>();
+            fitter.verticalFit = ContentSizeFitter.FitMode.PreferredSize;
+            fitter.horizontalFit = ContentSizeFitter.FitMode.Unconstrained;
+
+            var scrollRect = backlogRootGo.AddComponent<ScrollRect>();
+            scrollRect.viewport = viewportRect;
+            scrollRect.content = contentRect;
+            scrollRect.horizontal = false;
+            scrollRect.vertical = true;
+
+            var view = backlogRootGo.AddComponent<VNBacklogView>();
+            backlogRootGo.SetActive(false);
+            Debug.LogWarning("[VN_UI] VNBacklogView missing in scene/prefab. Runtime backlog UI fallback was created.");
+            return view;
+        }
+
+        private void ObserveBacklogState(VNBacklogView view)
+        {
+            if (view == null)
+                return;
+
+            if (backlogStateObservedView == view)
+                return;
+
+            if (backlogStateObservedView != null)
+            {
+                backlogStateObservedView.OnOpenStateChanged -= HandleBacklogOpenStateChanged;
+            }
+
+            backlogStateObservedView = view;
+            backlogStateObservedView.OnOpenStateChanged += HandleBacklogOpenStateChanged;
+        }
+
+        private void HandleBacklogOpenStateChanged(bool isOpenNow)
+        {
+            if (isOpenNow)
+            {
+                runner?.SetUiSkipHeld(false, "Backlog Open");
+                EventSystem.current?.SetSelectedGameObject(null);
+            }
+
+            HandleControlButtonState();
+        }
+
+        private bool IsBacklogInputBlocked()
+        {
+            return IsBacklogOpen;
+        }
+
         private void Update()
         {
+            if (IsBacklogOpen)
+            {
+                HandleControlButtonState();
+                EventSystem.current?.SetSelectedGameObject(null);
+                return;
+            }
+
             HandleControlButtonState();
             if (isUIHidden || isUIAnimating)
                 return;
@@ -485,6 +642,7 @@ namespace PPP.BLUE.VN
             if (inputLockFrames > 0) { inputLockFrames--; return; }
             if (runner == null) return;
             if (!runner.HasScript) return;
+            if (IsBacklogInputBlocked()) return;
             HandleSkipAutoState();
 
             // InputGate를 통과한 입력만 대사 진행에 사용
@@ -548,8 +706,9 @@ namespace PPP.BLUE.VN
         {
             bool isDrinkMode = policy != null && policy.IsDrinkModeActive();
             bool controlsBlockedByUI = isUIHidden || isUIAnimating;
-            bool skipAutoInteractable = !isDrinkMode && !controlsBlockedByUI;
-            bool exitInteractable = !isDrinkMode && !controlsBlockedByUI;
+            bool backlogOpen = IsBacklogOpen;
+            bool skipAutoInteractable = !isDrinkMode && !controlsBlockedByUI && !backlogOpen;
+            bool exitInteractable = !isDrinkMode && !controlsBlockedByUI && !backlogOpen;
             bool hideUIInteractable = !isDrinkMode && !controlsBlockedByUI;
             bool typingInProgress = (typer != null && typer.IsTyping) || !lineCompleted || inputLocked;
             bool saveAllowedByRunner = runner == null || runner.SaveAllowed;
@@ -839,6 +998,8 @@ namespace PPP.BLUE.VN
         {
             if ((isUIHidden || isUIAnimating) && value)
                 return;
+            if (IsBacklogInputBlocked())
+                return;
 
             autoPlayEnabled = value;
             runner?.SetAutoPlay(value, "VNDialogueView UI");
@@ -847,6 +1008,8 @@ namespace PPP.BLUE.VN
         public void ToggleAuto()
         {
             if (isUIHidden || isUIAnimating)
+                return;
+            if (IsBacklogInputBlocked())
                 return;
 
             bool nextValue = !(runner != null && runner.IsAutoPlayEnabled);
@@ -861,6 +1024,8 @@ namespace PPP.BLUE.VN
         public void OnSkipButtonPointerDown()
         {
             if (isUIHidden || isUIAnimating)
+                return;
+            if (IsBacklogInputBlocked())
                 return;
             if (policy != null && policy.IsDrinkPanelOpen)
                 return;
@@ -884,6 +1049,8 @@ namespace PPP.BLUE.VN
         {
             if (isUIHidden || isUIAnimating)
                 return;
+            if (IsBacklogInputBlocked())
+                return;
             if (policy != null && !VNInputGate.CanUseSkipOrAuto(policy))
                 return;
             if (Time.unscaledTime < controlActionLockedUntil)
@@ -895,6 +1062,8 @@ namespace PPP.BLUE.VN
         public void OnExitButtonClicked()
         {
             if (isUIHidden || isUIAnimating)
+                return;
+            if (IsBacklogInputBlocked())
                 return;
             if (policy != null && policy.IsDrinkPanelOpen)
                 return;
