@@ -28,6 +28,7 @@ namespace PPP.BLUE.VN
         [SerializeField] private Button exitButton;
         [SerializeField] private Button saveLoadButton;
         [SerializeField] private VNSaveLoadWindow saveLoadWindow;
+        [SerializeField] private VNBacklogView backlogView;
         [SerializeField] private CanvasGroup dialogueCanvasGroup;
         [SerializeField] private RectTransform dialogueRoot;
         [SerializeField] private GameObject minimizedUIRoot;
@@ -115,6 +116,8 @@ namespace PPP.BLUE.VN
             if (closePopupController == null) closePopupController = GetComponentInChildren<VNClosePopupController>(true);
             if (typer != null) typer.SetTarget(dialogueText);
             if (runner == null) runner = GetComponentInParent<VNRunner>(true);
+            if (backlogView == null) backlogView = GetComponentInChildren<VNBacklogView>(true);
+            backlogView?.BindManager(runner != null ? runner.BacklogManager : null);
             if (advanceClickArea == null && dialogueText != null)
                 advanceClickArea = dialogueText.rectTransform;
             if (graphicRaycaster == null)
@@ -425,6 +428,11 @@ namespace PPP.BLUE.VN
             subscribed = false;
         }
 
+        private void OnDestroy()
+        {
+            backlogView?.UnbindManager();
+        }
+
         private void Update()
         {
             HandleControlButtonState();
@@ -699,7 +707,7 @@ namespace PPP.BLUE.VN
             Debug.Log($"[CHECK] inputLocked={inputLocked}");
         }
 
-        private void HandleSay(string speakerId, string text, string lineId)
+        private void HandleSay(string speakerId, string text, string lineId, VNBacklogKey backlogKey)
         {
           
             inputLockFrames = 1;
@@ -709,6 +717,9 @@ namespace PPP.BLUE.VN
             currentFullText = text ?? "";
 
             runner?.MarkSeen(lineId);
+            runner?.BacklogSetCurrentLineTyping(true);
+            if (backlogKey != null)
+                runner?.BacklogUpdateCurrentLineText(string.Empty);
 
             if (nameText != null) nameText.text = speakerId ?? "";
             if (dialogueText != null) dialogueText.text = "";
@@ -721,6 +732,8 @@ namespace PPP.BLUE.VN
                 if (dialogueText != null) dialogueText.text = currentFullText;
                 lineCompleted = true;
                 lineDisplayed = true;
+                runner?.BacklogUpdateCurrentLineText(currentFullText);
+                runner?.BacklogFinalizeCurrentLine(currentFullText);
 
                 runner?.MarkSaveAllowed(true, "No Typer => Immediate");
                 runner?.NotifyLineTypedEnd();
@@ -733,6 +746,8 @@ namespace PPP.BLUE.VN
                 dialogueText.text = currentFullText;
                 lineCompleted = true;
                 lineDisplayed = true;
+                runner?.BacklogUpdateCurrentLineText(currentFullText);
+                runner?.BacklogFinalizeCurrentLine(currentFullText);
 
                 runner?.NotifyLineTypedEnd();
                 runner?.MarkSaveAllowed(true, "Skip Immediate");
@@ -745,10 +760,14 @@ namespace PPP.BLUE.VN
             {
                 lineCompleted = true;
                 lineDisplayed = true;
+                runner?.BacklogFinalizeCurrentLine(currentFullText);
                 runner?.NotifyLineTypedEnd();
 
                 runner?.MarkSaveAllowed(true, "Typing Completed");
                 Debug.Log("[VN] SaveAllowed TRUE (Typing Completed)");
+            }, onUpdated: partial =>
+            {
+                runner?.BacklogUpdateCurrentLineText(partial);
             });
         }
 
@@ -759,6 +778,7 @@ namespace PPP.BLUE.VN
 
             lineDisplayed = true;
             lineCompleted = true; // 안전하게 유지
+            runner?.BacklogFinalizeCurrentLine(currentFullText);
         }
 
         public bool TryCompleteCurrentLineForSkip()
@@ -880,6 +900,9 @@ namespace PPP.BLUE.VN
             saveLoadWindow.Open();
         }
 
+        public void ToggleBacklogWindow()
+        {
+            backlogView?.Toggle();
         public void HideUI()
         {
             if (isUIAnimating || isUIHidden)

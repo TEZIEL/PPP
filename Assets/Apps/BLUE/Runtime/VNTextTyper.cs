@@ -15,11 +15,12 @@ namespace PPP.BLUE.VN
         private Coroutine co;
         private string fullTextCache = "";
         private Action onCompletedCache;
+        private Action<string> onUpdatedCache;
         private int typingToken = 0;
 
         public void SetTarget(TMP_Text t) => target = t;
 
-        public void StartTyping(string fullText, Action onCompleted)
+        public void StartTyping(string fullText, Action onCompleted, Action<string> onUpdated = null)
         {
             if (target == null)
             {
@@ -30,6 +31,7 @@ namespace PPP.BLUE.VN
             CancelTyping();
             fullTextCache = fullText ?? "";
             onCompletedCache = onCompleted;
+            onUpdatedCache = onUpdated;
 
             typingToken++;
             int token = typingToken;
@@ -45,9 +47,11 @@ namespace PPP.BLUE.VN
 
             target.text = fullTextCache;
             IsTyping = false;
+            onUpdatedCache?.Invoke(target.text);
 
             var cb = onCompletedCache;
             onCompletedCache = null;
+            onUpdatedCache = null;
             cb?.Invoke();
         }
 
@@ -81,9 +85,11 @@ namespace PPP.BLUE.VN
             }
 
             IsTyping = false;
+            onUpdatedCache?.Invoke(target.text);
 
             var cb = onCompletedCache;
             onCompletedCache = null;
+            onUpdatedCache = null;
             cb?.Invoke();
         }
 
@@ -95,9 +101,11 @@ namespace PPP.BLUE.VN
             CancelTyping();
             target.text = fullTextCache;
             IsTyping = false;
+            onUpdatedCache?.Invoke(target.text);
 
             var cb = onCompletedCache;
             onCompletedCache = null;
+            onUpdatedCache = null;
             cb?.Invoke();
         }
 
@@ -106,6 +114,7 @@ namespace PPP.BLUE.VN
             CancelTyping();
             IsTyping = false;
             onCompletedCache = null;
+            onUpdatedCache = null;
             fullTextCache = "";
         }
 
@@ -128,9 +137,11 @@ namespace PPP.BLUE.VN
 
                 IsTyping = false;
                 co = null;
+                onUpdatedCache?.Invoke(target.text);
 
                 var cb0 = onCompletedCache;
                 onCompletedCache = null;
+                onUpdatedCache = null;
                 cb0?.Invoke();
                 yield break;
             }
@@ -152,6 +163,7 @@ namespace PPP.BLUE.VN
 
                     int next = Mathf.Min(index + emit, fullText.Length);
                     target.text = fullText.Substring(0, next);
+                    onUpdatedCache?.Invoke(target.text);
                     index = next;
                 }
 
@@ -163,9 +175,11 @@ namespace PPP.BLUE.VN
 
             co = null;
             IsTyping = false;
+            onUpdatedCache?.Invoke(target.text);
 
             var cb = onCompletedCache;
             onCompletedCache = null;
+            onUpdatedCache = null;
             cb?.Invoke();
         }
     }
