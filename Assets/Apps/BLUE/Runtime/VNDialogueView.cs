@@ -616,6 +616,12 @@ namespace PPP.BLUE.VN
 
         private void Update()
         {
+            if (IsAnyBacklogOpen)
+            {
+                EventSystem.current?.SetSelectedGameObject(null);
+                return;
+            }
+
             if (IsBacklogOpen)
             {
                 HandleControlButtonState();
@@ -991,11 +997,17 @@ namespace PPP.BLUE.VN
 
         public void ToggleSkip()
         {
+            if (IsAnyBacklogOpen)
+                return;
+
             OnSkipButtonClicked();
         }
 
         public void SetAutoPlay(bool value)
         {
+            if (IsAnyBacklogOpen)
+                return;
+
             if ((isUIHidden || isUIAnimating) && value)
                 return;
             if (IsBacklogInputBlocked())
@@ -1007,6 +1019,9 @@ namespace PPP.BLUE.VN
 
         public void ToggleAuto()
         {
+            if (IsAnyBacklogOpen)
+                return;
+
             if (isUIHidden || isUIAnimating)
                 return;
             if (IsBacklogInputBlocked())
@@ -1023,6 +1038,9 @@ namespace PPP.BLUE.VN
 
         public void OnSkipButtonPointerDown()
         {
+            if (IsAnyBacklogOpen)
+                return;
+
             if (isUIHidden || isUIAnimating)
                 return;
             if (IsBacklogInputBlocked())
@@ -1047,6 +1065,9 @@ namespace PPP.BLUE.VN
 
         public void OnAutoPlayButtonClicked()
         {
+            if (IsAnyBacklogOpen)
+                return;
+
             if (isUIHidden || isUIAnimating)
                 return;
             if (IsBacklogInputBlocked())
