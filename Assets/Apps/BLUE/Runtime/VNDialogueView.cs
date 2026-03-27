@@ -28,6 +28,8 @@ namespace PPP.BLUE.VN
         [SerializeField] private Button exitButton;
         [SerializeField] private Button saveLoadButton;
         [SerializeField] private VNSaveLoadWindow saveLoadWindow;
+        [SerializeField] private CanvasGroup dialogueCanvasGroup;
+        [SerializeField] private RectTransform dialogueRoot;
         [Header("Button Image States")]
         [SerializeField] private ButtonVisualBinding[] buttonVisualBindings = System.Array.Empty<ButtonVisualBinding>();
         // Legacy compatibility: kept hidden so partial merges referencing old fields still compile.
@@ -45,6 +47,9 @@ namespace PPP.BLUE.VN
         private bool inputLocked = true;
         private int inputLockFrames = 0;
         private bool subscribed;
+        private bool isUIDisappearing = false;
+        private bool isUIHidden = false;
+        private bool isUIAnimating = false;
         private bool? lastSkipButtonInteractable;
         private bool? lastAutoButtonInteractable;
         private bool? lastExitButtonInteractable;
@@ -107,6 +112,12 @@ namespace PPP.BLUE.VN
                 advanceClickArea = dialogueText.rectTransform;
             if (graphicRaycaster == null)
                 graphicRaycaster = GetComponentInParent<GraphicRaycaster>(true);
+            if (dialogueRoot == null)
+                dialogueRoot = transform as RectTransform;
+            if (dialogueCanvasGroup == null && dialogueRoot != null)
+                dialogueCanvasGroup = dialogueRoot.GetComponent<CanvasGroup>();
+            if (dialogueCanvasGroup == null)
+                dialogueCanvasGroup = GetComponentInParent<CanvasGroup>(true);
             AutoBindSaveLoadButton();
             SetupSkipHoldBinding();
             SetupInteractableVisualBindingEvents();
@@ -298,6 +309,8 @@ namespace PPP.BLUE.VN
         private void Update()
         {
             HandleControlButtonState();
+            if (isUIHidden || isUIAnimating)
+                return;
 
             if (runner != null && runner.IsWaiting && runner.CallStackCount > 0)
             {
@@ -376,11 +389,12 @@ namespace PPP.BLUE.VN
         private void HandleControlButtonState()
         {
             bool isDrinkMode = policy != null && policy.IsDrinkPanelOpen;
-            bool skipAutoInteractable = !isDrinkMode;
-            bool exitInteractable = !isDrinkMode;
+            bool controlsBlockedByUI = isUIHidden || isUIAnimating;
+            bool skipAutoInteractable = !isDrinkMode && !controlsBlockedByUI;
+            bool exitInteractable = !isDrinkMode && !controlsBlockedByUI;
             bool typingInProgress = (typer != null && typer.IsTyping) || !lineCompleted || inputLocked;
             bool saveAllowedByRunner = runner == null || runner.SaveAllowed;
-            bool saveLoadInteractable = !isDrinkMode && !typingInProgress && saveAllowedByRunner;
+            bool saveLoadInteractable = !isDrinkMode && !typingInProgress && saveAllowedByRunner && !controlsBlockedByUI;
             bool controlLockActive = Time.unscaledTime < controlActionLockedUntil;
 
             SetButtonInteractable(skipButton, skipAutoInteractable && !controlLockActive, ref lastSkipButtonInteractable);
@@ -651,12 +665,20 @@ namespace PPP.BLUE.VN
 
         public void SetAutoPlay(bool value)
         {
+            if ((isUIHidden || isUIAnimating) && value)
+                return;
+
+            autoPlayEnabled = value;
             runner?.SetAutoPlay(value, "VNDialogueView UI");
         }
 
         public void ToggleAuto()
         {
-            runner?.ToggleAuto("VNDialogueView UI");
+            if (isUIHidden || isUIAnimating)
+                return;
+
+            bool nextValue = !(runner != null && runner.IsAutoPlayEnabled);
+            SetAutoPlay(nextValue);
         }
 
         public void OnSkipButtonClicked()
@@ -666,6 +688,8 @@ namespace PPP.BLUE.VN
 
         public void OnSkipButtonPointerDown()
         {
+            if (isUIHidden || isUIAnimating)
+                return;
             if (policy != null && policy.IsDrinkPanelOpen)
                 return;
             if (policy != null && !VNInputGate.CanUseSkipOrAuto(policy))
@@ -686,6 +710,8 @@ namespace PPP.BLUE.VN
 
         public void OnAutoPlayButtonClicked()
         {
+            if (isUIHidden || isUIAnimating)
+                return;
             if (policy != null && !VNInputGate.CanUseSkipOrAuto(policy))
                 return;
             if (Time.unscaledTime < controlActionLockedUntil)
@@ -696,6 +722,8 @@ namespace PPP.BLUE.VN
 
         public void OnExitButtonClicked()
         {
+            if (isUIHidden || isUIAnimating)
+                return;
             if (policy != null && policy.IsDrinkPanelOpen)
                 return;
             if (policy != null && policy.IsSaveLoadModalOpen)
@@ -717,6 +745,8 @@ namespace PPP.BLUE.VN
 
         public void OpenSaveLoadWindow()
         {
+            if (isUIHidden || isUIAnimating)
+                return;
             if (policy != null && policy.IsDrinkModeActive())
                 return;
 
@@ -729,6 +759,104 @@ namespace PPP.BLUE.VN
             runner?.ForceAutoOff("Open SaveLoad Window");
             runner?.SetUiSkipHeld(false, "Open SaveLoad Window");
             saveLoadWindow.Open();
+        }
+
+        public void HideUI()
+        {
+            if (isUIAnimating || isUIHidden)
+                return;
+
+            StartCoroutine(HideUICoroutine());
+        }
+
+        public void ShowUI()
+        {
+            if (isUIAnimating || !isUIHidden)
+                return;
+
+            StartCoroutine(ShowUICoroutine());
+        }
+
+        private IEnumerator HideUICoroutine()
+        {
+            if (dialogueRoot == null || dialogueCanvasGroup == null)
+                yield break;
+
+            isUIAnimating = true;
+            isUIDisappearing = true;
+            LockAllInput(true);
+            runner?.SetUiSkipHeld(false, "Hide UI");
+            SetAutoPlay(false);
+
+            float duration = 0.25f;
+            float t = 0f;
+            Vector3 startScale = Vector3.one;
+            Vector3 endScale = new Vector3(0.9f, 0.9f, 1f);
+
+            while (t < duration)
+            {
+                t += Time.unscaledDeltaTime;
+                float lerp = Mathf.Clamp01(t / duration);
+
+                dialogueCanvasGroup.alpha = 1f - lerp;
+                dialogueRoot.localScale = Vector3.Lerp(startScale, endScale, lerp);
+                yield return null;
+            }
+
+            dialogueCanvasGroup.alpha = 0f;
+            dialogueRoot.gameObject.SetActive(false);
+
+            isUIHidden = true;
+            isUIAnimating = false;
+        }
+
+        private IEnumerator ShowUICoroutine()
+        {
+            if (dialogueRoot == null || dialogueCanvasGroup == null)
+                yield break;
+
+            isUIAnimating = true;
+            isUIDisappearing = false;
+            LockAllInput(true);
+            dialogueRoot.gameObject.SetActive(true);
+
+            float duration = 0.25f;
+            float t = 0f;
+            Vector3 startScale = new Vector3(0.9f, 0.9f, 1f);
+            Vector3 endScale = Vector3.one;
+
+            dialogueCanvasGroup.alpha = 0f;
+            dialogueRoot.localScale = startScale;
+
+            while (t < duration)
+            {
+                t += Time.unscaledDeltaTime;
+                float lerp = Mathf.Clamp01(t / duration);
+
+                dialogueCanvasGroup.alpha = lerp;
+                dialogueRoot.localScale = Vector3.Lerp(startScale, endScale, lerp);
+                yield return null;
+            }
+
+            dialogueCanvasGroup.alpha = 1f;
+            dialogueRoot.localScale = endScale;
+
+            isUIHidden = false;
+            isUIAnimating = false;
+            LockAllInput(false);
+        }
+
+        private void LockAllInput(bool locked)
+        {
+            if (dialogueCanvasGroup != null)
+            {
+                dialogueCanvasGroup.interactable = !locked;
+                dialogueCanvasGroup.blocksRaycasts = !locked;
+            }
+
+            inputLocked = locked;
+            if (locked)
+                OnSkipButtonPointerUp();
         }
 
         private IEnumerator ReplayClick()
