@@ -50,6 +50,8 @@ namespace PPP.BLUE.VN
         private bool? lastExitButtonInteractable;
         private bool? lastSaveLoadButtonInteractable;
         private bool skipHoldBindingApplied;
+        private readonly HashSet<Button> interactableVisualBindingEventBoundButtons = new();
+        private readonly Dictionary<Button, bool> interactableVisualPressedStates = new();
         private float controlActionLockedUntil;
         private Coroutine waitAndRefreshCoroutine;
 
@@ -107,6 +109,7 @@ namespace PPP.BLUE.VN
                 graphicRaycaster = GetComponentInParent<GraphicRaycaster>(true);
             AutoBindSaveLoadButton();
             SetupSkipHoldBinding();
+            SetupInteractableVisualBindingEvents();
             Debug.Log($"[VN_UI] bind runner={(runner ? runner.name : "NULL")}");
         }
 
@@ -151,6 +154,53 @@ namespace PPP.BLUE.VN
             AddEventTrigger(trigger, EventTriggerType.PointerUp, _ => OnSkipButtonPointerUp());
             AddEventTrigger(trigger, EventTriggerType.PointerExit, _ => OnSkipButtonPointerUp());
             skipHoldBindingApplied = true;
+        }
+
+        private void SetupInteractableVisualBindingEvents()
+        {
+            if (buttonVisualBindings == null || buttonVisualBindings.Length == 0)
+                return;
+
+            for (int i = 0; i < buttonVisualBindings.Length; i++)
+            {
+                var binding = buttonVisualBindings[i];
+                var button = binding.button;
+                if (button == null || binding.visualMode != ButtonVisualMode.Interactable)
+                    continue;
+
+                if (!interactableVisualPressedStates.ContainsKey(button))
+                    interactableVisualPressedStates.Add(button, false);
+
+                if (interactableVisualBindingEventBoundButtons.Contains(button))
+                    continue;
+
+                var trigger = button.GetComponent<EventTrigger>();
+                if (trigger == null)
+                    trigger = button.gameObject.AddComponent<EventTrigger>();
+
+                AddEventTrigger(trigger, EventTriggerType.PointerDown, _ => OnInteractableVisualPointerDown(button));
+                AddEventTrigger(trigger, EventTriggerType.PointerUp, _ => OnInteractableVisualPointerUp(button));
+                AddEventTrigger(trigger, EventTriggerType.PointerExit, _ => OnInteractableVisualPointerUp(button));
+                interactableVisualBindingEventBoundButtons.Add(button);
+            }
+        }
+
+        private void OnInteractableVisualPointerDown(Button button)
+        {
+            if (button == null || !interactableVisualPressedStates.ContainsKey(button))
+                return;
+
+            interactableVisualPressedStates[button] = true;
+            RefreshButtonVisualStates();
+        }
+
+        private void OnInteractableVisualPointerUp(Button button)
+        {
+            if (button == null || !interactableVisualPressedStates.ContainsKey(button))
+                return;
+
+            interactableVisualPressedStates[button] = false;
+            RefreshButtonVisualStates();
         }
 
         private static void AddEventTrigger(EventTrigger trigger, EventTriggerType eventType, UnityEngine.Events.UnityAction<BaseEventData> callback)
@@ -228,6 +278,12 @@ namespace PPP.BLUE.VN
         private void OnDisable()
         {
             OnSkipButtonPointerUp();
+            if (interactableVisualPressedStates.Count > 0)
+            {
+                var keys = new List<Button>(interactableVisualPressedStates.Keys);
+                for (int i = 0; i < keys.Count; i++)
+                    interactableVisualPressedStates[keys[i]] = false;
+            }
             inputLocked = true;
             StopWaitAndRefresh();
 
@@ -366,9 +422,9 @@ namespace PPP.BLUE.VN
                 {
                     ButtonVisualMode.ToggleAutoPlay => runner != null && runner.IsAutoPlayEnabled && button.interactable,
                     ButtonVisualMode.HoldSkip => runner != null && runner.IsHoldSkipInputActive && button.interactable,
-                    // 일반 버튼은 기본 상태를 "꺼짐(평상시)"으로 두고,
-                    // 실제 상호작용 불가 상태에서만 Active 스프라이트를 표시한다.
-                    _ => !button.interactable
+                    _ => button.interactable
+                         && interactableVisualPressedStates.TryGetValue(button, out var isPressed)
+                         && isPressed
                 };
 
                 var nextSprite = isActive ? binding.activeSprite : binding.inactiveSprite;
