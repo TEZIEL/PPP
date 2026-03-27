@@ -616,6 +616,12 @@ namespace PPP.BLUE.VN
 
         private void Update()
         {
+            if (IsAnyBacklogOpen)
+            {
+                EventSystem.current?.SetSelectedGameObject(null);
+                return;
+            }
+
             if (IsBacklogOpen)
             {
                 HandleControlButtonState();
@@ -641,6 +647,7 @@ namespace PPP.BLUE.VN
             if (!CanAcceptVNInput()) return;
             if (inputLockFrames > 0) { inputLockFrames--; return; }
             if (runner == null) return;
+            if (runner.JustForceCompletedThisFrame) return;
             if (!runner.HasScript) return;
             if (IsBacklogInputBlocked()) return;
             HandleSkipAutoState();
@@ -971,15 +978,18 @@ namespace PPP.BLUE.VN
             lineDisplayed = true;
             lineCompleted = true; // 안전하게 유지
             runner?.BacklogFinalizeCurrentLine(currentFullText);
+            runner?.MarkJustForceCompletedThisFrame();
         }
 
         public bool TryCompleteCurrentLineForSkip()
         {
-            if (lineCompleted) return false;
             if (typer == null || !typer.IsTyping) return false;
 
             typer.ForceComplete();
+            lineDisplayed = true;
             lineCompleted = true;
+            runner?.BacklogFinalizeCurrentLine(currentFullText);
+            runner?.MarkJustForceCompletedThisFrame();
             return true;
         }
 
@@ -991,11 +1001,17 @@ namespace PPP.BLUE.VN
 
         public void ToggleSkip()
         {
+            if (IsAnyBacklogOpen)
+                return;
+
             OnSkipButtonClicked();
         }
 
         public void SetAutoPlay(bool value)
         {
+            if (IsAnyBacklogOpen)
+                return;
+
             if ((isUIHidden || isUIAnimating) && value)
                 return;
             if (IsBacklogInputBlocked())
@@ -1007,6 +1023,9 @@ namespace PPP.BLUE.VN
 
         public void ToggleAuto()
         {
+            if (IsAnyBacklogOpen)
+                return;
+
             if (isUIHidden || isUIAnimating)
                 return;
             if (IsBacklogInputBlocked())
@@ -1018,11 +1037,18 @@ namespace PPP.BLUE.VN
 
         public void OnSkipButtonClicked()
         {
-            // Hold-based skip only. Keep empty to avoid one-shot skip on click.
+            if (IsAnyBacklogOpen)
+                return;
+
+            if (TryCompleteCurrentLineForSkip())
+                return;
         }
 
         public void OnSkipButtonPointerDown()
         {
+            if (IsAnyBacklogOpen)
+                return;
+
             if (isUIHidden || isUIAnimating)
                 return;
             if (IsBacklogInputBlocked())
@@ -1041,12 +1067,17 @@ namespace PPP.BLUE.VN
 
         public void OnSkipButtonPointerUp()
         {
+            TryCompleteCurrentLineForSkip();
+
             runner?.SetUiSkipHeld(false, "VNDialogueView Skip Hold");
             RefreshButtonVisualStates();
         }
 
         public void OnAutoPlayButtonClicked()
         {
+            if (IsAnyBacklogOpen)
+                return;
+
             if (isUIHidden || isUIAnimating)
                 return;
             if (IsBacklogInputBlocked())
