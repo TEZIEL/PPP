@@ -1003,6 +1003,14 @@ namespace PPP.BLUE.VN
             return true;
         }
 
+        public void FinalizeCurrentLineAfterForceComplete()
+        {
+            lineDisplayed = true;
+            lineCompleted = true;
+            runner?.BacklogFinalizeCurrentLine(currentFullText);
+            runner?.MarkJustForceCompletedThisFrame();
+        }
+
         public void SetSkip(bool value)
         {
             if (!value) return;
