@@ -370,7 +370,7 @@ namespace PPP.BLUE.VN
                     if (scrollbar != null)
                         scrollRect.verticalScrollbar = scrollbar;
                 }
-                scrollRect.verticalScrollbarVisibility = ScrollRect.ScrollbarVisibility.AutoHideAndExpandViewport;
+                scrollRect.verticalScrollbarVisibility = ScrollRect.ScrollbarVisibility.Permanent;
             }
 
             var viewport = contentRoot.parent as RectTransform;
