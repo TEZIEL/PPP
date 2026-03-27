@@ -28,6 +28,8 @@ namespace PPP.BLUE.VN
         [SerializeField] private Button exitButton;
         [SerializeField] private Button saveLoadButton;
         [SerializeField] private VNSaveLoadWindow saveLoadWindow;
+        [Header("Button Image States")]
+        [SerializeField] private ButtonVisualBinding[] buttonVisualBindings = System.Array.Empty<ButtonVisualBinding>();
         // Legacy compatibility: kept hidden so partial merges referencing old fields still compile.
         [SerializeField, HideInInspector] private bool autoPlayEnabled;
         [SerializeField, Min(0f)] private float closeActionLockSeconds = 0.15f;
@@ -50,6 +52,24 @@ namespace PPP.BLUE.VN
         private bool skipHoldBindingApplied;
         private float controlActionLockedUntil;
         private Coroutine waitAndRefreshCoroutine;
+
+        private enum ButtonVisualMode
+        {
+            Interactable = 0,
+            ToggleAutoPlay = 1,
+            HoldSkip = 2
+        }
+
+        [System.Serializable]
+        private struct ButtonVisualBinding
+        {
+            public string label;
+            public Button button;
+            public Image targetImage;
+            public Sprite activeSprite;
+            public Sprite inactiveSprite;
+            public ButtonVisualMode visualMode;
+        }
 
         private void Start()
         {
@@ -202,6 +222,7 @@ namespace PPP.BLUE.VN
             subscribed = true;
 
             StartWaitAndRefresh();
+            RefreshButtonVisualStates();
         }
 
         private void OnDisable()
@@ -310,6 +331,7 @@ namespace PPP.BLUE.VN
             SetButtonInteractable(autoPlayButton, skipAutoInteractable && !controlLockActive, ref lastAutoButtonInteractable);
             SetButtonInteractable(exitButton, exitInteractable && !controlLockActive, ref lastExitButtonInteractable);
             SetButtonInteractable(saveLoadButton, saveLoadInteractable && !controlLockActive, ref lastSaveLoadButtonInteractable);
+            RefreshButtonVisualStates();
         }
 
         private static void SetButtonInteractable(Button button, bool interactable, ref bool? cachedState)
@@ -322,6 +344,39 @@ namespace PPP.BLUE.VN
 
             button.interactable = interactable;
             cachedState = interactable;
+        }
+
+        private void RefreshButtonVisualStates()
+        {
+            if (buttonVisualBindings == null || buttonVisualBindings.Length == 0)
+                return;
+
+            for (int i = 0; i < buttonVisualBindings.Length; i++)
+            {
+                var binding = buttonVisualBindings[i];
+                var button = binding.button;
+                if (button == null)
+                    continue;
+
+                var targetImage = binding.targetImage != null ? binding.targetImage : button.image;
+                if (targetImage == null)
+                    continue;
+
+                bool isActive = binding.visualMode switch
+                {
+                    ButtonVisualMode.ToggleAutoPlay => runner != null && runner.IsAutoPlayEnabled && button.interactable,
+                    ButtonVisualMode.HoldSkip => runner != null && runner.IsHoldSkipInputActive && button.interactable,
+                    // 일반 버튼은 기본 상태를 "꺼짐(평상시)"으로 두고,
+                    // 실제 상호작용 불가 상태에서만 Active 스프라이트를 표시한다.
+                    _ => !button.interactable
+                };
+
+                var nextSprite = isActive ? binding.activeSprite : binding.inactiveSprite;
+                if (nextSprite == null || targetImage.sprite == nextSprite)
+                    continue;
+
+                targetImage.sprite = nextSprite;
+            }
         }
 
 
@@ -564,11 +619,13 @@ namespace PPP.BLUE.VN
 
             runner?.ForceAutoOff("Skip Hold Button");
             runner?.SetUiSkipHeld(true, "VNDialogueView Skip Hold");
+            RefreshButtonVisualStates();
         }
 
         public void OnSkipButtonPointerUp()
         {
             runner?.SetUiSkipHeld(false, "VNDialogueView Skip Hold");
+            RefreshButtonVisualStates();
         }
 
         public void OnAutoPlayButtonClicked()
@@ -578,6 +635,7 @@ namespace PPP.BLUE.VN
             if (Time.unscaledTime < controlActionLockedUntil)
                 return;
             ToggleAuto();
+            RefreshButtonVisualStates();
         }
 
         public void OnExitButtonClicked()
