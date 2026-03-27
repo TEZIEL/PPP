@@ -19623,6 +19623,7 @@ MonoBehaviour:
   saveLoadWindow: {fileID: 3270875385100370035}
   dialogueCanvasGroup: {fileID: 2800437103308851553}
   dialogueRoot: {fileID: 1154989184179664875}
+  minimizedUIRoot: {fileID: 5915408968421042407}
   buttonVisualBindings:
   - label: 
     button: {fileID: 8212970735057202272}
