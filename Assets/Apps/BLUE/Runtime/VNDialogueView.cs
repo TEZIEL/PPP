@@ -31,6 +31,12 @@ namespace PPP.BLUE.VN
         [SerializeField] private CanvasGroup dialogueCanvasGroup;
         [SerializeField] private RectTransform dialogueRoot;
         [SerializeField] private GameObject minimizedUIRoot;
+        [Header("Hide/Show Animation (Window Style)")]
+        [SerializeField] private float dialogueShowDuration = 0.12f;
+        [SerializeField] private float dialogueHideDuration = 0.10f;
+        [SerializeField] private float minimizedShowDuration = 0.12f;
+        [SerializeField] private float minimizedHideDuration = 0.10f;
+        [SerializeField] private Vector3 animFromScale = new Vector3(0.92f, 0.92f, 1f);
         [Header("Button Image States")]
         [SerializeField] private ButtonVisualBinding[] buttonVisualBindings = System.Array.Empty<ButtonVisualBinding>();
         // Legacy compatibility: kept hidden so partial merges referencing old fields still compile.
@@ -192,6 +198,49 @@ namespace PPP.BLUE.VN
                 return;
 
             minimizedUIRoot.SetActive(visible);
+        }
+
+        private static CanvasGroup GetOrAddCanvasGroup(GameObject target)
+        {
+            if (target == null)
+                return null;
+
+            var group = target.GetComponent<CanvasGroup>();
+            if (group == null)
+                group = target.AddComponent<CanvasGroup>();
+            return group;
+        }
+
+        private static IEnumerator CoAnimateScaleAlpha(
+            RectTransform targetRoot,
+            CanvasGroup targetGroup,
+            Vector3 fromScale,
+            Vector3 toScale,
+            float fromAlpha,
+            float toAlpha,
+            float duration)
+        {
+            if (targetRoot == null || targetGroup == null)
+                yield break;
+
+            float t = 0f;
+            float safeDuration = Mathf.Max(0.01f, duration);
+
+            targetRoot.localScale = fromScale;
+            targetGroup.alpha = fromAlpha;
+
+            while (t < 1f)
+            {
+                t += Time.unscaledDeltaTime / safeDuration;
+                float s = Mathf.SmoothStep(0f, 1f, t);
+
+                targetRoot.localScale = Vector3.LerpUnclamped(fromScale, toScale, s);
+                targetGroup.alpha = Mathf.LerpUnclamped(fromAlpha, toAlpha, s);
+                yield return null;
+            }
+
+            targetRoot.localScale = toScale;
+            targetGroup.alpha = toAlpha;
         }
 
         private void AutoBindSaveLoadButton()
@@ -865,24 +914,39 @@ namespace PPP.BLUE.VN
             runner?.SetUiSkipHeld(false, "Hide UI");
             SetAutoPlay(false);
 
-            float duration = 0.25f;
-            float t = 0f;
-            Vector3 startScale = Vector3.one;
-            Vector3 endScale = new Vector3(0.9f, 0.9f, 1f);
+            yield return CoAnimateScaleAlpha(
+                dialogueRoot,
+                dialogueCanvasGroup,
+                fromScale: Vector3.one,
+                toScale: animFromScale,
+                fromAlpha: 1f,
+                toAlpha: 0f,
+                duration: dialogueHideDuration);
 
-            while (t < duration)
-            {
-                t += Time.unscaledDeltaTime;
-                float lerp = Mathf.Clamp01(t / duration);
-
-                dialogueCanvasGroup.alpha = 1f - lerp;
-                dialogueRoot.localScale = Vector3.Lerp(startScale, endScale, lerp);
-                yield return null;
-            }
-
-            dialogueCanvasGroup.alpha = 0f;
             dialogueRoot.gameObject.SetActive(false);
-            SetMinimizedUIVisible(true);
+
+            if (minimizedUIRoot != null)
+            {
+                minimizedUIRoot.SetActive(true);
+                var miniRoot = minimizedUIRoot.transform as RectTransform;
+                var miniGroup = GetOrAddCanvasGroup(minimizedUIRoot);
+
+                if (miniRoot != null && miniGroup != null)
+                {
+                    miniGroup.interactable = false;
+                    miniGroup.blocksRaycasts = false;
+                    yield return CoAnimateScaleAlpha(
+                        miniRoot,
+                        miniGroup,
+                        fromScale: animFromScale,
+                        toScale: Vector3.one,
+                        fromAlpha: 0f,
+                        toAlpha: 1f,
+                        duration: minimizedShowDuration);
+                    miniGroup.interactable = true;
+                    miniGroup.blocksRaycasts = true;
+                }
+            }
 
             isUIHidden = true;
             isUIAnimating = false;
@@ -899,29 +963,37 @@ namespace PPP.BLUE.VN
             isUIAnimating = true;
             isUIDisappearing = false;
             LockAllInput(true);
-            dialogueRoot.gameObject.SetActive(true);
 
-            float duration = 0.25f;
-            float t = 0f;
-            Vector3 startScale = new Vector3(0.9f, 0.9f, 1f);
-            Vector3 endScale = Vector3.one;
-
-            dialogueCanvasGroup.alpha = 0f;
-            dialogueRoot.localScale = startScale;
-
-            while (t < duration)
+            if (minimizedUIRoot != null && minimizedUIRoot.activeSelf)
             {
-                t += Time.unscaledDeltaTime;
-                float lerp = Mathf.Clamp01(t / duration);
+                var miniRoot = minimizedUIRoot.transform as RectTransform;
+                var miniGroup = GetOrAddCanvasGroup(minimizedUIRoot);
+                if (miniRoot != null && miniGroup != null)
+                {
+                    miniGroup.interactable = false;
+                    miniGroup.blocksRaycasts = false;
+                    yield return CoAnimateScaleAlpha(
+                        miniRoot,
+                        miniGroup,
+                        fromScale: Vector3.one,
+                        toScale: animFromScale,
+                        fromAlpha: miniGroup.alpha,
+                        toAlpha: 0f,
+                        duration: minimizedHideDuration);
+                }
 
-                dialogueCanvasGroup.alpha = lerp;
-                dialogueRoot.localScale = Vector3.Lerp(startScale, endScale, lerp);
-                yield return null;
+                minimizedUIRoot.SetActive(false);
             }
 
-            dialogueCanvasGroup.alpha = 1f;
-            dialogueRoot.localScale = endScale;
-            SetMinimizedUIVisible(false);
+            dialogueRoot.gameObject.SetActive(true);
+            yield return CoAnimateScaleAlpha(
+                dialogueRoot,
+                dialogueCanvasGroup,
+                fromScale: animFromScale,
+                toScale: Vector3.one,
+                fromAlpha: 0f,
+                toAlpha: 1f,
+                duration: dialogueShowDuration);
 
             isUIHidden = false;
             isUIAnimating = false;
