@@ -8,6 +8,12 @@ namespace PPP.BLUE.VN
         [SerializeField] private TMP_Text speakerText;
         [SerializeField] private TMP_Text bodyText;
 
+        public void SetupRuntimeTexts(TMP_Text speaker, TMP_Text body)
+        {
+            speakerText = speaker;
+            bodyText = body;
+        }
+
         public void Bind(VNBacklogEntry entry)
         {
             if (entry == null)
