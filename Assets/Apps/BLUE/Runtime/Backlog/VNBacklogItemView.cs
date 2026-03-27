@@ -16,6 +16,12 @@ namespace PPP.BLUE.VN
             bodyText = body;
         }
 
+        public void SetupRuntimeTexts(TMP_Text speaker, TMP_Text body)
+        {
+            speakerText = speaker;
+            bodyText = body;
+        }
+
         public void Bind(VNBacklogEntry entry)
         {
             if (entry == null)
