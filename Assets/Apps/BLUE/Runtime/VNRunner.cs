@@ -26,6 +26,7 @@ namespace PPP.BLUE.VN
         private Coroutine autoCo;
         [SerializeField] private VNPolicyController policy;
         private VNDialogueView dialogueView;
+        [SerializeField] private VNTextTyper textTyper;
         // --- Auto suspend/resume by modal/drink ---
         private bool lastBlocked;                 // 지난 프레임에 입력/오토가 막혀있었나?
         private bool autoSuspendedByBlock;        // 막힘 때문에 Auto를 멈췄었나?
@@ -157,6 +158,7 @@ namespace PPP.BLUE.VN
 
             BindPolicy("Awake");
             if (dialogueView == null) dialogueView = GetComponentInChildren<VNDialogueView>(true);
+            if (textTyper == null) textTyper = GetComponentInChildren<VNTextTyper>(true);
             dialogueView?.EnsureBacklogBindingFromRunner();
             skipMode = false; // 인스펙터 값과 무관하게 런타임 기본 OFF
             
@@ -2588,6 +2590,8 @@ namespace PPP.BLUE.VN
 
             if (dialogueView == null)
                 dialogueView = GetComponentInChildren<VNDialogueView>(true);
+            if (textTyper == null)
+                textTyper = GetComponentInChildren<VNTextTyper>(true);
 
             skipMode = true;
 
