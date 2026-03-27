@@ -29,6 +29,10 @@ namespace PPP.BLUE.VN
         [SerializeField] private Button saveButton;
         [SerializeField] private Button loadButton;
         [SerializeField] private Button deleteButton;
+        [SerializeField] private ScrollRect slotListScrollRect;
+        [SerializeField] private Button scrollUpButton;
+        [SerializeField] private Button scrollDownButton;
+        [SerializeField, Range(0.01f, 1f)] private float buttonScrollStep = 0.2f;
         [SerializeField] private SlotUI[] slots = new SlotUI[3];
         [Header("Selected Slot Metadata (Integrated Panel)")]
         [SerializeField] private TMP_Text selectedSlotNameText;
@@ -112,6 +116,11 @@ namespace PPP.BLUE.VN
                 deferredMetadataRefreshRoutine = null;
             }
             SetConfirmPopupVisible(false);
+        }
+
+        private void OnDestroy()
+        {
+            UnbindScrollButtons();
         }
 
         private void Update()
@@ -373,6 +382,8 @@ namespace PPP.BLUE.VN
                 closeButton.onClick.AddListener(Close);
             }
 
+            BindScrollButtons();
+
             if (saveButton != null)
             {
                 saveButton.onClick.RemoveAllListeners();
@@ -421,6 +432,63 @@ namespace PPP.BLUE.VN
                     slot.selectButton.onClick.AddListener(() => SelectSlot(capture));
                 }
             }
+        }
+
+        /// <summary>
+        /// 인스펙터 OnClick 연결용 스크롤 업.
+        /// </summary>
+        public void ScrollUp()
+        {
+            ScrollByStep(+1f);
+        }
+
+        /// <summary>
+        /// 인스펙터 OnClick 연결용 스크롤 다운.
+        /// </summary>
+        public void ScrollDown()
+        {
+            ScrollByStep(-1f);
+        }
+
+        private void BindScrollButtons()
+        {
+            if (scrollUpButton != null)
+            {
+                scrollUpButton.onClick.RemoveListener(ScrollUp);
+                scrollUpButton.onClick.AddListener(ScrollUp);
+            }
+
+            if (scrollDownButton != null)
+            {
+                scrollDownButton.onClick.RemoveListener(ScrollDown);
+                scrollDownButton.onClick.AddListener(ScrollDown);
+            }
+        }
+
+        private void UnbindScrollButtons()
+        {
+            if (scrollUpButton != null)
+                scrollUpButton.onClick.RemoveListener(ScrollUp);
+
+            if (scrollDownButton != null)
+                scrollDownButton.onClick.RemoveListener(ScrollDown);
+        }
+
+        private void ScrollByStep(float direction)
+        {
+            if (slotListScrollRect == null)
+                return;
+            if (slotListScrollRect.content == null || slotListScrollRect.viewport == null)
+                return;
+
+            float contentHeight = slotListScrollRect.content.rect.height;
+            float viewportHeight = slotListScrollRect.viewport.rect.height;
+            if (contentHeight <= viewportHeight + 0.01f)
+                return;
+
+            float step = Mathf.Clamp01(buttonScrollStep);
+            float next = slotListScrollRect.verticalNormalizedPosition + (direction * step);
+            slotListScrollRect.verticalNormalizedPosition = Mathf.Clamp01(next);
         }
 
         private void AcquireModal()

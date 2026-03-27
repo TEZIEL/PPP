@@ -13,6 +13,9 @@ namespace PPP.BLUE.VN
         [SerializeField] private VNBacklogItemView itemPrefab;
         [SerializeField] private TMP_Text fallbackSpeakerTemplate;
         [SerializeField] private TMP_Text fallbackBodyTemplate;
+        [SerializeField] private Button scrollUpButton;
+        [SerializeField] private Button scrollDownButton;
+        [SerializeField, Range(0.01f, 1f)] private float buttonScrollStep = 0.2f;
 
         private VNBacklogManager manager;
         private readonly Dictionary<string, VNBacklogItemView> itemByKey = new();
@@ -194,7 +197,29 @@ namespace PPP.BLUE.VN
                 contentRoot = FindContentRoot();
             lastKnownOpen = IsOpen;
             EnsureContentLayoutComponents();
+            BindScrollButtons();
             LogReferenceState("Awake");
+        }
+
+        private void OnDestroy()
+        {
+            UnbindScrollButtons();
+        }
+
+        /// <summary>
+        /// 인스펙터 OnClick 연결용 스크롤 업.
+        /// </summary>
+        public void ScrollUp()
+        {
+            ScrollByStep(+1f);
+        }
+
+        /// <summary>
+        /// 인스펙터 OnClick 연결용 스크롤 다운.
+        /// </summary>
+        public void ScrollDown()
+        {
+            ScrollByStep(-1f);
         }
 
         private void LateUpdate()
@@ -452,6 +477,39 @@ namespace PPP.BLUE.VN
 
             scrollRect = sr;
             return true;
+        }
+
+        private void BindScrollButtons()
+        {
+            if (scrollUpButton != null)
+                scrollUpButton.onClick.AddListener(ScrollUp);
+
+            if (scrollDownButton != null)
+                scrollDownButton.onClick.AddListener(ScrollDown);
+        }
+
+        private void UnbindScrollButtons()
+        {
+            if (scrollUpButton != null)
+                scrollUpButton.onClick.RemoveListener(ScrollUp);
+
+            if (scrollDownButton != null)
+                scrollDownButton.onClick.RemoveListener(ScrollDown);
+        }
+
+        private void ScrollByStep(float direction)
+        {
+            if (!TryGetValidScrollRect(out var scrollRect))
+                return;
+
+            float contentHeight = scrollRect.content.rect.height;
+            float viewportHeight = scrollRect.viewport.rect.height;
+            if (contentHeight <= viewportHeight + 0.01f)
+                return;
+
+            float step = Mathf.Clamp01(buttonScrollStep);
+            float next = scrollRect.verticalNormalizedPosition + (direction * step);
+            scrollRect.verticalNormalizedPosition = Mathf.Clamp01(next);
         }
 
         private void SyncOpenState()
