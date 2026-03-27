@@ -25,9 +25,7 @@ namespace PPP.BLUE.VN
                 if (!string.IsNullOrEmpty(speaker))
                     existing.speaker = speaker;
 
-                existing.isFinal = false;
                 DebugLog($"duplicate append blocked key={composite}");
-                RaiseChanged(existing);
                 return existing;
             }
 
@@ -82,6 +80,12 @@ namespace PPP.BLUE.VN
             string normalized = fullText ?? string.Empty;
             if (string.IsNullOrEmpty(normalized) && !string.IsNullOrEmpty(entry.text))
                 normalized = entry.text;
+
+            if (entry.isFinal && string.Equals(entry.text, normalized, StringComparison.Ordinal))
+            {
+                DebugLog($"entry finalize ignored (already final) key={entry.CompositeKey}");
+                return;
+            }
 
             entry.text = normalized;
             entry.isFinal = true;
