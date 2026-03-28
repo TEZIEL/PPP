@@ -102,7 +102,7 @@ namespace PPP.BLUE.VN
                 provideButton.onClick.AddListener(OnMakeDrink);
 
             if (resetButton != null)
-                resetButton.onClick.AddListener(ResetIngredients);
+                resetButton.onClick.AddListener(() => ResetIngredients(true));
 
             if (confirmRemakeButton != null)
                 confirmRemakeButton.onClick.AddListener(OnRemakeDrink);
@@ -257,10 +257,39 @@ namespace PPP.BLUE.VN
                 return;
 
             if (source == IngredientInputSource.Keyboard)
+            {
                 PlayHotkeyButtonFeedback(ingredientId);
+
+                // 🔥 추가 (핵심)
+                PlayIngredientSound(ingredientId);
+            }
+
 
             lastIngredientInputFrame = Time.frameCount;
             AddIngredient(ingredientId);
+        }
+
+        private void PlayIngredientSound(string ingredientID)
+        {
+            float pitch = GetPitchByIngredient(ingredientID);
+
+            SoundManager.Instance.PlayOSWithPitch(OSSoundEvent.IngredientFill1, pitch);
+        }
+
+        private float GetPitchByIngredient(string ingredientID)
+        {
+            switch (ingredientID)
+            {
+                case "INGREDIENT_VELTRINE": return 1.000f;
+                case "INGREDIENT_ZYPHRATE": return 1.122f;
+                case "INGREDIENT_KRATYLEN": return 1.260f;
+                case "INGREDIENT_MORVION": return 1.335f;
+                case "INGREDIENT_REDULINE": return 1.498f;
+                case "INGREDIENT_CYMENTOL": return 1.682f;
+                case "INGREDIENT_BRAXIUM": return 1.888f;
+                case "INGREDIENT_ARTHEON": return 2.000f;
+                default: return 1f;
+            }
         }
 
         private void PlayHotkeyButtonFeedback(string ingredientId)
@@ -285,8 +314,12 @@ namespace PPP.BLUE.VN
             UpdateHoveredIngredientInfo();
         }
 
-        public void ResetIngredients()
+        public void ResetIngredients(bool playSound = false)
         {
+            if (playSound)
+                SoundManager.Instance.PlayOS(OSSoundEvent.Retry);
+
+
             if (isResetInProgress)
                 return;
 
@@ -327,6 +360,18 @@ namespace PPP.BLUE.VN
                 return;
 
             string result = EvaluateCurrentDrink();
+
+            bool hasRecipe = pendingDrinkName != "Unknown Drink";
+
+            if (hasRecipe)
+            {
+                SoundManager.Instance.PlayOS(OSSoundEvent.CraftSuccess);
+            }
+            else
+            {
+                SoundManager.Instance.PlayOS(OSSoundEvent.CraftFail);
+            }
+
             if (confirmDrinkNameText != null)
                 confirmDrinkNameText.text = GetCurrentDrinkName();
 
@@ -341,6 +386,9 @@ namespace PPP.BLUE.VN
 
         public void OnRemakeDrink()
         {
+            SoundManager.Instance.PlayOS(OSSoundEvent.Retry); // ❌ 여기 문제
+
+
             resultLocked = false;
             confirmCompleted = false;
             SetInteractionLocked(false);
@@ -358,6 +406,8 @@ namespace PPP.BLUE.VN
 
             if (pendingDrinkName == "Unknown Drink")
             {
+                SoundManager.Instance.PlayOS(OSSoundEvent.CraftFailProvide); // 🔥 경고음
+
                 Debug.Log("[Drink] Provide blocked (Unknown)");
                 return;
             }
@@ -370,6 +420,8 @@ namespace PPP.BLUE.VN
 
             confirmCompleted = true;
 
+            SoundManager.Instance.PlayOS(OSSoundEvent.ProvideComplete); // 🔥 추가
+            
             isProvided = true;
             isDrinkSessionActive = false;
             SetAllIngredientButtonsInteractable(false);
@@ -434,6 +486,8 @@ namespace PPP.BLUE.VN
 
         private IEnumerator CoResetIngredients()
         {
+            
+
             isResetInProgress = true;
             isProvided = false;
             hasPendingProvide = false;
@@ -448,6 +502,8 @@ namespace PPP.BLUE.VN
 
             if (confirmPanel != null)
                 confirmPanel.SetActive(false);
+
+           
 
             currentIngredients.Clear();
             totalCount = 0;
@@ -466,6 +522,8 @@ namespace PPP.BLUE.VN
             SetAllIngredientButtonsInteractable(true);
             if (resetButton != null)
                 resetButton.interactable = true;
+
+
 
             isResetInProgress = false;
             UpdateProvideButtonState();

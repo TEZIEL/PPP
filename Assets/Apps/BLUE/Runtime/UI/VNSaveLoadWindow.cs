@@ -298,10 +298,7 @@ namespace PPP.BLUE.VN
                     ok = runner.TryLoadNow($"VN_SAVE_{slotNumber}");
 
 
-                if (ok)
-                {
-                    SoundManager.Instance.PlayOS(OSSoundEvent.Load); // 🔥 여기
-                }
+               
 
                 if (!copied)
                     Debug.LogWarning($"[VN][SaveLoad] Load failed. slot file missing slot={slotNumber}");
@@ -916,6 +913,11 @@ namespace PPP.BLUE.VN
             SetConfirmPopupVisible(false);
             RefreshSlotVisuals();
             RefreshActionButtonState();
+
+            if (action == PendingAction.Load)
+            {
+                SoundManager.Instance.PlayOS(OSSoundEvent.Load);
+            }
 
             switch (action)
             {

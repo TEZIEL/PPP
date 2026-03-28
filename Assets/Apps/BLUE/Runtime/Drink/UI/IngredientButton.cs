@@ -1,4 +1,4 @@
-using TMPro;
+﻿using TMPro;
 using System.Collections;
 using UnityEngine;
 using UnityEngine.EventSystems;
@@ -80,7 +80,27 @@ namespace PPP.BLUE.VN.DrinkSystem
 
         private void OnClick()
         {
+            float pitch = GetPitchByIngredient();
+
+            SoundManager.Instance.PlayOSWithPitch(OSSoundEvent.IngredientFill1, pitch);
+
             manager?.AddIngredientFromClick(ingredientID);
+        }
+
+        private float GetPitchByIngredient()
+        {
+            switch (ingredientID)
+            {
+                case "INGREDIENT_VELTRINE": return 1.000f; // C4
+                case "INGREDIENT_ZYPHRATE": return 1.122f; // D4
+                case "INGREDIENT_KRATYLEN": return 1.260f; // E4
+                case "INGREDIENT_MORVION": return 1.335f; // F4
+                case "INGREDIENT_REDULINE": return 1.498f; // G4
+                case "INGREDIENT_CYMENTOL": return 1.682f; // A4
+                case "INGREDIENT_BRAXIUM": return 1.888f; // B4
+                case "INGREDIENT_ARTHEON": return 2.000f; // C5
+                default: return 1f;
+            }
         }
 
         public void OnPointerEnter(PointerEventData eventData)

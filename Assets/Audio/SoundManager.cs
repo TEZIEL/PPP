@@ -91,6 +91,19 @@ public class SoundManager : MonoBehaviour
         };
     }
 
+    public void PlayOSWithPitch(OSSoundEvent e, float pitch)
+    {
+        if (osMap.TryGetValue(e, out var clip))
+        {
+            var temp = gameObject.AddComponent<AudioSource>();
+            temp.clip = clip;
+            temp.pitch = pitch;
+            temp.Play();
+
+            Destroy(temp, clip.length);
+        }
+    }
+
     public void PlayOS(OSSoundEvent e)
     {
         if (osMap.TryGetValue(e, out var clip))
