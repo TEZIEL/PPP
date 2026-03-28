@@ -567,6 +567,8 @@ public class WindowController : MonoBehaviour,
             {
                 if (!CanAcceptCommand()) return;   // ✅ 추가(선택인데 넣는 게 안전)
                 isPinned = !isPinned;
+                SoundManager.Instance.PlayOS(OSSoundEvent.Pin); // 🔥 여기
+
             });
     }
 }

@@ -168,6 +168,7 @@ public class WindowManager : MonoBehaviour, IVNHostOS
 
         Focus(appId);
         spawned.PlayOpen();
+        SoundManager.Instance.PlayOS(OSSoundEvent.Open);
         StartCoroutine(CoFinalizeSpawn(spawned));
 
     }
@@ -547,6 +548,8 @@ public class WindowManager : MonoBehaviour, IVNHostOS
 
         w.PlayMinimize(target, () =>
         {
+            SoundManager.Instance.PlayOS(OSSoundEvent.Minimize); // 🔥 여기
+
             w.SetMinimized(true);
             LogWindowLifecycle("minimize", appId);
             taskbarManager?.SetMinimized(appId, true);
@@ -588,6 +591,9 @@ public class WindowManager : MonoBehaviour, IVNHostOS
 
         w.PlayRestore(from, () =>
         {
+            SoundManager.Instance.PlayOS(OSSoundEvent.Restore); // 🔥 여기
+
+
             Focus(appId);
             RequestAutoSave();
         });
@@ -706,6 +712,7 @@ public class WindowManager : MonoBehaviour, IVNHostOS
     private void PerformClose(WindowController window, string appId)
     {
         LogWindowLifecycle("close", appId);
+        SoundManager.Instance.PlayOS(OSSoundEvent.Close); // 🔥 여기
         window.PlayClose(() =>
         {
             taskbarManager?.Remove(appId);
