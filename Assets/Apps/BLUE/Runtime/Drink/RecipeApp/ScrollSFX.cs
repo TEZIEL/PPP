@@ -3,7 +3,7 @@ using UnityEngine.EventSystems;
 
 public class ScrollSFX : MonoBehaviour, IScrollHandler
 {
-    [SerializeField] private float cooldown = 0.24f; // 🔥 0.06 ~ 0.12 추천
+    [SerializeField] private float cooldown = 0.3f; // 🔥 0.06 ~ 0.12 추천
 
     private float lastPlayTime;
 

@@ -112,12 +112,16 @@ namespace PPP.BLUE.VN
 
         public void OnCloseConfirm()
         {
+            // 🔥 추가
+
             bridge?.RequestForceClose();
             Hide();
         }
 
         private void ForceExit()
         {
+             // 🔥 추가
+
             bridge?.RequestForceClose();
             Hide();
         }

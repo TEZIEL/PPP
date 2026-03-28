@@ -9588,6 +9588,7 @@ GameObject:
   - component: {fileID: 5085377557999631608}
   - component: {fileID: 4998167145302433186}
   - component: {fileID: 6240709093728955788}
+  - component: {fileID: 4095040403130524174}
   m_Layer: 5
   m_Name: Scroll View
   m_TagString: Untagged
@@ -9684,6 +9685,19 @@ MonoBehaviour:
   m_OnValueChanged:
     m_PersistentCalls:
       m_Calls: []
+--- !u!114 &4095040403130524174
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3342665645381519641}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 902a7d1053205bb4dad8fe8b322a169f, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  cooldown: 0.24
 --- !u!1 &3342951766868331819
 GameObject:
   m_ObjectHideFlags: 0
@@ -20736,7 +20750,7 @@ MonoBehaviour:
   autoPlayButton: {fileID: 5261307437254180606}
   exitButton: {fileID: 673330969755753658}
   saveLoadButton: {fileID: 310943238779110831}
-  hideUIButton: {fileID: 0}
+  hideUIButton: {fileID: 905946360053600017}
   saveLoadWindow: {fileID: 3270875385100370035}
   backlogView: {fileID: 5746052801380046462}
   dialogueCanvasGroup: {fileID: 2800437103308851553}
@@ -25247,6 +25261,7 @@ GameObject:
   - component: {fileID: 1329841575921336936}
   - component: {fileID: 3017633609300158023}
   - component: {fileID: 2774751668693284427}
+  - component: {fileID: 4469819354149493784}
   m_Layer: 5
   m_Name: Scroll View
   m_TagString: Untagged
@@ -25343,6 +25358,19 @@ MonoBehaviour:
   m_OnValueChanged:
     m_PersistentCalls:
       m_Calls: []
+--- !u!114 &4469819354149493784
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 9010274065928701831}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 902a7d1053205bb4dad8fe8b322a169f, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  cooldown: 0.24
 --- !u!1 &9030196316654499740
 GameObject:
   m_ObjectHideFlags: 0

@@ -211,6 +211,8 @@ namespace PPP.BLUE.VN
         /// </summary>
         public void ScrollUp()
         {
+            SoundManager.Instance.PlayOS(OSSoundEvent.Scroll); // 🔥
+
             ScrollByStep(+1f);
         }
 
@@ -219,6 +221,8 @@ namespace PPP.BLUE.VN
         /// </summary>
         public void ScrollDown()
         {
+            SoundManager.Instance.PlayOS(OSSoundEvent.Scroll); // 🔥
+
             ScrollByStep(-1f);
         }
 

@@ -297,6 +297,12 @@ namespace PPP.BLUE.VN
                 if (copied && runner != null)
                     ok = runner.TryLoadNow($"VN_SAVE_{slotNumber}");
 
+
+                if (ok)
+                {
+                    SoundManager.Instance.PlayOS(OSSoundEvent.Load); // 🔥 여기
+                }
+
                 if (!copied)
                     Debug.LogWarning($"[VN][SaveLoad] Load failed. slot file missing slot={slotNumber}");
                 else
@@ -339,6 +345,9 @@ namespace PPP.BLUE.VN
                 return;
             }
 
+            SoundManager.Instance.PlayOS(OSSoundEvent.Save);
+
+
             bool copied = CopyDefaultSaveToSlot(slotNumber);
             if (copied)
                 Debug.Log($"[VN][SaveLoad] Saved slot={slotNumber}");
@@ -361,6 +370,8 @@ namespace PPP.BLUE.VN
             if (File.Exists(path))
             {
                 File.Delete(path);
+                SoundManager.Instance.PlayOS(OSSoundEvent.Delete);
+
                 Debug.Log($"[VN][SaveLoad] Deleted slot={slotNumber}");
             }
             else
@@ -439,6 +450,8 @@ namespace PPP.BLUE.VN
         /// </summary>
         public void ScrollUp()
         {
+            SoundManager.Instance.PlayOS(OSSoundEvent.Scroll); // 🔥
+
             ScrollByStep(+1f);
         }
 
@@ -447,6 +460,8 @@ namespace PPP.BLUE.VN
         /// </summary>
         public void ScrollDown()
         {
+            SoundManager.Instance.PlayOS(OSSoundEvent.Scroll); // 🔥
+
             ScrollByStep(-1f);
         }
 

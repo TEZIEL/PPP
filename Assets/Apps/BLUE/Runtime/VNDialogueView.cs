@@ -1180,6 +1180,8 @@ namespace PPP.BLUE.VN
 
         public void HideUI()
         {
+            SoundManager.Instance.PlayOS(OSSoundEvent.Minimize);
+
             if (isUIAnimating || isUIHidden)
                 return;
             if (policy != null && policy.IsDrinkModeActive())
@@ -1192,6 +1194,8 @@ namespace PPP.BLUE.VN
 
         public void ShowUI()
         {
+            SoundManager.Instance.PlayOS(OSSoundEvent.Restore);
+
             if (isUIAnimating || !isUIHidden)
                 return;
 

@@ -2538,6 +2538,18 @@ MonoBehaviour:
   minimize: {fileID: 8300000, guid: 0479363fc6a225b40ab93a594c26cec9, type: 3}
   pin: {fileID: 8300000, guid: 4753e108f9446ff4cb1b4accfd246684, type: 3}
   restore: {fileID: 8300000, guid: 4cada4fe348879f459629966ddd78799, type: 3}
+  scroll: {fileID: 8300000, guid: d7b7beff320e9f9479514732e289f52e, type: 3}
+  save: {fileID: 8300000, guid: f0764c15f619b95448b22b39e57bfe38, type: 3}
+  load: {fileID: 8300000, guid: 8a85b8679c4e17c4abae423cb5f792f0, type: 3}
+  delete: {fileID: 8300000, guid: 06b74127e25309f408e30ca6e109880d, type: 3}
+  fadeOut: {fileID: 0}
+  ingredient1: {fileID: 8300000, guid: 694e846b662e58d44979273cd71d6cff, type: 3}
+  ingredient2: {fileID: 8300000, guid: e0af1634b068d504bb2518691c4d05d2, type: 3}
+  retry: {fileID: 8300000, guid: ab16739cedf359841a027777889fcd01, type: 3}
+  craftFail: {fileID: 8300000, guid: 2c98ce536b73d0e479a5cc06b4d2a0d7, type: 3}
+  craftFailProvide: {fileID: 8300000, guid: ee7ed71de5675914bbb5791c6914cb2a, type: 3}
+  craftSuccess: {fileID: 8300000, guid: 592a8ef10cffdda47b02551f193324f2, type: 3}
+  provideComplete: {fileID: 8300000, guid: c898d67c93a439141a824b9e5959339c, type: 3}
 --- !u!224 &565802578
 RectTransform:
   m_ObjectHideFlags: 0

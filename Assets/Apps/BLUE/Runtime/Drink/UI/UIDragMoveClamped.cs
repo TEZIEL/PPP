@@ -1,4 +1,4 @@
-using UnityEngine;
+﻿using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
 using System.Collections.Generic;
@@ -75,6 +75,8 @@ namespace PPP.BLUE.VN
 
         public void TogglePinned()
         {
+            SoundManager.Instance.PlayOS(OSSoundEvent.Pin); // 🔥 추가
+
             SetPinned(!isPinned);
         }
 

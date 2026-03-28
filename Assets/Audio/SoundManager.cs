@@ -1,4 +1,4 @@
-using UnityEngine;
+﻿using UnityEngine;
 using System.Collections.Generic;
 
 public enum OSSoundEvent
@@ -9,7 +9,21 @@ public enum OSSoundEvent
     Minimize,
     Pin,
     Restore,
-    Scroll
+    Scroll,
+
+    // 🔥 추가
+    Save,
+    Load,
+    Delete,
+    FadeOut,
+
+    IngredientFill1,
+    IngredientFill2,
+    Retry,
+    CraftFail,
+    CraftFailProvide,
+    CraftSuccess,
+    ProvideComplete
 }
 
 public class SoundManager : MonoBehaviour
@@ -30,6 +44,22 @@ public class SoundManager : MonoBehaviour
     public AudioClip restore;
     public AudioClip scroll;
 
+
+    [Header("Game Clips")]
+    public AudioClip save;
+    public AudioClip load;
+    public AudioClip delete;
+    public AudioClip fadeOut;
+
+    public AudioClip ingredient1;
+    public AudioClip ingredient2;
+    public AudioClip retry;
+    public AudioClip craftFail;
+    public AudioClip craftFailProvide;
+    public AudioClip craftSuccess;
+    public AudioClip provideComplete;
+
+
     private Dictionary<OSSoundEvent, AudioClip> osMap;
 
     private void Awake()
@@ -44,7 +74,20 @@ public class SoundManager : MonoBehaviour
             { OSSoundEvent.Minimize, minimize },
             { OSSoundEvent.Pin, pin },
             { OSSoundEvent.Restore, restore },
-            { OSSoundEvent.Scroll, scroll }
+            { OSSoundEvent.Scroll, scroll },
+
+            { OSSoundEvent.Save, save },
+            { OSSoundEvent.Load, load },
+            { OSSoundEvent.Delete, delete },
+            { OSSoundEvent.FadeOut, fadeOut },
+            { OSSoundEvent.IngredientFill1, ingredient1 },
+            { OSSoundEvent.IngredientFill2, ingredient2 },
+            { OSSoundEvent.Retry, retry },
+            { OSSoundEvent.CraftFail, craftFail },
+            { OSSoundEvent.CraftFailProvide, craftFailProvide },
+            { OSSoundEvent.CraftSuccess, craftSuccess },
+            { OSSoundEvent.ProvideComplete, provideComplete }
+
         };
     }
 

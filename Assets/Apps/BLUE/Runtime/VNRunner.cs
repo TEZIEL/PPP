@@ -2614,6 +2614,9 @@ namespace PPP.BLUE.VN
 
         private void SkipStep()
         {
+            SoundManager.Instance.PlayOS(OSSoundEvent.Scroll); // 🔥 추가
+
+
             if (!CanRunSkipStep())
                 return;
 
