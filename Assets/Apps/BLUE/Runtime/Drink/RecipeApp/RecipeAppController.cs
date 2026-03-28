@@ -4,6 +4,7 @@ using System.Linq;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
+using UnityEngine.EventSystems;
 
 namespace PPP.BLUE.VN.RecipeApp
 {
@@ -120,6 +121,8 @@ namespace PPP.BLUE.VN.RecipeApp
                 ingredientDisplayNameById[ingredient.id] = ingredient.DisplayName;
             }
         }
+
+        
 
         private void BuildImageMap()
         {
@@ -294,6 +297,9 @@ namespace PPP.BLUE.VN.RecipeApp
             float viewportHeight = drinkListScrollRect.viewport.rect.height;
             if (contentHeight <= viewportHeight + 0.01f)
                 return;
+
+            SoundManager.Instance.PlayOS(OSSoundEvent.Scroll);
+
 
             float step = Mathf.Clamp01(buttonScrollStep);
             float next = drinkListScrollRect.verticalNormalizedPosition + (direction * step);

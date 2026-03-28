@@ -8,7 +8,8 @@ public enum OSSoundEvent
     Close,
     Minimize,
     Pin,
-    Restore
+    Restore,
+    Scroll
 }
 
 public class SoundManager : MonoBehaviour
@@ -27,6 +28,7 @@ public class SoundManager : MonoBehaviour
     public AudioClip minimize;
     public AudioClip pin;
     public AudioClip restore;
+    public AudioClip scroll;
 
     private Dictionary<OSSoundEvent, AudioClip> osMap;
 
@@ -41,7 +43,8 @@ public class SoundManager : MonoBehaviour
             { OSSoundEvent.Close, close },
             { OSSoundEvent.Minimize, minimize },
             { OSSoundEvent.Pin, pin },
-            { OSSoundEvent.Restore, restore }
+            { OSSoundEvent.Restore, restore },
+            { OSSoundEvent.Scroll, scroll }
         };
     }
 

@@ -282,14 +282,18 @@ public class FidgetShortsController : MonoBehaviour, IScrollHandler
         if (Time.unscaledTime - _lastWheelTime < wheelCooldown) return;
 
         float y = eventData.scrollDelta.y;
-        if (Mathf.Abs(y) < 0.01f) return;
-
-        // 보통 휠 아래(-) = 다음, 위(+) = 이전
-        if (y < 0f) CommitNext();
+        if (y < 0f)
+        {
+            CommitNext();
+            SoundManager.Instance.PlayOS(OSSoundEvent.Scroll); // 🔥 추가
+        }
         else
         {
-            if (cursor > 0) CommitPrev();
-            // cursor==0이면 이전 없음
+            if (cursor > 0)
+            {
+                CommitPrev();
+                SoundManager.Instance.PlayOS(OSSoundEvent.Scroll); // 🔥 추가
+            }
         }
 
         _lastWheelTime = Time.unscaledTime;
@@ -312,13 +316,18 @@ public class FidgetShortsController : MonoBehaviour, IScrollHandler
         {
             if (Time.unscaledTime - _lastWheelTime < wheelCooldown) return;
 
-            if (wheel < 0f)         // 아래로 굴림 = 다음
+            if (wheel < 0f)
             {
                 CommitNext();
+                SoundManager.Instance.PlayOS(OSSoundEvent.Scroll); // 🔥
             }
-            else                    // 위로 굴림 = 이전 (첫 장이면 막기)
+            else
             {
-                if (cursor > 0) CommitPrev();
+                if (cursor > 0)
+                {
+                    CommitPrev();
+                    SoundManager.Instance.PlayOS(OSSoundEvent.Scroll); // 🔥
+                }
             }
 
             _lastWheelTime = Time.unscaledTime;
@@ -437,6 +446,7 @@ public class FidgetShortsController : MonoBehaviour, IScrollHandler
     {
         if (isSwiping) return;
         if (Time.unscaledTime - _lastSwipeTime < swipeCooldown) return;
+        SoundManager.Instance.PlayOS(OSSoundEvent.Scroll); // 🔥 추가
 
         _lastSwipeTime = Time.unscaledTime;
         SetPinButtonInteractable(false);
@@ -449,6 +459,8 @@ public class FidgetShortsController : MonoBehaviour, IScrollHandler
     {
         if (isSwiping) return;
         if (cursor <= 0) return;
+        SoundManager.Instance.PlayOS(OSSoundEvent.Scroll); // 🔥 추가
+
         if (Time.unscaledTime - _lastSwipeTime < swipeCooldown) return;
 
         _lastSwipeTime = Time.unscaledTime;
@@ -625,6 +637,9 @@ public class FidgetShortsController : MonoBehaviour, IScrollHandler
     {
         if (isSwiping) return;
         if (pinButton != null && !pinButton.interactable) return;
+
+        SoundManager.Instance.PlayOS(OSSoundEvent.Pin); // 🔥 추가
+
 
         if (!isPinned)
         {
