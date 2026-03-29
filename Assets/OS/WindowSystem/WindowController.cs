@@ -81,6 +81,7 @@ public class WindowController : MonoBehaviour,
     private Color _themeWindowTint = Color.white;
     private bool _hasThemeWindowTint;
     private bool _isActiveVisual;
+    private ThemeData _currentTheme;
 
 
     private bool TryBeginAnim()
@@ -237,20 +238,31 @@ public class WindowController : MonoBehaviour,
 
         if (titleBarImage != null)
         {
-            var spr = skin != null ? (active ? skin.titleActive : skin.titleInactive) : null;
+            var spr = ResolveTitleBarSprite(active);
             if (spr != null) titleBarImage.sprite = spr;
             titleBarImage.color = tint;
         }
 
         if (underImage != null)
         {
-            var spr = skin != null ? (active ? skin.underActive : skin.underInactive) : null;
+            var spr = ResolveBottomBarSprite(active);
             if (spr != null) underImage.sprite = spr;
             underImage.color = tint;
         }
 
-        if (frameImage != null) frameImage.color = tint;
-        if (sideImage != null) sideImage.color = tint;
+        if (frameImage != null)
+        {
+            var spr = _currentTheme != null ? _currentTheme.windowFrameSprite : null;
+            if (spr != null) frameImage.sprite = spr;
+            frameImage.color = tint;
+        }
+
+        if (sideImage != null)
+        {
+            var spr = _currentTheme != null ? _currentTheme.windowSideSprite : null;
+            if (spr != null) sideImage.sprite = spr;
+            sideImage.color = tint;
+        }
 
         if (shadowImage != null)
             shadowImage.gameObject.SetActive(active);
@@ -258,6 +270,8 @@ public class WindowController : MonoBehaviour,
 
     public void ApplyTheme(ThemeData theme)
     {
+        _currentTheme = theme;
+
         if (theme != null)
         {
             _themeWindowTint = theme.windowTint;
@@ -270,6 +284,30 @@ public class WindowController : MonoBehaviour,
         }
 
         SetActiveVisual(_isActiveVisual);
+    }
+
+    private Sprite ResolveTitleBarSprite(bool active)
+    {
+        if (_currentTheme != null)
+        {
+            if (active && _currentTheme.windowTitleBarActiveSprite != null) return _currentTheme.windowTitleBarActiveSprite;
+            if (!active && _currentTheme.windowTitleBarInactiveSprite != null) return _currentTheme.windowTitleBarInactiveSprite;
+            if (_currentTheme.windowTitleBarSprite != null) return _currentTheme.windowTitleBarSprite;
+        }
+
+        return skin != null ? (active ? skin.titleActive : skin.titleInactive) : null;
+    }
+
+    private Sprite ResolveBottomBarSprite(bool active)
+    {
+        if (_currentTheme != null)
+        {
+            if (active && _currentTheme.windowBottomBarActiveSprite != null) return _currentTheme.windowBottomBarActiveSprite;
+            if (!active && _currentTheme.windowBottomBarInactiveSprite != null) return _currentTheme.windowBottomBarInactiveSprite;
+            if (_currentTheme.windowBottomBarSprite != null) return _currentTheme.windowBottomBarSprite;
+        }
+
+        return skin != null ? (active ? skin.underActive : skin.underInactive) : null;
     }
 
     private Color ResolveWindowTint()

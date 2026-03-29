@@ -9,7 +9,11 @@ public class ThemeManager : MonoBehaviour
     [SerializeField] private ThemeData currentTheme;
     [Header("Taskbar Surface")]
     [SerializeField] private Image taskbarBackgroundImage;
-    [SerializeField] private List<Image> statusBarPanels = new();
+    [SerializeField] private Image taskbarPanelImage;
+    [SerializeField] private Image startButtonImage;
+    [SerializeField] private Image clockPanelImage;
+    [SerializeField] private Image taskbarSeparatorImage;
+    [SerializeField] private List<Image> extraTaskbarPanelImages = new();
 
     public ThemeData CurrentTheme => currentTheme;
 
@@ -34,17 +38,14 @@ public class ThemeManager : MonoBehaviour
     public void ApplyTheme()
     {
         if (currentTheme == null) return;
+        ApplySpriteIfPresent(taskbarBackgroundImage, currentTheme.taskbarBackgroundSprite);
+        ApplySpriteIfPresent(taskbarPanelImage, currentTheme.taskbarPanelSprite);
+        ApplySpriteIfPresent(startButtonImage, currentTheme.startButtonSprite);
+        ApplySpriteIfPresent(clockPanelImage, currentTheme.clockPanelSprite);
+        ApplySpriteIfPresent(taskbarSeparatorImage, currentTheme.taskbarSeparatorSprite);
 
-        ResolveTaskbarReferencesIfNeeded();
-
-        if (taskbarBackgroundImage != null)
-            taskbarBackgroundImage.color = currentTheme.taskbarBg;
-
-        for (int i = 0; i < statusBarPanels.Count; i++)
-        {
-            if (statusBarPanels[i] == null) continue;
-            statusBarPanels[i].color = currentTheme.statusBarTint;
-        }
+        for (int i = 0; i < extraTaskbarPanelImages.Count; i++)
+            ApplySpriteIfPresent(extraTaskbarPanelImages[i], currentTheme.taskbarPanelSprite);
 
         var taskbarManager = FindObjectOfType<TaskbarManager>();
         taskbarManager?.ApplyThemeToAllButtons(this);
@@ -65,24 +66,10 @@ public class ThemeManager : MonoBehaviour
         button.ApplyTheme(currentTheme);
     }
 
-    private void ResolveTaskbarReferencesIfNeeded()
+    private static void ApplySpriteIfPresent(Image image, Sprite sprite)
     {
-        if (taskbarBackgroundImage == null)
-        {
-            var bg = GameObject.Find("TaskbarBG");
-            if (bg != null) taskbarBackgroundImage = bg.GetComponent<Image>();
-        }
-
-        if (statusBarPanels == null) statusBarPanels = new List<Image>();
-
-        if (statusBarPanels.Count > 0) return;
-
-        var candidates = FindObjectsOfType<Image>();
-        for (int i = 0; i < candidates.Length; i++)
-        {
-            var img = candidates[i];
-            if (img == null) continue;
-            if (img.name.StartsWith("BarTask")) statusBarPanels.Add(img);
-        }
+        if (image == null) return;
+        if (sprite == null) return;
+        image.sprite = sprite;
     }
 }
