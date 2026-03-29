@@ -2801,6 +2801,8 @@ MonoBehaviour:
   - {fileID: 21300000, guid: 6816df915d2f71d4ebe32d63de384797, type: 3}
   - {fileID: 21300000, guid: ba16e124d47a2e049b5b6a6f51bb3085, type: 3}
   - {fileID: 21300000, guid: 244362ede55e6464f8f07d6a5d65639c, type: 3}
+  - {fileID: 21300000, guid: 1b4f96909991bef46acade2cf1b78056, type: 3}
+  - {fileID: 21300000, guid: 54d88b36831d6c649abfcb78d44133dc, type: 3}
   commitThreshold01: 0.25
   swipeAnimDur: 0.15
   wheelCooldown: 0.3
