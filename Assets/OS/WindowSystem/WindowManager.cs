@@ -12,6 +12,7 @@ public class WindowManager : MonoBehaviour, IVNHostOS
     [SerializeField] private RectTransform windowsRoot;
     [SerializeField] private RectTransform canvasRect;
     [SerializeField] private TaskbarManager taskbarManager;
+    [SerializeField] private ThemeManager themeManager;
     [SerializeField] private RectTransform iconsRoot; // DesktopIconBG 같은 부모
     [SerializeField] private DesktopGridManager desktopGridManager;
 
@@ -136,6 +137,7 @@ public class WindowManager : MonoBehaviour, IVNHostOS
 
         spawned.Initialize(this, appId, canvasRect, displayName, windowIcon);
         spawned.InjectManager(this);
+        (themeManager != null ? themeManager : ThemeManager.Instance)?.ApplyThemeToWindow(spawned);
 
         // cachedSave가 비어있을 수 있으니 "필요 시 로드"
         EnsureSaveCacheLoaded();
@@ -271,10 +273,11 @@ public class WindowManager : MonoBehaviour, IVNHostOS
 
     private void Start()
     {
+        if (themeManager == null) themeManager = ThemeManager.Instance;
         InjectAllWindows();
         InjectAllIcons();     // ✅ 추가
         LoadOS();
-        
+        (themeManager != null ? themeManager : ThemeManager.Instance)?.ApplyThemeToOpenWindows();
     }
 
     // 공용 헬퍼 하나
@@ -801,6 +804,18 @@ public class WindowManager : MonoBehaviour, IVNHostOS
     public IReadOnlyDictionary<string, WindowController> GetOpenWindows()
     {
         return openWindows;
+    }
+
+    public void ApplyThemeToOpenWindows(ThemeManager manager = null)
+    {
+        var tm = manager != null ? manager : (themeManager != null ? themeManager : ThemeManager.Instance);
+        if (tm == null) return;
+
+        foreach (var pair in openWindows)
+        {
+            if (pair.Value == null) continue;
+            tm.ApplyThemeToWindow(pair.Value);
+        }
     }
 
 

@@ -24,6 +24,9 @@ public class TaskbarButtonController : MonoBehaviour
 
     [Header("Remove Animation")]
     [SerializeField] private float removeDuration = 0.12f;
+    [Header("Theme Fallback")]
+    [SerializeField] private Color fallbackNormalColor = Color.white;
+    [SerializeField] private Color fallbackPressedColor = new Color(0.78f, 0.78f, 0.78f, 1f);
 
     private bool _listenerHooked;
 
@@ -31,6 +34,9 @@ public class TaskbarButtonController : MonoBehaviour
     private LayoutElement _le;
     private Coroutine _removeCo;
     private float _initialWidth = -1f;
+    private bool _isMinimizedVisual;
+    private Color _normalColor = Color.white;
+    private Color _pressedColor = new Color(0.78f, 0.78f, 0.78f, 1f);
 
     public RectTransform Rect => (RectTransform)transform;
 
@@ -100,7 +106,27 @@ public class TaskbarButtonController : MonoBehaviour
         if (background == null) return;
         if (recessedSprite == null || raisedSprite == null) return;
 
+        _isMinimizedVisual = minimized;
         background.sprite = minimized ? raisedSprite : recessedSprite;
+        background.color = minimized ? _pressedColor : _normalColor;
+    }
+
+    public void ApplyTheme(ThemeData theme)
+    {
+        _normalColor = theme != null ? theme.taskbarButtonNormal : fallbackNormalColor;
+        _pressedColor = theme != null ? theme.taskbarButtonPressed : fallbackPressedColor;
+
+        if (background != null)
+            background.color = _isMinimizedVisual ? _pressedColor : _normalColor;
+
+        if (button == null) return;
+
+        var colors = button.colors;
+        colors.normalColor = _normalColor;
+        colors.selectedColor = _normalColor;
+        colors.highlightedColor = Color.Lerp(_normalColor, Color.white, 0.1f);
+        colors.pressedColor = _pressedColor;
+        button.colors = colors;
     }
 
     private void OnClick()

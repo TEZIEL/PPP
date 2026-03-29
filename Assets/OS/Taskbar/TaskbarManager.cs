@@ -8,6 +8,7 @@ public class TaskbarManager : MonoBehaviour
     [SerializeField] private WindowManager windowManager;
     [SerializeField] private TaskbarButtonController buttonPrefab;
     [SerializeField] private RectTransform buttonRoot;
+    [SerializeField] private ThemeManager themeManager;
 
     private readonly Dictionary<string, TaskbarButtonController> buttons = new();
     private readonly HashSet<string> minimizedApps = new();
@@ -19,6 +20,13 @@ public class TaskbarManager : MonoBehaviour
     private void Awake()
     {
         if (buttonRoot == null) buttonRoot = (RectTransform)transform;
+        if (themeManager == null) themeManager = ThemeManager.Instance;
+    }
+
+    private void Start()
+    {
+        if (themeManager == null) themeManager = ThemeManager.Instance;
+        ApplyThemeToAllButtons(themeManager);
     }
 
     public void Add(string appId, string displayName, WindowController window, Sprite appIcon = null)
@@ -35,6 +43,7 @@ public class TaskbarManager : MonoBehaviour
         var button = Instantiate(buttonPrefab, root);
 
         button.Initialize(appId, displayName, windowManager, window, appIcon);
+        (themeManager != null ? themeManager : ThemeManager.Instance)?.ApplyThemeToTaskbarButton(button);
 
         buttons.Add(appId, button);
         SetState(appId, isActive: false, isMinimized: false);
@@ -110,5 +119,17 @@ public class TaskbarManager : MonoBehaviour
     {
         if (buttonRoot == null) return;
         LayoutRebuilder.ForceRebuildLayoutImmediate(buttonRoot);
+    }
+
+    public void ApplyThemeToAllButtons(ThemeManager manager = null)
+    {
+        var tm = manager != null ? manager : (themeManager != null ? themeManager : ThemeManager.Instance);
+        if (tm == null) return;
+
+        foreach (var pair in buttons)
+        {
+            if (pair.Value == null) continue;
+            tm.ApplyThemeToTaskbarButton(pair.Value);
+        }
     }
 }
