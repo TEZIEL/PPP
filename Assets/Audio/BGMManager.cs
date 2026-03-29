@@ -1,6 +1,7 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using UnityEngine;
+using PPP.OS.Save;
 
 public class BGMManager : MonoBehaviour
 {
@@ -36,6 +37,7 @@ public class BGMManager : MonoBehaviour
     // 제외된 곡 관리
     private readonly HashSet<string> disabledTrackIds = new();
     public bool HasDisabledTracks => disabledTrackIds.Count > 0;
+    private static BGMOsStateData pendingOsState;
 
 
     public float CurrentTime => musicSource != null ? musicSource.time : 0f;
@@ -113,6 +115,78 @@ public class BGMManager : MonoBehaviour
         Instance = this;
         DontDestroyOnLoad(gameObject);
         RebuildShuffleBag();
+
+        if (pendingOsState != null)
+        {
+            ApplyOsState(pendingOsState);
+            pendingOsState = null;
+        }
+    }
+
+    public BGMOsStateData CaptureOsState()
+    {
+        return new BGMOsStateData
+        {
+            disabledTrackIds = new List<string>(disabledTrackIds),
+            shuffleEnabled = shuffleEnabled,
+            playbackMode = playbackMode.ToString()
+        };
+    }
+
+    public void ApplyOsState(BGMOsStateData data)
+    {
+        disabledTrackIds.Clear();
+
+        if (data != null)
+        {
+            if (data.disabledTrackIds != null)
+            {
+                foreach (var id in data.disabledTrackIds)
+                {
+                    if (!string.IsNullOrWhiteSpace(id))
+                        disabledTrackIds.Add(id);
+                }
+            }
+
+            shuffleEnabled = data.shuffleEnabled;
+
+            if (!string.IsNullOrWhiteSpace(data.playbackMode)
+                && Enum.TryParse(data.playbackMode, true, out PlaybackMode parsedMode))
+            {
+                playbackMode = parsedMode;
+            }
+            else
+            {
+                playbackMode = PlaybackMode.LoopOne;
+            }
+        }
+        else
+        {
+            shuffleEnabled = false;
+            playbackMode = PlaybackMode.LoopOne;
+        }
+
+        RebuildShuffleBag();
+
+        OnLibraryChanged?.Invoke();
+        OnShuffleChanged?.Invoke(shuffleEnabled);
+        OnPlaybackModeChanged?.Invoke(playbackMode);
+    }
+
+    public static void CachePendingOsState(BGMOsStateData data)
+    {
+        if (data == null)
+        {
+            pendingOsState = null;
+            return;
+        }
+
+        pendingOsState = new BGMOsStateData
+        {
+            disabledTrackIds = data.disabledTrackIds != null ? new List<string>(data.disabledTrackIds) : new List<string>(),
+            shuffleEnabled = data.shuffleEnabled,
+            playbackMode = data.playbackMode
+        };
     }
 
     private void Update()

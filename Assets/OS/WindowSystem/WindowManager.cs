@@ -1,4 +1,4 @@
-﻿using System.Collections.Generic;
+using System.Collections.Generic;
 using System.Collections;   
 using UnityEngine;
 using PPP.OS.Save;
@@ -355,6 +355,10 @@ public class WindowManager : MonoBehaviour, IVNHostOS
             });
         }
 
+        saveData.osState ??= new OSGlobalStateData();
+        if (BGMManager.Instance != null)
+            saveData.osState.bgm = BGMManager.Instance.CaptureOsState();
+
         PPP.OS.Save.OSSaveSystem.Save(saveData);
         cachedSave = saveData;
     }
@@ -380,6 +384,13 @@ public class WindowManager : MonoBehaviour, IVNHostOS
 
         ApplyWindows(data);
         ApplyIcons(data);
+
+        var savedBgmState = data.osState != null ? data.osState.bgm : null;
+        if (BGMManager.Instance != null)
+            BGMManager.Instance.ApplyOsState(savedBgmState);
+        else
+            BGMManager.CachePendingOsState(savedBgmState);
+
         cachedSave = data;
 
         PostApplyLayoutSanity();

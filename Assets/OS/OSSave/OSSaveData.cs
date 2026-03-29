@@ -11,7 +11,21 @@ namespace PPP.OS.Save
         public List<OSWindowData> windows = new();
         public List<OSIconData> icons = new();
         public List<OSSubBlockData> subBlocks = new();
+        public OSGlobalStateData osState = new();
+    }
 
+    [Serializable]
+    public class OSGlobalStateData
+    {
+        public BGMOsStateData bgm = new();
+    }
+
+    [Serializable]
+    public class BGMOsStateData
+    {
+        public List<string> disabledTrackIds = new();
+        public bool shuffleEnabled;
+        public string playbackMode;
     }
 
     [Serializable]
