@@ -41,7 +41,7 @@ public class MusicPlayerUI : MonoBehaviour, IPointerEnterHandler, IPointerExitHa
     private void Awake()
     {
         _index = PlayerPrefs.GetInt(PREF_KEY_INDEX, 0);
-        ApplyImageIndex();
+       
         ApplyTrackInfo();
 
         SetHoverVisible(false, instant: true);
@@ -97,7 +97,7 @@ public class MusicPlayerUI : MonoBehaviour, IPointerEnterHandler, IPointerExitHa
     {
     if (sprites == null || sprites.Length == 0) return;
     _index = (_index - 1 + sprites.Length) % sprites.Length;
-    ApplyImageIndex();
+    
     SaveIndex();
     }
 
@@ -105,7 +105,7 @@ public class MusicPlayerUI : MonoBehaviour, IPointerEnterHandler, IPointerExitHa
     {
     if (sprites == null || sprites.Length == 0) return;
     _index = (_index + 1) % sprites.Length;
-    ApplyImageIndex();
+    
     SaveIndex();
     }
 
@@ -116,11 +116,7 @@ public class MusicPlayerUI : MonoBehaviour, IPointerEnterHandler, IPointerExitHa
         if (authorText) authorText.text = trackAuthor;
     }
 
-    private void ApplyImageIndex()
-    {
-        if (mainImage && sprites != null && sprites.Length > 0)
-            mainImage.sprite = sprites[_index];
-    }
+    
 
     private void SaveIndex() => PlayerPrefs.SetInt(PREF_KEY_INDEX, _index);
 

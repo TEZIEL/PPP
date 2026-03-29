@@ -186,6 +186,7 @@ public class WindowController : MonoBehaviour,
     {
         isPinned = !isPinned;
         // TODO: 핀 아이콘/색 변화는 나중에 여기서 처리
+        SoundManager.Instance.PlayOS(OSSoundEvent.Pin); // 🔥 여기
     }
 
     // =========================
