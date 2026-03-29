@@ -275,9 +275,9 @@ public class WindowManager : MonoBehaviour, IVNHostOS
     {
         if (themeManager == null) themeManager = ThemeManager.Instance;
         InjectAllWindows();
-        InjectAllIcons();     // ✅ 추가
+        InjectAllIcons();
         LoadOS();
-        (themeManager != null ? themeManager : ThemeManager.Instance)?.ApplyThemeToOpenWindows();
+        ApplyThemeToOpenWindows(themeManager != null ? themeManager : ThemeManager.Instance);
     }
 
     // 공용 헬퍼 하나

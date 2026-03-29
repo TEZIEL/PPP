@@ -1,0 +1,40 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e4c8ee9150fc405c801b5b08eb204220, type: 3}
+  m_Name: 01
+  m_EditorClassIdentifier: 
+  taskbarBackgroundSprite: {fileID: 21300000, guid: 2a0541aa263eb3c4aac57959271417ae, type: 3}
+  taskbarPanelSprite: {fileID: 21300000, guid: 9252a8648f8292e44a77fedfb7ce91c3, type: 3}
+  startButtonSprite: {fileID: 21300000, guid: 6d276694909278a4fbbca6efd8de7992, type: 3}
+  clockPanelSprite: {fileID: 21300000, guid: 14bd87a1db2093649956dbc1dd3adfd2, type: 3}
+  taskbarSeparatorSprite: {fileID: 21300000, guid: f56b96f299eacfd489b7ee0b648a836f, type: 3}
+  taskbarButtonNormalSprite: {fileID: 21300000, guid: 4ed8d57c6af05dd46b7881434ffe5e15, type: 3}
+  taskbarButtonPressedSprite: {fileID: 21300000, guid: 6d276694909278a4fbbca6efd8de7992, type: 3}
+  windowFrameSprite: {fileID: 21300000, guid: 5d0e8df06820038499be193eccc0bd5e, type: 3}
+  windowTitleBarSprite: {fileID: 0}
+  windowTitleBarActiveSprite: {fileID: 21300000, guid: 9d617ac14d691a24e9a818b376a3331a, type: 3}
+  windowTitleBarInactiveSprite: {fileID: 21300000, guid: cb9461084d2cd8640bb7292b727a422f, type: 3}
+  windowBottomBarSprite: {fileID: 0}
+  windowBottomBarActiveSprite: {fileID: 0}
+  windowBottomBarInactiveSprite: {fileID: 0}
+  windowSideSprite: {fileID: 21300000, guid: a1c712aa02693d248bb692bcf90e55d4, type: 3}
+  windowCloseButtonNormalSprite: {fileID: 0}
+  windowCloseButtonHoverSprite: {fileID: 0}
+  windowCloseButtonPressedSprite: {fileID: 0}
+  windowMinimizeButtonNormalSprite: {fileID: 0}
+  windowMinimizeButtonHoverSprite: {fileID: 0}
+  windowMinimizeButtonPressedSprite: {fileID: 0}
+  windowPinButtonNormalSprite: {fileID: 0}
+  windowPinButtonHoverSprite: {fileID: 0}
+  windowPinButtonPressedSprite: {fileID: 0}
+  windowPinButtonOnSprite: {fileID: 0}
+  windowTint: {r: 1, g: 1, b: 1, a: 1}

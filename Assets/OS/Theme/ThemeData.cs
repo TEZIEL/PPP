@@ -21,6 +21,18 @@ public class ThemeData : ScriptableObject
     public Sprite windowBottomBarActiveSprite;
     public Sprite windowBottomBarInactiveSprite;
     public Sprite windowSideSprite;
+    public Sprite windowCloseButtonNormalSprite;
+    public Sprite windowCloseButtonHoverSprite;
+    public Sprite windowCloseButtonPressedSprite;
+
+    public Sprite windowMinimizeButtonNormalSprite;
+    public Sprite windowMinimizeButtonHoverSprite;
+    public Sprite windowMinimizeButtonPressedSprite;
+
+    public Sprite windowPinButtonNormalSprite;
+    public Sprite windowPinButtonHoverSprite;
+    public Sprite windowPinButtonPressedSprite;
+    public Sprite windowPinButtonOnSprite;
 
     [Header("Optional Fallback Tint")]
     public Color windowTint = Color.white;

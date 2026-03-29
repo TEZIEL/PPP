@@ -32,6 +32,9 @@ public class WindowController : MonoBehaviour,
     [SerializeField] private Button closeButton;
     [SerializeField] private Button minimizeButton;
     [SerializeField] private Button pinToggleButton;
+    private Image closeButtonImage;
+    private Image minimizeButtonImage;
+    private Image pinToggleButtonImage;
 
     [Header("Skin (Optional)")]
     [SerializeField] private UISkin skin;
@@ -91,6 +94,12 @@ public class WindowController : MonoBehaviour,
         return true;
     }
 
+    private void CacheButtonImages()
+    {
+        if (closeButton != null) closeButtonImage = closeButton.targetGraphic as Image;
+        if (minimizeButton != null) minimizeButtonImage = minimizeButton.targetGraphic as Image;
+        if (pinToggleButton != null) pinToggleButtonImage = pinToggleButton.targetGraphic as Image;
+    }
 
     private void BeginAnim()
     {
@@ -171,10 +180,12 @@ public class WindowController : MonoBehaviour,
                 vnPolicy = GetComponentInParent<PPP.BLUE.VN.VNPolicyController>(true);
         }
 
-        HookButtons();
+        
 
         _themeWindowTint = fallbackWindowTint;
         _hasThemeWindowTint = false;
+        CacheButtonImages();
+        HookButtons();
     }
 
 
@@ -283,7 +294,29 @@ public class WindowController : MonoBehaviour,
             _hasThemeWindowTint = false;
         }
 
+        ApplyWindowButtonSprites(theme);
         SetActiveVisual(_isActiveVisual);
+    }
+
+    private void ApplyWindowButtonSprites(ThemeData theme)
+    {
+        if (theme == null) return;
+
+        if (closeButtonImage != null && theme.windowCloseButtonNormalSprite != null)
+            closeButtonImage.sprite = theme.windowCloseButtonNormalSprite;
+
+        if (minimizeButtonImage != null && theme.windowMinimizeButtonNormalSprite != null)
+            minimizeButtonImage.sprite = theme.windowMinimizeButtonNormalSprite;
+
+        if (pinToggleButtonImage != null)
+        {
+            Sprite pinSprite = isPinned
+                ? theme.windowPinButtonOnSprite
+                : theme.windowPinButtonNormalSprite;
+
+            if (pinSprite != null)
+                pinToggleButtonImage.sprite = pinSprite;
+        }
     }
 
     private Sprite ResolveTitleBarSprite(bool active)

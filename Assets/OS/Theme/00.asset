@@ -1,0 +1,40 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e4c8ee9150fc405c801b5b08eb204220, type: 3}
+  m_Name: 00
+  m_EditorClassIdentifier: 
+  taskbarBackgroundSprite: {fileID: 21300000, guid: 5e02c8cd97985e84e974b4ac69f08951, type: 3}
+  taskbarPanelSprite: {fileID: 21300000, guid: 42b80dac55d0a8643a70e5ef183a8b02, type: 3}
+  startButtonSprite: {fileID: 21300000, guid: b4039955fa4b89b41a85255c18f949c7, type: 3}
+  clockPanelSprite: {fileID: 21300000, guid: 9cd91fe48db7cb5408141dce79989316, type: 3}
+  taskbarSeparatorSprite: {fileID: 21300000, guid: 2fdae260ea1f8c947a458ea405d8152b, type: 3}
+  taskbarButtonNormalSprite: {fileID: 21300000, guid: 2c7f514923c312b4ca125441c120cb48, type: 3}
+  taskbarButtonPressedSprite: {fileID: 21300000, guid: b4039955fa4b89b41a85255c18f949c7, type: 3}
+  windowFrameSprite: {fileID: 21300000, guid: 3ba1b284b18213f48b051eead99b6e32, type: 3}
+  windowTitleBarSprite: {fileID: 0}
+  windowTitleBarActiveSprite: {fileID: 21300000, guid: 63569d06bfe4353499cd2eb5d072b281, type: 3}
+  windowTitleBarInactiveSprite: {fileID: 21300000, guid: c18c581576f028b41a1a0d9f687b68c9, type: 3}
+  windowBottomBarSprite: {fileID: 0}
+  windowBottomBarActiveSprite: {fileID: 0}
+  windowBottomBarInactiveSprite: {fileID: 0}
+  windowSideSprite: {fileID: 21300000, guid: 900c8c88f68ccb449bbc7e7b83bae4ff, type: 3}
+  windowCloseButtonNormalSprite: {fileID: 21300000, guid: 7304ef17cf989f84494e07a2b30fa333, type: 3}
+  windowCloseButtonHoverSprite: {fileID: 0}
+  windowCloseButtonPressedSprite: {fileID: 0}
+  windowMinimizeButtonNormalSprite: {fileID: 21300000, guid: 7b7055e7e961e784da278c631086d6d6, type: 3}
+  windowMinimizeButtonHoverSprite: {fileID: 0}
+  windowMinimizeButtonPressedSprite: {fileID: 0}
+  windowPinButtonNormalSprite: {fileID: 21300000, guid: 5ffefd9db46f2d4408dd1ccd1ab5014c, type: 3}
+  windowPinButtonHoverSprite: {fileID: 0}
+  windowPinButtonPressedSprite: {fileID: 0}
+  windowPinButtonOnSprite: {fileID: 21300000, guid: 7b44a16b08333c14f8e76640c5f99a6f, type: 3}
+  windowTint: {r: 1, g: 1, b: 1, a: 1}
