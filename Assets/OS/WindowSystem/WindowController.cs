@@ -40,6 +40,7 @@ public class WindowController : MonoBehaviour,
     [SerializeField] private Image underImage;
     [SerializeField] private Image sideImage;
     [SerializeField] private Image shadowImage; // ✅ 포커스 그림자
+    [SerializeField] private Color fallbackWindowTint = Color.white;
 
     [Header("Animation")]
     [SerializeField] private float openDuration = 0.12f;
@@ -77,6 +78,10 @@ public class WindowController : MonoBehaviour,
     private static int cachedRaycastFrame = -1;
     private static GameObject cachedTopRaycastHit;
     private int lastFocusHandledFrame = -1;
+    private Color _themeWindowTint = Color.white;
+    private bool _hasThemeWindowTint;
+    private bool _isActiveVisual;
+    private ThemeData _currentTheme;
 
 
     private bool TryBeginAnim()
@@ -167,6 +172,9 @@ public class WindowController : MonoBehaviour,
         }
 
         HookButtons();
+
+        _themeWindowTint = fallbackWindowTint;
+        _hasThemeWindowTint = false;
     }
 
 
@@ -225,25 +233,88 @@ public class WindowController : MonoBehaviour,
 
     public void SetActiveVisual(bool active)
     {
-        if (skin == null) return;
+        _isActiveVisual = active;
+        var tint = ResolveWindowTint();
 
         if (titleBarImage != null)
         {
-            var spr = active ? skin.titleActive : skin.titleInactive;
+            var spr = ResolveTitleBarSprite(active);
             if (spr != null) titleBarImage.sprite = spr;
-            titleBarImage.color = skin.tint; // 틴트 원치 않으면 Color.white 고정
+            titleBarImage.color = tint;
         }
 
         if (underImage != null)
         {
-            var spr = active ? skin.underActive : skin.underInactive;
+            var spr = ResolveBottomBarSprite(active);
             if (spr != null) underImage.sprite = spr;
-            underImage.color = skin.tint;
+            underImage.color = tint;
         }
 
-        // 나머지(frame/side/shadow)는 이제 안 써도 된다 했으니 제거/무시
+        if (frameImage != null)
+        {
+            var spr = _currentTheme != null ? _currentTheme.windowFrameSprite : null;
+            if (spr != null) frameImage.sprite = spr;
+            frameImage.color = tint;
+        }
+
+        if (sideImage != null)
+        {
+            var spr = _currentTheme != null ? _currentTheme.windowSideSprite : null;
+            if (spr != null) sideImage.sprite = spr;
+            sideImage.color = tint;
+        }
+
         if (shadowImage != null)
             shadowImage.gameObject.SetActive(active);
+    }
+
+    public void ApplyTheme(ThemeData theme)
+    {
+        _currentTheme = theme;
+
+        if (theme != null)
+        {
+            _themeWindowTint = theme.windowTint;
+            _hasThemeWindowTint = true;
+        }
+        else
+        {
+            _themeWindowTint = fallbackWindowTint;
+            _hasThemeWindowTint = false;
+        }
+
+        SetActiveVisual(_isActiveVisual);
+    }
+
+    private Sprite ResolveTitleBarSprite(bool active)
+    {
+        if (_currentTheme != null)
+        {
+            if (active && _currentTheme.windowTitleBarActiveSprite != null) return _currentTheme.windowTitleBarActiveSprite;
+            if (!active && _currentTheme.windowTitleBarInactiveSprite != null) return _currentTheme.windowTitleBarInactiveSprite;
+            if (_currentTheme.windowTitleBarSprite != null) return _currentTheme.windowTitleBarSprite;
+        }
+
+        return skin != null ? (active ? skin.titleActive : skin.titleInactive) : null;
+    }
+
+    private Sprite ResolveBottomBarSprite(bool active)
+    {
+        if (_currentTheme != null)
+        {
+            if (active && _currentTheme.windowBottomBarActiveSprite != null) return _currentTheme.windowBottomBarActiveSprite;
+            if (!active && _currentTheme.windowBottomBarInactiveSprite != null) return _currentTheme.windowBottomBarInactiveSprite;
+            if (_currentTheme.windowBottomBarSprite != null) return _currentTheme.windowBottomBarSprite;
+        }
+
+        return skin != null ? (active ? skin.underActive : skin.underInactive) : null;
+    }
+
+    private Color ResolveWindowTint()
+    {
+        if (_hasThemeWindowTint) return _themeWindowTint;
+        if (skin != null) return skin.tint;
+        return fallbackWindowTint;
     }
 
     // =========================

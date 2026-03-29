@@ -24,6 +24,11 @@ public class TaskbarButtonController : MonoBehaviour
 
     [Header("Remove Animation")]
     [SerializeField] private float removeDuration = 0.12f;
+    [Header("Theme Fallback")]
+    [SerializeField] private Color fallbackNormalColor = Color.white;
+    [SerializeField] private Color fallbackPressedColor = new Color(0.78f, 0.78f, 0.78f, 1f);
+    [SerializeField] private Sprite fallbackNormalSprite;
+    [SerializeField] private Sprite fallbackPressedSprite;
 
     private bool _listenerHooked;
 
@@ -31,6 +36,11 @@ public class TaskbarButtonController : MonoBehaviour
     private LayoutElement _le;
     private Coroutine _removeCo;
     private float _initialWidth = -1f;
+    private bool _isMinimizedVisual;
+    private Color _normalColor = Color.white;
+    private Color _pressedColor = new Color(0.78f, 0.78f, 0.78f, 1f);
+    private Sprite _normalSprite;
+    private Sprite _pressedSprite;
 
     public RectTransform Rect => (RectTransform)transform;
 
@@ -44,6 +54,9 @@ public class TaskbarButtonController : MonoBehaviour
 
         _le = GetComponent<LayoutElement>();
         if (_le == null) _le = gameObject.AddComponent<LayoutElement>();
+
+        _normalSprite = recessedSprite != null ? recessedSprite : fallbackNormalSprite;
+        _pressedSprite = raisedSprite != null ? raisedSprite : fallbackPressedSprite;
 
         HookListener();
     }
@@ -98,9 +111,42 @@ public class TaskbarButtonController : MonoBehaviour
     public void SetMinimizedVisual(bool minimized)
     {
         if (background == null) return;
-        if (recessedSprite == null || raisedSprite == null) return;
 
-        background.sprite = minimized ? raisedSprite : recessedSprite;
+        _isMinimizedVisual = minimized;
+        var normal = _normalSprite != null ? _normalSprite : recessedSprite;
+        var pressed = _pressedSprite != null ? _pressedSprite : raisedSprite;
+        if (normal == null || pressed == null) return;
+        background.sprite = minimized ? pressed : normal;
+        background.color = minimized ? _pressedColor : _normalColor;
+    }
+
+    public void ApplyTheme(ThemeData theme)
+    {
+        _normalColor = fallbackNormalColor;
+        _pressedColor = fallbackPressedColor;
+
+        _normalSprite = theme != null && theme.taskbarButtonNormalSprite != null
+            ? theme.taskbarButtonNormalSprite
+            : (recessedSprite != null ? recessedSprite : fallbackNormalSprite);
+
+        _pressedSprite = theme != null && theme.taskbarButtonPressedSprite != null
+            ? theme.taskbarButtonPressedSprite
+            : (raisedSprite != null ? raisedSprite : fallbackPressedSprite);
+
+        if (background != null)
+        {
+            background.sprite = _isMinimizedVisual ? _pressedSprite : _normalSprite;
+            background.color = _isMinimizedVisual ? _pressedColor : _normalColor;
+        }
+
+        if (button == null) return;
+
+        var colors = button.colors;
+        colors.normalColor = _normalColor;
+        colors.selectedColor = _normalColor;
+        colors.highlightedColor = Color.Lerp(_normalColor, Color.white, 0.1f);
+        colors.pressedColor = _pressedColor;
+        button.colors = colors;
     }
 
     private void OnClick()
