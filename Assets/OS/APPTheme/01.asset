@@ -186,7 +186,7 @@ MonoBehaviour:
     dialogueRootSprite: {fileID: 21300000, guid: 6d276694909278a4fbbca6efd8de7992, type: 3}
     dialogueButtonContainerSprite: {fileID: 21300000, guid: 0df50fd6d82d3524db62cf3a7de098fa, type: 3}
     dialogueButtonSprite: {fileID: 0}
-    dialogueSelectedButtonSprite: {fileID: 21300000, guid: 6d276694909278a4fbbca6efd8de7992, type: 3}
+    dialogueSelectedButtonSprite: {fileID: 0}
     focusLinkedImage:
       activeSprite: {fileID: 21300000, guid: 9d617ac14d691a24e9a818b376a3331a, type: 3}
       inactiveSprite: {fileID: 21300000, guid: cb9461084d2cd8640bb7292b727a422f, type: 3}
@@ -199,6 +199,8 @@ MonoBehaviour:
       holdSkipInactiveSprite: {fileID: 21300000, guid: 0616847a8986c9447b6ffa5370803a96, type: 3}
       interactableEnabledActiveSprite: {fileID: 21300000, guid: 14bd87a1db2093649956dbc1dd3adfd2, type: 3}
       interactableEnabledInactiveSprite: {fileID: 21300000, guid: 0616847a8986c9447b6ffa5370803a96, type: 3}
+    pinActiveSprite: {fileID: 21300000, guid: 1927cc55cd0eeaf46848c0f48f7ce074, type: 3}
+    pinInactiveSprite: {fileID: 21300000, guid: d5cbe481767812c4ca8a69fc7d3395a6, type: 3}
     drinkSlotEmptySprite: {fileID: 21300000, guid: 6d276694909278a4fbbca6efd8de7992, type: 3}
     drinkSlotSelectedSprite: {fileID: 0}
     drinkIngredientSlotFilledSprites: []

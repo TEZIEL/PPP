@@ -2,6 +2,7 @@ using System.Collections;
 using System.IO;
 using TMPro;
 using UnityEngine;
+using UnityEngine.EventSystems;
 using UnityEngine.UI;
 
 namespace PPP.BLUE.VN
@@ -210,6 +211,7 @@ namespace PPP.BLUE.VN
                 return;
 
             selectedSlotIndex = index;
+            
             RefreshSelectedSlotMetadata();
             RefreshSlotVisuals();
             RefreshActionButtonState();
