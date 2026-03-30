@@ -94,7 +94,7 @@ namespace PPP.BLUE.VN.RecipeApp
             if (string.IsNullOrWhiteSpace(ingredientId))
                 return;
 
-            ClearUiSelectionIfSelfSelected();
+           
             onClicked?.Invoke(ingredientId);
         }
 

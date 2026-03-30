@@ -211,7 +211,7 @@ namespace PPP.BLUE.VN
                 return;
 
             selectedSlotIndex = index;
-            ClearUiSelectionIfAnySlotSelected();
+            
             RefreshSelectedSlotMetadata();
             RefreshSlotVisuals();
             RefreshActionButtonState();

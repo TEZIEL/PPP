@@ -85,7 +85,7 @@ namespace PPP.BLUE.VN.DrinkSystem
 
         private void OnClick()
         {
-            ClearUiSelectionIfSelfSelected();
+            
 
             float pitch = GetPitchByIngredient();
 

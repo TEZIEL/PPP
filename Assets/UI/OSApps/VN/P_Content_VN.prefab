@@ -16834,7 +16834,7 @@ MonoBehaviour:
   label: {fileID: 7479276900727745030}
   stateTarget: {fileID: 7328678102935066776}
   defaultColor: {r: 1, g: 1, b: 1, a: 1}
-  enabledColor: {r: 0.65, g: 0.45, b: 1, a: 1}
+  enabledColor: {r: 0.13395695, g: 0.11974902, b: 0.3679245, a: 1}
   hotkeyPressScale: 0.92
   hotkeyPressDuration: 0.08
 --- !u!1 &5597632609589760493
