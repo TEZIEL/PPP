@@ -26,7 +26,6 @@ public class BanditUIThemeApplier : AppUIThemeApplierBase
     [SerializeField] private Image swipeViewport6;
     
 
-    [SerializeField] private Image[] innerBackgrounds = Array.Empty<Image>();
     [SerializeField] private FidgetShortsController fidgetController;
 
     [Header("BANDIT - Buttons")]

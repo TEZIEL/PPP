@@ -48,6 +48,43 @@ public class UIButtonSpriteToggle : MonoBehaviour
         Apply();
     }
 
+
+    public void SetOnBackgroundSprite(Sprite sprite)
+    {
+        if (sprite == null)
+            return;
+
+        onBackgroundSprite = sprite;
+        Apply();
+    }
+
+    public void SetOffBackgroundSprite(Sprite sprite)
+    {
+        if (sprite == null)
+            return;
+
+        offBackgroundSprite = sprite;
+        Apply();
+    }
+
+    public void SetOnIconSprite(Sprite sprite)
+    {
+        if (sprite == null)
+            return;
+
+        onIconSprite = sprite;
+        Apply();
+    }
+
+    public void SetOffIconSprite(Sprite sprite)
+    {
+        if (sprite == null)
+            return;
+
+        offIconSprite = sprite;
+        Apply();
+    }
+
     public void Apply()
     {
         if (!isInteractable)

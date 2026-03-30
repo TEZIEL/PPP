@@ -5867,6 +5867,7 @@ GameObject:
   - component: {fileID: 2591161451050998628}
   - component: {fileID: 5647667568550946015}
   - component: {fileID: 543465399393438001}
+  - component: {fileID: 7070300312332193452}
   m_Layer: 5
   m_Name: P_Content_Music
   m_TagString: Untagged
@@ -5946,6 +5947,78 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   dropdown: {fileID: 7751925895886889457}
+--- !u!114 &7070300312332193452
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8132136970174023561}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 7902e393d58347e6b2a930b945aa3cc8, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  playerMainPanelImage: {fileID: 5766604373609548327}
+  albumArtBackgroundImage: {fileID: 7216507786719381585}
+  albumArtFrameImage: {fileID: 2594852809722637429}
+  playerHeaderFrameImage: {fileID: 9189174390311971082}
+  playerFooterFrameImage: {fileID: 4058416460092344200}
+  dividerLineImage: {fileID: 810031037581373996}
+  extraFrameImages: []
+  extraImage1: {fileID: 7742892485568652364}
+  extraImage2: {fileID: 6975350051853351332}
+  extraImage3: {fileID: 707916843120098399}
+  extraImage4: {fileID: 8731478039765443345}
+  extraImage5: {fileID: 3019897452802564870}
+  extraImage6: {fileID: 2598916579125009159}
+  extraImage7: {fileID: 8654046142266801613}
+  extraImage8: {fileID: 7138348144963352516}
+  extraImage9: {fileID: 4298189869503665572}
+  extraImage10: {fileID: 9158843668642758904}
+  extraImage11: {fileID: 3178073733045000597}
+  extraImage12: {fileID: 680913836555307141}
+  extraImage13: {fileID: 2099711253857332267}
+  extraImage14: {fileID: 2752369855874309311}
+  extraImage15: {fileID: 8169283467862733159}
+  extraImage16: {fileID: 3293128615095370723}
+  progressTrackImage: {fileID: 3768823154998258846}
+  progressFillImage: {fileID: 1807422802698483870}
+  progressHandleImage: {fileID: 3562699666491058175}
+  progressHandleImage2: {fileID: 1897854820948091141}
+  transportButtons: []
+  playPauseButtons: []
+  playbackToggleButtons: []
+  actionButtons: []
+  utilityButtons: []
+  listPanelImage: {fileID: 3512118276063594332}
+  listViewportImage: {fileID: 5728539639383600223}
+  listHeaderFrameImage: {fileID: 581117678930911591}
+  listScrollbars: []
+  ambientDropdowns: []
+  dropdownTriggerButtons: []
+  ambientSlotPanels: []
+  playerPanel: {fileID: 4456053914624787125}
+  listBackground: {fileID: 1371073170370573891}
+  listViewport: {fileID: 0}
+  playbackControlButtons:
+  - {fileID: 2672948411984310417}
+  - {fileID: 522084361444575104}
+  - {fileID: 3525746646866152306}
+  toggle1: {fileID: 8757651811665134622}
+  toggle2: {fileID: 7329757759048150143}
+  toggle3: {fileID: 6391134539712308729}
+  toggle4: {fileID: 0}
+  toggle5: {fileID: 0}
+  toggle6: {fileID: 0}
+  toggle7: {fileID: 0}
+  toggle8: {fileID: 0}
+  toggle9: {fileID: 0}
+  toggle10: {fileID: 0}
+  dropdowns: []
+  dropdownButtons: []
+  primaryTexts: []
+  secondaryTexts: []
 --- !u!1 &8832263035898927863
 GameObject:
   m_ObjectHideFlags: 0

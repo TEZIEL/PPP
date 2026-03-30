@@ -14,10 +14,28 @@ public class BridgeUIThemeApplier : AppUIThemeApplierBase
     [SerializeField] private Image dividerLineImage;
     [SerializeField] private Image[] extraFrameImages = Array.Empty<Image>();
 
+    [SerializeField] private Image extraImage1;
+    [SerializeField] private Image extraImage2;
+    [SerializeField] private Image extraImage3;
+    [SerializeField] private Image extraImage4;
+    [SerializeField] private Image extraImage5;
+    [SerializeField] private Image extraImage6;
+    [SerializeField] private Image extraImage7;
+    [SerializeField] private Image extraImage8;
+    [SerializeField] private Image extraImage9;
+    [SerializeField] private Image extraImage10;
+    [SerializeField] private Image extraImage11;
+    [SerializeField] private Image extraImage12;
+    [SerializeField] private Image extraImage13;
+    [SerializeField] private Image extraImage14;
+    [SerializeField] private Image extraImage15;
+    [SerializeField] private Image extraImage16;
+
     [Header("BRIDGE - Progress Images")]
     [SerializeField] private Image progressTrackImage;
     [SerializeField] private Image progressFillImage;
     [SerializeField] private Image progressHandleImage;
+    [SerializeField] private Image progressHandleImage2;
 
     [Header("BRIDGE - Button Groups")]
     [SerializeField] private Button[] transportButtons = Array.Empty<Button>();
@@ -30,6 +48,7 @@ public class BridgeUIThemeApplier : AppUIThemeApplierBase
     [SerializeField] private Image listPanelImage;
     [SerializeField] private Image listViewportImage;
     [SerializeField] private Image listHeaderFrameImage;
+   
     [SerializeField] private Scrollbar[] listScrollbars = Array.Empty<Scrollbar>();
 
     [Header("BRIDGE - Dropdown / Ambient")]
@@ -45,21 +64,44 @@ public class BridgeUIThemeApplier : AppUIThemeApplierBase
 
     [Header("BRIDGE - Buttons")]
     [SerializeField] private Button[] playbackControlButtons = Array.Empty<Button>();
-    [SerializeField] private Button[] actionButtons = Array.Empty<Button>();
 
-    [Header("BRIDGE - Progress/Scroll")]
-    [SerializeField] private Image progressFillImage;
-    [SerializeField] private Image progressHandleImage;
-    [SerializeField] private Scrollbar[] scrollbars = Array.Empty<Scrollbar>();
+
+    [SerializeField] private UIButtonSpriteToggle toggle1;
+    [SerializeField] private UIButtonSpriteToggle toggle2;
+    [SerializeField] private UIButtonSpriteToggle toggle3;
+    [SerializeField] private UIButtonSpriteToggle toggle4;
+    [SerializeField] private UIButtonSpriteToggle toggle5;
+    [SerializeField] private UIButtonSpriteToggle toggle6;
+    [SerializeField] private UIButtonSpriteToggle toggle7;
+    [SerializeField] private UIButtonSpriteToggle toggle8;
+    [SerializeField] private UIButtonSpriteToggle toggle9;
+    [SerializeField] private UIButtonSpriteToggle toggle10;
 
     [Header("BRIDGE - Dropdown/Ambient")]
     [SerializeField] private TMP_Dropdown[] dropdowns = Array.Empty<TMP_Dropdown>();
     [SerializeField] private Button[] dropdownButtons = Array.Empty<Button>();
-    [SerializeField] private Image[] ambientSlotPanels = Array.Empty<Image>();
+    
 
     [Header("BRIDGE - Text (Optional)")]
     [SerializeField] private TMP_Text[] primaryTexts = Array.Empty<TMP_Text>();
     [SerializeField] private TMP_Text[] secondaryTexts = Array.Empty<TMP_Text>();
+
+
+    private void ApplyToggleSprites(
+     UIButtonSpriteToggle toggle,
+     Sprite onBackground,
+     Sprite offBackground,
+     Sprite onIcon,
+     Sprite offIcon)
+    {
+        if (toggle == null)
+            return;
+
+        toggle.SetOnBackgroundSprite(onBackground);
+        toggle.SetOffBackgroundSprite(offBackground);
+        toggle.SetOnIconSprite(onIcon);
+        toggle.SetOffIconSprite(offIcon);
+    }
 
     public override void ApplyFromManager(AppUIThemeData data, string appId)
     {
@@ -94,8 +136,24 @@ public class BridgeUIThemeApplier : AppUIThemeApplierBase
         ApplyImageSprite(listBackground, t.listBackgroundSprite);
         ApplyImageSprite(listViewport, t.listViewportSprite);
 
-        for (int i = 0; i < playbackControlButtons.Length; i++)
-            ApplyButtonSprite(playbackControlButtons[i], t.playbackControlButtonSprite);
+        ApplyImageSprite(extraImage1, t.extraSprite1);
+        ApplyImageSprite(extraImage2, t.extraSprite2);
+        ApplyImageSprite(extraImage3, t.extraSprite3);
+        ApplyImageSprite(extraImage4, t.extraSprite4);
+        ApplyImageSprite(extraImage5, t.extraSprite5);
+        ApplyImageSprite(extraImage6, t.extraSprite6);
+        ApplyImageSprite(extraImage7, t.extraSprite7);
+        ApplyImageSprite(extraImage8, t.extraSprite8);
+        ApplyImageSprite(extraImage9, t.extraSprite9);
+        ApplyImageSprite(extraImage10, t.extraSprite10);
+        ApplyImageSprite(extraImage11, t.extraSprite11);
+        ApplyImageSprite(extraImage12, t.extraSprite12);
+        ApplyImageSprite(extraImage13, t.extraSprite13);
+        ApplyImageSprite(extraImage14, t.extraSprite14);
+        ApplyImageSprite(extraImage15, t.extraSprite15);
+        ApplyImageSprite(extraImage16, t.extraSprite16);
+
+        
 
         for (int i = 0; i < actionButtons.Length; i++)
             ApplyButtonSprite(actionButtons[i], t.actionButtonSprite);
@@ -117,9 +175,8 @@ public class BridgeUIThemeApplier : AppUIThemeApplierBase
             ApplyButtonSprite(dropdownTriggerButtons[i], t.dropdownButtonSprite);
         ApplyImageSprite(progressFillImage, t.progressFillSprite);
         ApplyImageSprite(progressHandleImage, t.progressHandleSprite);
+        ApplyImageSprite(progressHandleImage2, t.progressHandleSprite2);
 
-        for (int i = 0; i < scrollbars.Length; i++)
-            ApplyScrollbarSprites(scrollbars[i], t.scrollbarTrackSprite, t.scrollbarHandleSprite);
 
         for (int i = 0; i < dropdowns.Length; i++)
             ApplyDropdownSprites(dropdowns[i], t.dropdownBackgroundSprite, t.dropdownButtonSprite);

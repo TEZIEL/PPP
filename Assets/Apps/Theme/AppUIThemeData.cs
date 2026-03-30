@@ -58,6 +58,7 @@ public class AppUIThemeData : ScriptableObject
         public Sprite progressTrackSprite;
         public Sprite progressFillSprite;
         public Sprite progressHandleSprite;
+        public Sprite progressHandleSprite2;
 
         [Header("Buttons")]
         public Sprite transportButtonSprite;
@@ -77,17 +78,46 @@ public class AppUIThemeData : ScriptableObject
         [Header("Player/List")]
         public Sprite playerPanelSprite;
         public Sprite listBackgroundSprite;
-        public Sprite listViewportSprite;
 
-        [Header("Controls")]
-        public Sprite playbackControlButtonSprite;
-        public Sprite actionButtonSprite;
+        public Sprite extraSprite1;
+        public Sprite extraSprite2;
+        public Sprite extraSprite3;
+        public Sprite extraSprite4;
+        public Sprite extraSprite5;
+        public Sprite extraSprite6;
+        public Sprite extraSprite7;
+        public Sprite extraSprite8;
 
-        [Header("Progress/Scroll")]
-        public Sprite progressFillSprite;
-        public Sprite progressHandleSprite;
-        public Sprite scrollbarTrackSprite;
-        public Sprite scrollbarHandleSprite;
+        public Sprite extraSprite9;
+        public Sprite extraSprite10;
+        public Sprite extraSprite11;
+        public Sprite extraSprite12;
+        public Sprite extraSprite13;
+        public Sprite extraSprite14;
+        public Sprite extraSprite15;
+        public Sprite extraSprite16;
+
+
+        public Sprite toggleOn1;
+        public Sprite toggleOff1;
+        public Sprite toggleOn2;
+        public Sprite toggleOff2;
+        public Sprite toggleOn3;
+        public Sprite toggleOff3;
+        public Sprite toggleOn4;
+        public Sprite toggleOff4;
+        public Sprite toggleOn5;
+        public Sprite toggleOff5;
+        public Sprite toggleOn6;
+        public Sprite toggleOff6;
+        public Sprite toggleOn7;
+        public Sprite toggleOff7;
+        public Sprite toggleOn8;
+        public Sprite toggleOff8;
+        public Sprite toggleOn9;
+        public Sprite toggleOff9;
+        public Sprite toggleOn10;
+        public Sprite toggleOff10;
 
         [Header("Dropdown/Ambient")]
         public Sprite dropdownBackgroundSprite;
