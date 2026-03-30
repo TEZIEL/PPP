@@ -1,6 +1,7 @@
 ﻿using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
+using System;
 using System.Collections.Generic;
 
 namespace PPP.BLUE.VN
@@ -24,6 +25,9 @@ namespace PPP.BLUE.VN
         private Vector2 startAnchoredPosition;
         private VNRunner runner;
         private bool isPinned;
+
+        public bool IsPinned => isPinned;
+        public event Action<UIDragMoveClamped, bool> PinnedStateChanged;
         private static readonly List<RaycastResult> RaycastResultsBuffer = new List<RaycastResult>(16);
 
         private void Awake()
@@ -37,6 +41,8 @@ namespace PPP.BLUE.VN
 
             if (runner != null && !string.IsNullOrEmpty(pinStateVarKey))
                 isPinned = runner.GetVar(pinStateVarKey, 0) == 1;
+
+            NotifyPinnedStateChanged();
         }
 
         private void OnDestroy()
@@ -107,8 +113,12 @@ namespace PPP.BLUE.VN
 
         public void SetPinned(bool pinned)
         {
+            if (isPinned == pinned)
+                return;
+
             isPinned = pinned;
             SavePinnedState();
+            NotifyPinnedStateChanged();
         }
 
         public void OnBeginDrag(PointerEventData eventData)
@@ -165,6 +175,11 @@ namespace PPP.BLUE.VN
                 return;
 
             BringToFront();
+        }
+
+        private void NotifyPinnedStateChanged()
+        {
+            PinnedStateChanged?.Invoke(this, isPinned);
         }
 
         private void SavePinnedState()
