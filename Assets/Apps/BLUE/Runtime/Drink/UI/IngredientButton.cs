@@ -82,10 +82,6 @@ namespace PPP.BLUE.VN.DrinkSystem
 
             ApplyNavigationNone();
             ClearUiSelectionIfSelfSelected();
-
-            if (hotkeyPressCo != null)
-                StopCoroutine(hotkeyPressCo);
-            hotkeyPressCo = StartCoroutine(CoPlayHotkeyPressFeedback());
         }
 
         private void OnClick()
