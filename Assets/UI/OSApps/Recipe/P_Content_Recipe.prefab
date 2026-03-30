@@ -7529,6 +7529,7 @@ GameObject:
   - component: {fileID: 5647667568550946015}
   - component: {fileID: 6548671226787412656}
   - component: {fileID: 2211695925489143132}
+  - component: {fileID: 1325112728082463686}
   m_Layer: 5
   m_Name: P_Content_Recipe
   m_TagString: Untagged
@@ -7739,6 +7740,36 @@ MonoBehaviour:
   drinksFileName: drinks.json
   ingredientsResourcePath: DrinkData/ingredients
   drinksResourcePath: DrinkData/drinks
+--- !u!114 &1325112728082463686
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8132136970174023561}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4479de0e2b5a4e7fbf2236afaf9362f4, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  filterButtons:
+  - {fileID: 581024529064369449}
+  - {fileID: 8230289753283880747}
+  - {fileID: 5330988839911641622}
+  - {fileID: 9005711572104429179}
+  - {fileID: 4825615368801180437}
+  - {fileID: 4069558303449280313}
+  - {fileID: 5684532902431387876}
+  - {fileID: 3417080542850187788}
+  scrollViewBackground: {fileID: 1181373886664514088}
+  scrollUpButton: {fileID: 4853299359961231164}
+  scrollDownButton: {fileID: 8916132726625350822}
+  listItemBackgrounds:
+  - {fileID: 0}
+  mainPanelBackground: {fileID: 2427142204350200158}
+  detailPanelBackground: {fileID: 0}
+  primaryTexts: []
+  secondaryTexts: []
 --- !u!1 &8141743315992553412
 GameObject:
   m_ObjectHideFlags: 0
