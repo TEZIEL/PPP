@@ -1333,7 +1333,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 0, y: 1}
-  m_AnchoredPosition: {x: 389.3333, y: -28.5}
+  m_AnchoredPosition: {x: 389.3333, y: -30}
   m_SizeDelta: {x: 135, y: 57}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &4488940830791544184
@@ -2879,7 +2879,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 0, y: 1}
-  m_AnchoredPosition: {x: 74.666664, y: -28.5}
+  m_AnchoredPosition: {x: 74.666664, y: -30}
   m_SizeDelta: {x: 135, y: 57}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &463129104243387123
@@ -3477,7 +3477,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 0, y: 1}
-  m_AnchoredPosition: {x: 546.6666, y: -28.5}
+  m_AnchoredPosition: {x: 546.6666, y: -30}
   m_SizeDelta: {x: 135, y: 57}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &1550603610420171198
@@ -5521,10 +5521,11 @@ MonoBehaviour:
   parentArea: {fileID: 4227498506101887338}
   pinToggleButton: {fileID: 2731394500151584352}
   pinStateVarKey: 
-  bringToFrontOnPointerDown: 1
-  bringToFrontOnChildPointerDown: 1
+  bringToFrontOnPointerDown: 0
+  bringToFrontOnChildPointerDown: 0
   applyInitialSiblingIndexOnEnable: 0
-  initialSiblingIndex: -1
+  initialSiblingIndex: 0
+  blockDragAreas: []
 --- !u!1 &2001208386141749576
 GameObject:
   m_ObjectHideFlags: 0
@@ -6478,7 +6479,7 @@ RectTransform:
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 0, y: 1}
   m_AnchoredPosition: {x: 625, y: -30}
-  m_SizeDelta: {x: 24, y: 60}
+  m_SizeDelta: {x: 24, y: 54}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &3472515988097772576
 CanvasRenderer:
@@ -6653,6 +6654,7 @@ MonoBehaviour:
   bringToFrontOnChildPointerDown: 1
   applyInitialSiblingIndexOnEnable: 0
   initialSiblingIndex: -1
+  blockDragAreas: []
 --- !u!222 &5375797328295298933
 CanvasRenderer:
   m_ObjectHideFlags: 0
@@ -7909,7 +7911,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 0, y: 1}
-  m_AnchoredPosition: {x: 704, y: -28.5}
+  m_AnchoredPosition: {x: 704, y: -30}
   m_SizeDelta: {x: 135, y: 57}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &5703215162326062165
@@ -8165,7 +8167,7 @@ RectTransform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 2673677959915816145}
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 2}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -8174,7 +8176,7 @@ RectTransform:
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 0, y: 1}
   m_AnchoredPosition: {x: 782, y: -30}
-  m_SizeDelta: {x: 24, y: 60}
+  m_SizeDelta: {x: 24, y: 54}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &5702016752252572543
 CanvasRenderer:
@@ -13628,7 +13630,7 @@ RectTransform:
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 0, y: 1}
   m_AnchoredPosition: {x: 468, y: -30}
-  m_SizeDelta: {x: 24, y: 60}
+  m_SizeDelta: {x: 24, y: 54}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &8636196166151861521
 CanvasRenderer:
@@ -13705,7 +13707,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 0, y: 1}
-  m_AnchoredPosition: {x: 861.3333, y: -28.5}
+  m_AnchoredPosition: {x: 861.3333, y: -30}
   m_SizeDelta: {x: 135, y: 57}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &2550985898355784067
@@ -14801,6 +14803,7 @@ MonoBehaviour:
   bringToFrontOnChildPointerDown: 1
   applyInitialSiblingIndexOnEnable: 0
   initialSiblingIndex: -1
+  blockDragAreas: []
 --- !u!222 &2540910458417759392
 CanvasRenderer:
   m_ObjectHideFlags: 0
@@ -16753,10 +16756,11 @@ MonoBehaviour:
   parentArea: {fileID: 7551348740662702333}
   pinToggleButton: {fileID: 2570338192436488418}
   pinStateVarKey: 
-  bringToFrontOnPointerDown: 1
-  bringToFrontOnChildPointerDown: 1
+  bringToFrontOnPointerDown: 0
+  bringToFrontOnChildPointerDown: 0
   applyInitialSiblingIndexOnEnable: 0
   initialSiblingIndex: -1
+  blockDragAreas: []
 --- !u!1 &5612256459431412721
 GameObject:
   m_ObjectHideFlags: 0
@@ -17258,6 +17262,7 @@ MonoBehaviour:
   bringToFrontOnChildPointerDown: 1
   applyInitialSiblingIndexOnEnable: 0
   initialSiblingIndex: -1
+  blockDragAreas: []
 --- !u!1 &5961027410675005900
 GameObject:
   m_ObjectHideFlags: 0
@@ -21854,7 +21859,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 0, y: 1}
-  m_AnchoredPosition: {x: 232, y: -28.5}
+  m_AnchoredPosition: {x: 232, y: -30}
   m_SizeDelta: {x: 135, y: 57}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &7783632651347225089
