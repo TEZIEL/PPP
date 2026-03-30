@@ -95,7 +95,8 @@ namespace PPP.BLUE.VN
         {
             Interactable = 0,
             ToggleAutoPlay = 1,
-            HoldSkip = 2
+            HoldSkip = 2,
+            InteractableEnabled = 3
         }
 
         [System.Serializable]
@@ -107,6 +108,18 @@ namespace PPP.BLUE.VN
             public Sprite activeSprite;
             public Sprite inactiveSprite;
             public ButtonVisualMode visualMode;
+        }
+
+        private readonly struct ButtonVisualState
+        {
+            public readonly bool AutoEnabled;
+            public readonly bool HoldSkipEnabled;
+
+            public ButtonVisualState(bool autoEnabled, bool holdSkipEnabled)
+            {
+                AutoEnabled = autoEnabled;
+                HoldSkipEnabled = holdSkipEnabled;
+            }
         }
 
         private void Start()
@@ -350,7 +363,7 @@ namespace PPP.BLUE.VN
             {
                 var binding = buttonVisualBindings[i];
                 var button = binding.button;
-                if (button == null || binding.visualMode != ButtonVisualMode.Interactable)
+                if (button == null || !NeedsPointerVisualEvents(binding.visualMode))
                     continue;
 
                 if (!interactableVisualPressedStates.ContainsKey(button))
@@ -368,6 +381,11 @@ namespace PPP.BLUE.VN
                 AddEventTrigger(trigger, EventTriggerType.PointerExit, _ => OnInteractableVisualPointerUp(button));
                 interactableVisualBindingEventBoundButtons.Add(button);
             }
+        }
+
+        private static bool NeedsPointerVisualEvents(ButtonVisualMode mode)
+        {
+            return mode == ButtonVisualMode.Interactable;
         }
 
         private void OnInteractableVisualPointerDown(Button button)
@@ -762,6 +780,10 @@ namespace PPP.BLUE.VN
             if (buttonVisualBindings == null || buttonVisualBindings.Length == 0)
                 return;
 
+            var state = new ButtonVisualState(
+                runner != null && runner.IsAutoPlayEnabled,
+                runner != null && runner.IsHoldSkipInputActive);
+
             for (int i = 0; i < buttonVisualBindings.Length; i++)
             {
                 var binding = buttonVisualBindings[i];
@@ -769,18 +791,11 @@ namespace PPP.BLUE.VN
                 if (button == null)
                     continue;
 
-                var targetImage = binding.targetImage != null ? binding.targetImage : button.image;
+                var targetImage = ResolveBindingTargetImage(binding, button);
                 if (targetImage == null)
                     continue;
 
-                bool isActive = binding.visualMode switch
-                {
-                    ButtonVisualMode.ToggleAutoPlay => runner != null && runner.IsAutoPlayEnabled && button.interactable,
-                    ButtonVisualMode.HoldSkip => runner != null && runner.IsHoldSkipInputActive && button.interactable,
-                    _ => button.interactable
-                         && interactableVisualPressedStates.TryGetValue(button, out var isPressed)
-                         && isPressed
-                };
+                bool isActive = EvaluateBindingState(binding, button, state);
 
                 var nextSprite = isActive ? binding.activeSprite : binding.inactiveSprite;
                 if (nextSprite == null || targetImage.sprite == nextSprite)
@@ -788,6 +803,24 @@ namespace PPP.BLUE.VN
 
                 targetImage.sprite = nextSprite;
             }
+        }
+
+        private static Image ResolveBindingTargetImage(ButtonVisualBinding binding, Button button)
+        {
+            return binding.targetImage != null ? binding.targetImage : button.image;
+        }
+
+        private bool EvaluateBindingState(ButtonVisualBinding binding, Button button, ButtonVisualState state)
+        {
+            return binding.visualMode switch
+            {
+                ButtonVisualMode.ToggleAutoPlay => state.AutoEnabled && button.interactable,
+                ButtonVisualMode.HoldSkip => state.HoldSkipEnabled && button.interactable,
+                ButtonVisualMode.InteractableEnabled => button.interactable,
+                _ => button.interactable
+                     && interactableVisualPressedStates.TryGetValue(button, out var isPressed)
+                     && isPressed
+            };
         }
 
 
