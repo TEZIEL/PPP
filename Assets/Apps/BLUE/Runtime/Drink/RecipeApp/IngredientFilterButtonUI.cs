@@ -22,6 +22,7 @@ namespace PPP.BLUE.VN.RecipeApp
         [SerializeField] private Sprite selectedSprite;
 
         [SerializeField] private Color normalColor = new Color32(255, 255, 255, 255);
+        [SerializeField] private Color selectedColor = new Color32(255, 255, 255, 255);
         [SerializeField] private Color highlightedColor = new Color32(230, 230, 230, 255);
         [SerializeField] private Color pressedColor = new Color32(200, 200, 200, 255);
         [SerializeField] private Color disabledColor = new Color32(200, 200, 200, 128);
@@ -35,8 +36,27 @@ namespace PPP.BLUE.VN.RecipeApp
 
         private void Awake()
         {
+            ApplyNavigationNone();
+            ApplyCurrentTheme();
+
             if (button != null)
                 button.onClick.AddListener(HandleClick);
+        }
+
+        private void OnEnable()
+        {
+            var themeManager = AppUIThemeManager.Instance;
+            if (themeManager != null)
+                themeManager.OnThemeChanged += HandleThemeChanged;
+
+            ApplyCurrentTheme();
+        }
+
+        private void OnDisable()
+        {
+            var themeManager = AppUIThemeManager.Instance;
+            if (themeManager != null)
+                themeManager.OnThemeChanged -= HandleThemeChanged;
         }
 
         public void Setup(IngredientEntry data, Action<string> clickHandler)
@@ -46,6 +66,7 @@ namespace PPP.BLUE.VN.RecipeApp
 
             ingredientId = data.id;
             onClicked = clickHandler;
+            ApplyNavigationNone();
 
             if (labelText != null)
                 labelText.text = data.DisplayName;
@@ -62,7 +83,10 @@ namespace PPP.BLUE.VN.RecipeApp
         public void SetInteractable(bool interactable)
         {
             if (button != null)
+            {
+                ApplyNavigationNone();
                 button.interactable = interactable;
+            }
 
             RefreshVisual();
         }
@@ -102,6 +126,8 @@ namespace PPP.BLUE.VN.RecipeApp
 
             if (!interactable)
                 selectionBackground.color = disabledColor;
+            else if (isSelected)
+                selectionBackground.color = selectedColor;
             else
                 selectionBackground.color = normalColor;
         }
@@ -146,6 +172,49 @@ namespace PPP.BLUE.VN.RecipeApp
             c.selectedColor = Color.white;
             c.disabledColor = Color.white;
             button.colors = c;
+        }
+
+        private void ApplyNavigationNone()
+        {
+            if (button == null)
+                return;
+
+            var navigation = button.navigation;
+            if (navigation.mode == Navigation.Mode.None)
+                return;
+
+            navigation.mode = Navigation.Mode.None;
+            button.navigation = navigation;
+        }
+
+        private void HandleThemeChanged()
+        {
+            ApplyCurrentTheme();
+        }
+
+        public void ApplyCurrentTheme()
+        {
+            Color selected = selectedColor;
+            Color pressed = pressedColor;
+
+            var themeManager = AppUIThemeManager.Instance;
+            if (themeManager != null && themeManager.CurrentTheme != null)
+            {
+                var blueprintTheme = themeManager.CurrentTheme.blueprint;
+                if (IsConfiguredTint(blueprintTheme.ingredientSelectedColor))
+                    selected = blueprintTheme.ingredientSelectedColor;
+                if (IsConfiguredTint(blueprintTheme.ingredientPressedColor))
+                    pressed = blueprintTheme.ingredientPressedColor;
+            }
+
+            selectedColor = selected;
+            pressedColor = pressed;
+            RefreshVisual();
+        }
+
+        private static bool IsConfiguredTint(Color color)
+        {
+            return color.a > 0f;
         }
 
        

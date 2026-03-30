@@ -17,6 +17,8 @@ namespace PPP.BLUE.VN.DrinkSystem
         [SerializeField] private Image stateTarget;
         [SerializeField] private Color defaultColor = Color.white;
         [SerializeField] private Color enabledColor = new Color(0.65f, 0.45f, 1f, 1f);
+        [SerializeField] private Color selectedTintColor = Color.white;
+        [SerializeField] private Color pressedTintColor = Color.white;
         [SerializeField] private float hotkeyPressScale = 0.92f;
         [SerializeField] private float hotkeyPressDuration = 0.08f;
 
@@ -25,11 +27,30 @@ namespace PPP.BLUE.VN.DrinkSystem
 
         private void Awake()
         {
+            ApplyNavigationNone();
+            ApplyCurrentTheme();
+
             if (button != null)
                 button.onClick.AddListener(OnClick);
 
             RefreshLabel(0);
             SetModifierState(false);
+        }
+
+        private void OnEnable()
+        {
+            var themeManager = AppUIThemeManager.Instance;
+            if (themeManager != null)
+                themeManager.OnThemeChanged += HandleThemeChanged;
+
+            ApplyCurrentTheme();
+        }
+
+        private void OnDisable()
+        {
+            var themeManager = AppUIThemeManager.Instance;
+            if (themeManager != null)
+                themeManager.OnThemeChanged -= HandleThemeChanged;
         }
 
         public void BindManager(DrinkManager target)
@@ -40,7 +61,10 @@ namespace PPP.BLUE.VN.DrinkSystem
         public void SetInteractable(bool interactable)
         {
             if (button != null)
+            {
+                ApplyNavigationNone();
                 button.interactable = interactable;
+            }
         }
 
         public void SetModifierState(bool enabled)
@@ -75,7 +99,7 @@ namespace PPP.BLUE.VN.DrinkSystem
             if (!isActiveAndEnabled || button == null || !button.IsInteractable())
                 return;
 
-            button.Select();
+            ApplyNavigationNone();
         }
 
         private void OnClick()
@@ -141,5 +165,53 @@ namespace PPP.BLUE.VN.DrinkSystem
             transform.localScale = originalScale;
             hotkeyPressCo = null;
         }
+
+        private void ApplyNavigationNone()
+        {
+            if (button == null)
+                return;
+
+            Navigation navigation = button.navigation;
+            if (navigation.mode == Navigation.Mode.None)
+                return;
+
+            navigation.mode = Navigation.Mode.None;
+            button.navigation = navigation;
+        }
+
+        private void HandleThemeChanged()
+        {
+            ApplyCurrentTheme();
+        }
+
+        public void ApplyCurrentTheme()
+        {
+            if (button == null)
+                return;
+
+            Color selected = selectedTintColor;
+            Color pressed = pressedTintColor;
+
+            var themeManager = AppUIThemeManager.Instance;
+            if (themeManager != null && themeManager.CurrentTheme != null)
+            {
+                var vnTheme = themeManager.CurrentTheme.vn;
+                if (IsConfiguredTint(vnTheme.ingredientSelectedColor))
+                    selected = vnTheme.ingredientSelectedColor;
+                if (IsConfiguredTint(vnTheme.ingredientPressedColor))
+                    pressed = vnTheme.ingredientPressedColor;
+            }
+
+            var colors = button.colors;
+            colors.selectedColor = selected;
+            colors.pressedColor = pressed;
+            button.colors = colors;
+        }
+
+        private static bool IsConfiguredTint(Color color)
+        {
+            return color.a > 0f;
+        }
+
     }
 }

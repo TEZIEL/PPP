@@ -166,6 +166,7 @@ namespace PPP.BLUE.VN
             ForceAutoOff("Open SaveLoad Modal");
             bridge?.ClearCloseRequestPending();
             AcquireModal();
+            EnsureSlotButtonNavigationNone();
             EnsureValidSelection();
             RefreshSlotStatus();
             RefreshSelectedSlotMetadata();
@@ -440,6 +441,8 @@ namespace PPP.BLUE.VN
                     slot.selectButton.onClick.AddListener(() => SelectSlot(capture));
                 }
             }
+
+            EnsureSlotButtonNavigationNone();
         }
 
         /// <summary>
@@ -988,5 +991,34 @@ namespace PPP.BLUE.VN
             File.Copy(src, dst, overwrite: true);
             return true;
         }
+
+        private static void ApplyNavigationNone(Button button)
+        {
+            if (button == null)
+                return;
+
+            var navigation = button.navigation;
+            if (navigation.mode == Navigation.Mode.None)
+                return;
+
+            navigation.mode = Navigation.Mode.None;
+            button.navigation = navigation;
+        }
+
+        private void EnsureSlotButtonNavigationNone()
+        {
+            if (slots == null)
+                return;
+
+            for (int i = 0; i < slots.Length; i++)
+            {
+                var slot = slots[i];
+                if (slot == null || slot.selectButton == null)
+                    continue;
+
+                ApplyNavigationNone(slot.selectButton);
+            }
+        }
+
     }
 }
