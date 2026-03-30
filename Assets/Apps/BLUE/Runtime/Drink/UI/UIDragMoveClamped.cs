@@ -15,7 +15,7 @@ namespace PPP.BLUE.VN
         [SerializeField] private bool bringToFrontOnChildPointerDown = true;
         [SerializeField] private bool applyInitialSiblingIndexOnEnable;
         [SerializeField] private int initialSiblingIndex = -1;
-
+        [SerializeField] private RectTransform[] blockDragAreas;
 
 
         private RectTransform rect;
@@ -65,6 +65,29 @@ namespace PPP.BLUE.VN
         {
             parentArea = area;
         }
+
+
+        private bool IsPointerOverBlockedArea(PointerEventData eventData)
+        {
+            if (blockDragAreas == null || blockDragAreas.Length == 0)
+                return false;
+
+            foreach (var rect in blockDragAreas)
+            {
+                if (rect == null) continue;
+
+                if (RectTransformUtility.RectangleContainsScreenPoint(
+                    rect,
+                    eventData.position,
+                    eventData.pressEventCamera))
+                {
+                    return true;
+                }
+            }
+
+            return false;
+        }
+
 
         public void ConfigureZOrder(bool bringToFront, bool applyInitialIndex, int siblingIndex)
         {
@@ -119,6 +142,9 @@ namespace PPP.BLUE.VN
                 return;
 
             if (IsPointerOnButton(eventData))
+                return;
+
+            if (IsPointerOverBlockedArea(eventData))
                 return;
 
             if (!RectTransformUtility.ScreenPointToLocalPointInRectangle(

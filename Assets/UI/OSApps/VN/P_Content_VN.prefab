@@ -5525,7 +5525,8 @@ MonoBehaviour:
   bringToFrontOnChildPointerDown: 0
   applyInitialSiblingIndexOnEnable: 0
   initialSiblingIndex: 0
-  blockDragAreas: []
+  blockDragAreas:
+  - {fileID: 820545437009525261}
 --- !u!1 &2001208386141749576
 GameObject:
   m_ObjectHideFlags: 0
