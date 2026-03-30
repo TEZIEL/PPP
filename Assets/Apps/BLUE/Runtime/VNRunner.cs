@@ -99,6 +99,54 @@ namespace PPP.BLUE.VN
             public Sprite inactiveSprite;
         }
 
+        private void OnEnable()
+        {
+            var themeManager = AppUIThemeManager.Instance;
+            if (themeManager != null)
+                themeManager.OnThemeChanged += HandleThemeChanged;
+
+            ApplyCurrentTheme();
+        }
+
+        private void OnDisable()
+        {
+            var themeManager = AppUIThemeManager.Instance;
+            if (themeManager != null)
+                themeManager.OnThemeChanged -= HandleThemeChanged;
+        }
+
+        private void HandleThemeChanged()
+        {
+            ApplyCurrentTheme();
+        }
+
+        private void ApplyCurrentTheme()
+        {
+            var themeManager = AppUIThemeManager.Instance;
+            if (themeManager == null || themeManager.CurrentTheme == null)
+                return;
+
+            var vnTheme = themeManager.CurrentTheme.vn;
+            for (int i = 0; i < focusLinkedImages.Length; i++)
+            {
+                var entry = focusLinkedImages[i];
+                ApplyLinkedImageSprite(ref entry, vnTheme.focusLinkedImage.activeSprite, vnTheme.focusLinkedImage.inactiveSprite);
+                focusLinkedImages[i] = entry;
+            }
+
+            lastWindowFocusedVisualState = null;
+            SyncFocusLinkedImages();
+        }
+
+        private static void ApplyLinkedImageSprite(ref FocusLinkedImage entry, Sprite activeSprite, Sprite inactiveSprite)
+        {
+            if (activeSprite != null)
+                entry.activeSprite = activeSprite;
+
+            if (inactiveSprite != null)
+                entry.inactiveSprite = inactiveSprite;
+        }
+
         private static void ApplySpriteBinding(Image target, Sprite activeSprite, Sprite inactiveSprite, bool isActive)
         {
             if (target == null)

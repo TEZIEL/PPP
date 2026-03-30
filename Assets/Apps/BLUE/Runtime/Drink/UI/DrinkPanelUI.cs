@@ -57,15 +57,94 @@ namespace PPP.BLUE.VN.DrinkSystem
 
         private void Awake()
         {
+            ApplyCurrentTheme();
+            RebuildVisualMap();
+        }
+
+        private void OnEnable()
+        {
+            var themeManager = AppUIThemeManager.Instance;
+            if (themeManager != null)
+                themeManager.OnThemeChanged += HandleThemeChanged;
+
+            ApplyCurrentTheme();
+            RebuildVisualMap();
+        }
+
+        private void OnDisable()
+        {
+            var themeManager = AppUIThemeManager.Instance;
+            if (themeManager != null)
+                themeManager.OnThemeChanged -= HandleThemeChanged;
+        }
+
+        private void HandleThemeChanged()
+        {
+            ApplyCurrentTheme();
             RebuildVisualMap();
         }
 
 #if UNITY_EDITOR
         private void OnValidate()
         {
+            ApplyCurrentTheme();
             RebuildVisualMap();
         }
 #endif
+
+        private void ApplyCurrentTheme()
+        {
+            var themeManager = AppUIThemeManager.Instance;
+            if (themeManager == null || themeManager.CurrentTheme == null)
+                return;
+
+            var vnTheme = themeManager.CurrentTheme.vn;
+            if (vnTheme.drinkSlotEmptySprite != null)
+                emptySlotSprite = vnTheme.drinkSlotEmptySprite;
+            if (vnTheme.drinkSlotSelectedSprite != null)
+                selectedSlotSprite = vnTheme.drinkSlotSelectedSprite;
+
+            ApplyIngredientSlotVisualTheme(vnTheme.drinkIngredientSlotFilledSprites);
+        }
+
+        private void ApplyIngredientSlotVisualTheme(AppUIThemeData.VNDrinkIngredientSlotTheme[] themeSlots)
+        {
+            if (themeSlots == null || themeSlots.Length == 0)
+                return;
+
+            if (ingredientSlotVisuals == null)
+                ingredientSlotVisuals = Array.Empty<IngredientSlotVisual>();
+
+            for (int i = 0; i < themeSlots.Length; i++)
+            {
+                var themeSlot = themeSlots[i];
+                if (string.IsNullOrEmpty(themeSlot.ingredientId) || themeSlot.filledSprite == null)
+                    continue;
+
+                bool updated = false;
+                for (int j = 0; j < ingredientSlotVisuals.Length; j++)
+                {
+                    var current = ingredientSlotVisuals[j];
+                    if (!string.Equals(current.ingredientId, themeSlot.ingredientId, StringComparison.Ordinal))
+                        continue;
+
+                    current.filledSprite = themeSlot.filledSprite;
+                    ingredientSlotVisuals[j] = current;
+                    updated = true;
+                    break;
+                }
+
+                if (updated)
+                    continue;
+
+                Array.Resize(ref ingredientSlotVisuals, ingredientSlotVisuals.Length + 1);
+                ingredientSlotVisuals[ingredientSlotVisuals.Length - 1] = new IngredientSlotVisual
+                {
+                    ingredientId = themeSlot.ingredientId,
+                    filledSprite = themeSlot.filledSprite
+                };
+            }
+        }
 
         public void UpdateTotalCount(int current, int max)
         {

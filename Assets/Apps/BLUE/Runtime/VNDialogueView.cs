@@ -110,6 +110,59 @@ namespace PPP.BLUE.VN
             public ButtonVisualMode visualMode;
         }
 
+        private void ApplyCurrentTheme()
+        {
+            var themeManager = AppUIThemeManager.Instance;
+            if (themeManager == null || themeManager.CurrentTheme == null || buttonVisualBindings == null)
+                return;
+
+            var visualTheme = themeManager.CurrentTheme.vn.dialogueButtonVisual;
+            for (int i = 0; i < buttonVisualBindings.Length; i++)
+            {
+                var binding = buttonVisualBindings[i];
+                ApplyBindingSpriteFromTheme(ref binding, visualTheme);
+                buttonVisualBindings[i] = binding;
+            }
+
+            RefreshButtonVisualStates();
+        }
+
+        private static void ApplyBindingSpriteFromTheme(ref ButtonVisualBinding binding, AppUIThemeData.VNDialogueButtonVisualTheme visualTheme)
+        {
+            switch (binding.visualMode)
+            {
+                case ButtonVisualMode.ToggleAutoPlay:
+                    if (visualTheme.toggleAutoPlayActiveSprite != null)
+                        binding.activeSprite = visualTheme.toggleAutoPlayActiveSprite;
+                    if (visualTheme.toggleAutoPlayInactiveSprite != null)
+                        binding.inactiveSprite = visualTheme.toggleAutoPlayInactiveSprite;
+                    break;
+                case ButtonVisualMode.HoldSkip:
+                    if (visualTheme.holdSkipActiveSprite != null)
+                        binding.activeSprite = visualTheme.holdSkipActiveSprite;
+                    if (visualTheme.holdSkipInactiveSprite != null)
+                        binding.inactiveSprite = visualTheme.holdSkipInactiveSprite;
+                    break;
+                case ButtonVisualMode.InteractableEnabled:
+                    if (visualTheme.interactableEnabledActiveSprite != null)
+                        binding.activeSprite = visualTheme.interactableEnabledActiveSprite;
+                    if (visualTheme.interactableEnabledInactiveSprite != null)
+                        binding.inactiveSprite = visualTheme.interactableEnabledInactiveSprite;
+                    break;
+                default:
+                    if (visualTheme.interactableActiveSprite != null)
+                        binding.activeSprite = visualTheme.interactableActiveSprite;
+                    if (visualTheme.interactableInactiveSprite != null)
+                        binding.inactiveSprite = visualTheme.interactableInactiveSprite;
+                    break;
+            }
+        }
+
+        private void HandleThemeChanged()
+        {
+            ApplyCurrentTheme();
+        }
+
         private readonly struct ButtonVisualState
         {
             public readonly bool AutoEnabled;
@@ -462,6 +515,11 @@ namespace PPP.BLUE.VN
         private void OnEnable()
         {
             activeDialogueViews.Add(this);
+            var themeManager = AppUIThemeManager.Instance;
+            if (themeManager != null)
+                themeManager.OnThemeChanged += HandleThemeChanged;
+
+            ApplyCurrentTheme();
             inputLocked = true;
             LockInputFrames(5); // 여기 추가 (2 말고 5 추천)
             Debug.Log($"[VN] DialogueView OnEnable text={(dialogueText != null ? dialogueText.text : "<null>")}");
@@ -483,6 +541,10 @@ namespace PPP.BLUE.VN
         private void OnDisable()
         {
             activeDialogueViews.Remove(this);
+            var themeManager = AppUIThemeManager.Instance;
+            if (themeManager != null)
+                themeManager.OnThemeChanged -= HandleThemeChanged;
+
             OnSkipButtonPointerUp();
             if (interactableVisualPressedStates.Count > 0)
             {
