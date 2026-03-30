@@ -6,7 +6,7 @@ using UnityEngine.UI;
 
 namespace PPP.BLUE.VN.DrinkSystem
 {
-    public sealed class IngredientButton : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler, IPointerDownHandler, IPointerUpHandler, ISelectHandler, IDeselectHandler
+    public sealed class IngredientButton : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler, IPointerDownHandler, IPointerUpHandler
     {
         private const string ArtheonIngredient = "INGREDIENT_ARTHEON";
 
@@ -51,6 +51,13 @@ namespace PPP.BLUE.VN.DrinkSystem
                 themeManager.OnThemeChanged += HandleThemeChanged;
 
             ApplyCurrentTheme();
+        }
+
+        private void OnDisable()
+        {
+            var themeManager = AppUIThemeManager.Instance;
+            if (themeManager != null)
+                themeManager.OnThemeChanged -= HandleThemeChanged;
         }
 
         private void OnDisable()
@@ -176,16 +183,9 @@ namespace PPP.BLUE.VN.DrinkSystem
             RefreshStateVisual();
         }
 
-        public void OnSelect(BaseEventData eventData)
+        public void SetSelectedState(bool selected)
         {
-            isSelected = true;
-            RefreshStateVisual();
-        }
-
-        public void OnDeselect(BaseEventData eventData)
-        {
-            isSelected = false;
-            isPressed = false;
+            isSelected = selected;
             RefreshStateVisual();
         }
 
