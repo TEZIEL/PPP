@@ -60,6 +60,16 @@ namespace PPP.BLUE.VN.DrinkSystem
                 themeManager.OnThemeChanged -= HandleThemeChanged;
         }
 
+        private void OnDisable()
+        {
+            var themeManager = AppUIThemeManager.Instance;
+            if (themeManager != null)
+                themeManager.OnThemeChanged -= HandleThemeChanged;
+        }
+
+        
+       
+
         public void BindManager(DrinkManager target)
         {
             manager = target;
@@ -122,6 +132,8 @@ namespace PPP.BLUE.VN.DrinkSystem
 
         private void OnClick()
         {
+            
+
             float pitch = GetPitchByIngredient();
 
             SoundManager.Instance.PlayOSWithPitch(OSSoundEvent.IngredientFill1, pitch);
