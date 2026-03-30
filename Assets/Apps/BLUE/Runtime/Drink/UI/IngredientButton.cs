@@ -30,6 +30,7 @@ namespace PPP.BLUE.VN.DrinkSystem
         private Coroutine hotkeyPressCo;
         private bool isPressed;
         private bool isSelected;
+        private Sprite defaultButtonSprite;
 
         private void Awake()
         {
@@ -37,7 +38,11 @@ namespace PPP.BLUE.VN.DrinkSystem
             ApplyCurrentTheme();
 
             if (button != null)
+            {
                 button.onClick.AddListener(OnClick);
+                if (button.image != null)
+                    defaultButtonSprite = button.image.sprite;
+            }
 
             RefreshLabel(0);
             SetModifierState(false);
@@ -266,6 +271,8 @@ namespace PPP.BLUE.VN.DrinkSystem
             selectedTextColor = selectedText;
             if (stateIndicatorImage != null && indicatorSprite != null)
                 stateIndicatorImage.sprite = indicatorSprite;
+            if (button.image != null && !isPressed && !isSelected)
+                defaultButtonSprite = button.image.sprite;
 
             RefreshStateVisual();
         }
@@ -282,6 +289,8 @@ namespace PPP.BLUE.VN.DrinkSystem
 
         private void RefreshStateVisual()
         {
+            RefreshButtonVisual();
+
             if (label != null)
             {
                 if (isPressed)
@@ -294,6 +303,55 @@ namespace PPP.BLUE.VN.DrinkSystem
 
             if (stateIndicatorImage != null)
                 stateIndicatorImage.gameObject.SetActive(isPressed || isSelected);
+        }
+
+        private void RefreshButtonVisual()
+        {
+            if (button == null)
+                return;
+
+            var colors = button.colors;
+            var targetGraphic = button.targetGraphic;
+            if (targetGraphic != null)
+            {
+                Color graphicColor;
+                if (!button.interactable)
+                    graphicColor = colors.disabledColor;
+                else if (isPressed)
+                    graphicColor = colors.pressedColor;
+                else if (isSelected)
+                    graphicColor = colors.selectedColor;
+                else
+                    graphicColor = colors.normalColor;
+
+                targetGraphic.color = graphicColor;
+            }
+
+            if (button.image == null)
+                return;
+
+            var spriteState = button.spriteState;
+            if (!button.interactable)
+            {
+                if (spriteState.disabledSprite != null)
+                    button.image.sprite = spriteState.disabledSprite;
+                return;
+            }
+
+            if (isPressed && spriteState.pressedSprite != null)
+            {
+                button.image.sprite = spriteState.pressedSprite;
+                return;
+            }
+
+            if (isSelected && spriteState.selectedSprite != null)
+            {
+                button.image.sprite = spriteState.selectedSprite;
+                return;
+            }
+
+            if (defaultButtonSprite != null)
+                button.image.sprite = defaultButtonSprite;
         }
 
     }
