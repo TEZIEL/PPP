@@ -75,6 +75,11 @@ public sealed class VNUIThemeApplier : AppUIThemeApplierBase
     [SerializeField] private Image otherWindow47Root;
     [SerializeField] private Image otherWindow48Root;
     [SerializeField] private Image otherWindow49Root;
+    [SerializeField] private Image otherWindow50Root;
+    [SerializeField] private Image otherWindow51Root;
+    [SerializeField] private Image otherWindow52Root;
+    [SerializeField] private Image otherWindow53Root;
+    [SerializeField] private Image otherWindow54Root;
 
     [Header("Dialogue")]
     [SerializeField] private Image dialogueRoot;
@@ -184,6 +189,11 @@ public sealed class VNUIThemeApplier : AppUIThemeApplierBase
         ApplyImageSprite(otherWindow47Root, t.otherWindow47RootSprite);
         ApplyImageSprite(otherWindow48Root, t.otherWindow48RootSprite);
         ApplyImageSprite(otherWindow49Root, t.otherWindow49RootSprite);
+        ApplyImageSprite(otherWindow50Root, t.otherWindow50RootSprite);
+        ApplyImageSprite(otherWindow51Root, t.otherWindow51RootSprite);
+        ApplyImageSprite(otherWindow52Root, t.otherWindow52RootSprite);
+        ApplyImageSprite(otherWindow53Root, t.otherWindow53RootSprite);
+        ApplyImageSprite(otherWindow54Root, t.otherWindow54RootSprite);
 
         ApplyImageSprite(dialogueRoot, t.dialogueRootSprite);
         ApplyImageSprite(dialogueButtonContainer, t.dialogueButtonContainerSprite);

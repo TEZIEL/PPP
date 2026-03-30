@@ -5234,6 +5234,9 @@ MonoBehaviour:
   - target: {fileID: 2477727093525435912}
     activeSprite: {fileID: 21300000, guid: b180f04e184c29d4a939e310db0820f4, type: 3}
     inactiveSprite: {fileID: 21300000, guid: 3761e1b7a49682f4ab4e0b19fb06e4d5, type: 3}
+  - target: {fileID: 2934728886455814543}
+    activeSprite: {fileID: 21300000, guid: b180f04e184c29d4a939e310db0820f4, type: 3}
+    inactiveSprite: {fileID: 21300000, guid: 3761e1b7a49682f4ab4e0b19fb06e4d5, type: 3}
 --- !u!114 &2321816555586790909
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -11510,6 +11513,11 @@ MonoBehaviour:
   otherWindow47Root: {fileID: 4239642970532127854}
   otherWindow48Root: {fileID: 7721445740979081673}
   otherWindow49Root: {fileID: 4248210769025045433}
+  otherWindow50Root: {fileID: 5949156806653278417}
+  otherWindow51Root: {fileID: 4475488971317439487}
+  otherWindow52Root: {fileID: 1237232740125056560}
+  otherWindow53Root: {fileID: 423766596865982306}
+  otherWindow54Root: {fileID: 6972488071256659549}
   dialogueRoot: {fileID: 1497659788485596965}
   dialogueButtonContainer: {fileID: 7505213891715684770}
   dialogueButtons: []
@@ -26201,6 +26209,7 @@ MonoBehaviour:
   - {fileID: 2369208094139773013}
   - {fileID: 8790796338520169236}
   emptySlotSprite: {fileID: 21300000, guid: 314edb341459bfb4fa482f913004fdfa, type: 3}
+  selectedSlotSprite: {fileID: 0}
   ingredientSlotVisuals:
   - ingredientId: INGREDIENT_VELTRINE
     filledSprite: {fileID: 21300000, guid: db5e292d7a40aea4da570c609bfb675d, type: 3}

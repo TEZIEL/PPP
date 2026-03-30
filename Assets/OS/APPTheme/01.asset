@@ -169,12 +169,27 @@ MonoBehaviour:
     exitModalButtonSprite: {fileID: 21300000, guid: 6d276694909278a4fbbca6efd8de7992, type: 3}
     drinkRootSprite: {fileID: 21300000, guid: 0df50fd6d82d3524db62cf3a7de098fa, type: 3}
     drinkGridSprite: {fileID: 21300000, guid: 0e7fb8fabc8e0b64bb4aac52ebf73587, type: 3}
-    ingredientButtonSprite: {fileID: 0}
-    ingredientSelectedButtonSprite: {fileID: 0}
+    ingredientButtonSprite: {fileID: 21300000, guid: 6d276694909278a4fbbca6efd8de7992, type: 3}
+    ingredientSelectedButtonSprite: {fileID: 21300000, guid: 6d276694909278a4fbbca6efd8de7992, type: 3}
     dialogueRootSprite: {fileID: 21300000, guid: 6d276694909278a4fbbca6efd8de7992, type: 3}
     dialogueButtonContainerSprite: {fileID: 21300000, guid: 0df50fd6d82d3524db62cf3a7de098fa, type: 3}
     dialogueButtonSprite: {fileID: 0}
     dialogueSelectedButtonSprite: {fileID: 21300000, guid: 6d276694909278a4fbbca6efd8de7992, type: 3}
+    focusLinkedImage:
+      activeSprite: {fileID: 21300000, guid: 9d617ac14d691a24e9a818b376a3331a, type: 3}
+      inactiveSprite: {fileID: 21300000, guid: cb9461084d2cd8640bb7292b727a422f, type: 3}
+    dialogueButtonVisual:
+      interactableActiveSprite: {fileID: 21300000, guid: 14bd87a1db2093649956dbc1dd3adfd2, type: 3}
+      interactableInactiveSprite: {fileID: 21300000, guid: 0616847a8986c9447b6ffa5370803a96, type: 3}
+      toggleAutoPlayActiveSprite: {fileID: 21300000, guid: 14bd87a1db2093649956dbc1dd3adfd2, type: 3}
+      toggleAutoPlayInactiveSprite: {fileID: 21300000, guid: 0616847a8986c9447b6ffa5370803a96, type: 3}
+      holdSkipActiveSprite: {fileID: 21300000, guid: 14bd87a1db2093649956dbc1dd3adfd2, type: 3}
+      holdSkipInactiveSprite: {fileID: 21300000, guid: 0616847a8986c9447b6ffa5370803a96, type: 3}
+      interactableEnabledActiveSprite: {fileID: 21300000, guid: 14bd87a1db2093649956dbc1dd3adfd2, type: 3}
+      interactableEnabledInactiveSprite: {fileID: 21300000, guid: 0616847a8986c9447b6ffa5370803a96, type: 3}
+    drinkSlotEmptySprite: {fileID: 21300000, guid: 6d276694909278a4fbbca6efd8de7992, type: 3}
+    drinkSlotSelectedSprite: {fileID: 0}
+    drinkIngredientSlotFilledSprites: []
     otherWindow1RootSprite: {fileID: 21300000, guid: 6d276694909278a4fbbca6efd8de7992, type: 3}
     otherWindow2RootSprite: {fileID: 21300000, guid: 0df50fd6d82d3524db62cf3a7de098fa, type: 3}
     otherWindow3RootSprite: {fileID: 21300000, guid: 6d276694909278a4fbbca6efd8de7992, type: 3}
@@ -195,3 +210,37 @@ MonoBehaviour:
     otherWindow18RootSprite: {fileID: 21300000, guid: 0df50fd6d82d3524db62cf3a7de098fa, type: 3}
     otherWindow19RootSprite: {fileID: 21300000, guid: 0df50fd6d82d3524db62cf3a7de098fa, type: 3}
     otherWindow20RootSprite: {fileID: 21300000, guid: 6d276694909278a4fbbca6efd8de7992, type: 3}
+    otherWindow21RootSprite: {fileID: 21300000, guid: 085ab62b0d17457479fd0b81afd112c9, type: 3}
+    otherWindow22RootSprite: {fileID: 21300000, guid: dce781062a1a4824fa2ee389e03e9b4e, type: 3}
+    otherWindow23RootSprite: {fileID: 21300000, guid: 33677838c774e30429f710f22b823d52, type: 3}
+    otherWindow24RootSprite: {fileID: 21300000, guid: b2ec3f5b0a703c24697edf5a10c1e07a, type: 3}
+    otherWindow25RootSprite: {fileID: 21300000, guid: 085ab62b0d17457479fd0b81afd112c9, type: 3}
+    otherWindow26RootSprite: {fileID: 21300000, guid: dce781062a1a4824fa2ee389e03e9b4e, type: 3}
+    otherWindow27RootSprite: {fileID: 21300000, guid: 33677838c774e30429f710f22b823d52, type: 3}
+    otherWindow28RootSprite: {fileID: 21300000, guid: b2ec3f5b0a703c24697edf5a10c1e07a, type: 3}
+    otherWindow29RootSprite: {fileID: 21300000, guid: 0616847a8986c9447b6ffa5370803a96, type: 3}
+    otherWindow30RootSprite: {fileID: 21300000, guid: 6d276694909278a4fbbca6efd8de7992, type: 3}
+    otherWindow31RootSprite: {fileID: 21300000, guid: db2d16ad376098246a0cf2f5337ece89, type: 3}
+    otherWindow32RootSprite: {fileID: 21300000, guid: db2d16ad376098246a0cf2f5337ece89, type: 3}
+    otherWindow33RootSprite: {fileID: 21300000, guid: db2d16ad376098246a0cf2f5337ece89, type: 3}
+    otherWindow34RootSprite: {fileID: 21300000, guid: db2d16ad376098246a0cf2f5337ece89, type: 3}
+    otherWindow35RootSprite: {fileID: 21300000, guid: db2d16ad376098246a0cf2f5337ece89, type: 3}
+    otherWindow36RootSprite: {fileID: 21300000, guid: db2d16ad376098246a0cf2f5337ece89, type: 3}
+    otherWindow37RootSprite: {fileID: 21300000, guid: db2d16ad376098246a0cf2f5337ece89, type: 3}
+    otherWindow38RootSprite: {fileID: 21300000, guid: db2d16ad376098246a0cf2f5337ece89, type: 3}
+    otherWindow39RootSprite: {fileID: 21300000, guid: db2d16ad376098246a0cf2f5337ece89, type: 3}
+    otherWindow40RootSprite: {fileID: 21300000, guid: db2d16ad376098246a0cf2f5337ece89, type: 3}
+    otherWindow41RootSprite: {fileID: 21300000, guid: 90040478285a53049bdb38dff472ed40, type: 3}
+    otherWindow42RootSprite: {fileID: 21300000, guid: 88f7f7757d131cf4faeb5866ebf891f9, type: 3}
+    otherWindow43RootSprite: {fileID: 21300000, guid: cd6b6bd620bd5644f875e22177d7672e, type: 3}
+    otherWindow44RootSprite: {fileID: 21300000, guid: 62d7eee867fe0bb4abd32e8536384736, type: 3}
+    otherWindow45RootSprite: {fileID: 21300000, guid: 09da9e332aa66ae409cffd3f3c9b425a, type: 3}
+    otherWindow46RootSprite: {fileID: 21300000, guid: d2c3b723f77146346852a1f9122be466, type: 3}
+    otherWindow47RootSprite: {fileID: 21300000, guid: e0e52d54d46390a4f85170f3dca79bb4, type: 3}
+    otherWindow48RootSprite: {fileID: 21300000, guid: e0e52d54d46390a4f85170f3dca79bb4, type: 3}
+    otherWindow49RootSprite: {fileID: 21300000, guid: e0e52d54d46390a4f85170f3dca79bb4, type: 3}
+    otherWindow50RootSprite: {fileID: 21300000, guid: 0df50fd6d82d3524db62cf3a7de098fa, type: 3}
+    otherWindow51RootSprite: {fileID: 21300000, guid: 0df50fd6d82d3524db62cf3a7de098fa, type: 3}
+    otherWindow52RootSprite: {fileID: 21300000, guid: 0df50fd6d82d3524db62cf3a7de098fa, type: 3}
+    otherWindow53RootSprite: {fileID: 21300000, guid: 0df50fd6d82d3524db62cf3a7de098fa, type: 3}
+    otherWindow54RootSprite: {fileID: 21300000, guid: 0df50fd6d82d3524db62cf3a7de098fa, type: 3}
