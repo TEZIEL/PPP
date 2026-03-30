@@ -9,6 +9,7 @@ namespace PPP.BLUE.VN
     {
         [SerializeField] private RectTransform parentArea;
         [SerializeField] private Button pinToggleButton;
+        [SerializeField] private RectTransform[] blockDragAreas;
         [SerializeField] private string pinStateVarKey;
         [Header("Z-Order")]
         [SerializeField] private bool bringToFrontOnPointerDown = true;
@@ -91,7 +92,7 @@ namespace PPP.BLUE.VN
             if (isPinned)
                 return;
 
-            if (!CanDrag(eventData))
+            if (!CanStartDrag(eventData))
                 return;
 
             if (IsPointerOnButton(eventData))
@@ -150,6 +151,33 @@ namespace PPP.BLUE.VN
         private bool CanDrag(PointerEventData eventData)
         {
             return eventData != null && rect != null && dragParent != null && parentArea != null;
+        }
+
+
+        private bool CanStartDrag(PointerEventData eventData)
+        {
+            if (!CanDrag(eventData))
+                return false;
+
+            if (blockDragAreas != null)
+            {
+                for (int i = 0; i < blockDragAreas.Length; i++)
+                {
+                    RectTransform area = blockDragAreas[i];
+                    if (area == null)
+                        continue;
+
+                    if (RectTransformUtility.RectangleContainsScreenPoint(
+                            area,
+                            eventData.position,
+                            eventData.pressEventCamera))
+                    {
+                        return false;
+                    }
+                }
+            }
+
+            return true;
         }
 
         private static bool IsPointerOnButton(PointerEventData eventData)
