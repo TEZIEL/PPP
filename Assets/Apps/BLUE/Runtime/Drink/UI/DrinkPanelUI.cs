@@ -1,4 +1,4 @@
-using System.Collections;
+﻿using System.Collections;
 using System;
 using System.Collections.Generic;
 using TMPro;
@@ -41,15 +41,8 @@ namespace PPP.BLUE.VN.DrinkSystem
         [SerializeField] private Sprite emptySlotSprite;
         [SerializeField] private Sprite selectedSlotSprite;
         [SerializeField] private IngredientSlotVisual[] ingredientSlotVisuals;
-        [SerializeField] private Color emptyColor = new Color(1f, 1f, 1f, 0.1f);
-        [SerializeField] private Color veltrineColor = new Color(0.95f, 0.5f, 0.75f, 1f);
-        [SerializeField] private Color zyphrateColor = new Color(0.95f, 0.9f, 0.35f, 1f);
-        [SerializeField] private Color kratylenColor = new Color(0.4f, 0.6f, 0.95f, 1f);
-        [SerializeField] private Color morvionColor = new Color(0.35f, 0.35f, 0.35f, 1f);
-        [SerializeField] private Color redulineColor = new Color(0.95f, 0.35f, 0.35f, 1f);
-        [SerializeField] private Color cymentolColor = new Color(0.35f, 0.95f, 0.95f, 1f);
-        [SerializeField] private Color braxiumColor = new Color(0.7f, 0.5f, 0.95f, 1f);
-        [SerializeField] private Color artheonColor = new Color(0.9f, 0.8f, 1f, 1f);
+        [SerializeField] private Color emptyColor = Color.white;
+        
         [SerializeField] private float slotClearDelaySeconds = 0.025f;
 
         private Coroutine resetAnimation;
@@ -59,6 +52,7 @@ namespace PPP.BLUE.VN.DrinkSystem
         {
             ApplyCurrentTheme();
             RebuildVisualMap();
+            ClearGridInstant(); // 🔥 이거 반드시 추가
         }
 
         private void OnEnable()
@@ -69,6 +63,7 @@ namespace PPP.BLUE.VN.DrinkSystem
 
             ApplyCurrentTheme();
             RebuildVisualMap();
+            ClearGridInstant(); // 🔥 이것도 추가
         }
 
         private void OnDisable()
@@ -266,14 +261,7 @@ namespace PPP.BLUE.VN.DrinkSystem
         {
             switch (ingredientId)
             {
-                case "INGREDIENT_VELTRINE": return veltrineColor;
-                case "INGREDIENT_ZYPHRATE": return zyphrateColor;
-                case "INGREDIENT_KRATYLEN": return kratylenColor;
-                case "INGREDIENT_MORVION": return morvionColor;
-                case "INGREDIENT_REDULINE": return redulineColor;
-                case "INGREDIENT_CYMENTOL": return cymentolColor;
-                case "INGREDIENT_BRAXIUM": return braxiumColor;
-                case "INGREDIENT_ARTHEON": return artheonColor;
+                
                 default: return Color.white;
             }
         }
