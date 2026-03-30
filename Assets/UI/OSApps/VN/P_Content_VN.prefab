@@ -3264,7 +3264,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!224 &4906037463695743716
 RectTransform:
   m_ObjectHideFlags: 0
@@ -26201,6 +26201,7 @@ MonoBehaviour:
   - {fileID: 2369208094139773013}
   - {fileID: 8790796338520169236}
   emptySlotSprite: {fileID: 21300000, guid: 314edb341459bfb4fa482f913004fdfa, type: 3}
+  selectedSlotSprite: {fileID: 0}
   ingredientSlotVisuals:
   - ingredientId: INGREDIENT_VELTRINE
     filledSprite: {fileID: 21300000, guid: db5e292d7a40aea4da570c609bfb675d, type: 3}
@@ -26216,15 +26217,15 @@ MonoBehaviour:
     filledSprite: {fileID: 21300000, guid: 323d6c5951824024492665efce6c2374, type: 3}
   - ingredientId: INGREDIENT_BRAXIUM
     filledSprite: {fileID: 21300000, guid: 6367a7de7d66f8a40862f4b116a32761, type: 3}
-  emptyColor: {r: 1, g: 1, b: 1, a: 0.1}
-  veltrineColor: {r: 0.95, g: 0.5, b: 0.75, a: 1}
-  zyphrateColor: {r: 0.95, g: 0.9, b: 0.35, a: 1}
-  kratylenColor: {r: 0.4, g: 0.6, b: 0.95, a: 1}
-  morvionColor: {r: 0.35, g: 0.35, b: 0.35, a: 1}
-  redulineColor: {r: 0.95, g: 0.35, b: 0.35, a: 1}
-  cymentolColor: {r: 0.35, g: 0.95, b: 0.95, a: 1}
-  braxiumColor: {r: 0.7, g: 0.5, b: 0.95, a: 1}
-  artheonColor: {r: 0.9, g: 0.8, b: 1, a: 1}
+  emptyColor: {r: 1, g: 1, b: 1, a: 1}
+  veltrineColor: {r: 1, g: 1, b: 1, a: 1}
+  zyphrateColor: {r: 1, g: 1, b: 1, a: 1}
+  kratylenColor: {r: 1, g: 1, b: 1, a: 1}
+  morvionColor: {r: 1, g: 1, b: 1, a: 1}
+  redulineColor: {r: 1, g: 1, b: 1, a: 1}
+  cymentolColor: {r: 1, g: 1, b: 1, a: 1}
+  braxiumColor: {r: 1, g: 1, b: 1, a: 1}
+  artheonColor: {r: 1, g: 1, b: 1, a: 1}
   slotClearDelaySeconds: 0.025
 --- !u!1 &9010274065928701831
 GameObject:
