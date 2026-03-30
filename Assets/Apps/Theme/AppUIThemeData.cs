@@ -4,45 +4,119 @@ using UnityEngine;
 public class AppUIThemeData : ScriptableObject
 {
     [System.Serializable]
-    public struct ColorSlot
+    public struct BlueprintTheme
     {
-        public Color background;
-        public Color panel;
-        public Color button;
-        public Color buttonText;
-        public Color accent;
-        public Color bodyText;
-        public Color mutedText;
+        [Header("Top Filter")]
+        public Sprite filterButtonSprite;
+        public Sprite filterButtonSelectedSprite;
+
+        [Header("Scroll/List")]
+        public Sprite scrollViewBackgroundSprite;
+        public Sprite scrollUpButtonSprite;
+        public Sprite scrollDownButtonSprite;
+        public Sprite listItemBackgroundSprite;
+
+        [Header("Panels")]
+        public Sprite mainPanelBackgroundSprite;
+        public Sprite detailPanelBackgroundSprite;
+
+        [Header("Text (Optional)")]
+        public Color primaryTextColor;
+        public Color secondaryTextColor;
     }
 
     [System.Serializable]
-    public struct SpriteSlot
+    public struct BridgeTheme
     {
-        public Sprite background;
-        public Sprite panel;
-        public Sprite button;
-        public Sprite accent;
+        [Header("Player/List")]
+        public Sprite playerPanelSprite;
+        public Sprite listBackgroundSprite;
+        public Sprite listViewportSprite;
+
+        [Header("Controls")]
+        public Sprite playbackControlButtonSprite;
+        public Sprite actionButtonSprite;
+
+        [Header("Progress/Scroll")]
+        public Sprite progressFillSprite;
+        public Sprite progressHandleSprite;
+        public Sprite scrollbarTrackSprite;
+        public Sprite scrollbarHandleSprite;
+
+        [Header("Dropdown/Ambient")]
+        public Sprite dropdownBackgroundSprite;
+        public Sprite dropdownButtonSprite;
+        public Sprite ambientSlotSprite;
+
+        [Header("Text (Optional)")]
+        public Color primaryTextColor;
+        public Color secondaryTextColor;
     }
 
     [System.Serializable]
-    public struct AppTheme
+    public struct BuddyTheme
     {
-        public ColorSlot colors;
-        public SpriteSlot sprites;
+        [Header("Panels")]
+        public Sprite pinAreaSprite;
+        public Sprite profileCardSprite;
+        public Sprite listAreaSprite;
+        public Sprite bottomActionPanelSprite;
+        public Sprite innerPanelSprite;
+
+        [Header("Buttons")]
+        public Sprite actionButtonSprite;
+
+        [Header("Text (Optional)")]
+        public Color primaryTextColor;
     }
 
-    [Header("BRIDGE")]
-    public AppTheme bridge;
+    [System.Serializable]
+    public struct BanditTheme
+    {
+        [Header("Main")]
+        public Sprite swipeViewportSprite;
+        public Sprite infoPanelSprite;
+        public Sprite frameSprite;
+        public Sprite innerBackgroundSprite;
 
-    [Header("BOX")]
-    public AppTheme box;
+        [Header("Buttons")]
+        public Sprite actionButtonSprite;
+
+        [Header("Text (Optional)")]
+        public Color textColor;
+    }
+
+    [System.Serializable]
+    public struct BoxTheme
+    {
+        [Header("Panels")]
+        public Sprite topToolbarSprite;
+        public Sprite bodyPanelSprite;
+        public Sprite scrollAreaSprite;
+        public Sprite innerBackgroundSprite;
+
+        [Header("Scroll")]
+        public Sprite scrollbarTrackSprite;
+        public Sprite scrollbarHandleSprite;
+        public Sprite scrollUpButtonSprite;
+        public Sprite scrollDownButtonSprite;
+
+        [Header("Text (Optional)")]
+        public Color textColor;
+    }
 
     [Header("BluePrint")]
-    public AppTheme blueprint;
+    public BlueprintTheme blueprint;
+
+    [Header("BRIDGE")]
+    public BridgeTheme bridge;
 
     [Header("BUDDY")]
-    public AppTheme buddy;
+    public BuddyTheme buddy;
 
     [Header("BANDIT")]
-    public AppTheme bandit;
+    public BanditTheme bandit;
+
+    [Header("BOX")]
+    public BoxTheme box;
 }

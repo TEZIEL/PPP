@@ -4,58 +4,50 @@ using UnityEngine.UI;
 
 public abstract class AppUIThemeApplierBase : MonoBehaviour
 {
-    protected static void ApplyImageSlot(Image target, Color color, Sprite sprite = null)
+    protected static void ApplyImageSprite(Image target, Sprite sprite)
+    {
+        if (target == null || sprite == null) return;
+        target.sprite = sprite;
+    }
+
+    protected static void ApplyButtonSprite(Button target, Sprite sprite)
+    {
+        if (target == null || sprite == null) return;
+        if (target.targetGraphic is Image image)
+            image.sprite = sprite;
+    }
+
+    protected static void ApplyScrollbarSprites(Scrollbar target, Sprite trackSprite, Sprite handleSprite)
     {
         if (target == null) return;
-        target.color = color;
-        if (sprite != null)
-            target.sprite = sprite;
-    }
 
-    protected static void ApplyTextSlot(TMP_Text target, Color color)
-    {
-        if (target == null) return;
-        target.color = color;
-    }
+        var trackImage = target.GetComponent<Image>();
+        if (trackImage != null && trackSprite != null)
+            trackImage.sprite = trackSprite;
 
-    protected static void ApplyButtonColors(Button button, Color normal, Color textColor)
-    {
-        if (button == null) return;
-
-        var c = button.colors;
-        c.normalColor = normal;
-        c.highlightedColor = normal;
-        c.selectedColor = normal;
-        c.pressedColor = normal * 0.9f;
-        c.disabledColor = normal * 0.6f;
-        button.colors = c;
-
-        var label = button.GetComponentInChildren<TMP_Text>(true);
-        if (label != null)
-            label.color = textColor;
-    }
-
-    protected static T FindInChildrenByName<T>(Transform root, string name) where T : Component
-    {
-        if (root == null || string.IsNullOrWhiteSpace(name))
-            return null;
-
-        for (int i = 0; i < root.childCount; i++)
+        if (target.handleRect != null)
         {
-            var child = root.GetChild(i);
-            if (child.name == name)
-            {
-                var component = child.GetComponent<T>();
-                if (component != null)
-                    return component;
-            }
-
-            var nested = FindInChildrenByName<T>(child, name);
-            if (nested != null)
-                return nested;
+            var handleImage = target.handleRect.GetComponent<Image>();
+            if (handleImage != null && handleSprite != null)
+                handleImage.sprite = handleSprite;
         }
+    }
 
-        return null;
+    protected static void ApplyDropdownSprites(TMP_Dropdown target, Sprite backgroundSprite, Sprite buttonSprite)
+    {
+        if (target == null) return;
+
+        if (target.targetGraphic is Image bg && backgroundSprite != null)
+            bg.sprite = backgroundSprite;
+
+        if (target.captionImage != null && buttonSprite != null)
+            target.captionImage.sprite = buttonSprite;
+    }
+
+    protected static void ApplyTextColor(TMP_Text target, Color color)
+    {
+        if (target == null) return;
+        target.color = color;
     }
 
     public abstract void ApplyFromManager(AppUIThemeData data, string appId);

@@ -5,49 +5,41 @@ using UnityEngine.UI;
 
 public class BoxUIThemeApplier : AppUIThemeApplierBase
 {
-    [Header("BOX - Surfaces")]
-    [SerializeField] private Image appBackground;
+    [Header("BOX - Panels")]
     [SerializeField] private Image topToolbar;
     [SerializeField] private Image bodyPanel;
+    [SerializeField] private Image scrollArea;
+    [SerializeField] private Image[] innerBackgrounds = Array.Empty<Image>();
 
-    [Header("BOX - Buttons")]
-    [SerializeField] private Button[] toolbarButtons = Array.Empty<Button>();
-    [SerializeField] private Button[] actionButtons = Array.Empty<Button>();
+    [Header("BOX - Scroll")]
+    [SerializeField] private Scrollbar[] scrollbars = Array.Empty<Scrollbar>();
+    [SerializeField] private Button scrollUpButton;
+    [SerializeField] private Button scrollDownButton;
 
-    [Header("BOX - Text")]
-    [SerializeField] private TMP_Text[] primaryTexts = Array.Empty<TMP_Text>();
+    [Header("BOX - Text (Optional)")]
+    [SerializeField] private TMP_Text[] texts = Array.Empty<TMP_Text>();
 
     public override void ApplyFromManager(AppUIThemeData data, string appId)
     {
         if (data == null || appId != "Folder")
             return;
 
-        AutoWireIfNeeded();
+        var t = data.box;
 
-        var slot = data.box;
-        ApplyImageSlot(appBackground, slot.colors.background, slot.sprites.background);
-        ApplyImageSlot(topToolbar, slot.colors.panel, slot.sprites.panel);
-        ApplyImageSlot(bodyPanel, slot.colors.panel, slot.sprites.panel);
+        ApplyImageSprite(topToolbar, t.topToolbarSprite);
+        ApplyImageSprite(bodyPanel, t.bodyPanelSprite);
+        ApplyImageSprite(scrollArea, t.scrollAreaSprite);
 
-        for (int i = 0; i < toolbarButtons.Length; i++)
-            ApplyButtonColors(toolbarButtons[i], slot.colors.button, slot.colors.buttonText);
+        for (int i = 0; i < innerBackgrounds.Length; i++)
+            ApplyImageSprite(innerBackgrounds[i], t.innerBackgroundSprite);
 
-        for (int i = 0; i < actionButtons.Length; i++)
-            ApplyButtonColors(actionButtons[i], slot.colors.button, slot.colors.buttonText);
+        for (int i = 0; i < scrollbars.Length; i++)
+            ApplyScrollbarSprites(scrollbars[i], t.scrollbarTrackSprite, t.scrollbarHandleSprite);
 
-        for (int i = 0; i < primaryTexts.Length; i++)
-            ApplyTextSlot(primaryTexts[i], slot.colors.bodyText);
-    }
+        ApplyButtonSprite(scrollUpButton, t.scrollUpButtonSprite);
+        ApplyButtonSprite(scrollDownButton, t.scrollDownButtonSprite);
 
-    private void AutoWireIfNeeded()
-    {
-        if (appBackground == null)
-            appBackground = FindInChildrenByName<Image>(transform, "PlayerArea");
-
-        if (topToolbar == null)
-            topToolbar = FindInChildrenByName<Image>(transform, "PlayBar");
-
-        if (bodyPanel == null)
-            bodyPanel = FindInChildrenByName<Image>(transform, "BG_Full");
+        for (int i = 0; i < texts.Length; i++)
+            ApplyTextColor(texts[i], t.textColor);
     }
 }

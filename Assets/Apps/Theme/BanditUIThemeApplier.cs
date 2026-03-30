@@ -5,45 +5,36 @@ using UnityEngine.UI;
 
 public class BanditUIThemeApplier : AppUIThemeApplierBase
 {
-    [Header("BANDIT - Surfaces")]
+    [Header("BANDIT - Main")]
     [SerializeField] private Image swipeViewport;
-    [SerializeField] private Image frameImage;
     [SerializeField] private Image infoPanel;
+    [SerializeField] private Image frameImage;
+    [SerializeField] private Image[] innerBackgrounds = Array.Empty<Image>();
 
     [Header("BANDIT - Buttons")]
     [SerializeField] private Button[] actionButtons = Array.Empty<Button>();
 
-    [Header("BANDIT - Text")]
-    [SerializeField] private TMP_Text[] infoTexts = Array.Empty<TMP_Text>();
+    [Header("BANDIT - Text (Optional)")]
+    [SerializeField] private TMP_Text[] texts = Array.Empty<TMP_Text>();
 
     public override void ApplyFromManager(AppUIThemeData data, string appId)
     {
         if (data == null || appId != "Fidget")
             return;
 
-        AutoWireIfNeeded();
+        var t = data.bandit;
 
-        var slot = data.bandit;
-        ApplyImageSlot(swipeViewport, slot.colors.background, slot.sprites.background);
-        ApplyImageSlot(frameImage, slot.colors.panel, slot.sprites.panel);
-        ApplyImageSlot(infoPanel, slot.colors.panel, slot.sprites.panel);
+        ApplyImageSprite(swipeViewport, t.swipeViewportSprite);
+        ApplyImageSprite(infoPanel, t.infoPanelSprite);
+        ApplyImageSprite(frameImage, t.frameSprite);
+
+        for (int i = 0; i < innerBackgrounds.Length; i++)
+            ApplyImageSprite(innerBackgrounds[i], t.innerBackgroundSprite);
 
         for (int i = 0; i < actionButtons.Length; i++)
-            ApplyButtonColors(actionButtons[i], slot.colors.button, slot.colors.buttonText);
+            ApplyButtonSprite(actionButtons[i], t.actionButtonSprite);
 
-        for (int i = 0; i < infoTexts.Length; i++)
-            ApplyTextSlot(infoTexts[i], slot.colors.bodyText);
-    }
-
-    private void AutoWireIfNeeded()
-    {
-        if (swipeViewport == null)
-            swipeViewport = FindInChildrenByName<Image>(transform, "SwipeViewport");
-
-        if (frameImage == null)
-            frameImage = FindInChildrenByName<Image>(transform, "Frame");
-
-        if (infoPanel == null)
-            infoPanel = FindInChildrenByName<Image>(transform, "Information");
+        for (int i = 0; i < texts.Length; i++)
+            ApplyTextColor(texts[i], t.textColor);
     }
 }
