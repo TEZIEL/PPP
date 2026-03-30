@@ -20,6 +20,7 @@ public class AppUIThemeData : ScriptableObject
         [Header("Panels")]
         public Sprite mainPanelBackgroundSprite;
         public Sprite detailPanelBackgroundSprite;
+        public Sprite mainPanel2BackgroundSprite;
 
         [Header("Text (Optional)")]
         public Color primaryTextColor;
@@ -32,6 +33,8 @@ public class AppUIThemeData : ScriptableObject
         [Header("Item Sprite")]
         public Sprite itemBackgroundSprite;
         public Sprite iconFrameSprite;
+        public Sprite iconFrame2Sprite;
+        public Sprite iconFrame3Sprite;
         public Sprite actionButtonSprite;
 
         [Header("Item Text (Optional)")]
@@ -71,6 +74,22 @@ public class AppUIThemeData : ScriptableObject
         public Sprite scrollbarHandleSprite;
 
         [Header("Dropdown / Ambient")]
+        [Header("Player/List")]
+        public Sprite playerPanelSprite;
+        public Sprite listBackgroundSprite;
+        public Sprite listViewportSprite;
+
+        [Header("Controls")]
+        public Sprite playbackControlButtonSprite;
+        public Sprite actionButtonSprite;
+
+        [Header("Progress/Scroll")]
+        public Sprite progressFillSprite;
+        public Sprite progressHandleSprite;
+        public Sprite scrollbarTrackSprite;
+        public Sprite scrollbarHandleSprite;
+
+        [Header("Dropdown/Ambient")]
         public Sprite dropdownBackgroundSprite;
         public Sprite dropdownButtonSprite;
         public Sprite ambientSlotSprite;
@@ -105,6 +124,22 @@ public class AppUIThemeData : ScriptableObject
         public Sprite infoPanelSprite;
         public Sprite frameSprite;
         public Sprite innerBackgroundSprite;
+        public Sprite swipeViewportSprite2;
+        public Sprite infoPanelSprite2;
+        public Sprite frameSprite2;
+        public Sprite swipeViewportSprite3;
+        public Sprite infoPanelSprite3;
+        public Sprite frameSprite3;
+        public Sprite swipeViewportSprite4;
+        public Sprite infoPanelSprite4;
+        public Sprite frameSprite4;
+        public Sprite frameSprite5;
+        public Sprite swipeViewportSprite5;
+        public Sprite infoPanelSprite5;
+        public Sprite frameSprite6;
+        public Sprite swipeViewportSprite6;
+        public Sprite pinOffSprite;
+        public Sprite pinOnSprite;
 
         [Header("Buttons")]
         public Sprite actionButtonSprite;

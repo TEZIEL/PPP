@@ -630,7 +630,27 @@ public class FidgetShortsController : MonoBehaviour, IScrollHandler
         if (pinButtonImage == null)
             return;
 
-        pinButtonImage.sprite = isPinned ? pinOnSprite : pinOffSprite;
+        if (isPinned)
+        {
+            if (pinOnSprite != null)
+                pinButtonImage.sprite = pinOnSprite;
+        }
+        else
+        {
+            if (pinOffSprite != null)
+                pinButtonImage.sprite = pinOffSprite;
+        }
+    }
+
+    public void SetPinSprites(Sprite onSprite, Sprite offSprite)
+    {
+        if (onSprite != null)
+            pinOnSprite = onSprite;
+
+        if (offSprite != null)
+            pinOffSprite = offSprite;
+
+        UpdatePinVisual();
     }
 
     public void TogglePin()

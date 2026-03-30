@@ -2,6 +2,7 @@ using System;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
+using UnityEngine.EventSystems;
 
 namespace PPP.BLUE.VN.RecipeApp
 {
@@ -9,13 +10,21 @@ namespace PPP.BLUE.VN.RecipeApp
     /// 재료 필터 버튼 1개를 담당.
     /// 선택 상태 표시와 클릭 이벤트 전달만 담당한다.
     /// </summary>
-    public sealed class IngredientFilterButtonUI : MonoBehaviour
+    public sealed class IngredientFilterButtonUI : MonoBehaviour,
+    IPointerEnterHandler, IPointerExitHandler,
+    IPointerDownHandler, IPointerUpHandler
+
     {
         [SerializeField] private Button button;
         [SerializeField] private TMP_Text labelText;
         [SerializeField] private Image selectionBackground;
         [SerializeField] private Sprite normalSprite;
         [SerializeField] private Sprite selectedSprite;
+
+        [SerializeField] private Color normalColor = new Color32(255, 255, 255, 255);
+        [SerializeField] private Color highlightedColor = new Color32(230, 230, 230, 255);
+        [SerializeField] private Color pressedColor = new Color32(200, 200, 200, 255);
+        [SerializeField] private Color disabledColor = new Color32(200, 200, 200, 128);
 
         private string ingredientId;
         private bool isSelected;
@@ -54,6 +63,23 @@ namespace PPP.BLUE.VN.RecipeApp
         {
             if (button != null)
                 button.interactable = interactable;
+
+            RefreshVisual();
+        }
+
+        public void ApplyThemeSprites(Sprite normal, Sprite selected, Sprite selectionBackgroundSprite = null)
+        {
+            if (normal != null)
+                normalSprite = normal;
+
+            if (selected != null)
+                selectedSprite = selected;
+
+            if (selectionBackground != null && selectionBackgroundSprite != null)
+                selectionBackground.sprite = selectionBackgroundSprite;
+
+            NormalizeButtonTransition();
+            RefreshVisual();
         }
 
         public void ApplyThemeSprites(Sprite normal, Sprite selected, Sprite selectionBackgroundSprite = null)
@@ -81,8 +107,59 @@ namespace PPP.BLUE.VN.RecipeApp
 
         private void RefreshVisual()
         {
-            if (selectionBackground != null)
-                selectionBackground.sprite = isSelected ? selectedSprite : normalSprite;
+            if (selectionBackground == null)
+                return;
+
+            selectionBackground.sprite = isSelected ? selectedSprite : normalSprite;
+
+            bool interactable = button == null || button.interactable;
+
+            if (!interactable)
+                selectionBackground.color = disabledColor;
+            else
+                selectionBackground.color = normalColor;
+        }
+
+
+        public void OnPointerEnter(PointerEventData eventData)
+        {
+            if (button == null || !button.interactable || selectionBackground == null) return;
+            selectionBackground.color = highlightedColor;
+        }
+
+        public void OnPointerExit(PointerEventData eventData)
+        {
+            RefreshVisual();
+        }
+
+        public void OnPointerDown(PointerEventData eventData)
+        {
+            if (button == null || !button.interactable || selectionBackground == null) return;
+            selectionBackground.color = pressedColor;
+        }
+
+        public void OnPointerUp(PointerEventData eventData)
+        {
+            if (!button.interactable) return;
+
+            // 클릭 후 상태 복구
+            RefreshVisual();
+        }
+
+        private void NormalizeButtonTransition()
+        {
+            if (button == null)
+                return;
+
+            button.transition = Selectable.Transition.None;
+
+            var c = button.colors;
+            c.normalColor = Color.white;
+            c.highlightedColor = Color.white;
+            c.pressedColor = Color.white;
+            c.selectedColor = Color.white;
+            c.disabledColor = Color.white;
+            button.colors = c;
         }
 
         private void NormalizeButtonTransition()
