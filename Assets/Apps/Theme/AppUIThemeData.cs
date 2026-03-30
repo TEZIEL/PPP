@@ -14,7 +14,8 @@ public class AppUIThemeData : ScriptableObject
         public Sprite scrollViewBackgroundSprite;
         public Sprite scrollUpButtonSprite;
         public Sprite scrollDownButtonSprite;
-        public Sprite listItemBackgroundSprite;
+        public Sprite scrollbarBackgroundSprite;
+        public Sprite scrollbarHandleSprite;
 
         [Header("Panels")]
         public Sprite mainPanelBackgroundSprite;
@@ -23,6 +24,20 @@ public class AppUIThemeData : ScriptableObject
         [Header("Text (Optional)")]
         public Color primaryTextColor;
         public Color secondaryTextColor;
+    }
+
+    [System.Serializable]
+    public struct BlueprintListItemTheme
+    {
+        [Header("Item Sprite")]
+        public Sprite itemBackgroundSprite;
+        public Sprite iconFrameSprite;
+        public Sprite actionButtonSprite;
+
+        [Header("Item Text (Optional)")]
+        public Color titleTextColor;
+        public Color bodyTextColor;
+        public Color metaTextColor;
     }
 
     [System.Serializable]
@@ -107,6 +122,9 @@ public class AppUIThemeData : ScriptableObject
 
     [Header("BluePrint")]
     public BlueprintTheme blueprint;
+
+    [Header("BluePrint List Item")]
+    public BlueprintListItemTheme blueprintListItem;
 
     [Header("BRIDGE")]
     public BridgeTheme bridge;

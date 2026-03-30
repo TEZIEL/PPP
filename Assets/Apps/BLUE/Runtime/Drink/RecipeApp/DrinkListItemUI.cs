@@ -29,6 +29,7 @@ namespace PPP.BLUE.VN.RecipeApp
         [SerializeField] private TMP_Text ingredientsText;
         [SerializeField] private TMP_Text tagsText;         // 호환용(현재는 미사용)
         [SerializeField] private Button actionButton;
+        [SerializeField] private BlueprintListItemThemeApplier themeApplier;
 
         [Header("Localization (Inspector)")]
         [SerializeField] private LocalizedEntry[] localizedEntries = Array.Empty<LocalizedEntry>();
@@ -52,6 +53,9 @@ namespace PPP.BLUE.VN.RecipeApp
         {
             if (actionButton != null)
                 actionButton.onClick.AddListener(HandleClick);
+
+            if (themeApplier == null)
+                themeApplier = GetComponent<BlueprintListItemThemeApplier>();
 
             RebuildLocalizationTable();
         }
@@ -85,6 +89,8 @@ namespace PPP.BLUE.VN.RecipeApp
                 drinkImage.sprite = image;
                 drinkImage.enabled = image != null;
             }
+
+            themeApplier?.ApplyCurrentTheme();
         }
 
         private string BuildIngredientsText(DrinkEntry drink, IReadOnlyDictionary<string, string> ingredientDisplayNames)

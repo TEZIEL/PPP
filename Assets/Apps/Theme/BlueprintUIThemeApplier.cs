@@ -8,11 +8,13 @@ public class BlueprintUIThemeApplier : AppUIThemeApplierBase
     [Header("BluePrint / Recipe - Filters")]
     [SerializeField] private Button[] filterButtons = Array.Empty<Button>();
 
-    [Header("BluePrint / Recipe - Scroll/List")]
+    [Header("BluePrint / Recipe - Scroll")]
     [SerializeField] private Image scrollViewBackground;
+    [SerializeField] private Image scrollbarBackground;
+    [SerializeField] private Image scrollbarHandle;
+    [SerializeField] private Scrollbar scrollbar;
     [SerializeField] private Button scrollUpButton;
     [SerializeField] private Button scrollDownButton;
-    [SerializeField] private Image[] listItemBackgrounds = Array.Empty<Image>();
 
     [Header("BluePrint / Recipe - Panels")]
     [SerializeField] private Image mainPanelBackground;
@@ -33,11 +35,11 @@ public class BlueprintUIThemeApplier : AppUIThemeApplierBase
             ApplyButtonSprite(filterButtons[i], t.filterButtonSprite);
 
         ApplyImageSprite(scrollViewBackground, t.scrollViewBackgroundSprite);
+        ApplyImageSprite(scrollbarBackground, t.scrollbarBackgroundSprite);
+        ApplyImageSprite(scrollbarHandle, t.scrollbarHandleSprite);
+        ApplyScrollbarSprites(scrollbar, t.scrollbarBackgroundSprite, t.scrollbarHandleSprite);
         ApplyButtonSprite(scrollUpButton, t.scrollUpButtonSprite);
         ApplyButtonSprite(scrollDownButton, t.scrollDownButtonSprite);
-
-        for (int i = 0; i < listItemBackgrounds.Length; i++)
-            ApplyImageSprite(listItemBackgrounds[i], t.listItemBackgroundSprite);
 
         ApplyImageSprite(mainPanelBackground, t.mainPanelBackgroundSprite);
         ApplyImageSprite(detailPanelBackground, t.detailPanelBackgroundSprite);
