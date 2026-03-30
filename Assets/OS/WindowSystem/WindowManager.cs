@@ -13,6 +13,7 @@ public class WindowManager : MonoBehaviour, IVNHostOS
     [SerializeField] private RectTransform canvasRect;
     [SerializeField] private TaskbarManager taskbarManager;
     [SerializeField] private ThemeManager themeManager;
+    [SerializeField] private AppUIThemeManager appUIThemeManager;
     [SerializeField] private RectTransform iconsRoot; // DesktopIconBG 같은 부모
     [SerializeField] private DesktopGridManager desktopGridManager;
 
@@ -196,6 +197,7 @@ public class WindowManager : MonoBehaviour, IVNHostOS
         }
 
         var content = Instantiate(contentPrefab, spawned.ContentRoot);
+        EnsureAppThemeApplier(spawned.AppId, content);
 
         // ✅ (1) RectTransform 풀스트레치
         if (content.transform is RectTransform rt)
@@ -222,6 +224,39 @@ public class WindowManager : MonoBehaviour, IVNHostOS
         if (runner != null && bridge != null)
         {
             runner.InjectBridge(bridge); // 아래 메서드 추가
+        }
+
+        (appUIThemeManager != null ? appUIThemeManager : AppUIThemeManager.Instance)
+            ?.ApplyThemeToContent(spawned.AppId, content.transform);
+    }
+
+    private static void EnsureAppThemeApplier(string appId, GameObject content)
+    {
+        if (content == null || string.IsNullOrWhiteSpace(appId))
+            return;
+
+        switch (appId)
+        {
+            case "Music":
+                if (content.GetComponent<BridgeUIThemeApplier>() == null)
+                    content.AddComponent<BridgeUIThemeApplier>();
+                break;
+            case "Folder":
+                if (content.GetComponent<BoxUIThemeApplier>() == null)
+                    content.AddComponent<BoxUIThemeApplier>();
+                break;
+            case "recipe":
+                if (content.GetComponent<BlueprintUIThemeApplier>() == null)
+                    content.AddComponent<BlueprintUIThemeApplier>();
+                break;
+            case "Melion":
+                if (content.GetComponent<BuddyUIThemeApplier>() == null)
+                    content.AddComponent<BuddyUIThemeApplier>();
+                break;
+            case "Fidget":
+                if (content.GetComponent<BanditUIThemeApplier>() == null)
+                    content.AddComponent<BanditUIThemeApplier>();
+                break;
         }
     }
 
@@ -274,6 +309,7 @@ public class WindowManager : MonoBehaviour, IVNHostOS
     private void Start()
     {
         if (themeManager == null) themeManager = ThemeManager.Instance;
+        if (appUIThemeManager == null) appUIThemeManager = AppUIThemeManager.Instance;
         InjectAllWindows();
         InjectAllIcons();
         LoadOS();
