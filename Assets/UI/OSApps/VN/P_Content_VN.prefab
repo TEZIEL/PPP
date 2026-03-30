@@ -170,7 +170,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!224 &8004188271812643147
 RectTransform:
   m_ObjectHideFlags: 0
@@ -1522,7 +1522,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!224 &3536002195037596956
 RectTransform:
   m_ObjectHideFlags: 0
@@ -2042,7 +2042,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!224 &5488892158470891227
 RectTransform:
   m_ObjectHideFlags: 0
@@ -2942,8 +2942,14 @@ MonoBehaviour:
   button: {fileID: 1263084715404819126}
   label: {fileID: 594229495768458012}
   stateTarget: {fileID: 1547760845990581925}
+  stateIndicatorImage: {fileID: 5021568531578909930}
   defaultColor: {r: 1, g: 1, b: 1, a: 1}
   enabledColor: {r: 0.65, g: 0.45, b: 1, a: 1}
+  selectedTintColor: {r: 1, g: 1, b: 1, a: 1}
+  pressedTintColor: {r: 1, g: 1, b: 1, a: 1}
+  defaultTextColor: {r: 0, g: 0, b: 0, a: 1}
+  selectedTextColor: {r: 1, g: 1, b: 1, a: 1}
+  pressedTextColor: {r: 1, g: 1, b: 1, a: 1}
   hotkeyPressScale: 0.92
   hotkeyPressDuration: 0.08
 --- !u!1 &938726410512426071
@@ -7675,8 +7681,14 @@ MonoBehaviour:
   button: {fileID: 8178969459396324556}
   label: {fileID: 3566610876762583391}
   stateTarget: {fileID: 1758685311792522900}
+  stateIndicatorImage: {fileID: 7833269119404594365}
   defaultColor: {r: 1, g: 1, b: 1, a: 1}
   enabledColor: {r: 0.65, g: 0.45, b: 1, a: 1}
+  selectedTintColor: {r: 1, g: 1, b: 1, a: 1}
+  pressedTintColor: {r: 1, g: 1, b: 1, a: 1}
+  defaultTextColor: {r: 0, g: 0, b: 0, a: 1}
+  selectedTextColor: {r: 1, g: 1, b: 1, a: 1}
+  pressedTextColor: {r: 1, g: 1, b: 1, a: 1}
   hotkeyPressScale: 0.92
   hotkeyPressDuration: 0.08
 --- !u!1 &2528217060005434239
@@ -9115,7 +9127,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!224 &4955515335124020210
 RectTransform:
   m_ObjectHideFlags: 0
@@ -12137,8 +12149,14 @@ MonoBehaviour:
   button: {fileID: 89309573462740974}
   label: {fileID: 7422105773950823741}
   stateTarget: {fileID: 7080659239279650484}
+  stateIndicatorImage: {fileID: 363691786279191856}
   defaultColor: {r: 1, g: 1, b: 1, a: 0.5019608}
   enabledColor: {r: 1, g: 1, b: 1, a: 1}
+  selectedTintColor: {r: 1, g: 1, b: 1, a: 1}
+  pressedTintColor: {r: 1, g: 1, b: 1, a: 1}
+  defaultTextColor: {r: 0, g: 0, b: 0, a: 1}
+  selectedTextColor: {r: 1, g: 1, b: 1, a: 1}
+  pressedTextColor: {r: 1, g: 1, b: 1, a: 1}
   hotkeyPressScale: 0.92
   hotkeyPressDuration: 0.08
 --- !u!1 &4030281737095423442
@@ -12959,7 +12977,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!224 &510956010406552144
 RectTransform:
   m_ObjectHideFlags: 0
@@ -13651,8 +13669,14 @@ MonoBehaviour:
   button: {fileID: 6191813263386211118}
   label: {fileID: 4399944138782878683}
   stateTarget: {fileID: 875191473065946988}
+  stateIndicatorImage: {fileID: 4067467573068414369}
   defaultColor: {r: 1, g: 1, b: 1, a: 1}
   enabledColor: {r: 0.65, g: 0.45, b: 1, a: 1}
+  selectedTintColor: {r: 1, g: 1, b: 1, a: 1}
+  pressedTintColor: {r: 1, g: 1, b: 1, a: 1}
+  defaultTextColor: {r: 0, g: 0, b: 0, a: 1}
+  selectedTextColor: {r: 1, g: 1, b: 1, a: 1}
+  pressedTextColor: {r: 1, g: 1, b: 1, a: 1}
   hotkeyPressScale: 0.92
   hotkeyPressDuration: 0.08
 --- !u!1 &4488132029951757095
@@ -16750,7 +16774,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!224 &1565065736542066638
 RectTransform:
   m_ObjectHideFlags: 0
@@ -17288,8 +17312,14 @@ MonoBehaviour:
   button: {fileID: 8661495070388314065}
   label: {fileID: 7479276900727745030}
   stateTarget: {fileID: 7328678102935066776}
+  stateIndicatorImage: {fileID: 7878424878445110316}
   defaultColor: {r: 1, g: 1, b: 1, a: 1}
   enabledColor: {r: 0.13395695, g: 0.11974902, b: 0.3679245, a: 1}
+  selectedTintColor: {r: 1, g: 1, b: 1, a: 1}
+  pressedTintColor: {r: 1, g: 1, b: 1, a: 1}
+  defaultTextColor: {r: 0, g: 0, b: 0, a: 1}
+  selectedTextColor: {r: 1, g: 1, b: 1, a: 1}
+  pressedTextColor: {r: 1, g: 1, b: 1, a: 1}
   hotkeyPressScale: 0.92
   hotkeyPressDuration: 0.08
 --- !u!1 &5597632609589760493
@@ -17909,7 +17939,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!224 &3592491068395660591
 RectTransform:
   m_ObjectHideFlags: 0
@@ -20928,8 +20958,14 @@ MonoBehaviour:
   button: {fileID: 7745095853640883729}
   label: {fileID: 8078036636308184922}
   stateTarget: {fileID: 3682433176692350316}
+  stateIndicatorImage: {fileID: 1949225138202722183}
   defaultColor: {r: 1, g: 1, b: 1, a: 1}
   enabledColor: {r: 0.65, g: 0.45, b: 1, a: 1}
+  selectedTintColor: {r: 1, g: 1, b: 1, a: 1}
+  pressedTintColor: {r: 1, g: 1, b: 1, a: 1}
+  defaultTextColor: {r: 0, g: 0, b: 0, a: 1}
+  selectedTextColor: {r: 1, g: 1, b: 1, a: 1}
+  pressedTextColor: {r: 1, g: 1, b: 1, a: 1}
   hotkeyPressScale: 0.92
   hotkeyPressDuration: 0.08
 --- !u!1 &6650204468992400391
@@ -24139,8 +24175,14 @@ MonoBehaviour:
   button: {fileID: 8102220334254584933}
   label: {fileID: 3132277130230547601}
   stateTarget: {fileID: 7550609726140773890}
+  stateIndicatorImage: {fileID: 3236896450269041476}
   defaultColor: {r: 1, g: 1, b: 1, a: 1}
   enabledColor: {r: 0.65, g: 0.45, b: 1, a: 1}
+  selectedTintColor: {r: 1, g: 1, b: 1, a: 1}
+  pressedTintColor: {r: 1, g: 1, b: 1, a: 1}
+  defaultTextColor: {r: 0, g: 0, b: 0, a: 1}
+  selectedTextColor: {r: 1, g: 1, b: 1, a: 1}
+  pressedTextColor: {r: 1, g: 1, b: 1, a: 1}
   hotkeyPressScale: 0.92
   hotkeyPressDuration: 0.08
 --- !u!1 &8117784341759848695
@@ -24702,7 +24744,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!224 &864670991218898428
 RectTransform:
   m_ObjectHideFlags: 0
@@ -26597,8 +26639,14 @@ MonoBehaviour:
   button: {fileID: 7916366688728745772}
   label: {fileID: 7217884686437943925}
   stateTarget: {fileID: 679783961719656028}
+  stateIndicatorImage: {fileID: 5398454566320449660}
   defaultColor: {r: 1, g: 1, b: 1, a: 1}
   enabledColor: {r: 0.65, g: 0.45, b: 1, a: 1}
+  selectedTintColor: {r: 1, g: 1, b: 1, a: 1}
+  pressedTintColor: {r: 1, g: 1, b: 1, a: 1}
+  defaultTextColor: {r: 0, g: 0, b: 0, a: 1}
+  selectedTextColor: {r: 1, g: 1, b: 1, a: 1}
+  pressedTextColor: {r: 1, g: 1, b: 1, a: 1}
   hotkeyPressScale: 0.92
   hotkeyPressDuration: 0.08
 --- !u!1 &8928052692623208535
