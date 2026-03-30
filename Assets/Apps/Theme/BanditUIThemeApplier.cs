@@ -23,8 +23,10 @@ public class BanditUIThemeApplier : AppUIThemeApplierBase
     [SerializeField] private Image infoPanel5;
     [SerializeField] private Image frameImage6;
     [SerializeField] private Image swipeViewport6;
+    
 
     [SerializeField] private Image[] innerBackgrounds = Array.Empty<Image>();
+    [SerializeField] private FidgetShortsController fidgetController;
 
     [Header("BANDIT - Buttons")]
     [SerializeField] private Button[] actionButtons = Array.Empty<Button>();
@@ -56,6 +58,8 @@ public class BanditUIThemeApplier : AppUIThemeApplierBase
         ApplyImageSprite(infoPanel5, t.infoPanelSprite5);
         ApplyImageSprite(frameImage6, t.frameSprite6);
         ApplyImageSprite(swipeViewport6, t.swipeViewportSprite6);
+        if (fidgetController != null)
+            fidgetController.SetPinSprites(t.pinOnSprite, t.pinOffSprite);
 
         for (int i = 0; i < innerBackgrounds.Length; i++)
             ApplyImageSprite(innerBackgrounds[i], t.innerBackgroundSprite);

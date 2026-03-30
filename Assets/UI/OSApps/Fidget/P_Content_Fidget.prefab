@@ -439,6 +439,7 @@ MonoBehaviour:
   frameImage6: {fileID: 1582428869408246566}
   swipeViewport6: {fileID: 8146337873219965145}
   innerBackgrounds: []
+  fidgetController: {fileID: 152788900074242110}
   actionButtons:
   - {fileID: 0}
   - {fileID: 0}
