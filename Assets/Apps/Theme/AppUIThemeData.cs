@@ -9,6 +9,8 @@ public class AppUIThemeData : ScriptableObject
         [Header("Top Filter")]
         public Sprite filterButtonSprite;
         public Sprite filterButtonSelectedSprite;
+        public Color ingredientSelectedColor;
+        public Color ingredientPressedColor;
 
         [Header("Scroll/List")]
         public Sprite scrollViewBackgroundSprite;
@@ -273,6 +275,8 @@ public class AppUIThemeData : ScriptableObject
         public Sprite drinkGridSprite;
         public Sprite ingredientButtonSprite;
         public Sprite ingredientSelectedButtonSprite;
+        public Color ingredientSelectedColor;
+        public Color ingredientPressedColor;
 
         [Header("Dialogue")]
         public Sprite dialogueRootSprite;
