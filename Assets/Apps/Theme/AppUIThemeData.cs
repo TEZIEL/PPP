@@ -124,6 +124,16 @@ public class AppUIThemeData : ScriptableObject
         public Sprite dropdownButtonSprite;
         public Sprite ambientSlotSprite;
 
+        public Sprite dropdownItemNormalSprite;
+        public Sprite dropdownItemSelectedSprite;
+        public Sprite dropdownItemPressedSprite;
+        public Sprite dropdownItemDisabledSprite;
+
+        public Sprite dropdownCheckmarkNormalSprite;
+        public Sprite dropdownCheckmarkSelectedSprite;
+        public Sprite dropdownCheckmarkPressedSprite;
+        public Sprite dropdownCheckmarkDisabledSprite;
+
         [Header("Text (Optional)")]
         public Color primaryTextColor;
         public Color secondaryTextColor;

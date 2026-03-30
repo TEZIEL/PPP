@@ -80,7 +80,7 @@ public class BridgeUIThemeApplier : AppUIThemeApplierBase
     [Header("BRIDGE - Dropdown/Ambient")]
     [SerializeField] private TMP_Dropdown[] dropdowns = Array.Empty<TMP_Dropdown>();
     [SerializeField] private Button[] dropdownButtons = Array.Empty<Button>();
-    
+    [SerializeField] private DropdownItemVisual[] dropdownItems;
 
     [Header("BRIDGE - Text (Optional)")]
     [SerializeField] private TMP_Text[] primaryTexts = Array.Empty<TMP_Text>();
@@ -153,7 +153,37 @@ public class BridgeUIThemeApplier : AppUIThemeApplierBase
         ApplyImageSprite(extraImage15, t.extraSprite15);
         ApplyImageSprite(extraImage16, t.extraSprite16);
 
-        
+        ApplyToggleSprites(toggle1, t.toggleOn1, t.toggleOff1, null, null);
+        ApplyToggleSprites(toggle2, t.toggleOn2, t.toggleOff2, null, null);
+        ApplyToggleSprites(toggle3, t.toggleOn3, t.toggleOff3, null, null);
+        ApplyToggleSprites(toggle4, t.toggleOn4, t.toggleOff4, null, null);
+        ApplyToggleSprites(toggle5, t.toggleOn5, t.toggleOff5, null, null);
+        ApplyToggleSprites(toggle6, t.toggleOn6, t.toggleOff6, null, null);
+        ApplyToggleSprites(toggle7, t.toggleOn7, t.toggleOff7, null, null);
+        ApplyToggleSprites(toggle8, t.toggleOn8, t.toggleOff8, null, null);
+        ApplyToggleSprites(toggle9, t.toggleOn9, t.toggleOff9, null, null);
+        ApplyToggleSprites(toggle10, t.toggleOn10, t.toggleOff10, null, null);
+
+
+        for (int i = 0; i < dropdownItems.Length; i++)
+        {
+            var item = dropdownItems[i];
+            if (item == null) continue;
+
+            item.SetBackgroundSprites(
+                t.dropdownItemNormalSprite,
+                t.dropdownItemSelectedSprite,
+                t.dropdownItemPressedSprite,
+                t.dropdownItemDisabledSprite
+            );
+
+            item.SetCheckmarkSprites(
+                t.dropdownCheckmarkNormalSprite,
+                t.dropdownCheckmarkSelectedSprite,
+                t.dropdownCheckmarkPressedSprite,
+                t.dropdownCheckmarkDisabledSprite
+            );
+        }
 
         for (int i = 0; i < actionButtons.Length; i++)
             ApplyButtonSprite(actionButtons[i], t.actionButtonSprite);

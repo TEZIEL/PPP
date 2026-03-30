@@ -67,6 +67,34 @@ public class BGMTrackItemUI : MonoBehaviour,
         ApplyVisualState();
     }
 
+    public void SetBackgroundSprites(Sprite normal, Sprite selected, Sprite pressed, Sprite disabled)
+    {
+        if (normal != null) normalBackgroundSprite = normal;
+        if (selected != null) selectedBackgroundSprite = selected;
+        if (pressed != null) pressedBackgroundSprite = pressed;
+        if (disabled != null) disabledBackgroundSprite = disabled;
+        ApplyVisualState();
+    }
+
+    public void SetCheckmarkSprites(Sprite normal, Sprite selected, Sprite pressed, Sprite disabled)
+    {
+        if (normal != null) normalCheckmarkSprite = normal;
+        if (selected != null) selectedCheckmarkSprite = selected;
+        if (pressed != null) pressedCheckmarkSprite = pressed;
+        if (disabled != null) disabledCheckmarkSprite = disabled;
+        ApplyVisualState();
+    }
+
+    public void SetTextColors(Color normal, Color selected, Color pressed, Color disabled)
+    {
+        normalTextColor = normal;
+        selectedTextColor = selected;
+        pressedTextColor = pressed;
+        disabledTextColor = disabled;
+        ApplyVisualState();
+    }
+
+
     public void SetSelected(bool selected)
     {
         isSelected = selected;

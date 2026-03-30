@@ -47,12 +47,12 @@ public class AmbientDropdownBinder : MonoBehaviour
         if (AmbientManager.Instance.IsPlaying())
         {
             AmbientManager.Instance.Stop();
-            playButtonImage.sprite = playIcon;
+            RefreshPlayButtonVisual();
         }
         else
         {
-            AmbientManager.Instance.Play(types[dropdown.value]); // 🔥 변경
-            playButtonImage.sprite = stopIcon;
+            AmbientManager.Instance.Play(types[dropdown.value]);
+            RefreshPlayButtonVisual();
         }
     }
 
@@ -75,13 +75,32 @@ public class AmbientDropdownBinder : MonoBehaviour
     }
 
 
+    public void SetPlayIcons(Sprite play, Sprite stop)
+    {
+        if (play != null)
+            playIcon = play;
 
+        if (stop != null)
+            stopIcon = stop;
+
+        RefreshPlayButtonVisual();
+    }
+
+    private void RefreshPlayButtonVisual()
+    {
+        if (playButtonImage == null)
+            return;
+
+        playButtonImage.sprite = AmbientManager.Instance != null && AmbientManager.Instance.IsPlaying()
+            ? stopIcon
+            : playIcon;
+    }
 
 
     private void OnChanged(int index)
     {
-        AmbientManager.Instance.Play(types[index]); // 🔥 핵심
-        playButtonImage.sprite = stopIcon;          // UI 동기화
+        AmbientManager.Instance.Play(types[index]);
+        RefreshPlayButtonVisual();
         dropdown.Hide();
     }
 }

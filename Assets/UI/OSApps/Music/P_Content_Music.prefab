@@ -5986,10 +5986,14 @@ MonoBehaviour:
   progressFillImage: {fileID: 1807422802698483870}
   progressHandleImage: {fileID: 3562699666491058175}
   progressHandleImage2: {fileID: 1897854820948091141}
-  transportButtons: []
-  playPauseButtons: []
-  playbackToggleButtons: []
-  actionButtons: []
+  transportButtons:
+  - {fileID: 3525746646866152306}
+  playPauseButtons:
+  - {fileID: 2672948411984310417}
+  playbackToggleButtons:
+  - {fileID: 522084361444575104}
+  actionButtons:
+  - {fileID: 403371340120674229}
   utilityButtons: []
   listPanelImage: {fileID: 3512118276063594332}
   listViewportImage: {fileID: 5728539639383600223}
@@ -6015,8 +6019,12 @@ MonoBehaviour:
   toggle8: {fileID: 0}
   toggle9: {fileID: 0}
   toggle10: {fileID: 0}
-  dropdowns: []
-  dropdownButtons: []
+  dropdowns:
+  - {fileID: 4515041407825578200}
+  dropdownButtons:
+  - {fileID: 403371340120674229}
+  dropdownItems:
+  - {fileID: 7052250297478108507}
   primaryTexts: []
   secondaryTexts: []
 --- !u!1 &8832263035898927863
@@ -6411,12 +6419,19 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   background: {fileID: 9105761297095519896}
   label: {fileID: 8336409338455558509}
-  normalSprite: {fileID: 0}
-  hoverSprite: {fileID: 21300000, guid: ecf045ebdef860d4f8df7e5e9515d86b, type: 3}
-  pressedSprite: {fileID: 21300000, guid: ecf045ebdef860d4f8df7e5e9515d86b, type: 3}
-  normalText: {r: 0, g: 0, b: 0, a: 1}
-  hoverText: {r: 1, g: 1, b: 1, a: 1}
-  pressedText: {r: 1, g: 1, b: 1, a: 1}
+  checkmarkImage: {fileID: 7946509033596436805}
+  normalBackgroundSprite: {fileID: 0}
+  selectedBackgroundSprite: {fileID: 21300000, guid: f495a651c716e58479c5889b2226e617, type: 3}
+  pressedBackgroundSprite: {fileID: 21300000, guid: f495a651c716e58479c5889b2226e617, type: 3}
+  disabledBackgroundSprite: {fileID: 0}
+  normalCheckmarkSprite: {fileID: 21300000, guid: 238919791637f314989738a97972385c, type: 3}
+  selectedCheckmarkSprite: {fileID: 21300000, guid: 1351e91fb0808ec40b5556eb75077bac, type: 3}
+  pressedCheckmarkSprite: {fileID: 21300000, guid: 1351e91fb0808ec40b5556eb75077bac, type: 3}
+  disabledCheckmarkSprite: {fileID: 0}
+  normalTextColor: {r: 0, g: 0, b: 0, a: 1}
+  selectedTextColor: {r: 1, g: 1, b: 1, a: 1}
+  pressedTextColor: {r: 1, g: 1, b: 1, a: 1}
+  disabledTextColor: {r: 0.5, g: 0.5, b: 0.5, a: 1}
 --- !u!1 &9205591108671574795
 GameObject:
   m_ObjectHideFlags: 0
