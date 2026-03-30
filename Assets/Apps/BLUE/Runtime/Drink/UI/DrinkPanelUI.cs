@@ -9,6 +9,13 @@ namespace PPP.BLUE.VN.DrinkSystem
 {
     public sealed class DrinkPanelUI : MonoBehaviour
     {
+        private enum SlotSpriteState
+        {
+            Empty = 0,
+            Filled = 1,
+            Selected = 2
+        }
+
         [Serializable]
         private struct IngredientSlotVisual
         {
@@ -32,6 +39,7 @@ namespace PPP.BLUE.VN.DrinkSystem
         [Header("Grid (4x4)")]
         [SerializeField] private Image[] slotImages = new Image[16];
         [SerializeField] private Sprite emptySlotSprite;
+        [SerializeField] private Sprite selectedSlotSprite;
         [SerializeField] private IngredientSlotVisual[] ingredientSlotVisuals;
         [SerializeField] private Color emptyColor = new Color(1f, 1f, 1f, 0.1f);
         [SerializeField] private Color veltrineColor = new Color(0.95f, 0.5f, 0.75f, 1f);
@@ -122,14 +130,16 @@ namespace PPP.BLUE.VN.DrinkSystem
             if (index < 0 || index >= slotImages.Length || slotImages[index] == null)
                 return;
 
+            var slot = slotImages[index];
             if (TryGetFilledSprite(ingredientId, out Sprite filledSprite))
             {
-                slotImages[index].sprite = filledSprite;
-                slotImages[index].color = Color.white;
+                ApplySlotSprite(slot, SlotSpriteState.Filled, filledSprite);
+                slot.color = Color.white;
                 return;
             }
 
-            slotImages[index].color = GetIngredientColor(ingredientId);
+            ApplySlotSprite(slot, SlotSpriteState.Empty);
+            slot.color = GetIngredientColor(ingredientId);
         }
 
         public void ClearGridInstant()
@@ -222,14 +232,26 @@ namespace PPP.BLUE.VN.DrinkSystem
             if (slot == null)
                 return;
 
-            if (emptySlotSprite != null)
-            {
-                slot.sprite = emptySlotSprite;
-                slot.color = Color.white;
-                return;
-            }
-
+            ApplySlotSprite(slot, SlotSpriteState.Empty);
             slot.color = emptyColor;
+        }
+
+        private void ApplySlotSprite(Image slot, SlotSpriteState state, Sprite explicitFilledSprite = null)
+        {
+            if (slot == null)
+                return;
+
+            Sprite next = state switch
+            {
+                SlotSpriteState.Filled => explicitFilledSprite,
+                SlotSpriteState.Selected => selectedSlotSprite != null ? selectedSlotSprite : emptySlotSprite,
+                _ => emptySlotSprite
+            };
+
+            if (next == null || slot.sprite == next)
+                return;
+
+            slot.sprite = next;
         }
     }
 }

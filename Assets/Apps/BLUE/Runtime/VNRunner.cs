@@ -99,6 +99,18 @@ namespace PPP.BLUE.VN
             public Sprite inactiveSprite;
         }
 
+        private static void ApplySpriteBinding(Image target, Sprite activeSprite, Sprite inactiveSprite, bool isActive)
+        {
+            if (target == null)
+                return;
+
+            Sprite next = isActive ? activeSprite : inactiveSprite;
+            if (next == null || target.sprite == next)
+                return;
+
+            target.sprite = next;
+        }
+
         [System.Serializable]
         public class VNCallFrame
         {
@@ -602,12 +614,7 @@ namespace PPP.BLUE.VN
             for (int i = 0; i < focusLinkedImages.Length; i++)
             {
                 var entry = focusLinkedImages[i];
-                if (entry.target == null)
-                    continue;
-
-                Sprite next = isFocused ? entry.activeSprite : entry.inactiveSprite;
-                if (next != null)
-                    entry.target.sprite = next;
+                ApplySpriteBinding(entry.target, entry.activeSprite, entry.inactiveSprite, isFocused);
             }
         }
 
