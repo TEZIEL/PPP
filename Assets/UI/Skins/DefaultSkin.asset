@@ -16,4 +16,6 @@ MonoBehaviour:
   titleInactive: {fileID: 21300000, guid: 3761e1b7a49682f4ab4e0b19fb06e4d5, type: 3}
   underActive: {fileID: 21300000, guid: b180f04e184c29d4a939e310db0820f4, type: 3}
   underInactive: {fileID: 21300000, guid: 3761e1b7a49682f4ab4e0b19fb06e4d5, type: 3}
+  pinOff: {fileID: 21300000, guid: 5ffefd9db46f2d4408dd1ccd1ab5014c, type: 3}
+  pinOn: {fileID: 21300000, guid: 7b44a16b08333c14f8e76640c5f99a6f, type: 3}
   tint: {r: 1, g: 1, b: 1, a: 1}

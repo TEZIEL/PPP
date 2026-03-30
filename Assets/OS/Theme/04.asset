@@ -27,14 +27,14 @@ MonoBehaviour:
   windowBottomBarActiveSprite: {fileID: 0}
   windowBottomBarInactiveSprite: {fileID: 0}
   windowSideSprite: {fileID: 21300000, guid: 43e29b5366df97e48bef29b4bcee582a, type: 3}
-  windowCloseButtonNormalSprite: {fileID: 0}
+  windowCloseButtonNormalSprite: {fileID: 21300000, guid: 4d007871c7147b44385122578d9b8ea7, type: 3}
   windowCloseButtonHoverSprite: {fileID: 0}
   windowCloseButtonPressedSprite: {fileID: 0}
-  windowMinimizeButtonNormalSprite: {fileID: 0}
+  windowMinimizeButtonNormalSprite: {fileID: 21300000, guid: 1bb89a178df2ebf40a44568cfa246657, type: 3}
   windowMinimizeButtonHoverSprite: {fileID: 0}
   windowMinimizeButtonPressedSprite: {fileID: 0}
-  windowPinButtonNormalSprite: {fileID: 0}
+  windowPinButtonNormalSprite: {fileID: 21300000, guid: bcf763dfead173e498e5e11d1870496b, type: 3}
   windowPinButtonHoverSprite: {fileID: 0}
   windowPinButtonPressedSprite: {fileID: 0}
-  windowPinButtonOnSprite: {fileID: 0}
+  windowPinButtonOnSprite: {fileID: 21300000, guid: 19b9cd19318ddf84793cd1de2ae89355, type: 3}
   windowTint: {r: 1, g: 1, b: 1, a: 1}

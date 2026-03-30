@@ -8380,7 +8380,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 1d2db82c54434ac5a335a9ae6b3cc58a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  currentTheme: {fileID: 11400000, guid: 0e1faa008aed69c4db9553a2a93fd487, type: 2}
+  currentTheme: {fileID: 11400000, guid: 1ca95f6a157b4a9abee5f0b6c75ff1ab, type: 2}
   taskbarBackgroundImage: {fileID: 655255378}
   taskbarPanelImage: {fileID: 1548147520}
   startButtonImage: {fileID: 1048131202}

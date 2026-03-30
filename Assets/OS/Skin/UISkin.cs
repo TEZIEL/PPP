@@ -11,6 +11,9 @@ public class UISkin : ScriptableObject
     public Sprite underActive;
     public Sprite underInactive;
 
+    [Header("Pin Button Sprites")]
+    public Sprite pinOff;
+    public Sprite pinOn;
     // (선택) 필요하면 색 틴트도 남겨둘 수 있음
     public Color tint = Color.white;
 }

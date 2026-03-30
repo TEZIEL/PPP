@@ -204,8 +204,8 @@ public class WindowController : MonoBehaviour,
     public void TogglePinFromShortcut()
     {
         isPinned = !isPinned;
-        // TODO: 핀 아이콘/색 변화는 나중에 여기서 처리
-        SoundManager.Instance.PlayOS(OSSoundEvent.Pin); // 🔥 여기
+        ApplyWindowButtonSprites(_currentTheme);
+        SoundManager.Instance.PlayOS(OSSoundEvent.Pin);
     }
 
     // =========================
@@ -310,9 +310,19 @@ public class WindowController : MonoBehaviour,
 
         if (pinToggleButtonImage != null)
         {
-            Sprite pinSprite = isPinned
-                ? theme.windowPinButtonOnSprite
-                : theme.windowPinButtonNormalSprite;
+            Sprite pinSprite = null;
+
+            if (theme != null)
+            {
+                pinSprite = isPinned
+                    ? theme.windowPinButtonOnSprite
+                    : theme.windowPinButtonNormalSprite;
+            }
+
+            if (pinSprite == null && skin != null)
+            {
+                pinSprite = isPinned ? skin.pinOn : skin.pinOff;
+            }
 
             if (pinSprite != null)
                 pinToggleButtonImage.sprite = pinSprite;
@@ -670,10 +680,11 @@ public class WindowController : MonoBehaviour,
         if (pinToggleButton != null)
             pinToggleButton.onClick.AddListener(() =>
             {
-                if (!CanAcceptCommand()) return;   // ✅ 추가(선택인데 넣는 게 안전)
-                isPinned = !isPinned;
-                SoundManager.Instance.PlayOS(OSSoundEvent.Pin); // 🔥 여기
+                if (!CanAcceptCommand()) return;
 
+                isPinned = !isPinned;
+                ApplyWindowButtonSprites(_currentTheme);
+                SoundManager.Instance.PlayOS(OSSoundEvent.Pin);
             });
     }
 }
