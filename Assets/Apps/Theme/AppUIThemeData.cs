@@ -20,6 +20,7 @@ public class AppUIThemeData : ScriptableObject
         [Header("Panels")]
         public Sprite mainPanelBackgroundSprite;
         public Sprite detailPanelBackgroundSprite;
+        public Sprite mainPanel2BackgroundSprite;
 
         [Header("Text (Optional)")]
         public Color primaryTextColor;
@@ -32,6 +33,8 @@ public class AppUIThemeData : ScriptableObject
         [Header("Item Sprite")]
         public Sprite itemBackgroundSprite;
         public Sprite iconFrameSprite;
+        public Sprite iconFrame2Sprite;
+        public Sprite iconFrame3Sprite;
         public Sprite actionButtonSprite;
 
         [Header("Item Text (Optional)")]

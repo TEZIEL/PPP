@@ -19,6 +19,7 @@ public class BlueprintUIThemeApplier : AppUIThemeApplierBase
     [Header("BluePrint / Recipe - Panels")]
     [SerializeField] private Image mainPanelBackground;
     [SerializeField] private Image detailPanelBackground;
+    [SerializeField] private Image mainPanel2BackgroundSprite;
 
     [Header("BluePrint / Recipe - Text (Optional)")]
     [SerializeField] private TMP_Text[] primaryTexts = Array.Empty<TMP_Text>();

@@ -4362,7 +4362,7 @@ MonoBehaviour:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 4237749949376884074}
-  m_Enabled: 1
+  m_Enabled: 0
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: fe87c0e1cc204ed48ad3b37840f39efc, type: 3}
   m_Name: 
@@ -7761,13 +7761,15 @@ MonoBehaviour:
   - {fileID: 4069558303449280313}
   - {fileID: 5684532902431387876}
   - {fileID: 3417080542850187788}
-  scrollViewBackground: {fileID: 1181373886664514088}
+  scrollViewBackground: {fileID: 5766604373609548327}
+  scrollbarBackground: {fileID: 0}
+  scrollbarHandle: {fileID: 5164896926414338329}
+  scrollbar: {fileID: 719645707186170264}
   scrollUpButton: {fileID: 4853299359961231164}
   scrollDownButton: {fileID: 8916132726625350822}
-  listItemBackgrounds:
-  - {fileID: 0}
   mainPanelBackground: {fileID: 2427142204350200158}
-  detailPanelBackground: {fileID: 0}
+  detailPanelBackground: {fileID: 3255295555137481512}
+  mainPanel2BackgroundSprite: {fileID: 9143897457860721867}
   primaryTexts: []
   secondaryTexts: []
 --- !u!1 &8141743315992553412
@@ -8599,13 +8601,13 @@ MonoBehaviour:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 9095822170349235086}
-  m_Enabled: 1
+  m_Enabled: 0
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: fe87c0e1cc204ed48ad3b37840f39efc, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
   m_Material: {fileID: 0}
-  m_Color: {r: 0.2, g: 0.2, b: 0.2, a: 1}
+  m_Color: {r: 0.1981132, g: 0.1981132, b: 0.1981132, a: 1}
   m_RaycastTarget: 1
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1

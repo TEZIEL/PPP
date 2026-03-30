@@ -9,12 +9,15 @@ namespace PPP.BLUE.VN.RecipeApp
         [Header("List Item Refs")]
         [SerializeField] private Image itemBackground;
         [SerializeField] private Image iconFrame;
+        [SerializeField] private Image iconFrame2;
+        [SerializeField] private Image iconFrame3;
         [SerializeField] private Button actionButton;
 
         [Header("Text Refs (Optional)")]
         [SerializeField] private TMP_Text titleText;
         [SerializeField] private TMP_Text bodyText;
         [SerializeField] private TMP_Text metaText;
+        [SerializeField] private TMP_Text metaText2;
 
         public void ApplyCurrentTheme()
         {
@@ -38,6 +41,12 @@ namespace PPP.BLUE.VN.RecipeApp
             if (iconFrame != null && t.iconFrameSprite != null)
                 iconFrame.sprite = t.iconFrameSprite;
 
+            if (iconFrame2 != null && t.iconFrame2Sprite != null)
+                iconFrame2.sprite = t.iconFrame2Sprite;
+
+            if (iconFrame3 != null && t.iconFrame3Sprite != null)
+                iconFrame3.sprite = t.iconFrame3Sprite;
+
             if (actionButton != null && actionButton.targetGraphic is Image buttonImage && t.actionButtonSprite != null)
                 buttonImage.sprite = t.actionButtonSprite;
 
@@ -49,6 +58,9 @@ namespace PPP.BLUE.VN.RecipeApp
 
             if (metaText != null)
                 metaText.color = t.metaTextColor;
+
+            if (metaText2 != null)
+                metaText2.color = t.metaTextColor;
         }
     }
 }
