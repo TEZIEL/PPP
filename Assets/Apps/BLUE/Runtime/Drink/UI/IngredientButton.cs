@@ -6,7 +6,7 @@ using UnityEngine.UI;
 
 namespace PPP.BLUE.VN.DrinkSystem
 {
-    public sealed class IngredientButton : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler
+    public sealed class IngredientButton : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler, IPointerDownHandler, IPointerUpHandler
     {
         private const string ArtheonIngredient = "INGREDIENT_ARTHEON";
 
@@ -15,21 +15,49 @@ namespace PPP.BLUE.VN.DrinkSystem
         [SerializeField] private Button button;
         [SerializeField] private TMP_Text label;
         [SerializeField] private Image stateTarget;
+        [SerializeField] private Image stateIndicatorImage;
         [SerializeField] private Color defaultColor = Color.white;
         [SerializeField] private Color enabledColor = new Color(0.65f, 0.45f, 1f, 1f);
+        [SerializeField] private Color selectedTintColor = Color.white;
+        [SerializeField] private Color pressedTintColor = Color.white;
+        [SerializeField] private Color defaultTextColor = Color.white;
+        [SerializeField] private Color selectedTextColor = Color.white;
+        [SerializeField] private Color pressedTextColor = Color.white;
         [SerializeField] private float hotkeyPressScale = 0.92f;
         [SerializeField] private float hotkeyPressDuration = 0.08f;
 
         public string IngredientID => ingredientID;
         private Coroutine hotkeyPressCo;
+        private bool isPressed;
+        private bool isSelected;
 
         private void Awake()
         {
+            ApplyNavigationNone();
+            ApplyCurrentTheme();
+
             if (button != null)
                 button.onClick.AddListener(OnClick);
 
             RefreshLabel(0);
             SetModifierState(false);
+            RefreshStateVisual();
+        }
+
+        private void OnEnable()
+        {
+            var themeManager = AppUIThemeManager.Instance;
+            if (themeManager != null)
+                themeManager.OnThemeChanged += HandleThemeChanged;
+
+            ApplyCurrentTheme();
+        }
+
+        private void OnDisable()
+        {
+            var themeManager = AppUIThemeManager.Instance;
+            if (themeManager != null)
+                themeManager.OnThemeChanged -= HandleThemeChanged;
         }
 
         public void BindManager(DrinkManager target)
@@ -40,7 +68,18 @@ namespace PPP.BLUE.VN.DrinkSystem
         public void SetInteractable(bool interactable)
         {
             if (button != null)
+            {
+                ApplyNavigationNone();
                 button.interactable = interactable;
+            }
+
+            if (!interactable)
+            {
+                isPressed = false;
+                isSelected = false;
+            }
+
+            RefreshStateVisual();
         }
 
         public void SetModifierState(bool enabled)
@@ -53,6 +92,8 @@ namespace PPP.BLUE.VN.DrinkSystem
 
             if (label != null)
                 label.text = "ARTHEON";
+
+            RefreshStateVisual();
         }
 
         public void RefreshLabel(int count)
@@ -68,6 +109,7 @@ namespace PPP.BLUE.VN.DrinkSystem
 
             var displayId = string.IsNullOrEmpty(ingredientID) ? "UNKNOWN" : ingredientID.Replace("INGREDIENT_", string.Empty);
             label.text = displayId;
+            RefreshStateVisual();
         }
 
         public void PlayHotkeyPressFeedback()
@@ -75,7 +117,7 @@ namespace PPP.BLUE.VN.DrinkSystem
             if (!isActiveAndEnabled || button == null || !button.IsInteractable())
                 return;
 
-            button.Select();
+            ApplyNavigationNone();
         }
 
         private void OnClick()
@@ -85,6 +127,7 @@ namespace PPP.BLUE.VN.DrinkSystem
             SoundManager.Instance.PlayOSWithPitch(OSSoundEvent.IngredientFill1, pitch);
 
             manager?.AddIngredientFromClick(ingredientID);
+            RefreshStateVisual();
         }
 
         private float GetPitchByIngredient()
@@ -111,6 +154,27 @@ namespace PPP.BLUE.VN.DrinkSystem
         public void OnPointerExit(PointerEventData eventData)
         {
             manager?.SetIngredientHover(ingredientID, false);
+        }
+
+        public void OnPointerDown(PointerEventData eventData)
+        {
+            if (button == null || !button.interactable)
+                return;
+
+            isPressed = true;
+            RefreshStateVisual();
+        }
+
+        public void OnPointerUp(PointerEventData eventData)
+        {
+            isPressed = false;
+            RefreshStateVisual();
+        }
+
+        public void SetSelectedState(bool selected)
+        {
+            isSelected = selected;
+            RefreshStateVisual();
         }
 
         private IEnumerator CoPlayHotkeyPressFeedback()
@@ -141,5 +205,90 @@ namespace PPP.BLUE.VN.DrinkSystem
             transform.localScale = originalScale;
             hotkeyPressCo = null;
         }
+
+        private void ApplyNavigationNone()
+        {
+            if (button == null)
+                return;
+
+            Navigation navigation = button.navigation;
+            if (navigation.mode == Navigation.Mode.None)
+                return;
+
+            navigation.mode = Navigation.Mode.None;
+            button.navigation = navigation;
+        }
+
+        private void HandleThemeChanged()
+        {
+            ApplyCurrentTheme();
+        }
+
+        public void ApplyCurrentTheme()
+        {
+            if (button == null)
+                return;
+
+            Color selected = selectedTintColor;
+            Color pressed = pressedTintColor;
+            Color defaultText = defaultTextColor;
+            Color pressedText = pressedTextColor;
+            Color selectedText = selectedTextColor;
+            Sprite indicatorSprite = stateIndicatorImage != null ? stateIndicatorImage.sprite : null;
+
+            var themeManager = AppUIThemeManager.Instance;
+            if (themeManager != null && themeManager.CurrentTheme != null)
+            {
+                var vnTheme = themeManager.CurrentTheme.vn;
+                if (IsConfiguredTint(vnTheme.ingredientSelectedColor))
+                    selected = vnTheme.ingredientSelectedColor;
+                if (IsConfiguredTint(vnTheme.ingredientPressedColor))
+                    pressed = vnTheme.ingredientPressedColor;
+                defaultText = ResolveThemeTint(vnTheme.ingredientDefaultTextColor, defaultText);
+                pressedText = ResolveThemeTint(vnTheme.ingredientPressedTextColor, pressedText);
+                selectedText = ResolveThemeTint(vnTheme.ingredientSelectedTextColor, selectedText);
+                if (vnTheme.ingredientStateIndicatorSprite != null)
+                    indicatorSprite = vnTheme.ingredientStateIndicatorSprite;
+            }
+
+            var colors = button.colors;
+            colors.selectedColor = selected;
+            colors.pressedColor = pressed;
+            button.colors = colors;
+            defaultTextColor = defaultText;
+            pressedTextColor = pressedText;
+            selectedTextColor = selectedText;
+            if (stateIndicatorImage != null && indicatorSprite != null)
+                stateIndicatorImage.sprite = indicatorSprite;
+
+            RefreshStateVisual();
+        }
+
+        private static bool IsConfiguredTint(Color color)
+        {
+            return color.a > 0f;
+        }
+
+        private static Color ResolveThemeTint(Color themeColor, Color fallback)
+        {
+            return IsConfiguredTint(themeColor) ? themeColor : fallback;
+        }
+
+        private void RefreshStateVisual()
+        {
+            if (label != null)
+            {
+                if (isPressed)
+                    label.color = pressedTextColor;
+                else if (isSelected)
+                    label.color = selectedTextColor;
+                else
+                    label.color = defaultTextColor;
+            }
+
+            if (stateIndicatorImage != null)
+                stateIndicatorImage.gameObject.SetActive(isPressed || isSelected);
+        }
+
     }
 }
