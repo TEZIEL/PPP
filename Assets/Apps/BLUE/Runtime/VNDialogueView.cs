@@ -93,9 +93,10 @@ namespace PPP.BLUE.VN
 
         private enum ButtonVisualMode
         {
-            Interactable = 0,
-            ToggleAutoPlay = 1,
-            HoldSkip = 2
+            InteractablePressed = 0,
+            InteractableEnabled = 1,
+            ToggleAutoPlay = 2,
+            HoldSkip = 3
         }
 
         [System.Serializable]
@@ -104,8 +105,11 @@ namespace PPP.BLUE.VN
             public string label;
             public Button button;
             public Image targetImage;
+            [Tooltip("활성 상태 스프라이트 (ON)")]
             public Sprite activeSprite;
+            [Tooltip("비활성 상태 스프라이트 (OFF)")]
             public Sprite inactiveSprite;
+            [Tooltip("이 바인딩이 어떤 상태를 기준으로 ON/OFF를 판정할지 선택")]
             public ButtonVisualMode visualMode;
         }
 
@@ -350,7 +354,7 @@ namespace PPP.BLUE.VN
             {
                 var binding = buttonVisualBindings[i];
                 var button = binding.button;
-                if (button == null || binding.visualMode != ButtonVisualMode.Interactable)
+                if (button == null || !NeedsPressedStateTracking(binding.visualMode))
                     continue;
 
                 if (!interactableVisualPressedStates.ContainsKey(button))
@@ -769,24 +773,51 @@ namespace PPP.BLUE.VN
                 if (button == null)
                     continue;
 
-                var targetImage = binding.targetImage != null ? binding.targetImage : button.image;
+                var targetImage = ResolveTargetImage(binding);
                 if (targetImage == null)
                     continue;
 
-                bool isActive = binding.visualMode switch
-                {
-                    ButtonVisualMode.ToggleAutoPlay => runner != null && runner.IsAutoPlayEnabled && button.interactable,
-                    ButtonVisualMode.HoldSkip => runner != null && runner.IsHoldSkipInputActive && button.interactable,
-                    _ => button.interactable
-                         && interactableVisualPressedStates.TryGetValue(button, out var isPressed)
-                         && isPressed
-                };
+                bool isActive = IsBindingActive(binding, button);
 
                 var nextSprite = isActive ? binding.activeSprite : binding.inactiveSprite;
                 if (nextSprite == null || targetImage.sprite == nextSprite)
                     continue;
 
                 targetImage.sprite = nextSprite;
+            }
+        }
+
+        private static Image ResolveTargetImage(ButtonVisualBinding binding)
+        {
+            if (binding.targetImage != null)
+                return binding.targetImage;
+
+            return binding.button != null ? binding.button.image : null;
+        }
+
+        private static bool NeedsPressedStateTracking(ButtonVisualMode mode)
+        {
+            return mode == ButtonVisualMode.InteractablePressed;
+        }
+
+        private bool IsBindingActive(ButtonVisualBinding binding, Button button)
+        {
+            switch (binding.visualMode)
+            {
+                case ButtonVisualMode.ToggleAutoPlay:
+                    return runner != null && runner.IsAutoPlayEnabled && button.interactable;
+
+                case ButtonVisualMode.HoldSkip:
+                    return runner != null && runner.IsHoldSkipInputActive && button.interactable;
+
+                case ButtonVisualMode.InteractableEnabled:
+                    return button.interactable;
+
+                case ButtonVisualMode.InteractablePressed:
+                default:
+                    return button.interactable
+                           && interactableVisualPressedStates.TryGetValue(button, out var isPressed)
+                           && isPressed;
             }
         }
 

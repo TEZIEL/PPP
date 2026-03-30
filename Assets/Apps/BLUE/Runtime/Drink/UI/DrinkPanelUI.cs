@@ -14,6 +14,14 @@ namespace PPP.BLUE.VN.DrinkSystem
         {
             public string ingredientId;
             public Sprite filledSprite;
+            public Sprite selectedSprite;
+        }
+
+        private enum SlotSpriteState
+        {
+            Empty = 0,
+            Filled = 1,
+            Selected = 2,
         }
 
         [Header("Texts")]
@@ -45,7 +53,7 @@ namespace PPP.BLUE.VN.DrinkSystem
         [SerializeField] private float slotClearDelaySeconds = 0.025f;
 
         private Coroutine resetAnimation;
-        private readonly Dictionary<string, Sprite> filledSpriteByIngredient = new Dictionary<string, Sprite>(StringComparer.Ordinal);
+        private readonly Dictionary<string, IngredientSlotVisual> slotVisualByIngredient = new Dictionary<string, IngredientSlotVisual>(StringComparer.Ordinal);
 
         private void Awake()
         {
@@ -122,7 +130,7 @@ namespace PPP.BLUE.VN.DrinkSystem
             if (index < 0 || index >= slotImages.Length || slotImages[index] == null)
                 return;
 
-            if (TryGetFilledSprite(ingredientId, out Sprite filledSprite))
+            if (TryGetSlotSprite(ingredientId, SlotSpriteState.Filled, out var filledSprite))
             {
                 slotImages[index].sprite = filledSprite;
                 slotImages[index].color = Color.white;
@@ -130,6 +138,27 @@ namespace PPP.BLUE.VN.DrinkSystem
             }
 
             slotImages[index].color = GetIngredientColor(ingredientId);
+        }
+
+        public void SetSlotSelected(int index, string ingredientId, bool selected)
+        {
+            if (index < 0 || index >= slotImages.Length || slotImages[index] == null)
+                return;
+
+            if (!selected)
+            {
+                FillNextSlot(index, ingredientId);
+                return;
+            }
+
+            if (TryGetSlotSprite(ingredientId, SlotSpriteState.Selected, out var selectedSprite))
+            {
+                slotImages[index].sprite = selectedSprite;
+                slotImages[index].color = Color.white;
+                return;
+            }
+
+            FillNextSlot(index, ingredientId);
         }
 
         public void ClearGridInstant()
@@ -191,7 +220,7 @@ namespace PPP.BLUE.VN.DrinkSystem
 
         private void RebuildVisualMap()
         {
-            filledSpriteByIngredient.Clear();
+            slotVisualByIngredient.Clear();
 
             if (ingredientSlotVisuals == null)
                 return;
@@ -202,11 +231,11 @@ namespace PPP.BLUE.VN.DrinkSystem
                 if (string.IsNullOrEmpty(visual.ingredientId) || visual.filledSprite == null)
                     continue;
 
-                filledSpriteByIngredient[visual.ingredientId] = visual.filledSprite;
+                slotVisualByIngredient[visual.ingredientId] = visual;
             }
         }
 
-        private bool TryGetFilledSprite(string ingredientId, out Sprite sprite)
+        private bool TryGetSlotSprite(string ingredientId, SlotSpriteState state, out Sprite sprite)
         {
             if (string.IsNullOrEmpty(ingredientId))
             {
@@ -214,7 +243,20 @@ namespace PPP.BLUE.VN.DrinkSystem
                 return false;
             }
 
-            return filledSpriteByIngredient.TryGetValue(ingredientId, out sprite);
+            if (!slotVisualByIngredient.TryGetValue(ingredientId, out var visual))
+            {
+                sprite = null;
+                return false;
+            }
+
+            sprite = state switch
+            {
+                SlotSpriteState.Selected => visual.selectedSprite != null ? visual.selectedSprite : visual.filledSprite,
+                SlotSpriteState.Filled => visual.filledSprite,
+                _ => null
+            };
+
+            return sprite != null;
         }
 
         private void SetEmptyVisual(Image slot)

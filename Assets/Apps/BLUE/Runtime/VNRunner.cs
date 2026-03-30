@@ -94,8 +94,11 @@ namespace PPP.BLUE.VN
         [Serializable]
         private struct FocusLinkedImage
         {
+            [Tooltip("스프라이트를 적용할 대상 이미지")]
             public Image target;
+            [Tooltip("활성 상태(포커스됨)에서 사용할 스프라이트")]
             public Sprite activeSprite;
+            [Tooltip("비활성 상태(포커스 아님)에서 사용할 스프라이트")]
             public Sprite inactiveSprite;
         }
 
@@ -602,13 +605,23 @@ namespace PPP.BLUE.VN
             for (int i = 0; i < focusLinkedImages.Length; i++)
             {
                 var entry = focusLinkedImages[i];
-                if (entry.target == null)
-                    continue;
-
-                Sprite next = isFocused ? entry.activeSprite : entry.inactiveSprite;
-                if (next != null)
-                    entry.target.sprite = next;
+                ApplyLinkedImageSprite(entry, isFocused);
             }
+        }
+
+        private static void ApplyLinkedImageSprite(FocusLinkedImage entry, bool active)
+        {
+            if (entry.target == null)
+                return;
+
+            var next = active ? entry.activeSprite : entry.inactiveSprite;
+            if (next == null)
+                return;
+
+            if (entry.target.sprite == next)
+                return;
+
+            entry.target.sprite = next;
         }
 
         public void NotifyLineTypedEnd()
