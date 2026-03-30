@@ -256,6 +256,44 @@ public class AppUIThemeData : ScriptableObject
         [Header("Other Windows")]
         public Sprite otherWindow1RootSprite;
         public Sprite otherWindow2RootSprite;
+        public Sprite otherWindow3RootSprite;
+        public Sprite otherWindow4RootSprite;
+        public Sprite otherWindow5RootSprite;
+        public Sprite otherWindow6RootSprite;
+        public Sprite otherWindow7RootSprite;
+        public Sprite otherWindow8RootSprite;
+        public Sprite otherWindow9RootSprite;
+        public Sprite otherWindow10RootSprite;
+        public Sprite otherWindow11RootSprite;
+        public Sprite otherWindow12RootSprite;
+        public Sprite otherWindow13RootSprite;
+        public Sprite otherWindow14RootSprite;
+        public Sprite otherWindow15RootSprite;
+        public Sprite otherWindow16RootSprite;
+        public Sprite otherWindow17RootSprite;
+        public Sprite otherWindow18RootSprite;
+        public Sprite otherWindow19RootSprite;
+        public Sprite otherWindow20RootSprite;
+        public Sprite otherWindow21RootSprite;
+        public Sprite otherWindow22RootSprite;
+        public Sprite otherWindow23RootSprite;
+        public Sprite otherWindow24RootSprite;
+        public Sprite otherWindow25RootSprite;
+        public Sprite otherWindow26RootSprite;
+        public Sprite otherWindow27RootSprite;
+        public Sprite otherWindow28RootSprite;
+        public Sprite otherWindow29RootSprite;
+        public Sprite otherWindow30RootSprite;
+        public Sprite otherWindow31RootSprite;
+        public Sprite otherWindow32RootSprite;
+        public Sprite otherWindow33RootSprite;
+        public Sprite otherWindow34RootSprite;
+        public Sprite otherWindow35RootSprite;
+        public Sprite otherWindow36RootSprite;
+        public Sprite otherWindow37RootSprite;
+        public Sprite otherWindow38RootSprite;
+        public Sprite otherWindow39RootSprite;
+        public Sprite otherWindow40RootSprite;
     }
 
     [Header("BluePrint")]
