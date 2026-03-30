@@ -82,6 +82,21 @@ namespace PPP.BLUE.VN.RecipeApp
             RefreshVisual();
         }
 
+        public void ApplyThemeSprites(Sprite normal, Sprite selected, Sprite selectionBackgroundSprite = null)
+        {
+            if (normal != null)
+                normalSprite = normal;
+
+            if (selected != null)
+                selectedSprite = selected;
+
+            if (selectionBackground != null && selectionBackgroundSprite != null)
+                selectionBackground.sprite = selectionBackgroundSprite;
+
+            NormalizeButtonTransition();
+            RefreshVisual();
+        }
+
         private void HandleClick()
         {
             if (string.IsNullOrWhiteSpace(ingredientId))
@@ -129,6 +144,22 @@ namespace PPP.BLUE.VN.RecipeApp
 
             // 클릭 후 상태 복구
             RefreshVisual();
+        }
+
+        private void NormalizeButtonTransition()
+        {
+            if (button == null)
+                return;
+
+            button.transition = Selectable.Transition.None;
+
+            var c = button.colors;
+            c.normalColor = Color.white;
+            c.highlightedColor = Color.white;
+            c.pressedColor = Color.white;
+            c.selectedColor = Color.white;
+            c.disabledColor = Color.white;
+            button.colors = c;
         }
 
         private void NormalizeButtonTransition()

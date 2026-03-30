@@ -46,6 +46,34 @@ public class AppUIThemeData : ScriptableObject
     [System.Serializable]
     public struct BridgeTheme
     {
+        [Header("Player / Frame")]
+        public Sprite playerMainPanelSprite;
+        public Sprite albumArtBackgroundSprite;
+        public Sprite albumArtFrameSprite;
+        public Sprite playerHeaderFrameSprite;
+        public Sprite playerFooterFrameSprite;
+        public Sprite dividerLineSprite;
+
+        [Header("Progress")]
+        public Sprite progressTrackSprite;
+        public Sprite progressFillSprite;
+        public Sprite progressHandleSprite;
+
+        [Header("Buttons")]
+        public Sprite transportButtonSprite;
+        public Sprite playPauseButtonSprite;
+        public Sprite playbackToggleButtonSprite;
+        public Sprite actionButtonSprite;
+        public Sprite utilityButtonSprite;
+
+        [Header("List / Scroll")]
+        public Sprite listPanelSprite;
+        public Sprite listViewportSprite;
+        public Sprite listHeaderFrameSprite;
+        public Sprite scrollbarTrackSprite;
+        public Sprite scrollbarHandleSprite;
+
+        [Header("Dropdown / Ambient")]
         [Header("Player/List")]
         public Sprite playerPanelSprite;
         public Sprite listBackgroundSprite;

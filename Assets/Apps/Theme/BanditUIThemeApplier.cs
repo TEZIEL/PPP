@@ -9,6 +9,7 @@ public class BanditUIThemeApplier : AppUIThemeApplierBase
     [SerializeField] private Image swipeViewport;
     [SerializeField] private Image infoPanel;
     [SerializeField] private Image frameImage;
+    [SerializeField] private Image[] innerBackgrounds = Array.Empty<Image>();
     [SerializeField] private Image swipeViewport2;
     [SerializeField] private Image infoPanel2;
     [SerializeField] private Image frameImage2;
