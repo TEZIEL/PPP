@@ -283,6 +283,8 @@ public class AppUIThemeData : ScriptableObject
         [Header("VN Runtime Sprite Bindings")]
         public VNFocusLinkedImageTheme focusLinkedImage;
         public VNDialogueButtonVisualTheme dialogueButtonVisual;
+        public Sprite pinActiveSprite;
+        public Sprite pinInactiveSprite;
         public Sprite drinkSlotEmptySprite;
         public Sprite drinkSlotSelectedSprite;
         public VNDrinkIngredientSlotTheme[] drinkIngredientSlotFilledSprites;
