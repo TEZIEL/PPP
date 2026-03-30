@@ -9,6 +9,9 @@ namespace PPP.BLUE.VN
     {
         [SerializeField] private RectTransform parentArea;
         [SerializeField] private Button pinToggleButton;
+        [SerializeField] private Transform zOrderRoot; // 반드시 지정 (VN UI 공통 부모)
+        [SerializeField] private Transform dragTarget; // 이동 + 정렬 대상
+        [SerializeField] private RectTransform[] blockDragAreas;
         [SerializeField] private string pinStateVarKey;
         [Header("Z-Order")]
         [SerializeField] private bool bringToFrontOnPointerDown = true;
@@ -24,10 +27,17 @@ namespace PPP.BLUE.VN
         private bool isPinned;
         private static readonly List<RaycastResult> RaycastResultsBuffer = new List<RaycastResult>(16);
 
+        private Transform Target => dragTarget != null ? dragTarget : transform;
+
+        private void RefreshDragReferences()
+        {
+            rect = Target as RectTransform;
+            dragParent = rect != null ? rect.parent as RectTransform : null;
+        }
+
         private void Awake()
         {
-            rect = GetComponent<RectTransform>();
-            dragParent = rect != null ? rect.parent as RectTransform : null;
+            RefreshDragReferences();
             runner = GetComponentInParent<VNRunner>(true);
 
             if (pinToggleButton != null)
@@ -64,6 +74,17 @@ namespace PPP.BLUE.VN
             parentArea = area;
         }
 
+        public void SetZOrderRoot(Transform root)
+        {
+            zOrderRoot = root;
+        }
+
+        public void SetDragTarget(Transform target)
+        {
+            dragTarget = target;
+            RefreshDragReferences();
+        }
+
         public void ConfigureZOrder(bool bringToFront, bool applyInitialIndex, int siblingIndex)
         {
             bringToFrontOnPointerDown = bringToFront;
@@ -91,13 +112,16 @@ namespace PPP.BLUE.VN
             if (isPinned)
                 return;
 
-            if (!CanDrag(eventData))
+            if (!CanStartDrag(eventData))
                 return;
 
             if (IsPointerOnButton(eventData))
                 return;
 
-            BringToFront();
+            ApplyConsistentZOrder();
+
+            if (!CanDrag(eventData))
+                return;
 
             RectTransformUtility.ScreenPointToLocalPointInRectangle(
                 dragParent,
@@ -133,7 +157,7 @@ namespace PPP.BLUE.VN
 
         public void OnPointerDown(PointerEventData eventData)
         {
-            if (!CanDrag(eventData))
+            if (!CanStartDrag(eventData))
                 return;
 
             BringToFront();
@@ -152,6 +176,32 @@ namespace PPP.BLUE.VN
             return eventData != null && rect != null && dragParent != null && parentArea != null;
         }
 
+        private bool CanStartDrag(PointerEventData eventData)
+        {
+            if (!CanDrag(eventData))
+                return false;
+
+            if (blockDragAreas != null)
+            {
+                for (int i = 0; i < blockDragAreas.Length; i++)
+                {
+                    RectTransform area = blockDragAreas[i];
+                    if (area == null)
+                        continue;
+
+                    if (RectTransformUtility.RectangleContainsScreenPoint(
+                            area,
+                            eventData.position,
+                            eventData.pressEventCamera))
+                    {
+                        return false;
+                    }
+                }
+            }
+
+            return true;
+        }
+
         private static bool IsPointerOnButton(PointerEventData eventData)
         {
             if (eventData == null)
@@ -168,10 +218,27 @@ namespace PPP.BLUE.VN
 
         private void BringToFront()
         {
-            if (!bringToFrontOnPointerDown || rect == null)
+            if (!bringToFrontOnPointerDown)
                 return;
 
-            rect.SetAsLastSibling();
+            ApplyConsistentZOrder();
+        }
+
+        private void ApplyConsistentZOrder()
+        {
+            if (zOrderRoot == null)
+            {
+                Debug.LogError("[UIDrag] zOrderRoot is not assigned.");
+                return;
+            }
+
+            Transform target = Target;
+
+            if (target.parent != zOrderRoot)
+                target.SetParent(zOrderRoot, true);
+
+            target.SetAsLastSibling();
+            RefreshDragReferences();
         }
 
         private void TryBringToFrontFromPointerPosition(Vector2 screenPosition)
@@ -204,6 +271,8 @@ namespace PPP.BLUE.VN
 
         private void ApplyInitialSiblingIndex()
         {
+            RefreshDragReferences();
+
             if (!applyInitialSiblingIndexOnEnable || rect == null || rect.parent == null || initialSiblingIndex < 0)
                 return;
 

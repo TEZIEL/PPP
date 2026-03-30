@@ -50,6 +50,8 @@ namespace PPP.BLUE.VN
                 dragMove = target.gameObject.AddComponent<UIDragMoveClamped>();
 
             dragMove.SetParentArea(parentArea);
+            dragMove.SetZOrderRoot(vnContentRoot);
+            dragMove.SetDragTarget(target);
             dragMove.ConfigureZOrder(enableWeakZOrder, applyInitialSiblingOrder, initialSiblingIndex);
         }
 
