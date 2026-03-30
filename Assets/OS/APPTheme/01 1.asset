@@ -10,7 +10,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 6b5a12a1478243bdbaa10668965c86ab, type: 3}
-  m_Name: 01
+  m_Name: 01 1
   m_EditorClassIdentifier: 
   blueprint:
     filterButtonSprite: {fileID: 21300000, guid: a2d6314848c16204fb297e859a54d49f, type: 3}
@@ -73,10 +73,6 @@ MonoBehaviour:
     extraSprite14: {fileID: 21300000, guid: 0616847a8986c9447b6ffa5370803a96, type: 3}
     extraSprite15: {fileID: 21300000, guid: 0616847a8986c9447b6ffa5370803a96, type: 3}
     extraSprite16: {fileID: 21300000, guid: 6d276694909278a4fbbca6efd8de7992, type: 3}
-    extraSprite17: {fileID: 0}
-    extraSprite18: {fileID: 0}
-    extraSprite19: {fileID: 0}
-    extraSprite20: {fileID: 0}
     toggleOnBackground1: {fileID: 21300000, guid: 14bd87a1db2093649956dbc1dd3adfd2, type: 3}
     toggleOffBackground1: {fileID: 21300000, guid: 0616847a8986c9447b6ffa5370803a96, type: 3}
     toggleOnIcon1: {fileID: 21300000, guid: f4d62a4588e803547b6d0ba1a8702c13, type: 3}

@@ -1,4 +1,4 @@
-using UnityEngine;
+﻿using UnityEngine;
 using UnityEngine.UI;
 
 public class UIButtonSpriteToggle : MonoBehaviour
@@ -26,6 +26,7 @@ public class UIButtonSpriteToggle : MonoBehaviour
 
     public bool IsOn => isOn;
 
+
     public void SetOn(bool value)
     {
         isOn = value;
@@ -47,7 +48,6 @@ public class UIButtonSpriteToggle : MonoBehaviour
 
         Apply();
     }
-
 
     public void SetOnBackgroundSprite(Sprite sprite)
     {

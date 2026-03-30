@@ -96,28 +96,28 @@ public class AppUIThemeData : ScriptableObject
         public Sprite extraSprite14;
         public Sprite extraSprite15;
         public Sprite extraSprite16;
+        public Sprite extraSprite17;
+        public Sprite extraSprite18;
+        public Sprite extraSprite19;
+        public Sprite extraSprite20;
 
 
-        public Sprite toggleOn1;
-        public Sprite toggleOff1;
-        public Sprite toggleOn2;
-        public Sprite toggleOff2;
-        public Sprite toggleOn3;
-        public Sprite toggleOff3;
-        public Sprite toggleOn4;
-        public Sprite toggleOff4;
-        public Sprite toggleOn5;
-        public Sprite toggleOff5;
-        public Sprite toggleOn6;
-        public Sprite toggleOff6;
-        public Sprite toggleOn7;
-        public Sprite toggleOff7;
-        public Sprite toggleOn8;
-        public Sprite toggleOff8;
-        public Sprite toggleOn9;
-        public Sprite toggleOff9;
-        public Sprite toggleOn10;
-        public Sprite toggleOff10;
+
+        public Sprite toggleOnBackground1;
+        public Sprite toggleOffBackground1;
+        public Sprite toggleOnIcon1;
+        public Sprite toggleOffIcon1;
+
+        public Sprite toggleOnBackground2;
+        public Sprite toggleOffBackground2;
+        public Sprite toggleOnIcon2;
+        public Sprite toggleOffIcon2;
+
+        public Sprite toggleOnBackground3;
+        public Sprite toggleOffBackground3;
+        public Sprite toggleOnIcon3;
+        public Sprite toggleOffIcon3;
+
 
         [Header("Dropdown/Ambient")]
         public Sprite dropdownBackgroundSprite;
@@ -133,6 +133,25 @@ public class AppUIThemeData : ScriptableObject
         public Sprite dropdownCheckmarkSelectedSprite;
         public Sprite dropdownCheckmarkPressedSprite;
         public Sprite dropdownCheckmarkDisabledSprite;
+
+        public Sprite ambientPlayIcon;
+        public Sprite ambientStopIcon;
+
+        [Header("Track Item")]
+        public Sprite trackItemNormalSprite;
+        public Sprite trackItemSelectedSprite;
+        public Sprite trackItemPressedSprite;
+        public Sprite trackItemDisabledSprite;
+
+        public Sprite trackCheckmarkNormalSprite;
+        public Sprite trackCheckmarkSelectedSprite;
+        public Sprite trackCheckmarkPressedSprite;
+        public Sprite trackCheckmarkDisabledSprite;
+
+        public Color trackTextNormalColor;
+        public Color trackTextSelectedColor;
+        public Color trackTextPressedColor;
+        public Color trackTextDisabledColor;
 
         [Header("Text (Optional)")]
         public Color primaryTextColor;

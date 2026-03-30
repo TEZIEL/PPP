@@ -38,7 +38,7 @@ public class AmbientDropdownBinder : MonoBehaviour
 
     public void PlaySelected()
     {
-        AmbientManager.Instance.Play((AmbientType)dropdown.value);
+        AmbientManager.Instance.Play(types[dropdown.value]);
     }
 
 
@@ -47,12 +47,12 @@ public class AmbientDropdownBinder : MonoBehaviour
         if (AmbientManager.Instance.IsPlaying())
         {
             AmbientManager.Instance.Stop();
-            RefreshPlayButtonVisual();
+            playButtonImage.sprite = playIcon;
         }
         else
         {
             AmbientManager.Instance.Play(types[dropdown.value]);
-            RefreshPlayButtonVisual();
+            playButtonImage.sprite = stopIcon;
         }
     }
 
@@ -100,7 +100,7 @@ public class AmbientDropdownBinder : MonoBehaviour
     private void OnChanged(int index)
     {
         AmbientManager.Instance.Play(types[index]);
-        RefreshPlayButtonVisual();
+        playButtonImage.sprite = stopIcon;
         dropdown.Hide();
     }
 }

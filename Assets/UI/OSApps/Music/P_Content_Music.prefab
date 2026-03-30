@@ -78,7 +78,7 @@ GameObject:
   - component: {fileID: 4874944646851034243}
   - component: {fileID: 743407966986360969}
   m_Layer: 5
-  m_Name: Image
+  m_Name: Image444
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -132,7 +132,7 @@ MonoBehaviour:
     m_PersistentCalls:
       m_Calls: []
   m_Sprite: {fileID: 21300000, guid: 22a1a526a2f240147b8bd72b789167cf, type: 3}
-  m_Type: 0
+  m_Type: 1
   m_PreserveAspect: 0
   m_FillCenter: 1
   m_FillMethod: 4
@@ -358,7 +358,7 @@ GameObject:
   - component: {fileID: 2954473490895557379}
   - component: {fileID: 8093906048664308907}
   m_Layer: 5
-  m_Name: Image
+  m_Name: Image222
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -412,7 +412,7 @@ MonoBehaviour:
     m_PersistentCalls:
       m_Calls: []
   m_Sprite: {fileID: 21300000, guid: 803093d138679da4dae0c520523a6cbb, type: 3}
-  m_Type: 0
+  m_Type: 1
   m_PreserveAspect: 0
   m_FillCenter: 1
   m_FillMethod: 4
@@ -490,7 +490,7 @@ MonoBehaviour:
     m_PersistentCalls:
       m_Calls: []
   m_Sprite: {fileID: 21300000, guid: 2a733b0b3d028504f8e5e7607c2d8abe, type: 3}
-  m_Type: 0
+  m_Type: 1
   m_PreserveAspect: 0
   m_FillCenter: 1
   m_FillMethod: 4
@@ -1135,7 +1135,7 @@ MonoBehaviour:
     m_PersistentCalls:
       m_Calls: []
   m_Sprite: {fileID: 21300000, guid: 2a733b0b3d028504f8e5e7607c2d8abe, type: 3}
-  m_Type: 0
+  m_Type: 1
   m_PreserveAspect: 0
   m_FillCenter: 1
   m_FillMethod: 4
@@ -2677,7 +2677,7 @@ MonoBehaviour:
     m_PersistentCalls:
       m_Calls: []
   m_Sprite: {fileID: 21300000, guid: 2a733b0b3d028504f8e5e7607c2d8abe, type: 3}
-  m_Type: 0
+  m_Type: 1
   m_PreserveAspect: 0
   m_FillCenter: 1
   m_FillMethod: 4
@@ -4292,7 +4292,7 @@ GameObject:
   - component: {fileID: 8672933215416088208}
   - component: {fileID: 8135227059810547296}
   m_Layer: 5
-  m_Name: Image
+  m_Name: Image3333
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -4346,7 +4346,7 @@ MonoBehaviour:
     m_PersistentCalls:
       m_Calls: []
   m_Sprite: {fileID: 21300000, guid: a39a7be64aa3705409e8c7ce5d1f73b6, type: 3}
-  m_Type: 0
+  m_Type: 1
   m_PreserveAspect: 0
   m_FillCenter: 1
   m_FillMethod: 4
@@ -4755,7 +4755,7 @@ MonoBehaviour:
     m_PersistentCalls:
       m_Calls: []
   m_Sprite: {fileID: 21300000, guid: 2a733b0b3d028504f8e5e7607c2d8abe, type: 3}
-  m_Type: 0
+  m_Type: 1
   m_PreserveAspect: 0
   m_FillCenter: 1
   m_FillMethod: 4
@@ -5482,7 +5482,7 @@ MonoBehaviour:
     m_PersistentCalls:
       m_Calls: []
   m_Sprite: {fileID: 21300000, guid: 2a733b0b3d028504f8e5e7607c2d8abe, type: 3}
-  m_Type: 0
+  m_Type: 1
   m_PreserveAspect: 0
   m_FillCenter: 1
   m_FillMethod: 4
@@ -5982,6 +5982,10 @@ MonoBehaviour:
   extraImage14: {fileID: 2752369855874309311}
   extraImage15: {fileID: 8169283467862733159}
   extraImage16: {fileID: 3293128615095370723}
+  extraImage17: {fileID: 8093906048664308907}
+  extraImage18: {fileID: 1603326804401185623}
+  extraImage19: {fileID: 8135227059810547296}
+  extraImage20: {fileID: 743407966986360969}
   progressTrackImage: {fileID: 3768823154998258846}
   progressFillImage: {fileID: 1807422802698483870}
   progressHandleImage: {fileID: 3562699666491058175}
@@ -5994,7 +5998,11 @@ MonoBehaviour:
   - {fileID: 522084361444575104}
   actionButtons:
   - {fileID: 403371340120674229}
-  utilityButtons: []
+  utilityButtons:
+  - {fileID: 493185402373425849}
+  - {fileID: 1156593978769514203}
+  - {fileID: 1863292604370021042}
+  - {fileID: 172173404271812984}
   listPanelImage: {fileID: 3512118276063594332}
   listViewportImage: {fileID: 5728539639383600223}
   listHeaderFrameImage: {fileID: 581117678930911591}
@@ -6005,28 +6013,21 @@ MonoBehaviour:
   playerPanel: {fileID: 4456053914624787125}
   listBackground: {fileID: 1371073170370573891}
   listViewport: {fileID: 0}
-  playbackControlButtons:
-  - {fileID: 2672948411984310417}
-  - {fileID: 522084361444575104}
-  - {fileID: 3525746646866152306}
+  playbackControlButtons: []
   toggle1: {fileID: 8757651811665134622}
   toggle2: {fileID: 7329757759048150143}
   toggle3: {fileID: 6391134539712308729}
-  toggle4: {fileID: 0}
-  toggle5: {fileID: 0}
-  toggle6: {fileID: 0}
-  toggle7: {fileID: 0}
-  toggle8: {fileID: 0}
-  toggle9: {fileID: 0}
-  toggle10: {fileID: 0}
   dropdowns:
   - {fileID: 4515041407825578200}
   dropdownButtons:
   - {fileID: 403371340120674229}
   dropdownItems:
   - {fileID: 7052250297478108507}
+  ambientBinders:
+  - {fileID: 2056219010302810091}
   primaryTexts: []
   secondaryTexts: []
+  trackItems: []
 --- !u!1 &8832263035898927863
 GameObject:
   m_ObjectHideFlags: 0
@@ -6444,7 +6445,7 @@ GameObject:
   - component: {fileID: 4865573392090397448}
   - component: {fileID: 1603326804401185623}
   m_Layer: 5
-  m_Name: Image
+  m_Name: Image2222
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -6498,7 +6499,7 @@ MonoBehaviour:
     m_PersistentCalls:
       m_Calls: []
   m_Sprite: {fileID: 21300000, guid: d60affb4c30b096488409d4037d70c04, type: 3}
-  m_Type: 0
+  m_Type: 1
   m_PreserveAspect: 0
   m_FillCenter: 1
   m_FillMethod: 4

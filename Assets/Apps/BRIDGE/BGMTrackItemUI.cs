@@ -65,6 +65,7 @@ public class BGMTrackItemUI : MonoBehaviour,
 
         UpdateCheckmarkVisibility();
         ApplyVisualState();
+        ApplyCurrentTheme();
     }
 
     public void SetBackgroundSprites(Sprite normal, Sprite selected, Sprite pressed, Sprite disabled)
@@ -222,6 +223,37 @@ public class BGMTrackItemUI : MonoBehaviour,
 
         if (checkmarkImage != null && checkmarkObject != null && checkmarkObject.activeSelf)
             checkmarkImage.sprite = markSprite;
+    }
+
+
+    public void ApplyCurrentTheme()
+    {
+        var theme = AppUIThemeManager.Instance?.CurrentTheme;
+        if (theme == null)
+            return;
+
+        var t = theme.bridge;
+
+        SetBackgroundSprites(
+            t.trackItemNormalSprite,
+            t.trackItemSelectedSprite,
+            t.trackItemPressedSprite,
+            t.trackItemDisabledSprite
+        );
+
+        SetCheckmarkSprites(
+            t.trackCheckmarkNormalSprite,
+            t.trackCheckmarkSelectedSprite,
+            t.trackCheckmarkPressedSprite,
+            t.trackCheckmarkDisabledSprite
+        );
+
+        SetTextColors(
+            t.trackTextNormalColor,
+            t.trackTextSelectedColor,
+            t.trackTextPressedColor,
+            t.trackTextDisabledColor
+        );
     }
 
     private void UpdateCheckmarkVisibility()

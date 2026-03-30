@@ -30,6 +30,10 @@ public class BridgeUIThemeApplier : AppUIThemeApplierBase
     [SerializeField] private Image extraImage14;
     [SerializeField] private Image extraImage15;
     [SerializeField] private Image extraImage16;
+    [SerializeField] private Image extraImage17;
+    [SerializeField] private Image extraImage18;
+    [SerializeField] private Image extraImage19;
+    [SerializeField] private Image extraImage20;
 
     [Header("BRIDGE - Progress Images")]
     [SerializeField] private Image progressTrackImage;
@@ -65,26 +69,20 @@ public class BridgeUIThemeApplier : AppUIThemeApplierBase
     [Header("BRIDGE - Buttons")]
     [SerializeField] private Button[] playbackControlButtons = Array.Empty<Button>();
 
-
     [SerializeField] private UIButtonSpriteToggle toggle1;
     [SerializeField] private UIButtonSpriteToggle toggle2;
     [SerializeField] private UIButtonSpriteToggle toggle3;
-    [SerializeField] private UIButtonSpriteToggle toggle4;
-    [SerializeField] private UIButtonSpriteToggle toggle5;
-    [SerializeField] private UIButtonSpriteToggle toggle6;
-    [SerializeField] private UIButtonSpriteToggle toggle7;
-    [SerializeField] private UIButtonSpriteToggle toggle8;
-    [SerializeField] private UIButtonSpriteToggle toggle9;
-    [SerializeField] private UIButtonSpriteToggle toggle10;
 
     [Header("BRIDGE - Dropdown/Ambient")]
     [SerializeField] private TMP_Dropdown[] dropdowns = Array.Empty<TMP_Dropdown>();
     [SerializeField] private Button[] dropdownButtons = Array.Empty<Button>();
     [SerializeField] private DropdownItemVisual[] dropdownItems;
+    [SerializeField] private AmbientDropdownBinder[] ambientBinders;
 
     [Header("BRIDGE - Text (Optional)")]
     [SerializeField] private TMP_Text[] primaryTexts = Array.Empty<TMP_Text>();
     [SerializeField] private TMP_Text[] secondaryTexts = Array.Empty<TMP_Text>();
+    [SerializeField] private BGMTrackItemUI[] trackItems = Array.Empty<BGMTrackItemUI>();
 
 
     private void ApplyToggleSprites(
@@ -152,18 +150,25 @@ public class BridgeUIThemeApplier : AppUIThemeApplierBase
         ApplyImageSprite(extraImage14, t.extraSprite14);
         ApplyImageSprite(extraImage15, t.extraSprite15);
         ApplyImageSprite(extraImage16, t.extraSprite16);
+        ApplyImageSprite(extraImage17, t.extraSprite17);
+        ApplyImageSprite(extraImage18, t.extraSprite18);
+        ApplyImageSprite(extraImage19, t.extraSprite19);
+        ApplyImageSprite(extraImage20, t.extraSprite20);
 
-        ApplyToggleSprites(toggle1, t.toggleOn1, t.toggleOff1, null, null);
-        ApplyToggleSprites(toggle2, t.toggleOn2, t.toggleOff2, null, null);
-        ApplyToggleSprites(toggle3, t.toggleOn3, t.toggleOff3, null, null);
-        ApplyToggleSprites(toggle4, t.toggleOn4, t.toggleOff4, null, null);
-        ApplyToggleSprites(toggle5, t.toggleOn5, t.toggleOff5, null, null);
-        ApplyToggleSprites(toggle6, t.toggleOn6, t.toggleOff6, null, null);
-        ApplyToggleSprites(toggle7, t.toggleOn7, t.toggleOff7, null, null);
-        ApplyToggleSprites(toggle8, t.toggleOn8, t.toggleOff8, null, null);
-        ApplyToggleSprites(toggle9, t.toggleOn9, t.toggleOff9, null, null);
-        ApplyToggleSprites(toggle10, t.toggleOn10, t.toggleOff10, null, null);
+        ApplyToggleSprites(toggle1, t.toggleOnBackground1, t.toggleOffBackground1, t.toggleOnIcon1, t.toggleOffIcon1);
+        ApplyToggleSprites(toggle2, t.toggleOnBackground2, t.toggleOffBackground2, t.toggleOnIcon2, t.toggleOffIcon2);
+        ApplyToggleSprites(toggle3, t.toggleOnBackground3, t.toggleOffBackground3, t.toggleOnIcon3, t.toggleOffIcon3);
 
+        for (int i = 0; i < ambientBinders.Length; i++)
+        {
+            var binder = ambientBinders[i];
+            if (binder == null) continue;
+
+            binder.SetPlayIcons(
+                t.ambientPlayIcon,
+                t.ambientStopIcon
+            );
+        }
 
         for (int i = 0; i < dropdownItems.Length; i++)
         {
@@ -207,6 +212,33 @@ public class BridgeUIThemeApplier : AppUIThemeApplierBase
         ApplyImageSprite(progressHandleImage, t.progressHandleSprite);
         ApplyImageSprite(progressHandleImage2, t.progressHandleSprite2);
 
+        for (int i = 0; i < trackItems.Length; i++)
+        {
+            var item = trackItems[i];
+            if (item == null)
+                continue;
+
+            item.SetBackgroundSprites(
+                t.trackItemNormalSprite,
+                t.trackItemSelectedSprite,
+                t.trackItemPressedSprite,
+                t.trackItemDisabledSprite
+            );
+
+            item.SetCheckmarkSprites(
+                t.trackCheckmarkNormalSprite,
+                t.trackCheckmarkSelectedSprite,
+                t.trackCheckmarkPressedSprite,
+                t.trackCheckmarkDisabledSprite
+            );
+
+            item.SetTextColors(
+                t.trackTextNormalColor,
+                t.trackTextSelectedColor,
+                t.trackTextPressedColor,
+                t.trackTextDisabledColor
+            );
+        }
 
         for (int i = 0; i < dropdowns.Length; i++)
             ApplyDropdownSprites(dropdowns[i], t.dropdownBackgroundSprite, t.dropdownButtonSprite);

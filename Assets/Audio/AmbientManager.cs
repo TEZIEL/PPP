@@ -77,7 +77,9 @@ public class AmbientManager : MonoBehaviour
 
     public bool IsPlaying()
     {
-        return currentSource != null && currentSource.isPlaying;
+        bool currentPlaying = currentSource != null && currentSource.isPlaying;
+        bool nextPlaying = nextSource != null && nextSource.isPlaying;
+        return currentPlaying || nextPlaying;
     }
     // PLAY
     // =========================
