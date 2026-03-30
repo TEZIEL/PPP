@@ -81,7 +81,6 @@ namespace PPP.BLUE.VN.DrinkSystem
                 return;
 
             ApplyNavigationNone();
-            ClearUiSelectionIfSelfSelected();
         }
 
         private void OnClick()
@@ -163,17 +162,5 @@ namespace PPP.BLUE.VN.DrinkSystem
             button.navigation = navigation;
         }
 
-        private void ClearUiSelectionIfSelfSelected()
-        {
-            if (button == null)
-                return;
-
-            var eventSystem = EventSystem.current;
-            if (eventSystem == null)
-                return;
-
-            if (eventSystem.currentSelectedGameObject == button.gameObject)
-                eventSystem.SetSelectedGameObject(null);
-        }
     }
 }

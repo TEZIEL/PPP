@@ -168,19 +168,6 @@ namespace PPP.BLUE.VN.RecipeApp
             button.navigation = navigation;
         }
 
-        private void ClearUiSelectionIfSelfSelected()
-        {
-            if (button == null)
-                return;
-
-            var eventSystem = EventSystem.current;
-            if (eventSystem == null)
-                return;
-
-            if (eventSystem.currentSelectedGameObject == button.gameObject)
-                eventSystem.SetSelectedGameObject(null);
-        }
-
        
     }
 }

@@ -1022,28 +1022,5 @@ namespace PPP.BLUE.VN
             }
         }
 
-        private void ClearUiSelectionIfAnySlotSelected()
-        {
-            var eventSystem = EventSystem.current;
-            if (eventSystem == null)
-                return;
-
-            GameObject selected = eventSystem.currentSelectedGameObject;
-            if (selected == null)
-                return;
-
-            for (int i = 0; i < slots.Length; i++)
-            {
-                var slot = slots[i];
-                if (slot == null || slot.selectButton == null)
-                    continue;
-
-                if (selected == slot.selectButton.gameObject)
-                {
-                    eventSystem.SetSelectedGameObject(null);
-                    return;
-                }
-            }
-        }
     }
 }
