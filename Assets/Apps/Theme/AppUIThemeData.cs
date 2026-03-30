@@ -224,6 +224,33 @@ public class AppUIThemeData : ScriptableObject
     }
 
     [System.Serializable]
+    public struct VNFocusLinkedImageTheme
+    {
+        public Sprite activeSprite;
+        public Sprite inactiveSprite;
+    }
+
+    [System.Serializable]
+    public struct VNDialogueButtonVisualTheme
+    {
+        public Sprite interactableActiveSprite;
+        public Sprite interactableInactiveSprite;
+        public Sprite toggleAutoPlayActiveSprite;
+        public Sprite toggleAutoPlayInactiveSprite;
+        public Sprite holdSkipActiveSprite;
+        public Sprite holdSkipInactiveSprite;
+        public Sprite interactableEnabledActiveSprite;
+        public Sprite interactableEnabledInactiveSprite;
+    }
+
+    [System.Serializable]
+    public struct VNDrinkIngredientSlotTheme
+    {
+        public string ingredientId;
+        public Sprite filledSprite;
+    }
+
+    [System.Serializable]
     public struct VNTheme
     {
         [Header("Save/Load")]
@@ -252,6 +279,15 @@ public class AppUIThemeData : ScriptableObject
         public Sprite dialogueButtonContainerSprite;
         public Sprite dialogueButtonSprite;
         public Sprite dialogueSelectedButtonSprite;
+
+        [Header("VN Runtime Sprite Bindings")]
+        public VNFocusLinkedImageTheme focusLinkedImage;
+        public VNDialogueButtonVisualTheme dialogueButtonVisual;
+        public Sprite vnPinActiveSprite;
+        public Sprite vnPinInactiveSprite;
+        public Sprite drinkSlotEmptySprite;
+        public Sprite drinkSlotSelectedSprite;
+        public VNDrinkIngredientSlotTheme[] drinkIngredientSlotFilledSprites;
 
         [Header("Other Windows")]
         public Sprite otherWindow1RootSprite;
