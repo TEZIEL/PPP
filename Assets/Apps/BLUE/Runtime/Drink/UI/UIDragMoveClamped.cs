@@ -15,8 +15,8 @@ namespace PPP.BLUE.VN
         [SerializeField] private bool bringToFrontOnChildPointerDown = true;
         [SerializeField] private bool applyInitialSiblingIndexOnEnable;
         [SerializeField] private int initialSiblingIndex = -1;
-        [Header("Drag Lock Areas")]
-        [SerializeField] private RectTransform[] blockDragAreas;
+
+
 
         private RectTransform rect;
         private RectTransform dragParent;
@@ -66,29 +66,6 @@ namespace PPP.BLUE.VN
             parentArea = area;
         }
 
-        private bool IsPointerOnBlockedArea(PointerEventData eventData)
-        {
-            if (eventData == null || blockDragAreas == null)
-                return false;
-
-            for (int i = 0; i < blockDragAreas.Length; i++)
-            {
-                var area = blockDragAreas[i];
-                if (area == null)
-                    continue;
-
-                if (RectTransformUtility.RectangleContainsScreenPoint(
-                    area,
-                    eventData.position,
-                    eventData.pressEventCamera))
-                {
-                    return true;
-                }
-            }
-
-            return false;
-        }
-
         public void ConfigureZOrder(bool bringToFront, bool applyInitialIndex, int siblingIndex)
         {
             bringToFrontOnPointerDown = bringToFront;
@@ -117,10 +94,6 @@ namespace PPP.BLUE.VN
                 return;
 
             if (!CanDrag(eventData))
-                return;
-
-            // 🔥 여기 추가
-            if (IsPointerOnBlockedArea(eventData))
                 return;
 
             if (IsPointerOnButton(eventData))
@@ -163,9 +136,6 @@ namespace PPP.BLUE.VN
         public void OnPointerDown(PointerEventData eventData)
         {
             if (!CanDrag(eventData))
-                return;
-
-            if (IsPointerOnBlockedArea(eventData))
                 return;
 
             BringToFront();
