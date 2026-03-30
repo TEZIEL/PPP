@@ -17,6 +17,27 @@ namespace PPP.BLUE.VN.RecipeApp
         [SerializeField] private TMP_Text titleText;
         [SerializeField] private TMP_Text bodyText;
         [SerializeField] private TMP_Text metaText;
+
+        private void OnEnable()
+        {
+            var manager = AppUIThemeManager.Instance;
+            if (manager != null)
+                manager.OnThemeChanged += HandleThemeChanged;
+
+            ApplyCurrentTheme();
+        }
+
+        private void OnDisable()
+        {
+            var manager = AppUIThemeManager.Instance;
+            if (manager != null)
+                manager.OnThemeChanged -= HandleThemeChanged;
+        }
+
+        private void HandleThemeChanged()
+        {
+            ApplyCurrentTheme();
+        }
         [SerializeField] private TMP_Text metaText2;
 
         public void ApplyCurrentTheme()

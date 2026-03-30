@@ -2,10 +2,12 @@ using System;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
+using PPP.BLUE.VN.RecipeApp;
 
 public class BlueprintUIThemeApplier : AppUIThemeApplierBase
 {
     [Header("BluePrint / Recipe - Filters")]
+    [SerializeField] private IngredientFilterButtonUI[] filterButtons = Array.Empty<IngredientFilterButtonUI>();
     [SerializeField] private Button[] filterButtons = Array.Empty<Button>();
 
     [Header("BluePrint / Recipe - Scroll")]
@@ -25,6 +27,36 @@ public class BlueprintUIThemeApplier : AppUIThemeApplierBase
     [SerializeField] private TMP_Text[] primaryTexts = Array.Empty<TMP_Text>();
     [SerializeField] private TMP_Text[] secondaryTexts = Array.Empty<TMP_Text>();
 
+    private void OnEnable()
+    {
+        var manager = AppUIThemeManager.Instance;
+        if (manager != null)
+            manager.OnThemeChanged += HandleThemeChanged;
+
+        ApplyCurrentTheme();
+    }
+
+    private void OnDisable()
+    {
+        var manager = AppUIThemeManager.Instance;
+        if (manager != null)
+            manager.OnThemeChanged -= HandleThemeChanged;
+    }
+
+    private void HandleThemeChanged()
+    {
+        ApplyCurrentTheme();
+    }
+
+    private void ApplyCurrentTheme()
+    {
+        var manager = AppUIThemeManager.Instance;
+        if (manager == null || manager.CurrentTheme == null)
+            return;
+
+        ApplyFromManager(manager.CurrentTheme, "recipe");
+    }
+
     public override void ApplyFromManager(AppUIThemeData data, string appId)
     {
         if (data == null || appId != "recipe")
@@ -33,6 +65,13 @@ public class BlueprintUIThemeApplier : AppUIThemeApplierBase
         var t = data.blueprint;
 
         for (int i = 0; i < filterButtons.Length; i++)
+        {
+            var filter = filterButtons[i];
+            if (filter == null)
+                continue;
+
+            filter.ApplyThemeSprites(t.filterButtonSprite, t.filterButtonSelectedSprite);
+        }
             ApplyButtonSprite(filterButtons[i], t.filterButtonSprite);
 
         ApplyImageSprite(scrollViewBackground, t.scrollViewBackgroundSprite);

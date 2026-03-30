@@ -1,8 +1,10 @@
 using UnityEngine;
+using System;
 
 public class AppUIThemeManager : MonoBehaviour
 {
     public static AppUIThemeManager Instance { get; private set; }
+    public event Action OnThemeChanged;
 
     [SerializeField] private AppUIThemeData currentTheme;
 
@@ -22,6 +24,7 @@ public class AppUIThemeManager : MonoBehaviour
     public void SetTheme(AppUIThemeData theme)
     {
         currentTheme = theme;
+        OnThemeChanged?.Invoke();
     }
 
     public void ApplyThemeToContent(string appId, Transform contentRoot)
