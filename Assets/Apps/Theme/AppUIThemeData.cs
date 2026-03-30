@@ -101,8 +101,6 @@ public class AppUIThemeData : ScriptableObject
         public Sprite extraSprite19;
         public Sprite extraSprite20;
 
-
-
         public Sprite toggleOnBackground1;
         public Sprite toggleOffBackground1;
         public Sprite toggleOnIcon1;
@@ -117,7 +115,6 @@ public class AppUIThemeData : ScriptableObject
         public Sprite toggleOffBackground3;
         public Sprite toggleOnIcon3;
         public Sprite toggleOffIcon3;
-
 
         [Header("Dropdown/Ambient")]
         public Sprite dropdownBackgroundSprite;
@@ -226,6 +223,41 @@ public class AppUIThemeData : ScriptableObject
         public Color textColor;
     }
 
+    [System.Serializable]
+    public struct VNTheme
+    {
+        [Header("Save/Load")]
+        public Sprite saveLoadWindowRootSprite;
+        public Sprite saveLoadSlotSprite;
+        public Sprite saveLoadSelectedSlotSprite;
+        public Sprite saveLoadButtonSprite;
+
+        [Header("Backlog")]
+        public Sprite backlogRootSprite;
+        public Sprite backlogItemSprite;
+        public Sprite backlogButtonSprite;
+
+        [Header("Exit Modal")]
+        public Sprite exitModalRootSprite;
+        public Sprite exitModalButtonSprite;
+
+        [Header("Drink")]
+        public Sprite drinkRootSprite;
+        public Sprite drinkGridSprite;
+        public Sprite ingredientButtonSprite;
+        public Sprite ingredientSelectedButtonSprite;
+
+        [Header("Dialogue")]
+        public Sprite dialogueRootSprite;
+        public Sprite dialogueButtonContainerSprite;
+        public Sprite dialogueButtonSprite;
+        public Sprite dialogueSelectedButtonSprite;
+
+        [Header("Other Windows")]
+        public Sprite otherWindow1RootSprite;
+        public Sprite otherWindow2RootSprite;
+    }
+
     [Header("BluePrint")]
     public BlueprintTheme blueprint;
 
@@ -243,4 +275,7 @@ public class AppUIThemeData : ScriptableObject
 
     [Header("BOX")]
     public BoxTheme box;
+
+    [Header("VN")]
+    public VNTheme vn;
 }
