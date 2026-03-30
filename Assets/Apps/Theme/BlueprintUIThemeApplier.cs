@@ -8,6 +8,7 @@ public class BlueprintUIThemeApplier : AppUIThemeApplierBase
 {
     [Header("BluePrint / Recipe - Filters")]
     [SerializeField] private IngredientFilterButtonUI[] filterButtons = Array.Empty<IngredientFilterButtonUI>();
+    [SerializeField] private Button[] filterButtons = Array.Empty<Button>();
 
     [Header("BluePrint / Recipe - Scroll")]
     [SerializeField] private Image scrollViewBackground;
@@ -20,6 +21,7 @@ public class BlueprintUIThemeApplier : AppUIThemeApplierBase
     [Header("BluePrint / Recipe - Panels")]
     [SerializeField] private Image mainPanelBackground;
     [SerializeField] private Image detailPanelBackground;
+    [SerializeField] private Image mainPanel2BackgroundSprite;
 
     [Header("BluePrint / Recipe - Text (Optional)")]
     [SerializeField] private TMP_Text[] primaryTexts = Array.Empty<TMP_Text>();
@@ -70,6 +72,7 @@ public class BlueprintUIThemeApplier : AppUIThemeApplierBase
 
             filter.ApplyThemeSprites(t.filterButtonSprite, t.filterButtonSelectedSprite);
         }
+            ApplyButtonSprite(filterButtons[i], t.filterButtonSprite);
 
         ApplyImageSprite(scrollViewBackground, t.scrollViewBackgroundSprite);
         ApplyImageSprite(scrollbarBackground, t.scrollbarBackgroundSprite);
