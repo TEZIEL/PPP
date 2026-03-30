@@ -25,6 +25,8 @@ namespace PPP.BLUE.VN.DrinkSystem
 
         private void Awake()
         {
+            ApplyNavigationNone();
+
             if (button != null)
                 button.onClick.AddListener(OnClick);
 
@@ -40,7 +42,10 @@ namespace PPP.BLUE.VN.DrinkSystem
         public void SetInteractable(bool interactable)
         {
             if (button != null)
+            {
+                ApplyNavigationNone();
                 button.interactable = interactable;
+            }
         }
 
         public void SetModifierState(bool enabled)
@@ -75,7 +80,7 @@ namespace PPP.BLUE.VN.DrinkSystem
             if (!isActiveAndEnabled || button == null || !button.IsInteractable())
                 return;
 
-            button.Select();
+            ApplyNavigationNone();
         }
 
         private void OnClick()
@@ -141,5 +146,19 @@ namespace PPP.BLUE.VN.DrinkSystem
             transform.localScale = originalScale;
             hotkeyPressCo = null;
         }
+
+        private void ApplyNavigationNone()
+        {
+            if (button == null)
+                return;
+
+            Navigation navigation = button.navigation;
+            if (navigation.mode == Navigation.Mode.None)
+                return;
+
+            navigation.mode = Navigation.Mode.None;
+            button.navigation = navigation;
+        }
+
     }
 }

@@ -35,6 +35,8 @@ namespace PPP.BLUE.VN.RecipeApp
 
         private void Awake()
         {
+            ApplyNavigationNone();
+
             if (button != null)
                 button.onClick.AddListener(HandleClick);
         }
@@ -46,6 +48,7 @@ namespace PPP.BLUE.VN.RecipeApp
 
             ingredientId = data.id;
             onClicked = clickHandler;
+            ApplyNavigationNone();
 
             if (labelText != null)
                 labelText.text = data.DisplayName;
@@ -62,7 +65,10 @@ namespace PPP.BLUE.VN.RecipeApp
         public void SetInteractable(bool interactable)
         {
             if (button != null)
+            {
+                ApplyNavigationNone();
                 button.interactable = interactable;
+            }
 
             RefreshVisual();
         }
@@ -146,6 +152,19 @@ namespace PPP.BLUE.VN.RecipeApp
             c.selectedColor = Color.white;
             c.disabledColor = Color.white;
             button.colors = c;
+        }
+
+        private void ApplyNavigationNone()
+        {
+            if (button == null)
+                return;
+
+            var navigation = button.navigation;
+            if (navigation.mode == Navigation.Mode.None)
+                return;
+
+            navigation.mode = Navigation.Mode.None;
+            button.navigation = navigation;
         }
 
        
