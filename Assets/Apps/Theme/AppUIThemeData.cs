@@ -96,7 +96,21 @@ public class AppUIThemeData : ScriptableObject
         public Sprite infoPanelSprite;
         public Sprite frameSprite;
         public Sprite innerBackgroundSprite;
-
+        public Sprite swipeViewportSprite2;
+        public Sprite infoPanelSprite2;
+        public Sprite frameSprite2;
+        public Sprite swipeViewportSprite3;
+        public Sprite infoPanelSprite3;
+        public Sprite frameSprite3;
+        public Sprite swipeViewportSprite4;
+        public Sprite infoPanelSprite4;
+        public Sprite frameSprite4;
+        public Sprite frameSprite5;
+        public Sprite swipeViewportSprite5;
+        public Sprite infoPanelSprite5;
+        public Sprite frameSprite6;
+        public Sprite swipeViewportSprite6
+            ;
         [Header("Buttons")]
         public Sprite actionButtonSprite;
 

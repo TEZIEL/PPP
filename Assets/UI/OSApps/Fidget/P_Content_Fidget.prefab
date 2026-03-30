@@ -339,6 +339,7 @@ GameObject:
   - component: {fileID: 8895021883887290591}
   - component: {fileID: 7998485250597417748}
   - component: {fileID: 6283924406317726397}
+  - component: {fileID: 1067456612569621015}
   m_Layer: 5
   m_Name: P_Content_Fidget
   m_TagString: Untagged
@@ -408,6 +409,41 @@ MonoBehaviour:
   m_FillOrigin: 0
   m_UseSpriteMesh: 0
   m_PixelsPerUnitMultiplier: 1
+--- !u!114 &1067456612569621015
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 747011108842251003}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 07219bbbb5b5467a83586a2612d3a6df, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  swipeViewport: {fileID: 589728923760399783}
+  infoPanel: {fileID: 3136719317195210970}
+  frameImage: {fileID: 2474533449473105856}
+  swipeViewport2: {fileID: 7210124061458536719}
+  infoPanel2: {fileID: 707650604919823263}
+  frameImage2: {fileID: 1741129483398949392}
+  swipeViewport3: {fileID: 1845692366896933797}
+  infoPanel3: {fileID: 4872993491998129655}
+  frameImage3: {fileID: 8681403829339264923}
+  swipeViewport4: {fileID: 5544081199648689125}
+  infoPanel4: {fileID: 8922898668156967129}
+  frameImage4: {fileID: 6305738482416854467}
+  frameImage5: {fileID: 3515905501830322851}
+  swipeViewport5: {fileID: 5563605023674866414}
+  infoPanel5: {fileID: 6584262834829321548}
+  frameImage6: {fileID: 1582428869408246566}
+  swipeViewport6: {fileID: 8146337873219965145}
+  innerBackgrounds: []
+  actionButtons:
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  texts: []
 --- !u!1 &918860762522471382
 GameObject:
   m_ObjectHideFlags: 0
@@ -3589,7 +3625,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!224 &281742410407901620
 RectTransform:
   m_ObjectHideFlags: 0

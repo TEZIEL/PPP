@@ -58,10 +58,24 @@ MonoBehaviour:
     actionButtonSprite: {fileID: 0}
     primaryTextColor: {r: 0, g: 0, b: 0, a: 0}
   bandit:
-    swipeViewportSprite: {fileID: 0}
-    infoPanelSprite: {fileID: 0}
-    frameSprite: {fileID: 0}
+    swipeViewportSprite: {fileID: 21300000, guid: d668939b45e6e7441beb0a9849837edd, type: 3}
+    infoPanelSprite: {fileID: 21300000, guid: 6d276694909278a4fbbca6efd8de7992, type: 3}
+    frameSprite: {fileID: 21300000, guid: 7cad749a1de6cca4b902a12d3cdbe3f4, type: 3}
     innerBackgroundSprite: {fileID: 0}
+    swipeViewportSprite2: {fileID: 21300000, guid: b2ec3f5b0a703c24697edf5a10c1e07a, type: 3}
+    infoPanelSprite2: {fileID: 21300000, guid: dce781062a1a4824fa2ee389e03e9b4e, type: 3}
+    frameSprite2: {fileID: 21300000, guid: 33677838c774e30429f710f22b823d52, type: 3}
+    swipeViewportSprite3: {fileID: 21300000, guid: 6d276694909278a4fbbca6efd8de7992, type: 3}
+    infoPanelSprite3: {fileID: 21300000, guid: 6d276694909278a4fbbca6efd8de7992, type: 3}
+    frameSprite3: {fileID: 21300000, guid: 6d276694909278a4fbbca6efd8de7992, type: 3}
+    swipeViewportSprite4: {fileID: 21300000, guid: 2059086534870fa4fb8711d51621f726, type: 3}
+    infoPanelSprite4: {fileID: 21300000, guid: abedb2324bb79084e8849a38ea384043, type: 3}
+    frameSprite4: {fileID: 21300000, guid: abedb2324bb79084e8849a38ea384043, type: 3}
+    frameSprite5: {fileID: 21300000, guid: abedb2324bb79084e8849a38ea384043, type: 3}
+    swipeViewportSprite5: {fileID: 0}
+    infoPanelSprite5: {fileID: 0}
+    frameSprite6: {fileID: 0}
+    swipeViewportSprite6: {fileID: 0}
     actionButtonSprite: {fileID: 0}
     textColor: {r: 0, g: 0, b: 0, a: 0}
   box:
