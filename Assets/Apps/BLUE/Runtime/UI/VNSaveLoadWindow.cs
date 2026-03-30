@@ -2,6 +2,7 @@ using System.Collections;
 using System.IO;
 using TMPro;
 using UnityEngine;
+using UnityEngine.EventSystems;
 using UnityEngine.UI;
 
 namespace PPP.BLUE.VN
@@ -166,6 +167,7 @@ namespace PPP.BLUE.VN
             ForceAutoOff("Open SaveLoad Modal");
             bridge?.ClearCloseRequestPending();
             AcquireModal();
+            EnsureSlotButtonNavigationNone();
             EnsureValidSelection();
             RefreshSlotStatus();
             RefreshSelectedSlotMetadata();
@@ -209,6 +211,7 @@ namespace PPP.BLUE.VN
                 return;
 
             selectedSlotIndex = index;
+            ClearUiSelectionIfAnySlotSelected();
             RefreshSelectedSlotMetadata();
             RefreshSlotVisuals();
             RefreshActionButtonState();
@@ -440,6 +443,8 @@ namespace PPP.BLUE.VN
                     slot.selectButton.onClick.AddListener(() => SelectSlot(capture));
                 }
             }
+
+            EnsureSlotButtonNavigationNone();
         }
 
         /// <summary>
@@ -987,6 +992,58 @@ namespace PPP.BLUE.VN
 
             File.Copy(src, dst, overwrite: true);
             return true;
+        }
+
+        private static void ApplyNavigationNone(Button button)
+        {
+            if (button == null)
+                return;
+
+            var navigation = button.navigation;
+            if (navigation.mode == Navigation.Mode.None)
+                return;
+
+            navigation.mode = Navigation.Mode.None;
+            button.navigation = navigation;
+        }
+
+        private void EnsureSlotButtonNavigationNone()
+        {
+            if (slots == null)
+                return;
+
+            for (int i = 0; i < slots.Length; i++)
+            {
+                var slot = slots[i];
+                if (slot == null || slot.selectButton == null)
+                    continue;
+
+                ApplyNavigationNone(slot.selectButton);
+            }
+        }
+
+        private void ClearUiSelectionIfAnySlotSelected()
+        {
+            var eventSystem = EventSystem.current;
+            if (eventSystem == null)
+                return;
+
+            GameObject selected = eventSystem.currentSelectedGameObject;
+            if (selected == null)
+                return;
+
+            for (int i = 0; i < slots.Length; i++)
+            {
+                var slot = slots[i];
+                if (slot == null || slot.selectButton == null)
+                    continue;
+
+                if (selected == slot.selectButton.gameObject)
+                {
+                    eventSystem.SetSelectedGameObject(null);
+                    return;
+                }
+            }
         }
     }
 }
