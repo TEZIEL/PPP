@@ -294,6 +294,15 @@ public class AppUIThemeData : ScriptableObject
         public Sprite otherWindow38RootSprite;
         public Sprite otherWindow39RootSprite;
         public Sprite otherWindow40RootSprite;
+        public Sprite otherWindow41RootSprite;
+        public Sprite otherWindow42RootSprite;
+        public Sprite otherWindow43RootSprite;
+        public Sprite otherWindow44RootSprite;
+        public Sprite otherWindow45RootSprite;
+        public Sprite otherWindow46RootSprite;
+        public Sprite otherWindow47RootSprite;
+        public Sprite otherWindow48RootSprite;
+        public Sprite otherWindow49RootSprite;
     }
 
     [Header("BluePrint")]
