@@ -2,6 +2,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using PPP.BLUE.VN.DrinkSystem;
+using PPP.BLUE.VN.RecipeApp;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
@@ -74,6 +75,7 @@ namespace PPP.BLUE.VN
         private string pendingResult = "fail";
         private string pendingNormalizedResult = "fail";
         private string pendingDrinkName = "Unknown Drink";
+        private string pendingDrinkId = string.Empty;
         private bool hasPendingProvide;
         private bool resultLocked;
         private bool confirmCompleted;
@@ -435,6 +437,8 @@ namespace PPP.BLUE.VN
             if (runner != null)
                 runner.SetVar("lastDrink", MapResultToLastDrinkValue(pendingNormalizedResult));
 
+            RecipeAppController.UnlockRecipeFromServe(pendingDrinkId);
+
             LogDrink("ConfirmProvide result=" + pendingResult);
             LogResult(pendingResult);
             Debug.Log("[VN_TEST] Drink result=" + pendingResult + " request=" + currentRequestId);
@@ -472,6 +476,7 @@ namespace PPP.BLUE.VN
 
             result = blockedByArtheon ? "fail" : requestEvaluator.Evaluate(drinkId, currentRequest, currentRequestId);
             normalizedResult = NormalizeResultForRunner(result);
+            pendingDrinkId = drinkId ?? string.Empty;
 
             var produced = database?.FindDrink(drinkId);
             producedName = produced != null ? produced.name : "Unknown Drink";

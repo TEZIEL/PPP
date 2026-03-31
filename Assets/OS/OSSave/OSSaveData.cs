@@ -11,6 +11,7 @@ namespace PPP.OS.Save
         public List<OSWindowData> windows = new();
         public List<OSIconData> icons = new();
         public List<OSSubBlockData> subBlocks = new();
+        public List<string> unlockedRecipeIds = new();
         public OSGlobalStateData osState = new();
     }
 

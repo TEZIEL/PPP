@@ -48,6 +48,9 @@ namespace PPP.BLUE.VN.RecipeApp
 
         private DrinkEntry current;
         private Action<DrinkEntry> onClicked;
+        private Sprite currentSprite;
+
+        public string DrinkId => current != null ? current.id : string.Empty;
 
         private void Awake()
         {
@@ -86,11 +89,20 @@ namespace PPP.BLUE.VN.RecipeApp
 
             if (drinkImage != null)
             {
-                drinkImage.sprite = image;
-                drinkImage.enabled = image != null;
+                currentSprite = image;
+                ApplyUnlockVisual(image != null);
             }
 
             themeApplier?.ApplyCurrentTheme();
+        }
+
+        public void ApplyUnlockVisual(bool unlocked)
+        {
+            if (drinkImage == null)
+                return;
+
+            drinkImage.enabled = unlocked;
+            drinkImage.sprite = unlocked ? currentSprite : null;
         }
 
         private string BuildIngredientsText(DrinkEntry drink, IReadOnlyDictionary<string, string> ingredientDisplayNames)

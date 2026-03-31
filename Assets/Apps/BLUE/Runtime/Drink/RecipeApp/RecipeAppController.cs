@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using TMPro;
+using PPP.OS.Save;
 using UnityEngine;
 using UnityEngine.UI;
 using UnityEngine.EventSystems;
@@ -61,6 +62,9 @@ namespace PPP.BLUE.VN.RecipeApp
         private readonly Dictionary<string, Sprite> imageByKey = new Dictionary<string, Sprite>(StringComparer.OrdinalIgnoreCase);
         private readonly HashSet<string> selectedIngredientIds = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
         private readonly Dictionary<string, string> ingredientDisplayNameById = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
+        private HashSet<string> unlockedRecipes = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+
+        private static RecipeAppController instance;
 
         private List<IngredientEntry> allIngredients = new List<IngredientEntry>();
         private List<DrinkEntry> allDrinks = new List<DrinkEntry>();
@@ -68,6 +72,8 @@ namespace PPP.BLUE.VN.RecipeApp
 
         private void Awake()
         {
+            instance = this;
+            InitializeUnlockState();
             BindScrollButtons();
             BuildImageMap();
             LoadData();
@@ -78,7 +84,56 @@ namespace PPP.BLUE.VN.RecipeApp
 
         private void OnDestroy()
         {
+            if (instance == this)
+                instance = null;
+
             UnbindScrollButtons();
+        }
+
+        private void InitializeUnlockState()
+        {
+            var osData = OSSaveSystem.Load() ?? new OSSaveData();
+            unlockedRecipes = osData.unlockedRecipeIds != null
+                ? new HashSet<string>(osData.unlockedRecipeIds, StringComparer.OrdinalIgnoreCase)
+                : new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+        }
+
+        public static void UnlockRecipeFromServe(string recipeId)
+        {
+            if (string.IsNullOrWhiteSpace(recipeId))
+                return;
+
+            if (instance != null)
+            {
+                instance.UnlockRecipe(recipeId);
+                return;
+            }
+
+            PersistRecipeUnlock(recipeId);
+        }
+
+        public void UnlockRecipe(string recipeId)
+        {
+            if (string.IsNullOrWhiteSpace(recipeId))
+                return;
+
+            if (unlockedRecipes.Contains(recipeId))
+                return;
+
+            unlockedRecipes.Add(recipeId);
+            PersistRecipeUnlock(recipeId);
+            RefreshUI();
+        }
+
+        private static void PersistRecipeUnlock(string recipeId)
+        {
+            var osData = OSSaveSystem.Load() ?? new OSSaveData();
+            osData.unlockedRecipeIds ??= new List<string>();
+            if (osData.unlockedRecipeIds.Contains(recipeId))
+                return;
+
+            osData.unlockedRecipeIds.Add(recipeId);
+            OSSaveSystem.Save(osData);
         }
 
         /// <summary>
@@ -245,7 +300,8 @@ namespace PPP.BLUE.VN.RecipeApp
                 {
                     var drink = filtered[i];
                     var item = Instantiate(drinkListItemPrefab, drinkListContent);
-                    item.Setup(drink, FindDrinkSprite(drink.imageKey), ingredientDisplayNameById, OnDrinkClicked);
+                    bool unlocked = IsRecipeUnlocked(drink.id);
+                    item.Setup(drink, unlocked ? FindDrinkSprite(drink.imageKey) : null, ingredientDisplayNameById, OnDrinkClicked);
                     drinkItems.Add(item);
                 }
             }
@@ -388,10 +444,34 @@ namespace PPP.BLUE.VN.RecipeApp
 
             if (detailImage != null)
             {
-                var sprite = FindDrinkSprite(drink.imageKey);
+                bool unlocked = IsRecipeUnlocked(drink.id);
+                var sprite = unlocked ? FindDrinkSprite(drink.imageKey) : null;
                 detailImage.sprite = sprite;
-                detailImage.enabled = sprite != null;
+                detailImage.enabled = unlocked && sprite != null;
             }
+        }
+
+        private bool IsRecipeUnlocked(string recipeId)
+        {
+            if (string.IsNullOrWhiteSpace(recipeId))
+                return false;
+
+            return unlockedRecipes.Contains(recipeId);
+        }
+
+        private void RefreshUI()
+        {
+            for (int i = 0; i < drinkItems.Count; i++)
+            {
+                var item = drinkItems[i];
+                if (item == null)
+                    continue;
+
+                item.ApplyUnlockVisual(IsRecipeUnlocked(item.DrinkId));
+            }
+
+            if (openedDetailDrink != null)
+                ShowDetail(openedDetailDrink);
         }
 
         private Sprite FindDrinkSprite(string imageKey)
