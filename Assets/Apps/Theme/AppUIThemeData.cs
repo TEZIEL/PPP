@@ -360,6 +360,26 @@ public class AppUIThemeData : ScriptableObject
         public Sprite otherWindow54RootSprite;
     }
 
+    [System.Serializable]
+    public struct DesktopIconThemeEntry
+    {
+        public string appId;
+        public Sprite iconSprite;
+    }
+
+    [System.Serializable]
+    public struct DesktopTheme
+    {
+        [Header("Desktop Launcher Icons")]
+        public DesktopIconThemeEntry[] launcherIcons;
+
+        [Header("Desktop Context Menu Tint")]
+        public Color contextMenuButtonNormalTint;
+        public Color contextMenuButtonSelectedTint;
+        public Color contextMenuButtonPressedTint;
+        public Color contextMenuButtonDisabledTint;
+    }
+
     [Header("BluePrint")]
     public BlueprintTheme blueprint;
 
@@ -380,4 +400,7 @@ public class AppUIThemeData : ScriptableObject
 
     [Header("VN")]
     public VNTheme vn;
+
+    [Header("Desktop")]
+    public DesktopTheme desktop;
 }

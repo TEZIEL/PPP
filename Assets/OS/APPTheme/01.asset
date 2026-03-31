@@ -260,3 +260,9 @@ MonoBehaviour:
     otherWindow52RootSprite: {fileID: 21300000, guid: 0df50fd6d82d3524db62cf3a7de098fa, type: 3}
     otherWindow53RootSprite: {fileID: 21300000, guid: 0df50fd6d82d3524db62cf3a7de098fa, type: 3}
     otherWindow54RootSprite: {fileID: 21300000, guid: 0df50fd6d82d3524db62cf3a7de098fa, type: 3}
+  desktop:
+    launcherIcons: []
+    contextMenuButtonNormalTint: {r: 1, g: 1, b: 1, a: 1}
+    contextMenuButtonSelectedTint: {r: 0.5019608, g: 0.5019608, b: 0.72156864, a: 1}
+    contextMenuButtonPressedTint: {r: 0.7058824, g: 0.7058824, b: 0.7058824, a: 1}
+    contextMenuButtonDisabledTint: {r: 0.7058824, g: 0.7058824, b: 0.7058824, a: 0.5019608}

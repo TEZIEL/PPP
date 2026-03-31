@@ -42,6 +42,7 @@ public class DesktopIconLauncher : MonoBehaviour, IPointerClickHandler
             iconLabel.text = appDef.DisplayName;
 
         ResolveIconImageIfNeeded();
+        ApplyCurrentTheme();
         ApplyIconColor(false);
 
         if (selectedVisual != null)
@@ -50,6 +51,8 @@ public class DesktopIconLauncher : MonoBehaviour, IPointerClickHandler
 
     private void OnDisable()
     {
+        UnbindThemeEvents();
+
         if (activeSelection == this)
             activeSelection = null;
 
@@ -58,6 +61,13 @@ public class DesktopIconLauncher : MonoBehaviour, IPointerClickHandler
 
         if (selectedVisual != null)
             selectedVisual.SetActive(false);
+    }
+
+    private void OnEnable()
+    {
+        BindThemeEvents();
+        ApplyCurrentTheme();
+        ApplyIconColor(activeSelection == this);
     }
 
     private void Update()
@@ -140,6 +150,61 @@ public class DesktopIconLauncher : MonoBehaviour, IPointerClickHandler
         if (iconImage == null) return;
 
         iconImage.color = selected ? selectedIconColor : normalIconColor;
+    }
+
+    private void BindThemeEvents()
+    {
+        var manager = AppUIThemeManager.Instance;
+        if (manager != null)
+            manager.OnThemeChanged += HandleThemeChanged;
+    }
+
+    private void UnbindThemeEvents()
+    {
+        var manager = AppUIThemeManager.Instance;
+        if (manager != null)
+            manager.OnThemeChanged -= HandleThemeChanged;
+    }
+
+    private void HandleThemeChanged()
+    {
+        ApplyCurrentTheme();
+        ApplyIconColor(activeSelection == this);
+    }
+
+    private void ApplyCurrentTheme()
+    {
+        ResolveIconImageIfNeeded();
+        if (iconImage == null)
+            return;
+
+        Sprite icon = ResolveThemedIconSprite();
+        if (icon != null)
+            iconImage.sprite = icon;
+    }
+
+    private Sprite ResolveThemedIconSprite()
+    {
+        string appId = appDef != null ? appDef.AppId : null;
+        var themeManager = AppUIThemeManager.Instance;
+        if (themeManager != null && themeManager.CurrentTheme != null && !string.IsNullOrWhiteSpace(appId))
+        {
+            var icons = themeManager.CurrentTheme.desktop.launcherIcons;
+            if (icons != null)
+            {
+                for (int i = 0; i < icons.Length; i++)
+                {
+                    var entry = icons[i];
+                    if (!string.Equals(entry.appId, appId, System.StringComparison.OrdinalIgnoreCase))
+                        continue;
+
+                    if (entry.iconSprite != null)
+                        return entry.iconSprite;
+                }
+            }
+        }
+
+        return appDef != null ? appDef.IconSprite : null;
     }
 
     private bool CanExecuteNow()
