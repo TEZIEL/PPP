@@ -230,6 +230,7 @@ namespace PPP.BLUE.VN
                 return;
 
             selectedSlotIndex = index;
+            
             RefreshSelectedSlotMetadata();
             RefreshSlotVisuals();
             RefreshActionButtonState();

@@ -30,6 +30,16 @@ MonoBehaviour:
   windowCloseButtonNormalSprite: {fileID: 21300000, guid: c20f5931ce2cbb54b9164ce75f848d7a, type: 3}
   windowCloseButtonHoverSprite: {fileID: 0}
   windowCloseButtonPressedSprite: {fileID: 0}
+  otherWindow1RootSprite: {fileID: 21300000, guid: 0616847a8986c9447b6ffa5370803a96, type: 3}
+  otherWindow2RootSprite: {fileID: 21300000, guid: e303e1f8346d4844790a32e299a865a9, type: 3}
+  otherWindow3RootSprite: {fileID: 21300000, guid: d668939b45e6e7441beb0a9849837edd, type: 3}
+  otherWindow4RootSprite: {fileID: 21300000, guid: d668939b45e6e7441beb0a9849837edd, type: 3}
+  otherWindow5RootSprite: {fileID: 21300000, guid: d668939b45e6e7441beb0a9849837edd, type: 3}
+  otherWindow6RootSprite: {fileID: 21300000, guid: 0616847a8986c9447b6ffa5370803a96, type: 3}
+  otherWindow7RootSprite: {fileID: 21300000, guid: 0616847a8986c9447b6ffa5370803a96, type: 3}
+  otherWindow8RootSprite: {fileID: 21300000, guid: 0616847a8986c9447b6ffa5370803a96, type: 3}
+  otherWindow9RootSprite: {fileID: 21300000, guid: 0616847a8986c9447b6ffa5370803a96, type: 3}
+  otherWindow10RootSprite: {fileID: 21300000, guid: 0616847a8986c9447b6ffa5370803a96, type: 3}
   windowMinimizeButtonNormalSprite: {fileID: 21300000, guid: d3aad8d25fc10eb45ade5fd62692569b, type: 3}
   windowMinimizeButtonHoverSprite: {fileID: 0}
   windowMinimizeButtonPressedSprite: {fileID: 0}

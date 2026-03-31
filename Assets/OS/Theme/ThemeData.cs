@@ -25,6 +25,17 @@ public class ThemeData : ScriptableObject
     public Sprite windowCloseButtonHoverSprite;
     public Sprite windowCloseButtonPressedSprite;
 
+    public Sprite otherWindow1RootSprite;
+    public Sprite otherWindow2RootSprite;
+    public Sprite otherWindow3RootSprite;
+    public Sprite otherWindow4RootSprite;
+    public Sprite otherWindow5RootSprite;
+    public Sprite otherWindow6RootSprite;
+    public Sprite otherWindow7RootSprite;
+    public Sprite otherWindow8RootSprite;
+    public Sprite otherWindow9RootSprite;
+    public Sprite otherWindow10RootSprite;
+
     public Sprite windowMinimizeButtonNormalSprite;
     public Sprite windowMinimizeButtonHoverSprite;
     public Sprite windowMinimizeButtonPressedSprite;
