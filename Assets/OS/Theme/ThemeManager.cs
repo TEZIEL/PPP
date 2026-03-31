@@ -14,6 +14,16 @@ public class ThemeManager : MonoBehaviour
     [SerializeField] private Image clockPanelImage;
     [SerializeField] private Image taskbarSeparatorImage;
     [SerializeField] private List<Image> extraTaskbarPanelImages = new();
+    [SerializeField] private Image otherWindow1RootImage;
+    [SerializeField] private Image otherWindow2RootImage;
+    [SerializeField] private Image otherWindow3RootImage;
+    [SerializeField] private Image otherWindow4RootImage;
+    [SerializeField] private Image otherWindow5RootImage;
+    [SerializeField] private Image otherWindow6RootImage;
+    [SerializeField] private Image otherWindow7RootImage;
+    [SerializeField] private Image otherWindow8RootImage;
+    [SerializeField] private Image otherWindow9RootImage;
+    [SerializeField] private Image otherWindow10RootImage;
 
     public ThemeData CurrentTheme => currentTheme;
 
@@ -43,6 +53,16 @@ public class ThemeManager : MonoBehaviour
         ApplySpriteIfPresent(startButtonImage, currentTheme.startButtonSprite);
         ApplySpriteIfPresent(clockPanelImage, currentTheme.clockPanelSprite);
         ApplySpriteIfPresent(taskbarSeparatorImage, currentTheme.taskbarSeparatorSprite);
+        ApplySpriteIfPresent(otherWindow1RootImage, currentTheme.otherWindow1RootSprite);
+        ApplySpriteIfPresent(otherWindow2RootImage, currentTheme.otherWindow2RootSprite);
+        ApplySpriteIfPresent(otherWindow3RootImage, currentTheme.otherWindow3RootSprite);
+        ApplySpriteIfPresent(otherWindow4RootImage, currentTheme.otherWindow4RootSprite);
+        ApplySpriteIfPresent(otherWindow5RootImage, currentTheme.otherWindow5RootSprite);
+        ApplySpriteIfPresent(otherWindow6RootImage, currentTheme.otherWindow6RootSprite);
+        ApplySpriteIfPresent(otherWindow7RootImage, currentTheme.otherWindow7RootSprite);
+        ApplySpriteIfPresent(otherWindow8RootImage, currentTheme.otherWindow8RootSprite);
+        ApplySpriteIfPresent(otherWindow9RootImage, currentTheme.otherWindow9RootSprite);
+        ApplySpriteIfPresent(otherWindow10RootImage, currentTheme.otherWindow10RootSprite);
 
         for (int i = 0; i < extraTaskbarPanelImages.Count; i++)
             ApplySpriteIfPresent(extraTaskbarPanelImages[i], currentTheme.taskbarPanelSprite);

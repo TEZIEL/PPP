@@ -17,9 +17,9 @@ MonoBehaviour:
     filterButtonSelectedSprite: {fileID: 21300000, guid: df9188671a393d34cb3491200174b464, type: 3}
     ingredientSelectedColor: {r: 1, g: 1, b: 1, a: 1}
     ingredientPressedColor: {r: 0.78431374, g: 0.78431374, b: 0.78431374, a: 1}
-    ingredientDefaultTextColor: {r: 1, g: 1, b: 1, a: 1}
-    ingredientPressedTextColor: {r: 1, g: 1, b: 1, a: 1}
-    ingredientSelectedTextColor: {r: 1, g: 1, b: 1, a: 1}
+    ingredientDefaultTextColor: {r: 0, g: 0, b: 0, a: 1}
+    ingredientPressedTextColor: {r: 0, g: 0, b: 0, a: 1}
+    ingredientSelectedTextColor: {r: 0, g: 0, b: 0, a: 1}
     ingredientStateIndicatorSprite: {fileID: 21300000, guid: df9188671a393d34cb3491200174b464, type: 3}
     scrollViewBackgroundSprite: {fileID: 21300000, guid: 3e3d41911f7398042b824557f35a7278, type: 3}
     scrollUpButtonSprite: {fileID: 21300000, guid: dce781062a1a4824fa2ee389e03e9b4e, type: 3}
@@ -172,19 +172,19 @@ MonoBehaviour:
     backlogItemSprite: {fileID: 0}
     backlogButtonSprite: {fileID: 21300000, guid: 6d276694909278a4fbbca6efd8de7992, type: 3}
     exitModalRootSprite: {fileID: 21300000, guid: 6d276694909278a4fbbca6efd8de7992, type: 3}
-    exitModalButtonSprite: {fileID: 21300000, guid: 6d276694909278a4fbbca6efd8de7992, type: 3}
-    exitSelectedButtonColor: {r: 0.5019608, g: 0.5019608, b: 0.72156864, a: 1}
-    exitPressedButtonColor: {r: 0.78431374, g: 0.78431374, b: 0.78431374, a: 1}
+    exitModalButtonSprite: {fileID: 0}
+    exitSelectedButtonColor: {r: 1, g: 0.78431374, b: 0.88235295, a: 1}
+    exitPressedButtonColor: {r: 1, g: 0.78431374, b: 0.88235295, a: 1}
     drinkRootSprite: {fileID: 21300000, guid: 0df50fd6d82d3524db62cf3a7de098fa, type: 3}
     drinkGridSprite: {fileID: 21300000, guid: 0e7fb8fabc8e0b64bb4aac52ebf73587, type: 3}
     ingredientButtonSprite: {fileID: 21300000, guid: 6d276694909278a4fbbca6efd8de7992, type: 3}
-    ingredientSelectedButtonSprite: {fileID: 21300000, guid: 6d276694909278a4fbbca6efd8de7992, type: 3}
-    ingredientSelectedColor: {r: 1, g: 1, b: 1, a: 1}
-    ingredientPressedColor: {r: 0.78431374, g: 0.78431374, b: 0.78431374, a: 1}
-    ingredientDefaultTextColor: {r: 1, g: 1, b: 1, a: 1}
+    ingredientSelectedButtonSprite: {fileID: 21300000, guid: f495a651c716e58479c5889b2226e617, type: 3}
+    ingredientSelectedColor: {r: 1, g: 0.78431374, b: 0.88235295, a: 1}
+    ingredientPressedColor: {r: 1, g: 0.78431374, b: 0.88235295, a: 1}
+    ingredientDefaultTextColor: {r: 0, g: 0, b: 0, a: 1}
     ingredientPressedTextColor: {r: 1, g: 1, b: 1, a: 1}
     ingredientSelectedTextColor: {r: 1, g: 1, b: 1, a: 1}
-    ingredientStateIndicatorSprite: {fileID: 21300000, guid: 6d276694909278a4fbbca6efd8de7992, type: 3}
+    ingredientStateIndicatorSprite: {fileID: 21300000, guid: f495a651c716e58479c5889b2226e617, type: 3}
     dialogueRootSprite: {fileID: 21300000, guid: 6d276694909278a4fbbca6efd8de7992, type: 3}
     dialogueButtonContainerSprite: {fileID: 21300000, guid: 0df50fd6d82d3524db62cf3a7de098fa, type: 3}
     dialogueButtonSprite: {fileID: 0}
