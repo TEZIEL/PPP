@@ -65,6 +65,22 @@ namespace PPP.BLUE.VN.DrinkSystem
                 themeManager.OnThemeChanged -= HandleThemeChanged;
         }
 
+        private void OnEnable()
+        {
+            var themeManager = AppUIThemeManager.Instance;
+            if (themeManager != null)
+                themeManager.OnThemeChanged += HandleThemeChanged;
+
+            ApplyCurrentTheme();
+        }
+
+        private void OnDisable()
+        {
+            var themeManager = AppUIThemeManager.Instance;
+            if (themeManager != null)
+                themeManager.OnThemeChanged -= HandleThemeChanged;
+        }
+
         
         
        
