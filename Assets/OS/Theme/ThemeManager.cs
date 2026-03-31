@@ -5,6 +5,7 @@ using UnityEngine.UI;
 public class ThemeManager : MonoBehaviour
 {
     public static ThemeManager Instance { get; private set; }
+    public event System.Action OnThemeApplied;
 
     [SerializeField] private ThemeData currentTheme;
     [Header("Taskbar Surface")]
@@ -52,6 +53,8 @@ public class ThemeManager : MonoBehaviour
 
         var windowManager = FindObjectOfType<WindowManager>();
         windowManager?.ApplyThemeToOpenWindows(this);
+
+        OnThemeApplied?.Invoke();
     }
 
     public void ApplyThemeToWindow(WindowController window)

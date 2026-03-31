@@ -18,6 +18,12 @@ public class DesktopContextMenuView : MonoBehaviour
     [SerializeField] private Color highlightedTextColor = Color.white;
     [SerializeField] private Color pressedTextColor = Color.white;
 
+    [Header("Button Tint Fallback")]
+    [SerializeField] private Color buttonNormalTint = Color.white;
+    [SerializeField] private Color buttonSelectedTint = new Color32(128, 128, 184, 255);
+    [SerializeField] private Color buttonPressedTint = new Color32(180, 180, 180, 255);
+    [SerializeField] private Color buttonDisabledTint = new Color32(180, 180, 180, 128);
+
     public event Action OnAlignIcons;
     public event Action OnToggleLayout;
     public event Action OnResetWindows;
@@ -44,6 +50,23 @@ public class DesktopContextMenuView : MonoBehaviour
         RegisterButton(createFileButton, () => OnCreateFile?.Invoke());
 
         ResetTextVisualState();
+        ApplyCurrentTheme();
+    }
+
+    private void OnEnable()
+    {
+        var manager = ThemeManager.Instance;
+        if (manager != null)
+            manager.OnThemeApplied += HandleThemeChanged;
+
+        ApplyCurrentTheme();
+    }
+
+    private void OnDisable()
+    {
+        var manager = ThemeManager.Instance;
+        if (manager != null)
+            manager.OnThemeApplied -= HandleThemeChanged;
     }
 
     public void ResetTextVisualState()
@@ -75,6 +98,7 @@ public class DesktopContextMenuView : MonoBehaviour
 
         visualStates.Add(state);
         AddPointerTriggers(state);
+        ApplyButtonTint(state);
         ApplyTextColor(state);
     }
 
@@ -132,5 +156,51 @@ public class DesktopContextMenuView : MonoBehaviour
             state.text.color = highlightedTextColor;
         else
             state.text.color = normalTextColor;
+    }
+
+    private void HandleThemeChanged()
+    {
+        ApplyCurrentTheme();
+    }
+
+    private void ApplyCurrentTheme()
+    {
+        var manager = ThemeManager.Instance;
+        if (manager != null && manager.CurrentTheme != null)
+        {
+            var theme = manager.CurrentTheme;
+            if (IsConfiguredTint(theme.desktopContextMenuButtonNormalTint))
+                buttonNormalTint = theme.desktopContextMenuButtonNormalTint;
+            if (IsConfiguredTint(theme.desktopContextMenuButtonSelectedTint))
+                buttonSelectedTint = theme.desktopContextMenuButtonSelectedTint;
+            if (IsConfiguredTint(theme.desktopContextMenuButtonPressedTint))
+                buttonPressedTint = theme.desktopContextMenuButtonPressedTint;
+            if (IsConfiguredTint(theme.desktopContextMenuButtonDisabledTint))
+                buttonDisabledTint = theme.desktopContextMenuButtonDisabledTint;
+        }
+
+        for (int i = 0; i < visualStates.Count; i++)
+        {
+            ApplyButtonTint(visualStates[i]);
+            ApplyTextColor(visualStates[i]);
+        }
+    }
+
+    private void ApplyButtonTint(ButtonVisualState state)
+    {
+        if (state == null || state.button == null)
+            return;
+
+        var colors = state.button.colors;
+        colors.normalColor = buttonNormalTint;
+        colors.selectedColor = buttonSelectedTint;
+        colors.pressedColor = buttonPressedTint;
+        colors.disabledColor = buttonDisabledTint;
+        state.button.colors = colors;
+    }
+
+    private static bool IsConfiguredTint(Color color)
+    {
+        return color.a > 0f;
     }
 }

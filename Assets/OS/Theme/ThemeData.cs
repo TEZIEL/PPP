@@ -3,6 +3,13 @@ using UnityEngine;
 [CreateAssetMenu(menuName = "OS/Theme Data", fileName = "ThemeData")]
 public class ThemeData : ScriptableObject
 {
+    [System.Serializable]
+    public struct DesktopLauncherIconEntry
+    {
+        public string appId;
+        public Sprite iconSprite;
+    }
+
     [Header("Taskbar Sprites")]
     public Sprite taskbarBackgroundSprite;
     public Sprite taskbarPanelSprite;
@@ -33,6 +40,15 @@ public class ThemeData : ScriptableObject
     public Sprite windowPinButtonHoverSprite;
     public Sprite windowPinButtonPressedSprite;
     public Sprite windowPinButtonOnSprite;
+
+    [Header("Desktop Launcher")]
+    public DesktopLauncherIconEntry[] desktopLauncherIcons;
+
+    [Header("Desktop Context Menu Tint")]
+    public Color desktopContextMenuButtonNormalTint = Color.white;
+    public Color desktopContextMenuButtonSelectedTint = new Color32(128, 128, 184, 255);
+    public Color desktopContextMenuButtonPressedTint = new Color32(180, 180, 180, 255);
+    public Color desktopContextMenuButtonDisabledTint = new Color32(180, 180, 180, 128);
 
     [Header("Optional Fallback Tint")]
     public Color windowTint = Color.white;
