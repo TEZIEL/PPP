@@ -62,7 +62,7 @@ public class ThemeData : ScriptableObject
 
     [Header("Desktop Context Menu Tint")]
     public Color desktopContextMenuButtonNormalTint = Color.white;
-    public Color desktopContextMenuButtonHighligtedTint = new Color32(128, 128, 184, 255);
+    public Color desktopContextMenuButtonHighlightedTint = new Color32(128, 128, 184, 255);
     public Color desktopContextMenuButtonSelectedTint = new Color32(128, 128, 184, 255);
     public Color desktopContextMenuButtonPressedTint = new Color32(180, 180, 180, 255);
     public Color desktopContextMenuButtonDisabledTint = new Color32(180, 180, 180, 128);
@@ -70,7 +70,7 @@ public class ThemeData : ScriptableObject
     [Header("Desktop Launcher Tint")]
     public Color desktopLauncherIconNormalTint = new Color32(0, 0, 0, 255);
     public Color desktopLauncherIconSelectedTint = new Color32(128, 128, 184, 255);
-    public Color desktopLauncherIconPressedTint = new Color32(180, 180, 180, 255);
+   
 
 
     [Header("Optional Fallback Tint")]

@@ -178,9 +178,20 @@ public class DesktopIconLauncher : MonoBehaviour, IPointerClickHandler
         if (iconImage == null)
             return;
 
+        var themeManager = ThemeManager.Instance;
+        var theme = themeManager != null ? themeManager.CurrentTheme : null;
+
+        if (theme != null)
+        {
+            normalIconColor = theme.desktopLauncherIconNormalTint;
+            selectedIconColor = theme.desktopLauncherIconSelectedTint;
+        }
+
         Sprite icon = ResolveThemedIconSprite();
         if (icon != null)
             iconImage.sprite = icon;
+
+        ApplyIconColor(activeSelection == this);
     }
 
     private Sprite ResolveThemedIconSprite()

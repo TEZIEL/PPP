@@ -3822,6 +3822,7 @@ MonoBehaviour:
   highlightedTextColor: {r: 1, g: 1, b: 1, a: 1}
   pressedTextColor: {r: 1, g: 1, b: 1, a: 1}
   buttonNormalTint: {r: 1, g: 1, b: 1, a: 1}
+  buttonHighlightedTint: {r: 1, g: 1, b: 1, a: 1}
   buttonSelectedTint: {r: 0.5019608, g: 0.5019608, b: 0.72156864, a: 1}
   buttonPressedTint: {r: 0.7058824, g: 0.7058824, b: 0.7058824, a: 1}
   buttonDisabledTint: {r: 0.7058824, g: 0.7058824, b: 0.7058824, a: 0.5019608}

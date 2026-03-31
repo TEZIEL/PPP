@@ -20,6 +20,7 @@ public class DesktopContextMenuView : MonoBehaviour
 
     [Header("Button Tint Fallback")]
     [SerializeField] private Color buttonNormalTint = Color.white;
+    [SerializeField] private Color buttonHighlightedTint = new Color32(128, 128, 184, 255);
     [SerializeField] private Color buttonSelectedTint = new Color32(128, 128, 184, 255);
     [SerializeField] private Color buttonPressedTint = new Color32(180, 180, 180, 255);
     [SerializeField] private Color buttonDisabledTint = new Color32(180, 180, 180, 128);
@@ -171,6 +172,8 @@ public class DesktopContextMenuView : MonoBehaviour
             var theme = manager.CurrentTheme;
             if (IsConfiguredTint(theme.desktopContextMenuButtonNormalTint))
                 buttonNormalTint = theme.desktopContextMenuButtonNormalTint;
+            if (IsConfiguredTint(theme.desktopContextMenuButtonHighlightedTint))
+                buttonHighlightedTint = theme.desktopContextMenuButtonHighlightedTint;
             if (IsConfiguredTint(theme.desktopContextMenuButtonSelectedTint))
                 buttonSelectedTint = theme.desktopContextMenuButtonSelectedTint;
             if (IsConfiguredTint(theme.desktopContextMenuButtonPressedTint))
@@ -193,6 +196,7 @@ public class DesktopContextMenuView : MonoBehaviour
 
         var colors = state.button.colors;
         colors.normalColor = buttonNormalTint;
+        colors.highlightedColor = buttonHighlightedTint;
         colors.selectedColor = buttonSelectedTint;
         colors.pressedColor = buttonPressedTint;
         colors.disabledColor = buttonDisabledTint;
