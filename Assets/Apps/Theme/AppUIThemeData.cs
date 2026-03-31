@@ -273,6 +273,8 @@ public class AppUIThemeData : ScriptableObject
         [Header("Exit Modal")]
         public Sprite exitModalRootSprite;
         public Sprite exitModalButtonSprite;
+        public Color exitSelectedButtonColor;
+        public Color exitPressedButtonColor;
 
         [Header("Drink")]
         public Sprite drinkRootSprite;
