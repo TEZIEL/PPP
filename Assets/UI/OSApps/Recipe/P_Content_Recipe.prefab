@@ -388,8 +388,17 @@ MonoBehaviour:
   button: {fileID: 4069558303449280313}
   labelText: {fileID: 7358142900499021339}
   selectionBackground: {fileID: 8016418643097735584}
+  stateIndicatorImage: {fileID: 0}
   normalSprite: {fileID: 21300000, guid: 5b830c498723ddf4f89a14b5c8c3d324, type: 3}
   selectedSprite: {fileID: 21300000, guid: 2e4015f092f81d544953e5df573adb26, type: 3}
+  normalColor: {r: 1, g: 1, b: 1, a: 1}
+  selectedColor: {r: 1, g: 1, b: 1, a: 1}
+  highlightedColor: {r: 0.9019608, g: 0.9019608, b: 0.9019608, a: 1}
+  pressedColor: {r: 0.78431374, g: 0.78431374, b: 0.78431374, a: 1}
+  disabledColor: {r: 0.78431374, g: 0.78431374, b: 0.78431374, a: 0.5019608}
+  defaultTextColor: {r: 1, g: 1, b: 1, a: 1}
+  pressedTextColor: {r: 1, g: 1, b: 1, a: 1}
+  selectedTextColor: {r: 1, g: 1, b: 1, a: 1}
 --- !u!1 &399341157436354368
 GameObject:
   m_ObjectHideFlags: 0
@@ -873,8 +882,17 @@ MonoBehaviour:
   button: {fileID: 581024529064369449}
   labelText: {fileID: 6778645628205164437}
   selectionBackground: {fileID: 7081766044610444074}
+  stateIndicatorImage: {fileID: 0}
   normalSprite: {fileID: 21300000, guid: 5b830c498723ddf4f89a14b5c8c3d324, type: 3}
   selectedSprite: {fileID: 21300000, guid: 2e4015f092f81d544953e5df573adb26, type: 3}
+  normalColor: {r: 1, g: 1, b: 1, a: 1}
+  selectedColor: {r: 1, g: 1, b: 1, a: 1}
+  highlightedColor: {r: 0.9019608, g: 0.9019608, b: 0.9019608, a: 1}
+  pressedColor: {r: 0.78431374, g: 0.78431374, b: 0.78431374, a: 1}
+  disabledColor: {r: 0.78431374, g: 0.78431374, b: 0.78431374, a: 0.5019608}
+  defaultTextColor: {r: 1, g: 1, b: 1, a: 1}
+  pressedTextColor: {r: 1, g: 1, b: 1, a: 1}
+  selectedTextColor: {r: 1, g: 1, b: 1, a: 1}
 --- !u!1 &733698800138236653
 GameObject:
   m_ObjectHideFlags: 0
@@ -1328,8 +1346,17 @@ MonoBehaviour:
   button: {fileID: 3417080542850187788}
   labelText: {fileID: 1516336757981823595}
   selectionBackground: {fileID: 693829391484748215}
+  stateIndicatorImage: {fileID: 0}
   normalSprite: {fileID: 21300000, guid: 5b830c498723ddf4f89a14b5c8c3d324, type: 3}
   selectedSprite: {fileID: 21300000, guid: 2e4015f092f81d544953e5df573adb26, type: 3}
+  normalColor: {r: 1, g: 1, b: 1, a: 1}
+  selectedColor: {r: 1, g: 1, b: 1, a: 1}
+  highlightedColor: {r: 0.9019608, g: 0.9019608, b: 0.9019608, a: 1}
+  pressedColor: {r: 0.78431374, g: 0.78431374, b: 0.78431374, a: 1}
+  disabledColor: {r: 0.78431374, g: 0.78431374, b: 0.78431374, a: 0.5019608}
+  defaultTextColor: {r: 1, g: 1, b: 1, a: 1}
+  pressedTextColor: {r: 1, g: 1, b: 1, a: 1}
+  selectedTextColor: {r: 1, g: 1, b: 1, a: 1}
 --- !u!1 &930076057782833440
 GameObject:
   m_ObjectHideFlags: 0
@@ -1467,8 +1494,17 @@ MonoBehaviour:
   button: {fileID: 4825615368801180437}
   labelText: {fileID: 2907783618816701063}
   selectionBackground: {fileID: 8360732288863666994}
+  stateIndicatorImage: {fileID: 0}
   normalSprite: {fileID: 21300000, guid: 5b830c498723ddf4f89a14b5c8c3d324, type: 3}
   selectedSprite: {fileID: 21300000, guid: 2e4015f092f81d544953e5df573adb26, type: 3}
+  normalColor: {r: 1, g: 1, b: 1, a: 1}
+  selectedColor: {r: 1, g: 1, b: 1, a: 1}
+  highlightedColor: {r: 0.9019608, g: 0.9019608, b: 0.9019608, a: 1}
+  pressedColor: {r: 0.78431374, g: 0.78431374, b: 0.78431374, a: 1}
+  disabledColor: {r: 0.78431374, g: 0.78431374, b: 0.78431374, a: 0.5019608}
+  defaultTextColor: {r: 1, g: 1, b: 1, a: 1}
+  pressedTextColor: {r: 1, g: 1, b: 1, a: 1}
+  selectedTextColor: {r: 1, g: 1, b: 1, a: 1}
 --- !u!1 &955662466108595311
 GameObject:
   m_ObjectHideFlags: 0
@@ -1950,8 +1986,17 @@ MonoBehaviour:
   button: {fileID: 5684532902431387876}
   labelText: {fileID: 1987314129904323009}
   selectionBackground: {fileID: 5706563449435267776}
+  stateIndicatorImage: {fileID: 0}
   normalSprite: {fileID: 21300000, guid: 5b830c498723ddf4f89a14b5c8c3d324, type: 3}
   selectedSprite: {fileID: 21300000, guid: 2e4015f092f81d544953e5df573adb26, type: 3}
+  normalColor: {r: 1, g: 1, b: 1, a: 1}
+  selectedColor: {r: 1, g: 1, b: 1, a: 1}
+  highlightedColor: {r: 0.9019608, g: 0.9019608, b: 0.9019608, a: 1}
+  pressedColor: {r: 0.78431374, g: 0.78431374, b: 0.78431374, a: 1}
+  disabledColor: {r: 0.78431374, g: 0.78431374, b: 0.78431374, a: 0.5019608}
+  defaultTextColor: {r: 1, g: 1, b: 1, a: 1}
+  pressedTextColor: {r: 1, g: 1, b: 1, a: 1}
+  selectedTextColor: {r: 1, g: 1, b: 1, a: 1}
 --- !u!1 &1281815458270370703
 GameObject:
   m_ObjectHideFlags: 0
@@ -3976,8 +4021,17 @@ MonoBehaviour:
   button: {fileID: 8230289753283880747}
   labelText: {fileID: 2209385421986408445}
   selectionBackground: {fileID: 1350851068048693589}
+  stateIndicatorImage: {fileID: 0}
   normalSprite: {fileID: 21300000, guid: 5b830c498723ddf4f89a14b5c8c3d324, type: 3}
   selectedSprite: {fileID: 21300000, guid: 2e4015f092f81d544953e5df573adb26, type: 3}
+  normalColor: {r: 1, g: 1, b: 1, a: 1}
+  selectedColor: {r: 1, g: 1, b: 1, a: 1}
+  highlightedColor: {r: 0.9019608, g: 0.9019608, b: 0.9019608, a: 1}
+  pressedColor: {r: 0.78431374, g: 0.78431374, b: 0.78431374, a: 1}
+  disabledColor: {r: 0.78431374, g: 0.78431374, b: 0.78431374, a: 0.5019608}
+  defaultTextColor: {r: 1, g: 1, b: 1, a: 1}
+  pressedTextColor: {r: 1, g: 1, b: 1, a: 1}
+  selectedTextColor: {r: 1, g: 1, b: 1, a: 1}
 --- !u!1 &4220286529899331485
 GameObject:
   m_ObjectHideFlags: 0
@@ -7190,8 +7244,17 @@ MonoBehaviour:
   button: {fileID: 5330988839911641622}
   labelText: {fileID: 3851281165783106294}
   selectionBackground: {fileID: 8947018628739164741}
+  stateIndicatorImage: {fileID: 0}
   normalSprite: {fileID: 21300000, guid: 5b830c498723ddf4f89a14b5c8c3d324, type: 3}
   selectedSprite: {fileID: 21300000, guid: 2e4015f092f81d544953e5df573adb26, type: 3}
+  normalColor: {r: 1, g: 1, b: 1, a: 1}
+  selectedColor: {r: 1, g: 1, b: 1, a: 1}
+  highlightedColor: {r: 0.9019608, g: 0.9019608, b: 0.9019608, a: 1}
+  pressedColor: {r: 0.78431374, g: 0.78431374, b: 0.78431374, a: 1}
+  disabledColor: {r: 0.78431374, g: 0.78431374, b: 0.78431374, a: 0.5019608}
+  defaultTextColor: {r: 1, g: 1, b: 1, a: 1}
+  pressedTextColor: {r: 1, g: 1, b: 1, a: 1}
+  selectedTextColor: {r: 1, g: 1, b: 1, a: 1}
 --- !u!1 &7647355849600130876
 GameObject:
   m_ObjectHideFlags: 0
@@ -7394,8 +7457,17 @@ MonoBehaviour:
   button: {fileID: 9005711572104429179}
   labelText: {fileID: 207901085951002437}
   selectionBackground: {fileID: 6987855949611573727}
+  stateIndicatorImage: {fileID: 0}
   normalSprite: {fileID: 21300000, guid: 5b830c498723ddf4f89a14b5c8c3d324, type: 3}
   selectedSprite: {fileID: 21300000, guid: 2e4015f092f81d544953e5df573adb26, type: 3}
+  normalColor: {r: 1, g: 1, b: 1, a: 1}
+  selectedColor: {r: 1, g: 1, b: 1, a: 1}
+  highlightedColor: {r: 0.9019608, g: 0.9019608, b: 0.9019608, a: 1}
+  pressedColor: {r: 0.78431374, g: 0.78431374, b: 0.78431374, a: 1}
+  disabledColor: {r: 0.78431374, g: 0.78431374, b: 0.78431374, a: 0.5019608}
+  defaultTextColor: {r: 1, g: 1, b: 1, a: 1}
+  pressedTextColor: {r: 1, g: 1, b: 1, a: 1}
+  selectedTextColor: {r: 1, g: 1, b: 1, a: 1}
 --- !u!1 &8048431091942844681
 GameObject:
   m_ObjectHideFlags: 0
@@ -7639,6 +7711,93 @@ MonoBehaviour:
   detailIngredientsText: {fileID: 5351415405272302919}
   detailTagsText: {fileID: 4799660154192468698}
   detailDescriptionText: {fileID: 7120842484105694963}
+  defaultSpriteMappings:
+  - imageKey: DRINK_SPORTS_DRINK
+    sprite: {fileID: 21300000, guid: c32af4c65593e7f42912332a6a3bc2d4, type: 3}
+  - imageKey: DRINK_GRAPE_JUICE
+    sprite: {fileID: 21300000, guid: 073c0b74ebfc82a4497b40b976c1b3c0, type: 3}
+  - imageKey: DRINK_PEACH_JUICE
+    sprite: {fileID: 21300000, guid: 073c0b74ebfc82a4497b40b976c1b3c0, type: 3}
+  - imageKey: DRINK_GINGER_TEA
+    sprite: {fileID: 21300000, guid: e73119bc40de1dc40b4691cd0f14c915, type: 3}
+  - imageKey: DRINK_BAD_APPLE
+    sprite: {fileID: 21300000, guid: 073c0b74ebfc82a4497b40b976c1b3c0, type: 3}
+  - imageKey: DRINK_VITAMIN_PLUS
+    sprite: {fileID: 21300000, guid: 073c0b74ebfc82a4497b40b976c1b3c0, type: 3}
+  - imageKey: DRINK_YUJA_TEA
+    sprite: {fileID: 21300000, guid: e73119bc40de1dc40b4691cd0f14c915, type: 3}
+  - imageKey: DRINK_PLUM_TEA
+    sprite: {fileID: 21300000, guid: e73119bc40de1dc40b4691cd0f14c915, type: 3}
+  - imageKey: DRINK_ORANGE_JUICE
+    sprite: {fileID: 21300000, guid: 073c0b74ebfc82a4497b40b976c1b3c0, type: 3}
+  - imageKey: DRINK_PINEAPPLE_JUICE
+    sprite: {fileID: 21300000, guid: 073c0b74ebfc82a4497b40b976c1b3c0, type: 3}
+  - imageKey: DRINK_RICE_MILK
+    sprite: {fileID: 21300000, guid: 073c0b74ebfc82a4497b40b976c1b3c0, type: 3}
+  - imageKey: DRINK_MILK
+    sprite: {fileID: 21300000, guid: b8f0cc9efb394394d9d242978b128fba, type: 3}
+  - imageKey: DRINK_STRAWBERRY_MILK
+    sprite: {fileID: 21300000, guid: b8f0cc9efb394394d9d242978b128fba, type: 3}
+  - imageKey: DRINK_BANANA_MILK
+    sprite: {fileID: 21300000, guid: b8f0cc9efb394394d9d242978b128fba, type: 3}
+  - imageKey: DRINK_SOY_MILK
+    sprite: {fileID: 21300000, guid: 073c0b74ebfc82a4497b40b976c1b3c0, type: 3}
+  - imageKey: DRINK_ALMOND_MILK
+    sprite: {fileID: 21300000, guid: 073c0b74ebfc82a4497b40b976c1b3c0, type: 3}
+  - imageKey: DRINK_BARLEY_TEA
+    sprite: {fileID: 21300000, guid: e73119bc40de1dc40b4691cd0f14c915, type: 3}
+  - imageKey: DRINK_YOGURT
+    sprite: {fileID: 21300000, guid: b8f0cc9efb394394d9d242978b128fba, type: 3}
+  - imageKey: DRINK_YOGURT_BERRY
+    sprite: {fileID: 21300000, guid: b8f0cc9efb394394d9d242978b128fba, type: 3}
+  - imageKey: DRINK_YOGURT_APPLE
+    sprite: {fileID: 21300000, guid: b8f0cc9efb394394d9d242978b128fba, type: 3}
+  - imageKey: DRINK_REDULINE_ENERGY
+    sprite: {fileID: 21300000, guid: c32af4c65593e7f42912332a6a3bc2d4, type: 3}
+  - imageKey: DRINK_CHOCOLATE_MILK
+    sprite: {fileID: 21300000, guid: b8f0cc9efb394394d9d242978b128fba, type: 3}
+  - imageKey: DRINK_DARK_CHOCOLATE
+    sprite: {fileID: 21300000, guid: b8f0cc9efb394394d9d242978b128fba, type: 3}
+  - imageKey: DRINK_MINT_CHOCOLATE
+    sprite: {fileID: 21300000, guid: b8f0cc9efb394394d9d242978b128fba, type: 3}
+  - imageKey: DRINK_GREEN_TEA
+    sprite: {fileID: 21300000, guid: e73119bc40de1dc40b4691cd0f14c915, type: 3}
+  - imageKey: DRINK_BLACK_TEA
+    sprite: {fileID: 21300000, guid: e73119bc40de1dc40b4691cd0f14c915, type: 3}
+  - imageKey: DRINK_MILK_TEA
+    sprite: {fileID: 21300000, guid: e73119bc40de1dc40b4691cd0f14c915, type: 3}
+  - imageKey: DRINK_ICED_TEA
+    sprite: {fileID: 21300000, guid: e73119bc40de1dc40b4691cd0f14c915, type: 3}
+  - imageKey: DRINK_COFFEE_MILK
+    sprite: {fileID: 21300000, guid: b8f0cc9efb394394d9d242978b128fba, type: 3}
+  - imageKey: DRINK_AMERICANO
+    sprite: {fileID: 21300000, guid: e73119bc40de1dc40b4691cd0f14c915, type: 3}
+  - imageKey: DRINK_CAFE_LATTE
+    sprite: {fileID: 21300000, guid: e73119bc40de1dc40b4691cd0f14c915, type: 3}
+  - imageKey: DRINK_CARAMEL_LATTE
+    sprite: {fileID: 21300000, guid: e73119bc40de1dc40b4691cd0f14c915, type: 3}
+  - imageKey: DRINK_VELTRINE_COLA
+    sprite: {fileID: 21300000, guid: c32af4c65593e7f42912332a6a3bc2d4, type: 3}
+  - imageKey: DRINK_GRAPE_SODA
+    sprite: {fileID: 21300000, guid: c32af4c65593e7f42912332a6a3bc2d4, type: 3}
+  - imageKey: DRINK_ORANGE_SODA
+    sprite: {fileID: 21300000, guid: c32af4c65593e7f42912332a6a3bc2d4, type: 3}
+  - imageKey: DRINK_MILK_SODA
+    sprite: {fileID: 21300000, guid: c32af4c65593e7f42912332a6a3bc2d4, type: 3}
+  - imageKey: DRINK_CYMENTOL_COLA
+    sprite: {fileID: 21300000, guid: c32af4c65593e7f42912332a6a3bc2d4, type: 3}
+  - imageKey: DRINK_SPARKLING_WATER
+    sprite: {fileID: 21300000, guid: c32af4c65593e7f42912332a6a3bc2d4, type: 3}
+  - imageKey: DRINK_CIDER
+    sprite: {fileID: 21300000, guid: c32af4c65593e7f42912332a6a3bc2d4, type: 3}
+  - imageKey: DRINK_CYMENTOL_ENERGY
+    sprite: {fileID: 21300000, guid: c32af4c65593e7f42912332a6a3bc2d4, type: 3}
+  - imageKey: DRINK_MORVION_COLA
+    sprite: {fileID: 21300000, guid: c32af4c65593e7f42912332a6a3bc2d4, type: 3}
+  bottleDefaultSprite: {fileID: 21300000, guid: e73119bc40de1dc40b4691cd0f14c915, type: 3}
+  canDefaultSprite: {fileID: 21300000, guid: c32af4c65593e7f42912332a6a3bc2d4, type: 3}
+  packDefaultSprite: {fileID: 21300000, guid: 073c0b74ebfc82a4497b40b976c1b3c0, type: 3}
+  strawDefaultSprite: {fileID: 21300000, guid: b8f0cc9efb394394d9d242978b128fba, type: 3}
   drinkImages:
   - imageKey: DRINK_SPORTS_DRINK
     sprite: {fileID: 21300000, guid: 302e58900e177df4783484a2419b46a8, type: 3}
