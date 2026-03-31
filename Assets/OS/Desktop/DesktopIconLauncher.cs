@@ -34,19 +34,30 @@ public class DesktopIconLauncher : MonoBehaviour, IPointerClickHandler
 
     private float lastClickTime = -999f;
     private float nextAllowedTime = 0f;
+    private bool isThemeBound;
 
     private void Awake()
     {
-        // 아이콘 라벨 자동 주입
         if (iconLabel != null && appDef != null)
             iconLabel.text = appDef.DisplayName;
 
         ResolveIconImageIfNeeded();
-        ApplyCurrentTheme();
-        ApplyIconColor(false);
 
         if (selectedVisual != null)
             selectedVisual.SetActive(false);
+    }
+
+    private void OnEnable()
+    {
+        BindThemeEvents();
+        ApplyCurrentTheme();
+    }
+
+    private void Start()
+    {
+        // ThemeManager 초기화 순서에 덜 민감하게 한 번 더 보정
+        BindThemeEvents();
+        ApplyCurrentTheme();
     }
 
     private void OnDisable()
@@ -61,13 +72,6 @@ public class DesktopIconLauncher : MonoBehaviour, IPointerClickHandler
 
         if (selectedVisual != null)
             selectedVisual.SetActive(false);
-    }
-
-    private void OnEnable()
-    {
-        BindThemeEvents();
-        ApplyCurrentTheme();
-        ApplyIconColor(activeSelection == this);
     }
 
     private void Update()
@@ -122,8 +126,8 @@ public class DesktopIconLauncher : MonoBehaviour, IPointerClickHandler
     {
         ApplyIconColor(selected);
 
-        if (selectedVisual == null) return;
-        selectedVisual.SetActive(selected);
+        if (selectedVisual != null)
+            selectedVisual.SetActive(selected);
     }
 
     private void ResolveIconImageIfNeeded()
@@ -154,22 +158,32 @@ public class DesktopIconLauncher : MonoBehaviour, IPointerClickHandler
 
     private void BindThemeEvents()
     {
+        if (isThemeBound)
+            return;
+
         var manager = ThemeManager.Instance;
-        if (manager != null)
-            manager.OnThemeApplied += HandleThemeChanged;
+        if (manager == null)
+            return;
+
+        manager.OnThemeApplied += HandleThemeChanged;
+        isThemeBound = true;
     }
 
     private void UnbindThemeEvents()
     {
+        if (!isThemeBound)
+            return;
+
         var manager = ThemeManager.Instance;
         if (manager != null)
             manager.OnThemeApplied -= HandleThemeChanged;
+
+        isThemeBound = false;
     }
 
     private void HandleThemeChanged()
     {
         ApplyCurrentTheme();
-        ApplyIconColor(activeSelection == this);
     }
 
     private void ApplyCurrentTheme()
@@ -191,7 +205,11 @@ public class DesktopIconLauncher : MonoBehaviour, IPointerClickHandler
         if (icon != null)
             iconImage.sprite = icon;
 
-        ApplyIconColor(activeSelection == this);
+        bool isSelected = activeSelection == this;
+        ApplyIconColor(isSelected);
+
+        if (selectedVisual != null)
+            selectedVisual.SetActive(isSelected);
     }
 
     private Sprite ResolveThemedIconSprite()
