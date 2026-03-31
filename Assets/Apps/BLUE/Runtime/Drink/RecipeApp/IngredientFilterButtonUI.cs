@@ -117,6 +117,7 @@ namespace PPP.BLUE.VN.RecipeApp
             if (string.IsNullOrWhiteSpace(ingredientId))
                 return;
 
+           
             onClicked?.Invoke(ingredientId);
         }
 
