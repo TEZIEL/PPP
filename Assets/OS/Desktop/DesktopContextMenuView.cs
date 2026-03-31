@@ -55,18 +55,18 @@ public class DesktopContextMenuView : MonoBehaviour
 
     private void OnEnable()
     {
-        var manager = AppUIThemeManager.Instance;
+        var manager = ThemeManager.Instance;
         if (manager != null)
-            manager.OnThemeChanged += HandleThemeChanged;
+            manager.OnThemeApplied += HandleThemeChanged;
 
         ApplyCurrentTheme();
     }
 
     private void OnDisable()
     {
-        var manager = AppUIThemeManager.Instance;
+        var manager = ThemeManager.Instance;
         if (manager != null)
-            manager.OnThemeChanged -= HandleThemeChanged;
+            manager.OnThemeApplied -= HandleThemeChanged;
     }
 
     public void ResetTextVisualState()
@@ -165,18 +165,18 @@ public class DesktopContextMenuView : MonoBehaviour
 
     private void ApplyCurrentTheme()
     {
-        var manager = AppUIThemeManager.Instance;
+        var manager = ThemeManager.Instance;
         if (manager != null && manager.CurrentTheme != null)
         {
-            var theme = manager.CurrentTheme.desktop;
-            if (IsConfiguredTint(theme.contextMenuButtonNormalTint))
-                buttonNormalTint = theme.contextMenuButtonNormalTint;
-            if (IsConfiguredTint(theme.contextMenuButtonSelectedTint))
-                buttonSelectedTint = theme.contextMenuButtonSelectedTint;
-            if (IsConfiguredTint(theme.contextMenuButtonPressedTint))
-                buttonPressedTint = theme.contextMenuButtonPressedTint;
-            if (IsConfiguredTint(theme.contextMenuButtonDisabledTint))
-                buttonDisabledTint = theme.contextMenuButtonDisabledTint;
+            var theme = manager.CurrentTheme;
+            if (IsConfiguredTint(theme.desktopContextMenuButtonNormalTint))
+                buttonNormalTint = theme.desktopContextMenuButtonNormalTint;
+            if (IsConfiguredTint(theme.desktopContextMenuButtonSelectedTint))
+                buttonSelectedTint = theme.desktopContextMenuButtonSelectedTint;
+            if (IsConfiguredTint(theme.desktopContextMenuButtonPressedTint))
+                buttonPressedTint = theme.desktopContextMenuButtonPressedTint;
+            if (IsConfiguredTint(theme.desktopContextMenuButtonDisabledTint))
+                buttonDisabledTint = theme.desktopContextMenuButtonDisabledTint;
         }
 
         for (int i = 0; i < visualStates.Count; i++)

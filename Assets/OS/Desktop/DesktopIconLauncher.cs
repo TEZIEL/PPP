@@ -154,16 +154,16 @@ public class DesktopIconLauncher : MonoBehaviour, IPointerClickHandler
 
     private void BindThemeEvents()
     {
-        var manager = AppUIThemeManager.Instance;
+        var manager = ThemeManager.Instance;
         if (manager != null)
-            manager.OnThemeChanged += HandleThemeChanged;
+            manager.OnThemeApplied += HandleThemeChanged;
     }
 
     private void UnbindThemeEvents()
     {
-        var manager = AppUIThemeManager.Instance;
+        var manager = ThemeManager.Instance;
         if (manager != null)
-            manager.OnThemeChanged -= HandleThemeChanged;
+            manager.OnThemeApplied -= HandleThemeChanged;
     }
 
     private void HandleThemeChanged()
@@ -186,10 +186,10 @@ public class DesktopIconLauncher : MonoBehaviour, IPointerClickHandler
     private Sprite ResolveThemedIconSprite()
     {
         string appId = appDef != null ? appDef.AppId : null;
-        var themeManager = AppUIThemeManager.Instance;
+        var themeManager = ThemeManager.Instance;
         if (themeManager != null && themeManager.CurrentTheme != null && !string.IsNullOrWhiteSpace(appId))
         {
-            var icons = themeManager.CurrentTheme.desktop.launcherIcons;
+            var icons = themeManager.CurrentTheme.desktopLauncherIcons;
             if (icons != null)
             {
                 for (int i = 0; i < icons.Length; i++)
