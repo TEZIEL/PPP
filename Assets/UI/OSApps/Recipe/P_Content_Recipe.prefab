@@ -7712,87 +7712,87 @@ MonoBehaviour:
   detailTagsText: {fileID: 4799660154192468698}
   detailDescriptionText: {fileID: 7120842484105694963}
   defaultSpriteMappings:
-  - imageKey: 
+  - imageKey: DRINK_SPORTS_DRINK
     sprite: {fileID: 21300000, guid: c32af4c65593e7f42912332a6a3bc2d4, type: 3}
-  - imageKey: 
+  - imageKey: DRINK_GRAPE_JUICE
     sprite: {fileID: 21300000, guid: 073c0b74ebfc82a4497b40b976c1b3c0, type: 3}
-  - imageKey: 
+  - imageKey: DRINK_PEACH_JUICE
     sprite: {fileID: 21300000, guid: 073c0b74ebfc82a4497b40b976c1b3c0, type: 3}
-  - imageKey: 
+  - imageKey: DRINK_GINGER_TEA
     sprite: {fileID: 21300000, guid: e73119bc40de1dc40b4691cd0f14c915, type: 3}
-  - imageKey: 
+  - imageKey: DRINK_BAD_APPLE
     sprite: {fileID: 21300000, guid: 073c0b74ebfc82a4497b40b976c1b3c0, type: 3}
-  - imageKey: 
+  - imageKey: DRINK_VITAMIN_PLUS
     sprite: {fileID: 21300000, guid: 073c0b74ebfc82a4497b40b976c1b3c0, type: 3}
-  - imageKey: 
-    sprite: {fileID: 21300000, guid: b8f0cc9efb394394d9d242978b128fba, type: 3}
-  - imageKey: 
-    sprite: {fileID: 21300000, guid: b8f0cc9efb394394d9d242978b128fba, type: 3}
-  - imageKey: 
+  - imageKey: DRINK_YUJA_TEA
+    sprite: {fileID: 21300000, guid: e73119bc40de1dc40b4691cd0f14c915, type: 3}
+  - imageKey: DRINK_PLUM_TEA
+    sprite: {fileID: 21300000, guid: e73119bc40de1dc40b4691cd0f14c915, type: 3}
+  - imageKey: DRINK_ORANGE_JUICE
     sprite: {fileID: 21300000, guid: 073c0b74ebfc82a4497b40b976c1b3c0, type: 3}
-  - imageKey: 
+  - imageKey: DRINK_PINEAPPLE_JUICE
     sprite: {fileID: 21300000, guid: 073c0b74ebfc82a4497b40b976c1b3c0, type: 3}
-  - imageKey: 
+  - imageKey: DRINK_RICE_MILK
     sprite: {fileID: 21300000, guid: 073c0b74ebfc82a4497b40b976c1b3c0, type: 3}
-  - imageKey: 
+  - imageKey: DRINK_MILK
     sprite: {fileID: 21300000, guid: b8f0cc9efb394394d9d242978b128fba, type: 3}
-  - imageKey: 
+  - imageKey: DRINK_STRAWBERRY_MILK
     sprite: {fileID: 21300000, guid: b8f0cc9efb394394d9d242978b128fba, type: 3}
-  - imageKey: 
+  - imageKey: DRINK_BANANA_MILK
     sprite: {fileID: 21300000, guid: b8f0cc9efb394394d9d242978b128fba, type: 3}
-  - imageKey: 
+  - imageKey: DRINK_SOY_MILK
     sprite: {fileID: 21300000, guid: 073c0b74ebfc82a4497b40b976c1b3c0, type: 3}
-  - imageKey: 
+  - imageKey: DRINK_ALMOND_MILK
     sprite: {fileID: 21300000, guid: 073c0b74ebfc82a4497b40b976c1b3c0, type: 3}
-  - imageKey: 
+  - imageKey: DRINK_BARLEY_TEA
     sprite: {fileID: 21300000, guid: e73119bc40de1dc40b4691cd0f14c915, type: 3}
-  - imageKey: 
+  - imageKey: DRINK_YOGURT
     sprite: {fileID: 21300000, guid: b8f0cc9efb394394d9d242978b128fba, type: 3}
-  - imageKey: 
+  - imageKey: DRINK_YOGURT_BERRY
     sprite: {fileID: 21300000, guid: b8f0cc9efb394394d9d242978b128fba, type: 3}
-  - imageKey: 
+  - imageKey: DRINK_YOGURT_APPLE
     sprite: {fileID: 21300000, guid: b8f0cc9efb394394d9d242978b128fba, type: 3}
-  - imageKey: 
+  - imageKey: DRINK_REDULINE_ENERGY
     sprite: {fileID: 21300000, guid: c32af4c65593e7f42912332a6a3bc2d4, type: 3}
-  - imageKey: 
+  - imageKey: DRINK_CHOCOLATE_MILK
     sprite: {fileID: 21300000, guid: b8f0cc9efb394394d9d242978b128fba, type: 3}
-  - imageKey: 
+  - imageKey: DRINK_DARK_CHOCOLATE
     sprite: {fileID: 21300000, guid: b8f0cc9efb394394d9d242978b128fba, type: 3}
-  - imageKey: 
+  - imageKey: DRINK_MINT_CHOCOLATE
     sprite: {fileID: 21300000, guid: b8f0cc9efb394394d9d242978b128fba, type: 3}
-  - imageKey: 
+  - imageKey: DRINK_GREEN_TEA
     sprite: {fileID: 21300000, guid: e73119bc40de1dc40b4691cd0f14c915, type: 3}
-  - imageKey: 
+  - imageKey: DRINK_BLACK_TEA
     sprite: {fileID: 21300000, guid: e73119bc40de1dc40b4691cd0f14c915, type: 3}
-  - imageKey: 
+  - imageKey: DRINK_MILK_TEA
     sprite: {fileID: 21300000, guid: e73119bc40de1dc40b4691cd0f14c915, type: 3}
-  - imageKey: 
+  - imageKey: DRINK_ICED_TEA
     sprite: {fileID: 21300000, guid: e73119bc40de1dc40b4691cd0f14c915, type: 3}
-  - imageKey: 
+  - imageKey: DRINK_COFFEE_MILK
     sprite: {fileID: 21300000, guid: b8f0cc9efb394394d9d242978b128fba, type: 3}
-  - imageKey: 
+  - imageKey: DRINK_AMERICANO
     sprite: {fileID: 21300000, guid: e73119bc40de1dc40b4691cd0f14c915, type: 3}
-  - imageKey: 
+  - imageKey: DRINK_CAFE_LATTE
     sprite: {fileID: 21300000, guid: e73119bc40de1dc40b4691cd0f14c915, type: 3}
-  - imageKey: 
+  - imageKey: DRINK_CARAMEL_LATTE
     sprite: {fileID: 21300000, guid: e73119bc40de1dc40b4691cd0f14c915, type: 3}
-  - imageKey: 
+  - imageKey: DRINK_VELTRINE_COLA
     sprite: {fileID: 21300000, guid: c32af4c65593e7f42912332a6a3bc2d4, type: 3}
-  - imageKey: 
+  - imageKey: DRINK_GRAPE_SODA
     sprite: {fileID: 21300000, guid: c32af4c65593e7f42912332a6a3bc2d4, type: 3}
-  - imageKey: 
+  - imageKey: DRINK_ORANGE_SODA
     sprite: {fileID: 21300000, guid: c32af4c65593e7f42912332a6a3bc2d4, type: 3}
-  - imageKey: 
+  - imageKey: DRINK_MILK_SODA
     sprite: {fileID: 21300000, guid: c32af4c65593e7f42912332a6a3bc2d4, type: 3}
-  - imageKey: 
+  - imageKey: DRINK_CYMENTOL_COLA
     sprite: {fileID: 21300000, guid: c32af4c65593e7f42912332a6a3bc2d4, type: 3}
-  - imageKey: 
+  - imageKey: DRINK_SPARKLING_WATER
     sprite: {fileID: 21300000, guid: c32af4c65593e7f42912332a6a3bc2d4, type: 3}
-  - imageKey: 
+  - imageKey: DRINK_CIDER
     sprite: {fileID: 21300000, guid: c32af4c65593e7f42912332a6a3bc2d4, type: 3}
-  - imageKey: 
+  - imageKey: DRINK_CYMENTOL_ENERGY
     sprite: {fileID: 21300000, guid: c32af4c65593e7f42912332a6a3bc2d4, type: 3}
-  - imageKey: 
+  - imageKey: DRINK_MORVION_COLA
     sprite: {fileID: 21300000, guid: c32af4c65593e7f42912332a6a3bc2d4, type: 3}
   bottleDefaultSprite: {fileID: 21300000, guid: e73119bc40de1dc40b4691cd0f14c915, type: 3}
   canDefaultSprite: {fileID: 21300000, guid: c32af4c65593e7f42912332a6a3bc2d4, type: 3}
