@@ -7713,87 +7713,87 @@ MonoBehaviour:
   detailDescriptionText: {fileID: 7120842484105694963}
   defaultSpriteMappings:
   - imageKey: 
-    sprite: {fileID: 0}
+    sprite: {fileID: 21300000, guid: c32af4c65593e7f42912332a6a3bc2d4, type: 3}
   - imageKey: 
-    sprite: {fileID: 0}
+    sprite: {fileID: 21300000, guid: 073c0b74ebfc82a4497b40b976c1b3c0, type: 3}
   - imageKey: 
-    sprite: {fileID: 0}
+    sprite: {fileID: 21300000, guid: 073c0b74ebfc82a4497b40b976c1b3c0, type: 3}
   - imageKey: 
-    sprite: {fileID: 0}
+    sprite: {fileID: 21300000, guid: e73119bc40de1dc40b4691cd0f14c915, type: 3}
   - imageKey: 
-    sprite: {fileID: 0}
+    sprite: {fileID: 21300000, guid: 073c0b74ebfc82a4497b40b976c1b3c0, type: 3}
   - imageKey: 
-    sprite: {fileID: 0}
+    sprite: {fileID: 21300000, guid: 073c0b74ebfc82a4497b40b976c1b3c0, type: 3}
   - imageKey: 
-    sprite: {fileID: 0}
+    sprite: {fileID: 21300000, guid: b8f0cc9efb394394d9d242978b128fba, type: 3}
   - imageKey: 
-    sprite: {fileID: 0}
+    sprite: {fileID: 21300000, guid: b8f0cc9efb394394d9d242978b128fba, type: 3}
   - imageKey: 
-    sprite: {fileID: 0}
+    sprite: {fileID: 21300000, guid: 073c0b74ebfc82a4497b40b976c1b3c0, type: 3}
   - imageKey: 
-    sprite: {fileID: 0}
+    sprite: {fileID: 21300000, guid: 073c0b74ebfc82a4497b40b976c1b3c0, type: 3}
   - imageKey: 
-    sprite: {fileID: 0}
+    sprite: {fileID: 21300000, guid: 073c0b74ebfc82a4497b40b976c1b3c0, type: 3}
   - imageKey: 
-    sprite: {fileID: 0}
+    sprite: {fileID: 21300000, guid: b8f0cc9efb394394d9d242978b128fba, type: 3}
   - imageKey: 
-    sprite: {fileID: 0}
+    sprite: {fileID: 21300000, guid: b8f0cc9efb394394d9d242978b128fba, type: 3}
   - imageKey: 
-    sprite: {fileID: 0}
+    sprite: {fileID: 21300000, guid: b8f0cc9efb394394d9d242978b128fba, type: 3}
   - imageKey: 
-    sprite: {fileID: 0}
+    sprite: {fileID: 21300000, guid: 073c0b74ebfc82a4497b40b976c1b3c0, type: 3}
   - imageKey: 
-    sprite: {fileID: 0}
+    sprite: {fileID: 21300000, guid: 073c0b74ebfc82a4497b40b976c1b3c0, type: 3}
   - imageKey: 
-    sprite: {fileID: 0}
+    sprite: {fileID: 21300000, guid: e73119bc40de1dc40b4691cd0f14c915, type: 3}
   - imageKey: 
-    sprite: {fileID: 0}
+    sprite: {fileID: 21300000, guid: b8f0cc9efb394394d9d242978b128fba, type: 3}
   - imageKey: 
-    sprite: {fileID: 0}
+    sprite: {fileID: 21300000, guid: b8f0cc9efb394394d9d242978b128fba, type: 3}
   - imageKey: 
-    sprite: {fileID: 0}
+    sprite: {fileID: 21300000, guid: b8f0cc9efb394394d9d242978b128fba, type: 3}
   - imageKey: 
-    sprite: {fileID: 0}
+    sprite: {fileID: 21300000, guid: c32af4c65593e7f42912332a6a3bc2d4, type: 3}
   - imageKey: 
-    sprite: {fileID: 0}
+    sprite: {fileID: 21300000, guid: b8f0cc9efb394394d9d242978b128fba, type: 3}
   - imageKey: 
-    sprite: {fileID: 0}
+    sprite: {fileID: 21300000, guid: b8f0cc9efb394394d9d242978b128fba, type: 3}
   - imageKey: 
-    sprite: {fileID: 0}
+    sprite: {fileID: 21300000, guid: b8f0cc9efb394394d9d242978b128fba, type: 3}
   - imageKey: 
-    sprite: {fileID: 0}
+    sprite: {fileID: 21300000, guid: e73119bc40de1dc40b4691cd0f14c915, type: 3}
   - imageKey: 
-    sprite: {fileID: 0}
+    sprite: {fileID: 21300000, guid: e73119bc40de1dc40b4691cd0f14c915, type: 3}
   - imageKey: 
-    sprite: {fileID: 0}
+    sprite: {fileID: 21300000, guid: e73119bc40de1dc40b4691cd0f14c915, type: 3}
   - imageKey: 
-    sprite: {fileID: 0}
+    sprite: {fileID: 21300000, guid: e73119bc40de1dc40b4691cd0f14c915, type: 3}
   - imageKey: 
-    sprite: {fileID: 0}
+    sprite: {fileID: 21300000, guid: b8f0cc9efb394394d9d242978b128fba, type: 3}
   - imageKey: 
-    sprite: {fileID: 0}
+    sprite: {fileID: 21300000, guid: e73119bc40de1dc40b4691cd0f14c915, type: 3}
   - imageKey: 
-    sprite: {fileID: 0}
+    sprite: {fileID: 21300000, guid: e73119bc40de1dc40b4691cd0f14c915, type: 3}
   - imageKey: 
-    sprite: {fileID: 0}
+    sprite: {fileID: 21300000, guid: e73119bc40de1dc40b4691cd0f14c915, type: 3}
   - imageKey: 
-    sprite: {fileID: 0}
+    sprite: {fileID: 21300000, guid: c32af4c65593e7f42912332a6a3bc2d4, type: 3}
   - imageKey: 
-    sprite: {fileID: 0}
+    sprite: {fileID: 21300000, guid: c32af4c65593e7f42912332a6a3bc2d4, type: 3}
   - imageKey: 
-    sprite: {fileID: 0}
+    sprite: {fileID: 21300000, guid: c32af4c65593e7f42912332a6a3bc2d4, type: 3}
   - imageKey: 
-    sprite: {fileID: 0}
+    sprite: {fileID: 21300000, guid: c32af4c65593e7f42912332a6a3bc2d4, type: 3}
   - imageKey: 
-    sprite: {fileID: 0}
+    sprite: {fileID: 21300000, guid: c32af4c65593e7f42912332a6a3bc2d4, type: 3}
   - imageKey: 
-    sprite: {fileID: 0}
+    sprite: {fileID: 21300000, guid: c32af4c65593e7f42912332a6a3bc2d4, type: 3}
   - imageKey: 
-    sprite: {fileID: 0}
+    sprite: {fileID: 21300000, guid: c32af4c65593e7f42912332a6a3bc2d4, type: 3}
   - imageKey: 
-    sprite: {fileID: 0}
+    sprite: {fileID: 21300000, guid: c32af4c65593e7f42912332a6a3bc2d4, type: 3}
   - imageKey: 
-    sprite: {fileID: 0}
+    sprite: {fileID: 21300000, guid: c32af4c65593e7f42912332a6a3bc2d4, type: 3}
   bottleDefaultSprite: {fileID: 21300000, guid: e73119bc40de1dc40b4691cd0f14c915, type: 3}
   canDefaultSprite: {fileID: 21300000, guid: c32af4c65593e7f42912332a6a3bc2d4, type: 3}
   packDefaultSprite: {fileID: 21300000, guid: 073c0b74ebfc82a4497b40b976c1b3c0, type: 3}
