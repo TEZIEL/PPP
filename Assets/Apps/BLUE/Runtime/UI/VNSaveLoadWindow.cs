@@ -2,6 +2,7 @@ using System.Collections;
 using System.IO;
 using TMPro;
 using UnityEngine;
+using UnityEngine.EventSystems;
 using UnityEngine.UI;
 
 namespace PPP.BLUE.VN
@@ -67,6 +68,19 @@ namespace PPP.BLUE.VN
         private Coroutine deferredMetadataRefreshRoutine;
         private readonly System.Collections.Generic.HashSet<int> warnedHighlightBindings = new();
         private readonly System.Collections.Generic.Dictionary<int, Color> slotOriginalButtonColors = new();
+        private bool[] slotPressedStates = System.Array.Empty<bool>();
+        private Color themedSlotSelectedColor;
+        private Color themedSlotPressedColor;
+
+        private sealed class SlotPointerRelay : MonoBehaviour, IPointerDownHandler, IPointerUpHandler, IPointerExitHandler
+        {
+            public System.Action onPointerDown;
+            public System.Action onPointerUp;
+
+            public void OnPointerDown(PointerEventData eventData) => onPointerDown?.Invoke();
+            public void OnPointerUp(PointerEventData eventData) => onPointerUp?.Invoke();
+            public void OnPointerExit(PointerEventData eventData) => onPointerUp?.Invoke();
+        }
 
         private enum PendingAction
         {
@@ -90,7 +104,11 @@ namespace PPP.BLUE.VN
             if (windowCanvasGroup == null) windowCanvasGroup = windowRoot.GetComponent<CanvasGroup>();
             if (windowCanvasGroup == null) windowCanvasGroup = windowRoot.AddComponent<CanvasGroup>();
 
+            themedSlotSelectedColor = selectedSlotButtonColor;
+            themedSlotPressedColor = selectedSlotButtonColor;
             BindButtons();
+            BindThemeEvents();
+            ApplyCurrentTheme();
             AutoBindIntegratedSlotMetadataTexts();
             SetConfirmPopupVisible(false);
             EnsureValidSelection();
@@ -103,6 +121,7 @@ namespace PPP.BLUE.VN
 
         private void OnDisable()
         {
+            UnbindThemeEvents();
             ReleaseModal();
             ReleaseLoadingModal();
             busy = false;
@@ -166,6 +185,8 @@ namespace PPP.BLUE.VN
             ForceAutoOff("Open SaveLoad Modal");
             bridge?.ClearCloseRequestPending();
             AcquireModal();
+            EnsureSlotButtonNavigationNone();
+            ApplyCurrentTheme();
             EnsureValidSelection();
             RefreshSlotStatus();
             RefreshSelectedSlotMetadata();
@@ -436,10 +457,14 @@ namespace PPP.BLUE.VN
 
                 if (slot.selectButton != null)
                 {
+                    BindSlotPointerRelay(slot.selectButton, capture);
                     slot.selectButton.onClick.RemoveAllListeners();
                     slot.selectButton.onClick.AddListener(() => SelectSlot(capture));
                 }
             }
+
+            EnsureSlotPressedStateArray();
+            EnsureSlotButtonNavigationNone();
         }
 
         /// <summary>
@@ -724,6 +749,8 @@ namespace PPP.BLUE.VN
 
         private void RefreshSlotVisuals()
         {
+            EnsureSlotPressedStateArray();
+
             for (int i = 0; i < slots.Length; i++)
             {
                 var slot = slots[i];
@@ -731,6 +758,7 @@ namespace PPP.BLUE.VN
                     continue;
 
                 bool selected = i == selectedSlotIndex;
+                ApplySlotButtonVisual(slot, i, selected);
                 ApplySlotTextSelection(slot, selected);
 
                 if (slot.selectedHighlight == null)
@@ -988,5 +1016,165 @@ namespace PPP.BLUE.VN
             File.Copy(src, dst, overwrite: true);
             return true;
         }
+
+        private static void ApplyNavigationNone(Button button)
+        {
+            if (button == null)
+                return;
+
+            var navigation = button.navigation;
+            if (navigation.mode == Navigation.Mode.None)
+                return;
+
+            navigation.mode = Navigation.Mode.None;
+            button.navigation = navigation;
+        }
+
+        private void EnsureSlotButtonNavigationNone()
+        {
+            if (slots == null)
+                return;
+
+            for (int i = 0; i < slots.Length; i++)
+            {
+                var slot = slots[i];
+                if (slot == null || slot.selectButton == null)
+                    continue;
+
+                ApplyNavigationNone(slot.selectButton);
+            }
+        }
+
+        private void BindThemeEvents()
+        {
+            var manager = AppUIThemeManager.Instance;
+            if (manager != null)
+                manager.OnThemeChanged += HandleThemeChanged;
+        }
+
+        private void UnbindThemeEvents()
+        {
+            var manager = AppUIThemeManager.Instance;
+            if (manager != null)
+                manager.OnThemeChanged -= HandleThemeChanged;
+        }
+
+        private void HandleThemeChanged()
+        {
+            ApplyCurrentTheme();
+            RefreshSlotVisuals();
+        }
+
+        private void ApplyCurrentTheme()
+        {
+            themedSlotSelectedColor = selectedSlotButtonColor;
+            themedSlotPressedColor = selectedSlotButtonColor;
+
+            var manager = AppUIThemeManager.Instance;
+            if (manager != null && manager.CurrentTheme != null)
+            {
+                var theme = manager.CurrentTheme.vn;
+                if (IsConfiguredTint(theme.exitSelectedButtonColor))
+                    themedSlotSelectedColor = theme.exitSelectedButtonColor;
+                if (IsConfiguredTint(theme.exitPressedButtonColor))
+                    themedSlotPressedColor = theme.exitPressedButtonColor;
+            }
+
+            ApplySlotTintTheme();
+        }
+
+        private static bool IsConfiguredTint(Color color)
+        {
+            return color.a > 0f;
+        }
+
+        private void ApplySlotTintTheme()
+        {
+            for (int i = 0; i < slots.Length; i++)
+            {
+                var slot = slots[i];
+                if (slot == null || slot.selectButton == null)
+                    continue;
+
+                var colors = slot.selectButton.colors;
+                if (!slotOriginalButtonColors.ContainsKey(i))
+                    slotOriginalButtonColors[i] = colors.normalColor;
+
+                colors.selectedColor = themedSlotSelectedColor;
+                colors.pressedColor = themedSlotPressedColor;
+                slot.selectButton.colors = colors;
+            }
+        }
+
+        private void EnsureSlotPressedStateArray()
+        {
+            if (slots == null)
+            {
+                slotPressedStates = System.Array.Empty<bool>();
+                return;
+            }
+
+            if (slotPressedStates != null && slotPressedStates.Length == slots.Length)
+                return;
+
+            slotPressedStates = new bool[slots.Length];
+        }
+
+        private void BindSlotPointerRelay(Button button, int slotIndex)
+        {
+            if (button == null)
+                return;
+
+            var relay = button.GetComponent<SlotPointerRelay>();
+            if (relay == null)
+                relay = button.gameObject.AddComponent<SlotPointerRelay>();
+
+            relay.onPointerDown = () => SetSlotPressed(slotIndex, true);
+            relay.onPointerUp = () => SetSlotPressed(slotIndex, false);
+        }
+
+        private void SetSlotPressed(int slotIndex, bool pressed)
+        {
+            EnsureSlotPressedStateArray();
+            if (slotIndex < 0 || slotIndex >= slotPressedStates.Length)
+                return;
+
+            if (slotPressedStates[slotIndex] == pressed)
+                return;
+
+            slotPressedStates[slotIndex] = pressed;
+            RefreshSlotVisuals();
+        }
+
+        private void ApplySlotButtonVisual(SlotUI slot, int slotIndex, bool selected)
+        {
+            if (slot == null || slot.selectButton == null)
+                return;
+
+            var button = slot.selectButton;
+            var colors = button.colors;
+            if (!slotOriginalButtonColors.TryGetValue(slotIndex, out var normalColor))
+                normalColor = colors.normalColor;
+
+            bool pressed = slotPressedStates != null
+                           && slotIndex >= 0
+                           && slotIndex < slotPressedStates.Length
+                           && slotPressedStates[slotIndex];
+
+            Color targetColor;
+            if (!button.interactable)
+                targetColor = colors.disabledColor;
+            else if (pressed)
+                targetColor = themedSlotPressedColor;
+            else if (selected)
+                targetColor = themedSlotSelectedColor;
+            else
+                targetColor = normalColor;
+
+            var graphic = button.targetGraphic;
+            if (graphic != null)
+                graphic.color = targetColor;
+        }
+
     }
 }

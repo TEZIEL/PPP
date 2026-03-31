@@ -78,6 +78,7 @@ namespace PPP.BLUE.VN
         private bool resultLocked;
         private bool confirmCompleted;
         private string hoveredIngredientId;
+        private string selectedIngredientId;
         private int lastIngredientInputFrame = -1;
 
         private enum IngredientInputSource
@@ -115,6 +116,7 @@ namespace PPP.BLUE.VN
                 if (ingredientButtons[i] != null)
                     ingredientButtons[i].BindManager(this);
             }
+            SetSelectedIngredient(null);
 
             HideConfirmPanel();
             panelUI?.ClearGridInstant();
@@ -264,6 +266,7 @@ namespace PPP.BLUE.VN
                 PlayIngredientSound(ingredientId);
             }
 
+            SetSelectedIngredient(ingredientId);
 
             lastIngredientInputFrame = Time.frameCount;
             AddIngredient(ingredientId);
@@ -508,6 +511,7 @@ namespace PPP.BLUE.VN
             currentIngredients.Clear();
             totalCount = 0;
             artheonEnabled = false;
+            SetSelectedIngredient(null);
             LogDrink("reset started total=0 artheon=false");
             panelUI?.ClearGridAnimated(this);
             RefreshUi();
@@ -711,6 +715,7 @@ namespace PPP.BLUE.VN
 
             currentIngredients.Clear();
             totalCount = 0;
+            SetSelectedIngredient(null);
 
             hasPendingProvide = false;
             resultLocked = false;
@@ -735,6 +740,22 @@ namespace PPP.BLUE.VN
             {
                 if (ingredientButtons[i] != null)
                     ingredientButtons[i].SetInteractable(interactable);
+            }
+        }
+
+        private void SetSelectedIngredient(string ingredientId)
+        {
+            selectedIngredientId = ingredientId;
+
+            for (int i = 0; i < ingredientButtons.Length; i++)
+            {
+                var ingredientButton = ingredientButtons[i];
+                if (ingredientButton == null)
+                    continue;
+
+                bool selected = !string.IsNullOrEmpty(selectedIngredientId)
+                                && string.Equals(ingredientButton.IngredientID, selectedIngredientId, StringComparison.Ordinal);
+                ingredientButton.SetSelectedState(selected);
             }
         }
 
