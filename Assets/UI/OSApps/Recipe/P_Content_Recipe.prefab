@@ -7711,6 +7711,89 @@ MonoBehaviour:
   detailIngredientsText: {fileID: 5351415405272302919}
   detailTagsText: {fileID: 4799660154192468698}
   detailDescriptionText: {fileID: 7120842484105694963}
+  defaultSpriteMappings:
+  - imageKey: 
+    sprite: {fileID: 0}
+  - imageKey: 
+    sprite: {fileID: 0}
+  - imageKey: 
+    sprite: {fileID: 0}
+  - imageKey: 
+    sprite: {fileID: 0}
+  - imageKey: 
+    sprite: {fileID: 0}
+  - imageKey: 
+    sprite: {fileID: 0}
+  - imageKey: 
+    sprite: {fileID: 0}
+  - imageKey: 
+    sprite: {fileID: 0}
+  - imageKey: 
+    sprite: {fileID: 0}
+  - imageKey: 
+    sprite: {fileID: 0}
+  - imageKey: 
+    sprite: {fileID: 0}
+  - imageKey: 
+    sprite: {fileID: 0}
+  - imageKey: 
+    sprite: {fileID: 0}
+  - imageKey: 
+    sprite: {fileID: 0}
+  - imageKey: 
+    sprite: {fileID: 0}
+  - imageKey: 
+    sprite: {fileID: 0}
+  - imageKey: 
+    sprite: {fileID: 0}
+  - imageKey: 
+    sprite: {fileID: 0}
+  - imageKey: 
+    sprite: {fileID: 0}
+  - imageKey: 
+    sprite: {fileID: 0}
+  - imageKey: 
+    sprite: {fileID: 0}
+  - imageKey: 
+    sprite: {fileID: 0}
+  - imageKey: 
+    sprite: {fileID: 0}
+  - imageKey: 
+    sprite: {fileID: 0}
+  - imageKey: 
+    sprite: {fileID: 0}
+  - imageKey: 
+    sprite: {fileID: 0}
+  - imageKey: 
+    sprite: {fileID: 0}
+  - imageKey: 
+    sprite: {fileID: 0}
+  - imageKey: 
+    sprite: {fileID: 0}
+  - imageKey: 
+    sprite: {fileID: 0}
+  - imageKey: 
+    sprite: {fileID: 0}
+  - imageKey: 
+    sprite: {fileID: 0}
+  - imageKey: 
+    sprite: {fileID: 0}
+  - imageKey: 
+    sprite: {fileID: 0}
+  - imageKey: 
+    sprite: {fileID: 0}
+  - imageKey: 
+    sprite: {fileID: 0}
+  - imageKey: 
+    sprite: {fileID: 0}
+  - imageKey: 
+    sprite: {fileID: 0}
+  - imageKey: 
+    sprite: {fileID: 0}
+  - imageKey: 
+    sprite: {fileID: 0}
+  - imageKey: 
+    sprite: {fileID: 0}
   bottleDefaultSprite: {fileID: 21300000, guid: e73119bc40de1dc40b4691cd0f14c915, type: 3}
   canDefaultSprite: {fileID: 21300000, guid: c32af4c65593e7f42912332a6a3bc2d4, type: 3}
   packDefaultSprite: {fileID: 21300000, guid: 073c0b74ebfc82a4497b40b976c1b3c0, type: 3}

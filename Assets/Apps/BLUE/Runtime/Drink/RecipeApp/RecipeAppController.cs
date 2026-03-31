@@ -24,7 +24,14 @@
                 public Sprite sprite;
             }
 
-            private const int MaxSelectedIngredients = 3;
+        [Serializable]
+        private struct DefaultSpriteEntry
+        {
+            public string imageKey;
+            public Sprite sprite;
+        }
+
+        private const int MaxSelectedIngredients = 3;
             private const string ArtheonIngredientId = "INGREDIENT_ARTHEON";
 
             [Header("Data")]
@@ -46,6 +53,7 @@
             [SerializeField] private Button scrollDownButton;
             [SerializeField, Range(0.01f, 1f)] private float buttonScrollStep = 0.2f;
 
+
             [Header("Detail Panel")]
             [SerializeField] private GameObject detailRoot;
             [SerializeField] private Image detailImage;
@@ -53,6 +61,10 @@
             [SerializeField] private TMP_Text detailIngredientsText;
             [SerializeField] private TMP_Text detailTagsText;
             [SerializeField] private TMP_Text detailDescriptionText;
+
+
+            [Header("Default Sprite Mapping")]
+            [SerializeField] private DefaultSpriteEntry[] defaultSpriteMappings;
 
             [Header("Locked Default Sprites")]
             [SerializeField] private Sprite bottleDefaultSprite;
@@ -76,8 +88,9 @@
             private List<IngredientEntry> allIngredients = new List<IngredientEntry>();
             private List<DrinkEntry> allDrinks = new List<DrinkEntry>();
             private DrinkEntry openedDetailDrink;
+            private readonly Dictionary<string, Sprite> defaultSpriteByKey
+            = new Dictionary<string, Sprite>(StringComparer.OrdinalIgnoreCase);
 
-           
 
             private void Awake()
             {
@@ -85,6 +98,7 @@
                 InitializeUnlockState();
                 BindScrollButtons();
                 BuildImageMap();
+                BuildDefaultSpriteMap();    
                 LoadData();
                 BuildIngredientButtons();
                 ApplyFilterAndRebuildList();
@@ -159,6 +173,19 @@
             public void ScrollListDown()
             {
                 ScrollListByStep(-1f);
+            }
+
+            private void BuildDefaultSpriteMap()
+            {
+                defaultSpriteByKey.Clear();
+
+                foreach (var row in defaultSpriteMappings)
+                {
+                    if (string.IsNullOrWhiteSpace(row.imageKey) || row.sprite == null)
+                        continue;
+
+                    defaultSpriteByKey[row.imageKey] = row.sprite;
+                }
             }
 
             private void LoadData()
@@ -313,7 +340,7 @@
 
                         Sprite sprite = unlocked
                             ? FindDrinkSprite(drink.imageKey)
-                            : GetDefaultSpriteByImageKey(drink.imageKey);
+                            : GetDefaultSprite(drink.imageKey);
 
                         item.Setup(drink, sprite, ingredientDisplayNameById, OnDrinkClicked);
                         drinkItems.Add(item);
@@ -461,8 +488,8 @@
                     bool unlocked = IsRecipeUnlocked(drink.id);
 
                     var sprite = unlocked
-        ? FindDrinkSprite(drink.imageKey)
-        : GetDefaultSpriteByImageKey(drink.imageKey);
+                        ? FindDrinkSprite(drink.imageKey)
+                          : GetDefaultSprite(drink.imageKey);
 
                 detailImage.sprite = sprite;
                     detailImage.enabled = sprite != null;
@@ -470,9 +497,19 @@
                 }
             }
 
-            private bool IsRecipeUnlocked(string recipeId)
+            private Sprite GetDefaultSprite(string imageKey)
             {
-                if (string.IsNullOrWhiteSpace(recipeId))
+                if (string.IsNullOrWhiteSpace(imageKey))
+                    return null;
+
+                return defaultSpriteByKey.TryGetValue(imageKey, out var sprite)
+                    ? sprite
+                    : null;
+            }
+
+            private bool IsRecipeUnlocked(string recipeId)
+                {
+                    if (string.IsNullOrWhiteSpace(recipeId))
                     return false;
 
                 return unlockedRecipes.Contains(recipeId);
