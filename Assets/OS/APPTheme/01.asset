@@ -173,18 +173,18 @@ MonoBehaviour:
     backlogButtonSprite: {fileID: 21300000, guid: 6d276694909278a4fbbca6efd8de7992, type: 3}
     exitModalRootSprite: {fileID: 21300000, guid: 6d276694909278a4fbbca6efd8de7992, type: 3}
     exitModalButtonSprite: {fileID: 21300000, guid: 6d276694909278a4fbbca6efd8de7992, type: 3}
-    exitSelectedButtonColor: {r: 0.5019608, g: 0.5019608, b: 0.72156864, a: 1}
-    exitPressedButtonColor: {r: 0.78431374, g: 0.78431374, b: 0.78431374, a: 1}
+    exitSelectedButtonColor: {r: 1, g: 0.78431374, b: 0.88235295, a: 1}
+    exitPressedButtonColor: {r: 1, g: 0.78431374, b: 0.88235295, a: 1}
     drinkRootSprite: {fileID: 21300000, guid: 0df50fd6d82d3524db62cf3a7de098fa, type: 3}
     drinkGridSprite: {fileID: 21300000, guid: 0e7fb8fabc8e0b64bb4aac52ebf73587, type: 3}
     ingredientButtonSprite: {fileID: 21300000, guid: 6d276694909278a4fbbca6efd8de7992, type: 3}
-    ingredientSelectedButtonSprite: {fileID: 21300000, guid: 6d276694909278a4fbbca6efd8de7992, type: 3}
-    ingredientSelectedColor: {r: 1, g: 1, b: 1, a: 1}
-    ingredientPressedColor: {r: 0.78431374, g: 0.78431374, b: 0.78431374, a: 1}
-    ingredientDefaultTextColor: {r: 1, g: 1, b: 1, a: 1}
+    ingredientSelectedButtonSprite: {fileID: 21300000, guid: f495a651c716e58479c5889b2226e617, type: 3}
+    ingredientSelectedColor: {r: 1, g: 0.78431374, b: 0.88235295, a: 1}
+    ingredientPressedColor: {r: 1, g: 0.78431374, b: 0.88235295, a: 1}
+    ingredientDefaultTextColor: {r: 0, g: 0, b: 0, a: 1}
     ingredientPressedTextColor: {r: 1, g: 1, b: 1, a: 1}
     ingredientSelectedTextColor: {r: 1, g: 1, b: 1, a: 1}
-    ingredientStateIndicatorSprite: {fileID: 21300000, guid: 6d276694909278a4fbbca6efd8de7992, type: 3}
+    ingredientStateIndicatorSprite: {fileID: 21300000, guid: f495a651c716e58479c5889b2226e617, type: 3}
     dialogueRootSprite: {fileID: 21300000, guid: 6d276694909278a4fbbca6efd8de7992, type: 3}
     dialogueButtonContainerSprite: {fileID: 21300000, guid: 0df50fd6d82d3524db62cf3a7de098fa, type: 3}
     dialogueButtonSprite: {fileID: 0}
@@ -260,9 +260,3 @@ MonoBehaviour:
     otherWindow52RootSprite: {fileID: 21300000, guid: 0df50fd6d82d3524db62cf3a7de098fa, type: 3}
     otherWindow53RootSprite: {fileID: 21300000, guid: 0df50fd6d82d3524db62cf3a7de098fa, type: 3}
     otherWindow54RootSprite: {fileID: 21300000, guid: 0df50fd6d82d3524db62cf3a7de098fa, type: 3}
-  desktop:
-    launcherIcons: []
-    contextMenuButtonNormalTint: {r: 1, g: 1, b: 1, a: 1}
-    contextMenuButtonSelectedTint: {r: 0.5019608, g: 0.5019608, b: 0.72156864, a: 1}
-    contextMenuButtonPressedTint: {r: 0.7058824, g: 0.7058824, b: 0.7058824, a: 1}
-    contextMenuButtonDisabledTint: {r: 0.7058824, g: 0.7058824, b: 0.7058824, a: 0.5019608}

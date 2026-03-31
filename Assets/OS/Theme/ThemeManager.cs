@@ -25,6 +25,11 @@ public class ThemeManager : MonoBehaviour
     [SerializeField] private Image otherWindow8RootImage;
     [SerializeField] private Image otherWindow9RootImage;
     [SerializeField] private Image otherWindow10RootImage;
+    [SerializeField] private Image otherWindow11RootImage;
+    [SerializeField] private Image otherWindow12RootImage;
+    [SerializeField] private Image otherWindow13RootImage;
+    [SerializeField] private Image otherWindow14RootImage;
+    [SerializeField] private Image otherWindow15RootImage;
 
     public ThemeData CurrentTheme => currentTheme;
 
@@ -64,6 +69,11 @@ public class ThemeManager : MonoBehaviour
         ApplySpriteIfPresent(otherWindow8RootImage, currentTheme.otherWindow8RootSprite);
         ApplySpriteIfPresent(otherWindow9RootImage, currentTheme.otherWindow9RootSprite);
         ApplySpriteIfPresent(otherWindow10RootImage, currentTheme.otherWindow10RootSprite);
+        ApplySpriteIfPresent(otherWindow11RootImage, currentTheme.otherWindow11RootSprite);
+        ApplySpriteIfPresent(otherWindow12RootImage, currentTheme.otherWindow12RootSprite);
+        ApplySpriteIfPresent(otherWindow13RootImage, currentTheme.otherWindow13RootSprite);
+        ApplySpriteIfPresent(otherWindow14RootImage, currentTheme.otherWindow14RootSprite);
+        ApplySpriteIfPresent(otherWindow15RootImage, currentTheme.otherWindow15RootSprite);
 
         for (int i = 0; i < extraTaskbarPanelImages.Count; i++)
             ApplySpriteIfPresent(extraTaskbarPanelImages[i], currentTheme.taskbarPanelSprite);

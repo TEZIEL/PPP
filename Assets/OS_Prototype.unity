@@ -8483,6 +8483,11 @@ MonoBehaviour:
   otherWindow8RootImage: {fileID: 1985519942}
   otherWindow9RootImage: {fileID: 486566083}
   otherWindow10RootImage: {fileID: 63154896}
+  otherWindow11RootImage: {fileID: 835060302}
+  otherWindow12RootImage: {fileID: 1909823465}
+  otherWindow13RootImage: {fileID: 429631929}
+  otherWindow14RootImage: {fileID: 1295979731}
+  otherWindow15RootImage: {fileID: 1750405323}
 --- !u!224 &1696708470
 RectTransform:
   m_ObjectHideFlags: 0

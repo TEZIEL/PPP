@@ -42,6 +42,11 @@ public class ThemeData : ScriptableObject
     public Sprite otherWindow8RootSprite;
     public Sprite otherWindow9RootSprite;
     public Sprite otherWindow10RootSprite;
+    public Sprite otherWindow11RootSprite;
+    public Sprite otherWindow12RootSprite;
+    public Sprite otherWindow13RootSprite;
+    public Sprite otherWindow14RootSprite;
+    public Sprite otherWindow15RootSprite;
 
     public Sprite windowMinimizeButtonNormalSprite;
     public Sprite windowMinimizeButtonHoverSprite;
@@ -57,9 +62,16 @@ public class ThemeData : ScriptableObject
 
     [Header("Desktop Context Menu Tint")]
     public Color desktopContextMenuButtonNormalTint = Color.white;
+    public Color desktopContextMenuButtonHighligtedTint = new Color32(128, 128, 184, 255);
     public Color desktopContextMenuButtonSelectedTint = new Color32(128, 128, 184, 255);
     public Color desktopContextMenuButtonPressedTint = new Color32(180, 180, 180, 255);
     public Color desktopContextMenuButtonDisabledTint = new Color32(180, 180, 180, 128);
+
+    [Header("Desktop Launcher Tint")]
+    public Color desktopLauncherIconNormalTint = new Color32(0, 0, 0, 255);
+    public Color desktopLauncherIconSelectedTint = new Color32(128, 128, 184, 255);
+    public Color desktopLauncherIconPressedTint = new Color32(180, 180, 180, 255);
+
 
     [Header("Optional Fallback Tint")]
     public Color windowTint = Color.white;

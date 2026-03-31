@@ -18,6 +18,6 @@ MonoBehaviour:
   contentPrefab: {fileID: 8132136970174023561, guid: d9377056a4514cc4e8eca6efaa2bbcbf, type: 3}
   defaultPos: {x: -200, y: 80}
   defaultSize: {x: 750, y: 660}
-  iconSprite: {fileID: 10905, guid: 0000000000000000f000000000000000, type: 0}
+  iconSprite: {fileID: 21300000, guid: 5c1f938d0df74b54f9cba1e0af58eaef, type: 3}
   windowIconSprite: {fileID: 21300000, guid: adc71cea2f26d3346976d40859708b50, type: 3}
   taskbarIconSprite: {fileID: 21300000, guid: adc71cea2f26d3346976d40859708b50, type: 3}

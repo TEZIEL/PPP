@@ -40,6 +40,11 @@ MonoBehaviour:
   otherWindow8RootSprite: {fileID: 21300000, guid: 0616847a8986c9447b6ffa5370803a96, type: 3}
   otherWindow9RootSprite: {fileID: 21300000, guid: 0616847a8986c9447b6ffa5370803a96, type: 3}
   otherWindow10RootSprite: {fileID: 21300000, guid: 0616847a8986c9447b6ffa5370803a96, type: 3}
+  otherWindow11RootSprite: {fileID: 21300000, guid: f495a651c716e58479c5889b2226e617, type: 3}
+  otherWindow12RootSprite: {fileID: 21300000, guid: f495a651c716e58479c5889b2226e617, type: 3}
+  otherWindow13RootSprite: {fileID: 21300000, guid: f495a651c716e58479c5889b2226e617, type: 3}
+  otherWindow14RootSprite: {fileID: 21300000, guid: f495a651c716e58479c5889b2226e617, type: 3}
+  otherWindow15RootSprite: {fileID: 21300000, guid: f495a651c716e58479c5889b2226e617, type: 3}
   windowMinimizeButtonNormalSprite: {fileID: 21300000, guid: d3aad8d25fc10eb45ade5fd62692569b, type: 3}
   windowMinimizeButtonHoverSprite: {fileID: 0}
   windowMinimizeButtonPressedSprite: {fileID: 0}
@@ -47,4 +52,26 @@ MonoBehaviour:
   windowPinButtonHoverSprite: {fileID: 0}
   windowPinButtonPressedSprite: {fileID: 0}
   windowPinButtonOnSprite: {fileID: 21300000, guid: 1927cc55cd0eeaf46848c0f48f7ce074, type: 3}
+  desktopLauncherIcons:
+  - appId: 
+    iconSprite: {fileID: 0}
+  - appId: 
+    iconSprite: {fileID: 0}
+  - appId: 
+    iconSprite: {fileID: 0}
+  - appId: 
+    iconSprite: {fileID: 0}
+  - appId: 
+    iconSprite: {fileID: 0}
+  - appId: 
+    iconSprite: {fileID: 0}
+  - appId: 
+    iconSprite: {fileID: 0}
+  - appId: 
+    iconSprite: {fileID: 0}
+  desktopContextMenuButtonNormalTint: {r: 1, g: 1, b: 1, a: 1}
+  desktopContextMenuButtonHighligtedTint: {r: 1, g: 0.78431374, b: 0.88235295, a: 1}
+  desktopContextMenuButtonSelectedTint: {r: 1, g: 0.78431374, b: 0.88235295, a: 1}
+  desktopContextMenuButtonPressedTint: {r: 1, g: 0.78431374, b: 0.88235295, a: 1}
+  desktopContextMenuButtonDisabledTint: {r: 0.7058824, g: 0.7058824, b: 0.7058824, a: 0.5019608}
   windowTint: {r: 1, g: 1, b: 1, a: 1}
