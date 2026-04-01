@@ -11,6 +11,9 @@ public class DesktopIconLauncher : MonoBehaviour, IPointerClickHandler
 
     [Header("App")]
     [SerializeField] private AppDefinition appDef;
+    [SerializeField] private GameObject optionsModal;
+    [SerializeField] private string optionsAppId = "app.options";
+    [SerializeField] private string optionsIconId = "99";
 
     [Header("Optional Label")]
     [SerializeField] private TMP_Text iconLabel;
@@ -258,6 +261,9 @@ public class DesktopIconLauncher : MonoBehaviour, IPointerClickHandler
     {
         if (!CanExecuteNow()) return;
 
+        if (TryOpenOptions())
+            return;
+
         if (windowManager == null || appDef == null)
             return;
 
@@ -265,6 +271,43 @@ public class DesktopIconLauncher : MonoBehaviour, IPointerClickHandler
             return;
 
         windowManager.Open(appDef);
+    }
+
+    private bool TryOpenOptions()
+    {
+        if (optionsModal == null)
+            return false;
+
+        if (MatchesOptionsAppId() || MatchesOptionsIconId())
+        {
+            optionsModal.SetActive(true);
+            return true;
+        }
+
+        return false;
+    }
+
+    private bool MatchesOptionsAppId()
+    {
+        if (string.IsNullOrWhiteSpace(optionsAppId))
+            return false;
+
+        if (appDef == null || string.IsNullOrWhiteSpace(appDef.AppId))
+            return false;
+
+        return string.Equals(appDef.AppId, optionsAppId, System.StringComparison.OrdinalIgnoreCase);
+    }
+
+    private bool MatchesOptionsIconId()
+    {
+        if (string.IsNullOrWhiteSpace(optionsIconId))
+            return false;
+
+        var drag = GetComponent<DesktopIconDraggable>();
+        if (drag == null)
+            return false;
+
+        return string.Equals(drag.GetId(), optionsIconId, System.StringComparison.OrdinalIgnoreCase);
     }
 
     public void OnPointerClick(PointerEventData eventData)
