@@ -70,10 +70,10 @@ MonoBehaviour:
   - appId: 
     iconSprite: {fileID: 0}
   desktopContextMenuButtonNormalTint: {r: 1, g: 1, b: 1, a: 1}
-  desktopContextMenuButtonHighlightedTint: {r: 1, g: 0.78431374, b: 0.88235295, a: 1}
-  desktopContextMenuButtonSelectedTint: {r: 1, g: 0.78431374, b: 0.88235295, a: 1}
-  desktopContextMenuButtonPressedTint: {r: 1, g: 0.78431374, b: 0.88235295, a: 1}
+  desktopContextMenuButtonHighlightedTint: {r: 0.6862745, g: 0.63529414, b: 0.9019608, a: 1}
+  desktopContextMenuButtonSelectedTint: {r: 0.6862745, g: 0.63529414, b: 0.9019608, a: 1}
+  desktopContextMenuButtonPressedTint: {r: 0.6862745, g: 0.63529414, b: 0.9019608, a: 1}
   desktopContextMenuButtonDisabledTint: {r: 0.7058824, g: 0.7058824, b: 0.7058824, a: 0.5019608}
   desktopLauncherIconNormalTint: {r: 1, g: 1, b: 1, a: 1}
-  desktopLauncherIconSelectedTint: {r: 1, g: 0.78431374, b: 0.88235295, a: 1}
+  desktopLauncherIconSelectedTint: {r: 0.6862745, g: 0.63529414, b: 0.9019608, a: 1}
   windowTint: {r: 1, g: 1, b: 1, a: 1}
