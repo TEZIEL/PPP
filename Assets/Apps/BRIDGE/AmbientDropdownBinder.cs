@@ -9,6 +9,8 @@ public class AmbientDropdownBinder : MonoBehaviour
     [SerializeField] private Image playButtonImage;
     [SerializeField] private Sprite playIcon;   // ▶
     [SerializeField] private Sprite stopIcon;   // ⏸
+    private bool isLocked;
+
     private List<AmbientType> types = new List<AmbientType>();
 
     private void Awake()
@@ -36,26 +38,66 @@ public class AmbientDropdownBinder : MonoBehaviour
         dropdown.AddOptions(options);
     }
 
-    public void PlaySelected()
-    {
-        AmbientManager.Instance.Play(types[dropdown.value]);
-    }
-
-
     public void TogglePlay()
     {
+        if (AmbientManager.Instance == null)
+            return;
+
+        if (isLocked)
+            return; // 🔥 여기 중요
+
         if (AmbientManager.Instance.IsPlaying())
         {
             AmbientManager.Instance.Stop();
-            playButtonImage.sprite = playIcon;
+
+            if (playButtonImage != null)
+                playButtonImage.sprite = playIcon;
         }
         else
         {
             AmbientManager.Instance.Play(types[dropdown.value]);
-            playButtonImage.sprite = stopIcon;
+
+            if (playButtonImage != null)
+                playButtonImage.sprite = stopIcon;
         }
     }
 
+    private void Unlock()
+    {
+        isLocked = false;
+    }
+
+    private void OnChanged(int index)
+    {
+        if (AmbientManager.Instance == null)
+            return;
+
+        isLocked = true; // 🔥 핵심
+
+        AmbientManager.Instance.Play(types[index]);
+
+        if (playButtonImage != null)
+            playButtonImage.sprite = stopIcon;
+
+        dropdown.Hide();
+
+        Invoke(nameof(Unlock), 0.25f); // 🔥 살짝 길게
+    }
+
+
+
+    public void SetPlayIcons(Sprite play, Sprite stop)
+    {
+        if (play != null)
+            playIcon = play;
+
+        if (stop != null)
+            stopIcon = stop;
+
+        
+    }
+
+    // 🎯 표시 이름
     private string GetDisplayName(AmbientType type)
     {
         switch (type)
@@ -72,35 +114,5 @@ public class AmbientDropdownBinder : MonoBehaviour
             case AmbientType.Campfire: return "모닥불";
             default: return "없음";
         }
-    }
-
-
-    public void SetPlayIcons(Sprite play, Sprite stop)
-    {
-        if (play != null)
-            playIcon = play;
-
-        if (stop != null)
-            stopIcon = stop;
-
-        RefreshPlayButtonVisual();
-    }
-
-    private void RefreshPlayButtonVisual()
-    {
-        if (playButtonImage == null)
-            return;
-
-        playButtonImage.sprite = AmbientManager.Instance != null && AmbientManager.Instance.IsPlaying()
-            ? stopIcon
-            : playIcon;
-    }
-
-
-    private void OnChanged(int index)
-    {
-        AmbientManager.Instance.Play(types[index]);
-        playButtonImage.sprite = stopIcon;
-        dropdown.Hide();
     }
 }

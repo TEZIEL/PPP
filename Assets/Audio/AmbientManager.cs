@@ -29,6 +29,8 @@ public class AmbientManager : MonoBehaviour
     [SerializeField] private AudioSource sourceB;
     private AudioSource currentSource;
     private AudioSource nextSource;
+    private bool isTransitioning;
+    private bool isPlaying;
 
     [Header("Ambient Clips")]
     [SerializeField] private AudioClip ocean;
@@ -77,9 +79,7 @@ public class AmbientManager : MonoBehaviour
 
     public bool IsPlaying()
     {
-        bool currentPlaying = currentSource != null && currentSource.isPlaying;
-        bool nextPlaying = nextSource != null && nextSource.isPlaying;
-        return currentPlaying || nextPlaying;
+        return isPlaying;
     }
     // PLAY
     // =========================
@@ -91,19 +91,29 @@ public class AmbientManager : MonoBehaviour
             return;
         }
 
-        if (current == type && currentSource.isPlaying)
+        // 🔥 추가 (핵심 안정화)
+        if (isTransitioning)
+        {
+            Stop(); // 상태 완전히 초기화
+        }
+
+        if (current == type && isPlaying)
             return;
 
         if (map.TryGetValue(type, out var clip))
         {
             StopAllCoroutines();
             StartCoroutine(CrossFade(clip));
+
             current = type;
+            isPlaying = true;
         }
     }
 
     private IEnumerator CrossFade(AudioClip newClip)
     {
+        isTransitioning = true; // 🔥 시작
+
         nextSource.clip = newClip;
         nextSource.loop = true;
         nextSource.volume = 0f;
@@ -112,7 +122,7 @@ public class AmbientManager : MonoBehaviour
         float duration = 0.7f;
         float time = 0f;
 
-        float startVolume = 1f; // 🔥 수정
+        float startVolume = 1f;
 
         while (time < duration)
         {
@@ -127,12 +137,13 @@ public class AmbientManager : MonoBehaviour
 
         currentSource.Stop();
 
-        // 🔄 swap
         var temp = currentSource;
         currentSource = nextSource;
         nextSource = temp;
 
-        currentSource.volume = 1f; // 🔥 안전장치
+        currentSource.volume = 1f;
+
+        isTransitioning = false; // 🔥 끝
     }
     // =========================
     // STOP
@@ -140,10 +151,19 @@ public class AmbientManager : MonoBehaviour
     public void Stop()
     {
         StopAllCoroutines();
-        StartCoroutine(FadeOut());
+
+        currentSource.Stop();
+        nextSource.Stop();
+
+        currentSource.volume = 1f;
+        nextSource.volume = 0f;
+
+        current = AmbientType.None;
+        isPlaying = false; // 🔥 핵심
+        isTransitioning = false;
     }
 
-    
+
 
 
     private IEnumerator FadeOut()
@@ -160,6 +180,7 @@ public class AmbientManager : MonoBehaviour
         }
 
         currentSource.Stop();
+
         current = AmbientType.None;
     }
 
