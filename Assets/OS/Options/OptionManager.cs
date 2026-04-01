@@ -1,5 +1,6 @@
 ﻿using UnityEngine;
 using UnityEngine.Audio;
+using UnityEngine.UI;
 
 public class OptionManager : MonoBehaviour
 {
@@ -8,6 +9,10 @@ public class OptionManager : MonoBehaviour
     private const string BgmKey = "Options.BGM";
     private const string SfxKey = "Options.SFX";
     private const string AmbientKey = "Options.Ambient";
+    [SerializeField] private Slider masterSlider;
+    [SerializeField] private Slider bgmSlider;
+    [SerializeField] private Slider sfxSlider;
+    [SerializeField] private Slider ambientSlider;
 
     public static OptionManager Instance { get; private set; }
 
@@ -63,6 +68,7 @@ public class OptionManager : MonoBehaviour
     {
         ApplyToMixer(applied);
         preview = applied.Clone();
+        UpdateUI(); // 🔥 이거 없으면 계속 꼬임
     }
 
     private void ApplyToMixer(OptionState state)
@@ -93,6 +99,20 @@ public class OptionManager : MonoBehaviour
         PlayerPrefs.SetFloat(SfxKey, applied.sfx);
         PlayerPrefs.SetFloat(AmbientKey, applied.ambient);
         PlayerPrefs.Save();
+    }
+
+    private void UpdateUI()
+    {
+        masterSlider.value = 1f - preview.master;
+        bgmSlider.value = 1f - preview.bgm;
+        sfxSlider.value = 1f - preview.sfx;
+        ambientSlider.value = 1f - preview.ambient;
+    }
+
+    public void OnOpen()
+    {
+        preview = applied.Clone();
+        UpdateUI();
     }
 
     private void Load()
