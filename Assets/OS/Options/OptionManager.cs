@@ -135,6 +135,8 @@ public class OptionManager : MonoBehaviour
         Save();
     }
 
+  
+
     public void Cancel()
     {
         ApplyToMixer(applied);
@@ -201,6 +203,8 @@ public class OptionManager : MonoBehaviour
 
         preview = applied.Clone();
     }
+
+
 
     // 🔥 UI
 
