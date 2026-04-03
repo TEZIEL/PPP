@@ -11,6 +11,7 @@ public class OptionState
     public bool bgmMuted;
     public bool sfxMuted;
     public bool ambientMuted;
+    public int themeOptionIndex = -1;
 
     public OptionState Clone()
     {
@@ -25,7 +26,8 @@ public class OptionState
             masterMuted = this.masterMuted,
             bgmMuted = this.bgmMuted,
             sfxMuted = this.sfxMuted,
-            ambientMuted = this.ambientMuted
+            ambientMuted = this.ambientMuted,
+            themeOptionIndex = this.themeOptionIndex
         };
     }
 }

@@ -84,6 +84,36 @@ public class BridgeUIThemeApplier : AppUIThemeApplierBase
     [SerializeField] private TMP_Text[] secondaryTexts = Array.Empty<TMP_Text>();
     [SerializeField] private BGMTrackItemUI[] trackItems = Array.Empty<BGMTrackItemUI>();
 
+    private void OnEnable()
+    {
+        var manager = AppUIThemeManager.Instance;
+        if (manager != null)
+            manager.OnThemeChanged += HandleThemeChanged;
+
+        ApplyCurrentTheme();
+    }
+
+    private void OnDisable()
+    {
+        var manager = AppUIThemeManager.Instance;
+        if (manager != null)
+            manager.OnThemeChanged -= HandleThemeChanged;
+    }
+
+    private void HandleThemeChanged()
+    {
+        ApplyCurrentTheme();
+    }
+
+    private void ApplyCurrentTheme()
+    {
+        var manager = AppUIThemeManager.Instance;
+        if (manager == null || manager.CurrentTheme == null)
+            return;
+
+        ApplyFromManager(manager.CurrentTheme, "Music");
+    }
+
 
     private void ApplyToggleSprites(
      UIButtonSpriteToggle toggle,
