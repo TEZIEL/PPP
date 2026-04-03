@@ -83,6 +83,7 @@ public class ThemeData : ScriptableObject
     public Sprite optionsSliderHandleSprite;
     public Sprite optionsMuteOnSprite;
     public Sprite optionsMuteOffSprite;
+    public Sprite optionsEtcField1Sprite;
 
     [Header("Options Modal Tint")]
     public Color optionsSelectedTint = new Color32(128, 128, 184, 255);

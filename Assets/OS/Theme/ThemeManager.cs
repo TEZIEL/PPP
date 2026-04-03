@@ -40,6 +40,9 @@ public class ThemeManager : MonoBehaviour
     [SerializeField] private List<Image> optionsSliderBackgroundImages = new();
     [SerializeField] private List<Image> optionsSliderFillImages = new();
     [SerializeField] private List<Image> optionsSliderHandleImages = new();
+    [SerializeField] private List<Image> optionsMuteOnImages = new();
+    [SerializeField] private List<Image> optionsMuteOffImages = new();
+    [SerializeField] private List<Image> optionsEtcField1Images = new();
     [SerializeField] private List<Selectable> optionsSelectableTintTargets = new();
     [SerializeField] private OptionManager optionManager;
 
@@ -95,6 +98,9 @@ public class ThemeManager : MonoBehaviour
         ApplySpriteToAll(optionsSliderBackgroundImages, currentTheme.optionsSliderBackgroundSprite);
         ApplySpriteToAll(optionsSliderFillImages, currentTheme.optionsSliderFillSprite);
         ApplySpriteToAll(optionsSliderHandleImages, currentTheme.optionsSliderHandleSprite);
+        ApplySpriteToAll(optionsMuteOnImages, currentTheme.optionsMuteOnSprite);
+        ApplySpriteToAll(optionsMuteOffImages, currentTheme.optionsMuteOffSprite);
+        ApplySpriteToAll(optionsEtcField1Images, currentTheme.optionsEtcField1Sprite);
         ApplyOptionsSelectableTint(optionsSelectableTintTargets);
 
         if (optionManager == null)
