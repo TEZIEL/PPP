@@ -34,6 +34,36 @@ public class BanditUIThemeApplier : AppUIThemeApplierBase
     [Header("BANDIT - Text (Optional)")]
     [SerializeField] private TMP_Text[] texts = Array.Empty<TMP_Text>();
 
+    private void OnEnable()
+    {
+        var manager = AppUIThemeManager.Instance;
+        if (manager != null)
+            manager.OnThemeChanged += HandleThemeChanged;
+
+        ApplyCurrentTheme();
+    }
+
+    private void OnDisable()
+    {
+        var manager = AppUIThemeManager.Instance;
+        if (manager != null)
+            manager.OnThemeChanged -= HandleThemeChanged;
+    }
+
+    private void HandleThemeChanged()
+    {
+        ApplyCurrentTheme();
+    }
+
+    private void ApplyCurrentTheme()
+    {
+        var manager = AppUIThemeManager.Instance;
+        if (manager == null || manager.CurrentTheme == null)
+            return;
+
+        ApplyFromManager(manager.CurrentTheme, "Fidget");
+    }
+
     public override void ApplyFromManager(AppUIThemeData data, string appId)
     {
         if (data == null || appId != "Fidget")
