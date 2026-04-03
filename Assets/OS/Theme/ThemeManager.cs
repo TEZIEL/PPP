@@ -30,6 +30,21 @@ public class ThemeManager : MonoBehaviour
     [SerializeField] private Image otherWindow13RootImage;
     [SerializeField] private Image otherWindow14RootImage;
     [SerializeField] private Image otherWindow15RootImage;
+    [Header("Options Modal")]
+    [SerializeField] private Image optionsWindowRootImage;
+    [SerializeField] private List<Image> optionsTabImages = new();
+    [SerializeField] private List<Image> optionsSelectedTabImages = new();
+    [SerializeField] private List<Image> optionsButtonImages = new();
+    [SerializeField] private List<Image> optionsSelectedButtonImages = new();
+    [SerializeField] private List<Image> optionsDropdownImages = new();
+    [SerializeField] private List<Image> optionsSliderBackgroundImages = new();
+    [SerializeField] private List<Image> optionsSliderFillImages = new();
+    [SerializeField] private List<Image> optionsSliderHandleImages = new();
+    [SerializeField] private List<Image> optionsMuteOnImages = new();
+    [SerializeField] private List<Image> optionsMuteOffImages = new();
+    [SerializeField] private List<Image> optionsEtcField1Images = new();
+    [SerializeField] private List<Selectable> optionsSelectableTintTargets = new();
+    [SerializeField] private OptionManager optionManager;
 
     public ThemeData CurrentTheme => currentTheme;
 
@@ -74,6 +89,23 @@ public class ThemeManager : MonoBehaviour
         ApplySpriteIfPresent(otherWindow13RootImage, currentTheme.otherWindow13RootSprite);
         ApplySpriteIfPresent(otherWindow14RootImage, currentTheme.otherWindow14RootSprite);
         ApplySpriteIfPresent(otherWindow15RootImage, currentTheme.otherWindow15RootSprite);
+        ApplySpriteIfPresent(optionsWindowRootImage, currentTheme.optionsWindowRootSprite);
+        ApplySpriteToAll(optionsTabImages, currentTheme.optionsTabSprite);
+        ApplySpriteToAll(optionsSelectedTabImages, currentTheme.optionsSelectedTabSprite);
+        ApplySpriteToAll(optionsButtonImages, currentTheme.optionsButtonSprite);
+        ApplySpriteToAll(optionsSelectedButtonImages, currentTheme.optionsSelectedButtonSprite);
+        ApplySpriteToAll(optionsDropdownImages, currentTheme.optionsDropdownSprite);
+        ApplySpriteToAll(optionsSliderBackgroundImages, currentTheme.optionsSliderBackgroundSprite);
+        ApplySpriteToAll(optionsSliderFillImages, currentTheme.optionsSliderFillSprite);
+        ApplySpriteToAll(optionsSliderHandleImages, currentTheme.optionsSliderHandleSprite);
+        ApplySpriteToAll(optionsMuteOnImages, currentTheme.optionsMuteOnSprite);
+        ApplySpriteToAll(optionsMuteOffImages, currentTheme.optionsMuteOffSprite);
+        ApplySpriteToAll(optionsEtcField1Images, currentTheme.optionsEtcField1Sprite);
+        ApplyOptionsSelectableTint(optionsSelectableTintTargets);
+
+        if (optionManager == null)
+            optionManager = FindObjectOfType<OptionManager>(true);
+        optionManager?.ApplyThemeVisuals(currentTheme);
 
         for (int i = 0; i < extraTaskbarPanelImages.Count; i++)
             ApplySpriteIfPresent(extraTaskbarPanelImages[i], currentTheme.taskbarPanelSprite);
@@ -104,5 +136,28 @@ public class ThemeManager : MonoBehaviour
         if (image == null) return;
         if (sprite == null) return;
         image.sprite = sprite;
+    }
+
+    private static void ApplySpriteToAll(List<Image> images, Sprite sprite)
+    {
+        if (sprite == null || images == null) return;
+        for (int i = 0; i < images.Count; i++)
+            ApplySpriteIfPresent(images[i], sprite);
+    }
+
+    private void ApplyOptionsSelectableTint(List<Selectable> selectables)
+    {
+        if (selectables == null) return;
+
+        for (int i = 0; i < selectables.Count; i++)
+        {
+            var selectable = selectables[i];
+            if (selectable == null) continue;
+
+            var colors = selectable.colors;
+            colors.selectedColor = currentTheme.optionsSelectedTint;
+            colors.pressedColor = currentTheme.optionsPressedTint;
+            selectable.colors = colors;
+        }
     }
 }
