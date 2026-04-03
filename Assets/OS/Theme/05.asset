@@ -12,46 +12,46 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e4c8ee9150fc405c801b5b08eb204220, type: 3}
   m_Name: 05
   m_EditorClassIdentifier: 
-  taskbarBackgroundSprite: {fileID: 21300000, guid: c3c4933ac41642d4da7815c2c714e4e5, type: 3}
-  taskbarPanelSprite: {fileID: 21300000, guid: bf3a88bff947bdd4d8e9954cff5530b5, type: 3}
-  startButtonSprite: {fileID: 21300000, guid: 766d0727f08d86f428648c941f0b24be, type: 3}
-  clockPanelSprite: {fileID: 21300000, guid: cec0924f28b97bb4a857de02a0ee9730, type: 3}
-  taskbarSeparatorSprite: {fileID: 21300000, guid: 9348287ff2bd1624f978a8209d842ada, type: 3}
-  taskbarButtonNormalSprite: {fileID: 21300000, guid: 33ba0777b66ed0045930f3464069f4d3, type: 3}
-  taskbarButtonPressedSprite: {fileID: 21300000, guid: 766d0727f08d86f428648c941f0b24be, type: 3}
-  windowFrameSprite: {fileID: 21300000, guid: 0e7aa633bc99fc84586d598c0563c545, type: 3}
+  taskbarBackgroundSprite: {fileID: 21300000, guid: 6780e5dd88045654092a2546bced084f, type: 3}
+  taskbarPanelSprite: {fileID: 21300000, guid: 326ccc3a7d164ef45a4aebb7b978c3ad, type: 3}
+  startButtonSprite: {fileID: 21300000, guid: 4993544a902ab86489da05462387ddbc, type: 3}
+  clockPanelSprite: {fileID: 21300000, guid: f97673665ab92864890cc450dfeb98fd, type: 3}
+  taskbarSeparatorSprite: {fileID: 21300000, guid: 2c3695a0ef50031418294c66c1c39b65, type: 3}
+  taskbarButtonNormalSprite: {fileID: 21300000, guid: eed39b37e3d8f3f4f8d5be858131f408, type: 3}
+  taskbarButtonPressedSprite: {fileID: 21300000, guid: 4993544a902ab86489da05462387ddbc, type: 3}
+  windowFrameSprite: {fileID: 21300000, guid: 132a89f63c63f724aa6725e6d6c6f732, type: 3}
   windowTitleBarSprite: {fileID: 0}
-  windowTitleBarActiveSprite: {fileID: 21300000, guid: 9d45162d2a6f12c4f913b010c2dee183, type: 3}
-  windowTitleBarInactiveSprite: {fileID: 21300000, guid: b5b5b1204ac415840a09eea2ac15ec52, type: 3}
+  windowTitleBarActiveSprite: {fileID: 21300000, guid: edf4e539be0ce6e4e98602b7e0538e1d, type: 3}
+  windowTitleBarInactiveSprite: {fileID: 21300000, guid: 97c7cc8f79185014c8de63d5e9a1aded, type: 3}
   windowBottomBarSprite: {fileID: 0}
   windowBottomBarActiveSprite: {fileID: 0}
   windowBottomBarInactiveSprite: {fileID: 0}
-  windowSideSprite: {fileID: 21300000, guid: 0dd2eb09c3968674fad3a22e6c96eec3, type: 3}
-  windowCloseButtonNormalSprite: {fileID: 21300000, guid: ca169c6b25da8cf42bd5e9885713bfe6, type: 3}
+  windowSideSprite: {fileID: 21300000, guid: cdd2d759c3f36c04283bbc995d556eb7, type: 3}
+  windowCloseButtonNormalSprite: {fileID: 21300000, guid: 721ea0b65e408be4297bb4826df5726f, type: 3}
   windowCloseButtonHoverSprite: {fileID: 0}
   windowCloseButtonPressedSprite: {fileID: 0}
-  otherWindow1RootSprite: {fileID: 21300000, guid: 3c10f3e08d0d2714f8a6e7a6e941d3f7, type: 3}
-  otherWindow2RootSprite: {fileID: 21300000, guid: f7b1dcdb45cbd754ebf8c09d667c2dab, type: 3}
-  otherWindow3RootSprite: {fileID: 21300000, guid: 3083747ae02b53d4a912a71881967234, type: 3}
-  otherWindow4RootSprite: {fileID: 21300000, guid: 3083747ae02b53d4a912a71881967234, type: 3}
-  otherWindow5RootSprite: {fileID: 21300000, guid: 3083747ae02b53d4a912a71881967234, type: 3}
-  otherWindow6RootSprite: {fileID: 21300000, guid: 3c10f3e08d0d2714f8a6e7a6e941d3f7, type: 3}
-  otherWindow7RootSprite: {fileID: 21300000, guid: 3c10f3e08d0d2714f8a6e7a6e941d3f7, type: 3}
-  otherWindow8RootSprite: {fileID: 21300000, guid: 3c10f3e08d0d2714f8a6e7a6e941d3f7, type: 3}
-  otherWindow9RootSprite: {fileID: 21300000, guid: 3c10f3e08d0d2714f8a6e7a6e941d3f7, type: 3}
-  otherWindow10RootSprite: {fileID: 21300000, guid: 3c10f3e08d0d2714f8a6e7a6e941d3f7, type: 3}
-  otherWindow11RootSprite: {fileID: 21300000, guid: 195c9658dbf300240ab3a49d974dd41f, type: 3}
-  otherWindow12RootSprite: {fileID: 21300000, guid: 195c9658dbf300240ab3a49d974dd41f, type: 3}
-  otherWindow13RootSprite: {fileID: 21300000, guid: 195c9658dbf300240ab3a49d974dd41f, type: 3}
-  otherWindow14RootSprite: {fileID: 21300000, guid: 195c9658dbf300240ab3a49d974dd41f, type: 3}
-  otherWindow15RootSprite: {fileID: 21300000, guid: 195c9658dbf300240ab3a49d974dd41f, type: 3}
-  windowMinimizeButtonNormalSprite: {fileID: 21300000, guid: 1d7e8bf4da81f0547bbc882e2278299c, type: 3}
+  otherWindow1RootSprite: {fileID: 21300000, guid: 915e534667d3b834a959357c59902fea, type: 3}
+  otherWindow2RootSprite: {fileID: 21300000, guid: e4705fdbac5d21c49977b27929342294, type: 3}
+  otherWindow3RootSprite: {fileID: 21300000, guid: 99a29a33850516e40b56b08b480d84b0, type: 3}
+  otherWindow4RootSprite: {fileID: 21300000, guid: 99a29a33850516e40b56b08b480d84b0, type: 3}
+  otherWindow5RootSprite: {fileID: 21300000, guid: 99a29a33850516e40b56b08b480d84b0, type: 3}
+  otherWindow6RootSprite: {fileID: 21300000, guid: 915e534667d3b834a959357c59902fea, type: 3}
+  otherWindow7RootSprite: {fileID: 21300000, guid: 915e534667d3b834a959357c59902fea, type: 3}
+  otherWindow8RootSprite: {fileID: 21300000, guid: 915e534667d3b834a959357c59902fea, type: 3}
+  otherWindow9RootSprite: {fileID: 21300000, guid: 915e534667d3b834a959357c59902fea, type: 3}
+  otherWindow10RootSprite: {fileID: 21300000, guid: 915e534667d3b834a959357c59902fea, type: 3}
+  otherWindow11RootSprite: {fileID: 21300000, guid: b7b44361234b9cc42be3ce07f26873a8, type: 3}
+  otherWindow12RootSprite: {fileID: 21300000, guid: b7b44361234b9cc42be3ce07f26873a8, type: 3}
+  otherWindow13RootSprite: {fileID: 21300000, guid: b7b44361234b9cc42be3ce07f26873a8, type: 3}
+  otherWindow14RootSprite: {fileID: 21300000, guid: b7b44361234b9cc42be3ce07f26873a8, type: 3}
+  otherWindow15RootSprite: {fileID: 21300000, guid: b7b44361234b9cc42be3ce07f26873a8, type: 3}
+  windowMinimizeButtonNormalSprite: {fileID: 21300000, guid: 1a4b46f35c2996240944d1300825d5ef, type: 3}
   windowMinimizeButtonHoverSprite: {fileID: 0}
   windowMinimizeButtonPressedSprite: {fileID: 0}
-  windowPinButtonNormalSprite: {fileID: 21300000, guid: 4f97bf17f177e16418e28bbbb20ce535, type: 3}
+  windowPinButtonNormalSprite: {fileID: 21300000, guid: 5cb9b97fabaeffb4880766589896c14f, type: 3}
   windowPinButtonHoverSprite: {fileID: 0}
   windowPinButtonPressedSprite: {fileID: 0}
-  windowPinButtonOnSprite: {fileID: 21300000, guid: c61f24e9e129a4448bdc0ad2b3b31db5, type: 3}
+  windowPinButtonOnSprite: {fileID: 21300000, guid: 4795fb93ebc1cfe42aa4e6b9a7a5b018, type: 3}
   desktopLauncherIcons:
   - appId: 
     iconSprite: {fileID: 0}
@@ -76,18 +76,18 @@ MonoBehaviour:
   desktopContextMenuButtonDisabledTint: {r: 0.7058824, g: 0.7058824, b: 0.7058824, a: 0.5019608}
   desktopLauncherIconNormalTint: {r: 1, g: 1, b: 1, a: 1}
   desktopLauncherIconSelectedTint: {r: 0.972549, g: 0.77254903, b: 0.8901961, a: 1}
-  optionsWindowRootSprite: {fileID: 21300000, guid: 0dd2eb09c3968674fad3a22e6c96eec3, type: 3}
-  optionsTabSprite: {fileID: 21300000, guid: 54abf48024642344faffcf167d595a47, type: 3}
-  optionsSelectedTabSprite: {fileID: 21300000, guid: 9d45162d2a6f12c4f913b010c2dee183, type: 3}
-  optionsButtonSprite: {fileID: 21300000, guid: 766d0727f08d86f428648c941f0b24be, type: 3}
-  optionsSelectedButtonSprite: {fileID: 21300000, guid: 7d9011a6d56e7434690a300f122a6cb3, type: 3}
-  optionsDropdownSprite: {fileID: 21300000, guid: 11441c0b1dcd01f48aafb15debb5fc6c, type: 3}
-  optionsSliderBackgroundSprite: {fileID: 21300000, guid: 3a8ea72034f5fd041836cbecf41f2090, type: 3}
-  optionsSliderFillSprite: {fileID: 21300000, guid: ce9dde88c5dae3742baa50b999ea7259, type: 3}
-  optionsSliderHandleSprite: {fileID: 21300000, guid: c3e3c554525358647bf2b559481daaa1, type: 3}
-  optionsMuteOnSprite: {fileID: 21300000, guid: 9ec4562996fad4743bbeac48795ae3c5, type: 3}
-  optionsMuteOffSprite: {fileID: 21300000, guid: e91a07ab9ad6d264ebc6d8353dabe8fd, type: 3}
-  optionsEtcField1Sprite: {fileID: 21300000, guid: f452e2067c3569a4b916b6f03a0bd4ff, type: 3}
+  optionsWindowRootSprite: {fileID: 21300000, guid: cdd2d759c3f36c04283bbc995d556eb7, type: 3}
+  optionsTabSprite: {fileID: 21300000, guid: 8778b8bcd1e61ea41a87cb41965ca185, type: 3}
+  optionsSelectedTabSprite: {fileID: 21300000, guid: edf4e539be0ce6e4e98602b7e0538e1d, type: 3}
+  optionsButtonSprite: {fileID: 21300000, guid: 4993544a902ab86489da05462387ddbc, type: 3}
+  optionsSelectedButtonSprite: {fileID: 21300000, guid: 58d51b2abbd4fc34f9e7bcafc493345c, type: 3}
+  optionsDropdownSprite: {fileID: 21300000, guid: 9501f8f6f7a6a2d47b5c2cbbda633ce3, type: 3}
+  optionsSliderBackgroundSprite: {fileID: 21300000, guid: 8688217fd570d3e4584cac6bce174ac1, type: 3}
+  optionsSliderFillSprite: {fileID: 21300000, guid: 041cefeb7c288224486e6108c2ccdb8e, type: 3}
+  optionsSliderHandleSprite: {fileID: 21300000, guid: ab8524d0f6b118240b997b33d4d4df8c, type: 3}
+  optionsMuteOnSprite: {fileID: 21300000, guid: 8414e0a8b8ce38b42b715130bebc1068, type: 3}
+  optionsMuteOffSprite: {fileID: 21300000, guid: 99b08a3d852ff0449b2011f984971c90, type: 3}
+  optionsEtcField1Sprite: {fileID: 21300000, guid: b0bb8ebacecff714d857dcbc63f77c48, type: 3}
   optionsSelectedTint: {r: 0.5019608, g: 0.5019608, b: 0.72156864, a: 1}
   optionsPressedTint: {r: 0.7058824, g: 0.7058824, b: 0.7058824, a: 1}
   windowTint: {r: 1, g: 1, b: 1, a: 1}
