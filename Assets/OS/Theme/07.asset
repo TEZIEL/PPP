@@ -76,4 +76,18 @@ MonoBehaviour:
   desktopContextMenuButtonDisabledTint: {r: 0.7058824, g: 0.7058824, b: 0.7058824, a: 0.5019608}
   desktopLauncherIconNormalTint: {r: 1, g: 1, b: 1, a: 1}
   desktopLauncherIconSelectedTint: {r: 0.7294118, g: 0.7529412, b: 0.9607843, a: 1}
+  optionsWindowRootSprite: {fileID: 21300000, guid: 54cb5efa0df0c404094510846b2ad7df, type: 3}
+  optionsTabSprite: {fileID: 21300000, guid: 95fb804e1528fbe46830678a48aa3e38, type: 3}
+  optionsSelectedTabSprite: {fileID: 21300000, guid: 88501cd0e99f6c747b64ad4a5b0b8679, type: 3}
+  optionsButtonSprite: {fileID: 21300000, guid: 8e02bc242ba14524585a0fd82d540302, type: 3}
+  optionsSelectedButtonSprite: {fileID: 21300000, guid: c0b638e1d29e019418e974c867274026, type: 3}
+  optionsDropdownSprite: {fileID: 21300000, guid: c71281f820e96cd44a0784a029dc511d, type: 3}
+  optionsSliderBackgroundSprite: {fileID: 21300000, guid: ddf2c32041e80e440ac2079fe0821d09, type: 3}
+  optionsSliderFillSprite: {fileID: 21300000, guid: 3cf22a8af68a1e34d932c842ce81db75, type: 3}
+  optionsSliderHandleSprite: {fileID: 21300000, guid: 414ac903da284504a8d7d26908fd524e, type: 3}
+  optionsMuteOnSprite: {fileID: 21300000, guid: 44baf91f2540aa94096694285e256553, type: 3}
+  optionsMuteOffSprite: {fileID: 21300000, guid: b99a12fd3e22ed947a54c7f373a05ecb, type: 3}
+  optionsEtcField1Sprite: {fileID: 21300000, guid: 19ea204639c6c6945bccf86ba4f33928, type: 3}
+  optionsSelectedTint: {r: 0.5019608, g: 0.5019608, b: 0.72156864, a: 1}
+  optionsPressedTint: {r: 0.7058824, g: 0.7058824, b: 0.7058824, a: 1}
   windowTint: {r: 1, g: 1, b: 1, a: 1}
