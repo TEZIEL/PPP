@@ -70,8 +70,23 @@ public class ThemeData : ScriptableObject
     [Header("Desktop Launcher Tint")]
     public Color desktopLauncherIconNormalTint = new Color32(0, 0, 0, 255);
     public Color desktopLauncherIconSelectedTint = new Color32(128, 128, 184, 255);
-   
 
+    [Header("Options Modal Sprites")]
+    public Sprite optionsWindowRootSprite;
+    public Sprite optionsTabSprite;
+    public Sprite optionsSelectedTabSprite;
+    public Sprite optionsButtonSprite;
+    public Sprite optionsSelectedButtonSprite;
+    public Sprite optionsDropdownSprite;
+    public Sprite optionsSliderBackgroundSprite;
+    public Sprite optionsSliderFillSprite;
+    public Sprite optionsSliderHandleSprite;
+    public Sprite optionsMuteOnSprite;
+    public Sprite optionsMuteOffSprite;
+
+    [Header("Options Modal Tint")]
+    public Color optionsSelectedTint = new Color32(128, 128, 184, 255);
+    public Color optionsPressedTint = new Color32(180, 180, 180, 255);
 
     [Header("Optional Fallback Tint")]
     public Color windowTint = Color.white;
