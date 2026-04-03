@@ -1,0 +1,262 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6b5a12a1478243bdbaa10668965c86ab, type: 3}
+  m_Name: 07
+  m_EditorClassIdentifier: 
+  blueprint:
+    filterButtonSprite: {fileID: 21300000, guid: 0ea0bb11ab12c2f429453a55045ca98b, type: 3}
+    filterButtonSelectedSprite: {fileID: 21300000, guid: 0b365d4651f039d41b6a6d37af58d196, type: 3}
+    ingredientSelectedColor: {r: 1, g: 1, b: 1, a: 1}
+    ingredientPressedColor: {r: 0.78431374, g: 0.78431374, b: 0.78431374, a: 1}
+    ingredientDefaultTextColor: {r: 0, g: 0, b: 0, a: 1}
+    ingredientPressedTextColor: {r: 0, g: 0, b: 0, a: 1}
+    ingredientSelectedTextColor: {r: 0, g: 0, b: 0, a: 1}
+    ingredientStateIndicatorSprite: {fileID: 21300000, guid: 0b365d4651f039d41b6a6d37af58d196, type: 3}
+    scrollViewBackgroundSprite: {fileID: 21300000, guid: 80e093c2270d4bd4c824183ee5b44632, type: 3}
+    scrollUpButtonSprite: {fileID: 21300000, guid: d486629a3740f634fbae381f7380feae, type: 3}
+    scrollDownButtonSprite: {fileID: 21300000, guid: c71281f820e96cd44a0784a029dc511d, type: 3}
+    scrollbarBackgroundSprite: {fileID: 21300000, guid: acd6a9d85ecb7e04d9a1bde72c615170, type: 3}
+    scrollbarHandleSprite: {fileID: 21300000, guid: decc60152a8e2c04ba0c2949c7e8e5b6, type: 3}
+    mainPanelBackgroundSprite: {fileID: 21300000, guid: 90009572b5a2a2046b8170a8fef37c6a, type: 3}
+    detailPanelBackgroundSprite: {fileID: 21300000, guid: b6232b6282e34054aaa2746c0bd2d71f, type: 3}
+    mainPanel2BackgroundSprite: {fileID: 21300000, guid: 6a6692dcc9c33c94fa2887665e1529f1, type: 3}
+    primaryTextColor: {r: 0, g: 0, b: 0, a: 1}
+    secondaryTextColor: {r: 0, g: 0, b: 0, a: 1}
+  blueprintListItem:
+    itemBackgroundSprite: {fileID: 21300000, guid: b5f6ea16eaa6f3d4ea8cc2c82153ae6b, type: 3}
+    iconFrameSprite: {fileID: 21300000, guid: b6232b6282e34054aaa2746c0bd2d71f, type: 3}
+    iconFrame2Sprite: {fileID: 21300000, guid: b6232b6282e34054aaa2746c0bd2d71f, type: 3}
+    iconFrame3Sprite: {fileID: 21300000, guid: b6232b6282e34054aaa2746c0bd2d71f, type: 3}
+    actionButtonSprite: {fileID: 0}
+    titleTextColor: {r: 0, g: 0, b: 0, a: 1}
+    bodyTextColor: {r: 0, g: 0, b: 0, a: 1}
+    metaTextColor: {r: 0, g: 0, b: 0, a: 1}
+  bridge:
+    playerMainPanelSprite: {fileID: 21300000, guid: c0b638e1d29e019418e974c867274026, type: 3}
+    albumArtBackgroundSprite: {fileID: 21300000, guid: 26d3f41cdaaaad244a4cd9ea3f3d3be4, type: 3}
+    albumArtFrameSprite: {fileID: 21300000, guid: d6b8e69ee29f1764f968f4bfd44ee6ac, type: 3}
+    playerHeaderFrameSprite: {fileID: 21300000, guid: 19ea204639c6c6945bccf86ba4f33928, type: 3}
+    playerFooterFrameSprite: {fileID: 21300000, guid: d3e8ded3c8fddbe45a31b84428e0f029, type: 3}
+    dividerLineSprite: {fileID: 21300000, guid: eaea29a620897ca46aa69bc1adbd2971, type: 3}
+    progressTrackSprite: {fileID: 21300000, guid: 8e02bc242ba14524585a0fd82d540302, type: 3}
+    progressFillSprite: {fileID: 21300000, guid: 8e02bc242ba14524585a0fd82d540302, type: 3}
+    progressHandleSprite: {fileID: 21300000, guid: 8e02bc242ba14524585a0fd82d540302, type: 3}
+    progressHandleSprite2: {fileID: 21300000, guid: ae54a5312ac65c74cb7395759a8e5f98, type: 3}
+    transportButtonSprite: {fileID: 0}
+    playPauseButtonSprite: {fileID: 0}
+    playbackToggleButtonSprite: {fileID: 0}
+    actionButtonSprite: {fileID: 0}
+    utilityButtonSprite: {fileID: 0}
+    listPanelSprite: {fileID: 21300000, guid: a5deebff572d02146afff34ab21d7f1d, type: 3}
+    listViewportSprite: {fileID: 21300000, guid: 48fd01d166a583642a58a8bdf3913fdd, type: 3}
+    listHeaderFrameSprite: {fileID: 21300000, guid: ae54a5312ac65c74cb7395759a8e5f98, type: 3}
+    scrollbarTrackSprite: {fileID: 0}
+    scrollbarHandleSprite: {fileID: 0}
+    playerPanelSprite: {fileID: 21300000, guid: c71281f820e96cd44a0784a029dc511d, type: 3}
+    listBackgroundSprite: {fileID: 21300000, guid: 37dd772a68c5b63489787271b4601620, type: 3}
+    extraSprite1: {fileID: 21300000, guid: decc60152a8e2c04ba0c2949c7e8e5b6, type: 3}
+    extraSprite2: {fileID: 21300000, guid: d486629a3740f634fbae381f7380feae, type: 3}
+    extraSprite3: {fileID: 21300000, guid: c71281f820e96cd44a0784a029dc511d, type: 3}
+    extraSprite4: {fileID: 21300000, guid: acd6a9d85ecb7e04d9a1bde72c615170, type: 3}
+    extraSprite5: {fileID: 21300000, guid: decc60152a8e2c04ba0c2949c7e8e5b6, type: 3}
+    extraSprite6: {fileID: 21300000, guid: d486629a3740f634fbae381f7380feae, type: 3}
+    extraSprite7: {fileID: 21300000, guid: c71281f820e96cd44a0784a029dc511d, type: 3}
+    extraSprite8: {fileID: 21300000, guid: acd6a9d85ecb7e04d9a1bde72c615170, type: 3}
+    extraSprite9: {fileID: 21300000, guid: 6a6692dcc9c33c94fa2887665e1529f1, type: 3}
+    extraSprite10: {fileID: 21300000, guid: 6a6692dcc9c33c94fa2887665e1529f1, type: 3}
+    extraSprite11: {fileID: 21300000, guid: 6a6692dcc9c33c94fa2887665e1529f1, type: 3}
+    extraSprite12: {fileID: 21300000, guid: 6a6692dcc9c33c94fa2887665e1529f1, type: 3}
+    extraSprite13: {fileID: 21300000, guid: 6a6692dcc9c33c94fa2887665e1529f1, type: 3}
+    extraSprite14: {fileID: 21300000, guid: 6a6692dcc9c33c94fa2887665e1529f1, type: 3}
+    extraSprite15: {fileID: 21300000, guid: 6a6692dcc9c33c94fa2887665e1529f1, type: 3}
+    extraSprite16: {fileID: 21300000, guid: 8e02bc242ba14524585a0fd82d540302, type: 3}
+    extraSprite17: {fileID: 21300000, guid: 26fad21d3224cd144abe9f2f6050b2d7, type: 3}
+    extraSprite18: {fileID: 21300000, guid: c668f65068a4476418fdc732eb7e9c53, type: 3}
+    extraSprite19: {fileID: 21300000, guid: 7275d6de18abe60479172b904ed6f697, type: 3}
+    extraSprite20: {fileID: 21300000, guid: d650203fee0fc494aa9cc1a7b9d1bc52, type: 3}
+    toggleOnBackground1: {fileID: 21300000, guid: eaea29a620897ca46aa69bc1adbd2971, type: 3}
+    toggleOffBackground1: {fileID: 21300000, guid: 6a6692dcc9c33c94fa2887665e1529f1, type: 3}
+    toggleOnIcon1: {fileID: 21300000, guid: 6c748c73f24a0f349805cf6addb878b8, type: 3}
+    toggleOffIcon1: {fileID: 21300000, guid: fa1d4385c69a57a40b45d8f729c80b86, type: 3}
+    toggleOnBackground2: {fileID: 21300000, guid: eaea29a620897ca46aa69bc1adbd2971, type: 3}
+    toggleOffBackground2: {fileID: 21300000, guid: 6a6692dcc9c33c94fa2887665e1529f1, type: 3}
+    toggleOnIcon2: {fileID: 21300000, guid: b683df8ee4c0868489da9cd0d84c60aa, type: 3}
+    toggleOffIcon2: {fileID: 21300000, guid: b683df8ee4c0868489da9cd0d84c60aa, type: 3}
+    toggleOnBackground3: {fileID: 21300000, guid: eaea29a620897ca46aa69bc1adbd2971, type: 3}
+    toggleOffBackground3: {fileID: 21300000, guid: 6a6692dcc9c33c94fa2887665e1529f1, type: 3}
+    toggleOnIcon3: {fileID: 21300000, guid: de847afd9522326409947fe94a95411e, type: 3}
+    toggleOffIcon3: {fileID: 21300000, guid: 0313996a8c4613647ad4ea6ebb62d592, type: 3}
+    dropdownBackgroundSprite: {fileID: 0}
+    dropdownButtonSprite: {fileID: 0}
+    ambientSlotSprite: {fileID: 21300000, guid: 93884a870904d8d478f7122316674950, type: 3}
+    dropdownItemNormalSprite: {fileID: 0}
+    dropdownItemSelectedSprite: {fileID: 21300000, guid: 30a9c7b0f2eb56449a84d459dfb11b6c, type: 3}
+    dropdownItemPressedSprite: {fileID: 21300000, guid: 30a9c7b0f2eb56449a84d459dfb11b6c, type: 3}
+    dropdownItemDisabledSprite: {fileID: 0}
+    dropdownCheckmarkNormalSprite: {fileID: 0}
+    dropdownCheckmarkSelectedSprite: {fileID: 0}
+    dropdownCheckmarkPressedSprite: {fileID: 21300000, guid: 1351e91fb0808ec40b5556eb75077bac, type: 3}
+    dropdownCheckmarkDisabledSprite: {fileID: 0}
+    ambientPlayIcon: {fileID: 21300000, guid: 6c748c73f24a0f349805cf6addb878b8, type: 3}
+    ambientStopIcon: {fileID: 21300000, guid: 874c046238aace048a77ffac81e5cdc1, type: 3}
+    trackItemNormalSprite: {fileID: 0}
+    trackItemSelectedSprite: {fileID: 21300000, guid: 30a9c7b0f2eb56449a84d459dfb11b6c, type: 3}
+    trackItemPressedSprite: {fileID: 21300000, guid: 30a9c7b0f2eb56449a84d459dfb11b6c, type: 3}
+    trackItemDisabledSprite: {fileID: 0}
+    trackCheckmarkNormalSprite: {fileID: 21300000, guid: 93884a870904d8d478f7122316674950, type: 3}
+    trackCheckmarkSelectedSprite: {fileID: 21300000, guid: 1351e91fb0808ec40b5556eb75077bac, type: 3}
+    trackCheckmarkPressedSprite: {fileID: 21300000, guid: 1351e91fb0808ec40b5556eb75077bac, type: 3}
+    trackCheckmarkDisabledSprite: {fileID: 21300000, guid: 8f5d6c71811cad04d8e47cf667679161, type: 3}
+    trackTextNormalColor: {r: 0, g: 0, b: 0, a: 1}
+    trackTextSelectedColor: {r: 1, g: 1, b: 1, a: 1}
+    trackTextPressedColor: {r: 1, g: 1, b: 1, a: 1}
+    trackTextDisabledColor: {r: 0.78431374, g: 0.78431374, b: 0.78431374, a: 0.5019608}
+    primaryTextColor: {r: 0, g: 0, b: 0, a: 0}
+    secondaryTextColor: {r: 0, g: 0, b: 0, a: 0}
+  buddy:
+    pinAreaSprite: {fileID: 0}
+    profileCardSprite: {fileID: 0}
+    listAreaSprite: {fileID: 0}
+    bottomActionPanelSprite: {fileID: 0}
+    innerPanelSprite: {fileID: 0}
+    actionButtonSprite: {fileID: 0}
+    primaryTextColor: {r: 0, g: 0, b: 0, a: 0}
+  bandit:
+    swipeViewportSprite: {fileID: 21300000, guid: b6232b6282e34054aaa2746c0bd2d71f, type: 3}
+    infoPanelSprite: {fileID: 21300000, guid: 8e02bc242ba14524585a0fd82d540302, type: 3}
+    frameSprite: {fileID: 21300000, guid: dc0b79f1d8bba3744b6421b85e0f679d, type: 3}
+    innerBackgroundSprite: {fileID: 0}
+    swipeViewportSprite2: {fileID: 21300000, guid: acd6a9d85ecb7e04d9a1bde72c615170, type: 3}
+    infoPanelSprite2: {fileID: 21300000, guid: d486629a3740f634fbae381f7380feae, type: 3}
+    frameSprite2: {fileID: 21300000, guid: c71281f820e96cd44a0784a029dc511d, type: 3}
+    swipeViewportSprite3: {fileID: 21300000, guid: 8e02bc242ba14524585a0fd82d540302, type: 3}
+    infoPanelSprite3: {fileID: 21300000, guid: 8e02bc242ba14524585a0fd82d540302, type: 3}
+    frameSprite3: {fileID: 21300000, guid: 8e02bc242ba14524585a0fd82d540302, type: 3}
+    swipeViewportSprite4: {fileID: 21300000, guid: 26d3f41cdaaaad244a4cd9ea3f3d3be4, type: 3}
+    infoPanelSprite4: {fileID: 21300000, guid: 89b6e3e574cebec4b832a294cb146918, type: 3}
+    frameSprite4: {fileID: 21300000, guid: 89b6e3e574cebec4b832a294cb146918, type: 3}
+    frameSprite5: {fileID: 21300000, guid: 89b6e3e574cebec4b832a294cb146918, type: 3}
+    swipeViewportSprite5: {fileID: 21300000, guid: d42c878397a05a74db5886a5669ad333, type: 3}
+    infoPanelSprite5: {fileID: 21300000, guid: e38a95d64d44f9546884496e9bc873db, type: 3}
+    frameSprite6: {fileID: 21300000, guid: 7275d6de18abe60479172b904ed6f697, type: 3}
+    swipeViewportSprite6: {fileID: 21300000, guid: d650203fee0fc494aa9cc1a7b9d1bc52, type: 3}
+    pinOffSprite: {fileID: 21300000, guid: 8e02bc242ba14524585a0fd82d540302, type: 3}
+    pinOnSprite: {fileID: 21300000, guid: eaea29a620897ca46aa69bc1adbd2971, type: 3}
+    actionButtonSprite: {fileID: 0}
+    textColor: {r: 0, g: 0, b: 0, a: 0}
+  box:
+    topToolbarSprite: {fileID: 0}
+    bodyPanelSprite: {fileID: 0}
+    scrollAreaSprite: {fileID: 0}
+    innerBackgroundSprite: {fileID: 0}
+    scrollbarTrackSprite: {fileID: 0}
+    scrollbarHandleSprite: {fileID: 0}
+    scrollUpButtonSprite: {fileID: 0}
+    scrollDownButtonSprite: {fileID: 0}
+    textColor: {r: 0, g: 0, b: 0, a: 0}
+  vn:
+    saveLoadWindowRootSprite: {fileID: 21300000, guid: 8e02bc242ba14524585a0fd82d540302, type: 3}
+    saveLoadSlotSprite: {fileID: 0}
+    saveLoadSelectedSlotSprite: {fileID: 0}
+    saveLoadButtonSprite: {fileID: 21300000, guid: 8e02bc242ba14524585a0fd82d540302, type: 3}
+    backlogRootSprite: {fileID: 21300000, guid: 8e02bc242ba14524585a0fd82d540302, type: 3}
+    backlogItemSprite: {fileID: 0}
+    backlogButtonSprite: {fileID: 21300000, guid: 8e02bc242ba14524585a0fd82d540302, type: 3}
+    exitModalRootSprite: {fileID: 21300000, guid: 8e02bc242ba14524585a0fd82d540302, type: 3}
+    exitModalButtonSprite: {fileID: 0}
+    exitSelectedButtonColor: {r: 0.7294118, g: 0.7529412, b: 0.9607843, a: 1}
+    exitPressedButtonColor: {r: 0.7294118, g: 0.7529412, b: 0.9607843, a: 1}
+    drinkRootSprite: {fileID: 21300000, guid: c0b638e1d29e019418e974c867274026, type: 3}
+    drinkGridSprite: {fileID: 21300000, guid: 5ac4898dee6ccf3429ed5cecbb163052, type: 3}
+    ingredientButtonSprite: {fileID: 21300000, guid: 8e02bc242ba14524585a0fd82d540302, type: 3}
+    ingredientSelectedButtonSprite: {fileID: 21300000, guid: 30a9c7b0f2eb56449a84d459dfb11b6c, type: 3}
+    ingredientSelectedColor: {r: 0.7294118, g: 0.7529412, b: 0.9607843, a: 1}
+    ingredientPressedColor: {r: 0.7294118, g: 0.7529412, b: 0.9607843, a: 1}
+    ingredientDefaultTextColor: {r: 0, g: 0, b: 0, a: 1}
+    ingredientPressedTextColor: {r: 1, g: 1, b: 1, a: 1}
+    ingredientSelectedTextColor: {r: 1, g: 1, b: 1, a: 1}
+    ingredientStateIndicatorSprite: {fileID: 21300000, guid: 30a9c7b0f2eb56449a84d459dfb11b6c, type: 3}
+    dialogueRootSprite: {fileID: 21300000, guid: 8e02bc242ba14524585a0fd82d540302, type: 3}
+    dialogueButtonContainerSprite: {fileID: 21300000, guid: c0b638e1d29e019418e974c867274026, type: 3}
+    dialogueButtonSprite: {fileID: 0}
+    dialogueSelectedButtonSprite: {fileID: 0}
+    focusLinkedImage:
+      activeSprite: {fileID: 21300000, guid: 88501cd0e99f6c747b64ad4a5b0b8679, type: 3}
+      inactiveSprite: {fileID: 21300000, guid: 7b55bb347710f864395e8e821cced855, type: 3}
+    dialogueButtonVisual:
+      interactableActiveSprite: {fileID: 21300000, guid: eaea29a620897ca46aa69bc1adbd2971, type: 3}
+      interactableInactiveSprite: {fileID: 21300000, guid: 6a6692dcc9c33c94fa2887665e1529f1, type: 3}
+      toggleAutoPlayActiveSprite: {fileID: 21300000, guid: eaea29a620897ca46aa69bc1adbd2971, type: 3}
+      toggleAutoPlayInactiveSprite: {fileID: 21300000, guid: 6a6692dcc9c33c94fa2887665e1529f1, type: 3}
+      holdSkipActiveSprite: {fileID: 21300000, guid: eaea29a620897ca46aa69bc1adbd2971, type: 3}
+      holdSkipInactiveSprite: {fileID: 21300000, guid: 6a6692dcc9c33c94fa2887665e1529f1, type: 3}
+      interactableEnabledActiveSprite: {fileID: 21300000, guid: eaea29a620897ca46aa69bc1adbd2971, type: 3}
+      interactableEnabledInactiveSprite: {fileID: 21300000, guid: 6a6692dcc9c33c94fa2887665e1529f1, type: 3}
+    pinActiveSprite: {fileID: 21300000, guid: 05d322989e1bf9e46ae8de7ee6e993e7, type: 3}
+    pinInactiveSprite: {fileID: 21300000, guid: c05c0e30ebbc56949af0ef19a1ad7555, type: 3}
+    drinkSlotEmptySprite: {fileID: 21300000, guid: 8e02bc242ba14524585a0fd82d540302, type: 3}
+    drinkSlotSelectedSprite: {fileID: 0}
+    drinkIngredientSlotFilledSprites: []
+    otherWindow1RootSprite: {fileID: 21300000, guid: 8e02bc242ba14524585a0fd82d540302, type: 3}
+    otherWindow2RootSprite: {fileID: 21300000, guid: c0b638e1d29e019418e974c867274026, type: 3}
+    otherWindow3RootSprite: {fileID: 21300000, guid: 8e02bc242ba14524585a0fd82d540302, type: 3}
+    otherWindow4RootSprite: {fileID: 21300000, guid: c0b638e1d29e019418e974c867274026, type: 3}
+    otherWindow5RootSprite: {fileID: 21300000, guid: 8e02bc242ba14524585a0fd82d540302, type: 3}
+    otherWindow6RootSprite: {fileID: 21300000, guid: c0b638e1d29e019418e974c867274026, type: 3}
+    otherWindow7RootSprite: {fileID: 21300000, guid: 8e02bc242ba14524585a0fd82d540302, type: 3}
+    otherWindow8RootSprite: {fileID: 21300000, guid: c0b638e1d29e019418e974c867274026, type: 3}
+    otherWindow9RootSprite: {fileID: 21300000, guid: 8e02bc242ba14524585a0fd82d540302, type: 3}
+    otherWindow10RootSprite: {fileID: 21300000, guid: c0b638e1d29e019418e974c867274026, type: 3}
+    otherWindow11RootSprite: {fileID: 21300000, guid: c0b638e1d29e019418e974c867274026, type: 3}
+    otherWindow12RootSprite: {fileID: 21300000, guid: c0b638e1d29e019418e974c867274026, type: 3}
+    otherWindow13RootSprite: {fileID: 21300000, guid: c0b638e1d29e019418e974c867274026, type: 3}
+    otherWindow14RootSprite: {fileID: 21300000, guid: c0b638e1d29e019418e974c867274026, type: 3}
+    otherWindow15RootSprite: {fileID: 21300000, guid: c0b638e1d29e019418e974c867274026, type: 3}
+    otherWindow16RootSprite: {fileID: 21300000, guid: c0b638e1d29e019418e974c867274026, type: 3}
+    otherWindow17RootSprite: {fileID: 21300000, guid: c0b638e1d29e019418e974c867274026, type: 3}
+    otherWindow18RootSprite: {fileID: 21300000, guid: c0b638e1d29e019418e974c867274026, type: 3}
+    otherWindow19RootSprite: {fileID: 21300000, guid: c0b638e1d29e019418e974c867274026, type: 3}
+    otherWindow20RootSprite: {fileID: 21300000, guid: 8e02bc242ba14524585a0fd82d540302, type: 3}
+    otherWindow21RootSprite: {fileID: 21300000, guid: decc60152a8e2c04ba0c2949c7e8e5b6, type: 3}
+    otherWindow22RootSprite: {fileID: 21300000, guid: d486629a3740f634fbae381f7380feae, type: 3}
+    otherWindow23RootSprite: {fileID: 21300000, guid: c71281f820e96cd44a0784a029dc511d, type: 3}
+    otherWindow24RootSprite: {fileID: 21300000, guid: acd6a9d85ecb7e04d9a1bde72c615170, type: 3}
+    otherWindow25RootSprite: {fileID: 21300000, guid: decc60152a8e2c04ba0c2949c7e8e5b6, type: 3}
+    otherWindow26RootSprite: {fileID: 21300000, guid: d486629a3740f634fbae381f7380feae, type: 3}
+    otherWindow27RootSprite: {fileID: 21300000, guid: c71281f820e96cd44a0784a029dc511d, type: 3}
+    otherWindow28RootSprite: {fileID: 21300000, guid: acd6a9d85ecb7e04d9a1bde72c615170, type: 3}
+    otherWindow29RootSprite: {fileID: 21300000, guid: 6a6692dcc9c33c94fa2887665e1529f1, type: 3}
+    otherWindow30RootSprite: {fileID: 21300000, guid: 8e02bc242ba14524585a0fd82d540302, type: 3}
+    otherWindow31RootSprite: {fileID: 21300000, guid: 3cf22a8af68a1e34d932c842ce81db75, type: 3}
+    otherWindow32RootSprite: {fileID: 21300000, guid: 3cf22a8af68a1e34d932c842ce81db75, type: 3}
+    otherWindow33RootSprite: {fileID: 21300000, guid: 3cf22a8af68a1e34d932c842ce81db75, type: 3}
+    otherWindow34RootSprite: {fileID: 21300000, guid: 3cf22a8af68a1e34d932c842ce81db75, type: 3}
+    otherWindow35RootSprite: {fileID: 21300000, guid: 3cf22a8af68a1e34d932c842ce81db75, type: 3}
+    otherWindow36RootSprite: {fileID: 21300000, guid: 3cf22a8af68a1e34d932c842ce81db75, type: 3}
+    otherWindow37RootSprite: {fileID: 21300000, guid: 3cf22a8af68a1e34d932c842ce81db75, type: 3}
+    otherWindow38RootSprite: {fileID: 21300000, guid: 3cf22a8af68a1e34d932c842ce81db75, type: 3}
+    otherWindow39RootSprite: {fileID: 21300000, guid: 3cf22a8af68a1e34d932c842ce81db75, type: 3}
+    otherWindow40RootSprite: {fileID: 21300000, guid: 3cf22a8af68a1e34d932c842ce81db75, type: 3}
+    otherWindow41RootSprite: {fileID: 21300000, guid: 91aa9be37f3119447bb24f889c5b9c3a, type: 3}
+    otherWindow42RootSprite: {fileID: 21300000, guid: b9d642bb35d7204469cc3b171a296b8a, type: 3}
+    otherWindow43RootSprite: {fileID: 21300000, guid: fe5717b0232c3084a89f08baccd88054, type: 3}
+    otherWindow44RootSprite: {fileID: 21300000, guid: 7afb53d68b45a1548b9344447d7531c3, type: 3}
+    otherWindow45RootSprite: {fileID: 21300000, guid: 89ebdebc1b3dac8438de1fe151676bb5, type: 3}
+    otherWindow46RootSprite: {fileID: 21300000, guid: 04721c05e76d01341b3dc97445a23463, type: 3}
+    otherWindow47RootSprite: {fileID: 21300000, guid: 1856ad3ceae5de04090a68a09fa808fc, type: 3}
+    otherWindow48RootSprite: {fileID: 21300000, guid: 1856ad3ceae5de04090a68a09fa808fc, type: 3}
+    otherWindow49RootSprite: {fileID: 21300000, guid: 1856ad3ceae5de04090a68a09fa808fc, type: 3}
+    otherWindow50RootSprite: {fileID: 21300000, guid: c0b638e1d29e019418e974c867274026, type: 3}
+    otherWindow51RootSprite: {fileID: 21300000, guid: c0b638e1d29e019418e974c867274026, type: 3}
+    otherWindow52RootSprite: {fileID: 21300000, guid: c0b638e1d29e019418e974c867274026, type: 3}
+    otherWindow53RootSprite: {fileID: 21300000, guid: c0b638e1d29e019418e974c867274026, type: 3}
+    otherWindow54RootSprite: {fileID: 21300000, guid: c0b638e1d29e019418e974c867274026, type: 3}

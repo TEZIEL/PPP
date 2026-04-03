@@ -93,10 +93,14 @@ public class ThemeSpriteAutoMapperWindow : EditorWindow
                 continue;
             }
 
-            if (iterator.objectReferenceValue != null && iterator.objectReferenceValue is not Sprite sourceSprite)
+            var obj = iterator.objectReferenceValue;
+
+            if (obj != null && !(obj is Sprite))
             {
                 continue;
             }
+
+            Sprite sourceSprite = obj as Sprite;
 
             var targetProperty = targetSerializedObject.FindProperty(iterator.propertyPath);
             if (targetProperty == null || targetProperty.propertyType != SerializedPropertyType.ObjectReference)

@@ -1,0 +1,79 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e4c8ee9150fc405c801b5b08eb204220, type: 3}
+  m_Name: 03
+  m_EditorClassIdentifier: 
+  taskbarBackgroundSprite: {fileID: 21300000, guid: 5fae3338f63c7194199ff015d9062a61, type: 3}
+  taskbarPanelSprite: {fileID: 21300000, guid: af6df4d9b4579524da371a283237c249, type: 3}
+  startButtonSprite: {fileID: 21300000, guid: 08a5c4136d3411645a17962b9e5ef9db, type: 3}
+  clockPanelSprite: {fileID: 21300000, guid: eeb9ace4c8b50c54daad3c023f2b04a9, type: 3}
+  taskbarSeparatorSprite: {fileID: 21300000, guid: 1ad078216e753eb4f85948dda78c91cc, type: 3}
+  taskbarButtonNormalSprite: {fileID: 21300000, guid: 911164056880bef4b89835fbd9034ea6, type: 3}
+  taskbarButtonPressedSprite: {fileID: 21300000, guid: 08a5c4136d3411645a17962b9e5ef9db, type: 3}
+  windowFrameSprite: {fileID: 21300000, guid: 1c7e8df5c00259341a062b3d5d0656f3, type: 3}
+  windowTitleBarSprite: {fileID: 0}
+  windowTitleBarActiveSprite: {fileID: 21300000, guid: 0f618c92e4dd29d4dbf7cc9dfacfd755, type: 3}
+  windowTitleBarInactiveSprite: {fileID: 21300000, guid: c3cbbb917ca2ccf4cb8c29508eb9629a, type: 3}
+  windowBottomBarSprite: {fileID: 0}
+  windowBottomBarActiveSprite: {fileID: 0}
+  windowBottomBarInactiveSprite: {fileID: 0}
+  windowSideSprite: {fileID: 21300000, guid: 41db0e7c379149949ab5be5a05b74f89, type: 3}
+  windowCloseButtonNormalSprite: {fileID: 21300000, guid: 96b1d4128b783dd4583ee71c3b09cb79, type: 3}
+  windowCloseButtonHoverSprite: {fileID: 0}
+  windowCloseButtonPressedSprite: {fileID: 0}
+  otherWindow1RootSprite: {fileID: 21300000, guid: 2f4450003b9bd2a46afee54729e0711d, type: 3}
+  otherWindow2RootSprite: {fileID: 21300000, guid: e4aee41abf3ce07408ad1bc5e5ac630e, type: 3}
+  otherWindow3RootSprite: {fileID: 21300000, guid: 69e1c4f6ca1655145b63e8f4eb7244c3, type: 3}
+  otherWindow4RootSprite: {fileID: 21300000, guid: 69e1c4f6ca1655145b63e8f4eb7244c3, type: 3}
+  otherWindow5RootSprite: {fileID: 21300000, guid: 69e1c4f6ca1655145b63e8f4eb7244c3, type: 3}
+  otherWindow6RootSprite: {fileID: 21300000, guid: 2f4450003b9bd2a46afee54729e0711d, type: 3}
+  otherWindow7RootSprite: {fileID: 21300000, guid: 2f4450003b9bd2a46afee54729e0711d, type: 3}
+  otherWindow8RootSprite: {fileID: 21300000, guid: 2f4450003b9bd2a46afee54729e0711d, type: 3}
+  otherWindow9RootSprite: {fileID: 21300000, guid: 2f4450003b9bd2a46afee54729e0711d, type: 3}
+  otherWindow10RootSprite: {fileID: 21300000, guid: 2f4450003b9bd2a46afee54729e0711d, type: 3}
+  otherWindow11RootSprite: {fileID: 21300000, guid: da54a1f1aaa61cd47bf48e068821eb09, type: 3}
+  otherWindow12RootSprite: {fileID: 21300000, guid: da54a1f1aaa61cd47bf48e068821eb09, type: 3}
+  otherWindow13RootSprite: {fileID: 21300000, guid: da54a1f1aaa61cd47bf48e068821eb09, type: 3}
+  otherWindow14RootSprite: {fileID: 21300000, guid: da54a1f1aaa61cd47bf48e068821eb09, type: 3}
+  otherWindow15RootSprite: {fileID: 21300000, guid: da54a1f1aaa61cd47bf48e068821eb09, type: 3}
+  windowMinimizeButtonNormalSprite: {fileID: 21300000, guid: 42b99382734b1914582335548b79813a, type: 3}
+  windowMinimizeButtonHoverSprite: {fileID: 0}
+  windowMinimizeButtonPressedSprite: {fileID: 0}
+  windowPinButtonNormalSprite: {fileID: 21300000, guid: 611237c59590541439adba2140fc6d05, type: 3}
+  windowPinButtonHoverSprite: {fileID: 0}
+  windowPinButtonPressedSprite: {fileID: 0}
+  windowPinButtonOnSprite: {fileID: 21300000, guid: 828f45fe036558e459c956dfa5f40a4b, type: 3}
+  desktopLauncherIcons:
+  - appId: 
+    iconSprite: {fileID: 0}
+  - appId: 
+    iconSprite: {fileID: 0}
+  - appId: 
+    iconSprite: {fileID: 0}
+  - appId: 
+    iconSprite: {fileID: 0}
+  - appId: 
+    iconSprite: {fileID: 0}
+  - appId: 
+    iconSprite: {fileID: 0}
+  - appId: 
+    iconSprite: {fileID: 0}
+  - appId: 
+    iconSprite: {fileID: 0}
+  desktopContextMenuButtonNormalTint: {r: 1, g: 1, b: 1, a: 1}
+  desktopContextMenuButtonHighlightedTint: {r: 0.9529412, g: 0.76862746, b: 0.7607843, a: 1}
+  desktopContextMenuButtonSelectedTint: {r: 0.9529412, g: 0.76862746, b: 0.7607843, a: 1}
+  desktopContextMenuButtonPressedTint: {r: 0.9529412, g: 0.76862746, b: 0.7607843, a: 1}
+  desktopContextMenuButtonDisabledTint: {r: 0.7058824, g: 0.7058824, b: 0.7058824, a: 0.5019608}
+  desktopLauncherIconNormalTint: {r: 1, g: 1, b: 1, a: 1}
+  desktopLauncherIconSelectedTint: {r: 0.9529412, g: 0.76862746, b: 0.7607843, a: 1}
+  windowTint: {r: 1, g: 1, b: 1, a: 1}
