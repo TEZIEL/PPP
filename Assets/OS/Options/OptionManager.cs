@@ -1,4 +1,6 @@
-﻿using UnityEngine;
+﻿using System;
+using TMPro;
+using UnityEngine;
 using UnityEngine.Audio;
 using UnityEngine.UI;
 
@@ -15,6 +17,15 @@ public class OptionManager : MonoBehaviour
     private const string BgmMuteKey = "Options.BgmMute";
     private const string SfxMuteKey = "Options.SfxMute";
     private const string AmbientMuteKey = "Options.AmbientMute";
+    private const string ThemeSelectionKey = "Options.ThemeSelection";
+
+    [Serializable]
+    public struct ThemeOptionEntry
+    {
+        public string displayName;
+        public ThemeData osTheme;
+        public AppUIThemeData appUIThemeData;
+    }
 
     [SerializeField] private Slider masterSlider;
     [SerializeField] private Slider bgmSlider;
@@ -28,6 +39,11 @@ public class OptionManager : MonoBehaviour
 
     [SerializeField] private Sprite muteOnSprite;
     [SerializeField] private Sprite muteOffSprite;
+    [Header("Theme Options")]
+    [SerializeField] private TMP_Dropdown themeDropdown;
+    [SerializeField] private ThemeOptionEntry[] themeOptions = Array.Empty<ThemeOptionEntry>();
+    [SerializeField] private ThemeManager themeManager;
+    [SerializeField] private AppUIThemeManager appUIThemeManager;
 
     [SerializeField] private AudioMixer mixer;
 
@@ -48,6 +64,9 @@ public class OptionManager : MonoBehaviour
 
         Load();
         ApplyToMixer(applied);
+        ResolveThemeManagers();
+        InitializeThemeDropdown();
+        ApplyThemeSelection(applied.themeOptionIndex);
         UpdateUI(); // 🔥 초기 UI
     }
 
@@ -132,6 +151,7 @@ public class OptionManager : MonoBehaviour
     public void Apply()
     {
         applied = preview.Clone();
+        ApplyThemeSelection(applied.themeOptionIndex);
         Save();
     }
 
@@ -139,6 +159,7 @@ public class OptionManager : MonoBehaviour
 
     public void Cancel()
     {
+        ApplyThemeSelection(applied.themeOptionIndex);
         ApplyToMixer(applied);
         preview = applied.Clone();
         UpdateUI();
@@ -185,6 +206,7 @@ public class OptionManager : MonoBehaviour
         PlayerPrefs.SetInt(BgmMuteKey, applied.bgmMuted ? 1 : 0);
         PlayerPrefs.SetInt(SfxMuteKey, applied.sfxMuted ? 1 : 0);
         PlayerPrefs.SetInt(AmbientMuteKey, applied.ambientMuted ? 1 : 0);
+        PlayerPrefs.SetInt(ThemeSelectionKey, applied.themeOptionIndex);
 
         PlayerPrefs.Save();
     }
@@ -200,6 +222,7 @@ public class OptionManager : MonoBehaviour
         applied.bgmMuted = PlayerPrefs.GetInt(BgmMuteKey, 0) == 1;
         applied.sfxMuted = PlayerPrefs.GetInt(SfxMuteKey, 0) == 1;
         applied.ambientMuted = PlayerPrefs.GetInt(AmbientMuteKey, 0) == 1;
+        applied.themeOptionIndex = PlayerPrefs.GetInt(ThemeSelectionKey, ResolveCurrentThemeOptionIndex());
 
         preview = applied.Clone();
     }
@@ -224,6 +247,7 @@ public class OptionManager : MonoBehaviour
     public void OnOpen()
     {
         preview = applied.Clone();
+        SyncThemeDropdownToState(preview.themeOptionIndex);
         UpdateUI();
     }
 
@@ -239,5 +263,112 @@ public class OptionManager : MonoBehaviour
             muteOffSprite = theme.optionsMuteOffSprite;
 
         UpdateUI();
+    }
+
+    public void OnThemeDropdownChanged(int index)
+    {
+        if (!IsValidThemeOptionIndex(index))
+            return;
+
+        preview.themeOptionIndex = index;
+        ApplyThemeSelection(preview.themeOptionIndex);
+    }
+
+    private void InitializeThemeDropdown()
+    {
+        if (themeDropdown == null)
+            return;
+
+        themeDropdown.onValueChanged.RemoveListener(OnThemeDropdownChanged);
+
+        if (themeOptions == null || themeOptions.Length == 0)
+        {
+            themeDropdown.ClearOptions();
+            themeDropdown.onValueChanged.AddListener(OnThemeDropdownChanged);
+            return;
+        }
+
+        var names = new System.Collections.Generic.List<string>(themeOptions.Length);
+        for (int i = 0; i < themeOptions.Length; i++)
+            names.Add(string.IsNullOrWhiteSpace(themeOptions[i].displayName) ? $"Theme {i + 1}" : themeOptions[i].displayName);
+
+        themeDropdown.ClearOptions();
+        themeDropdown.AddOptions(names);
+
+        if (!IsValidThemeOptionIndex(applied.themeOptionIndex))
+            applied.themeOptionIndex = 0;
+        if (!IsValidThemeOptionIndex(preview.themeOptionIndex))
+            preview.themeOptionIndex = applied.themeOptionIndex;
+
+        SyncThemeDropdownToState(preview.themeOptionIndex);
+        themeDropdown.onValueChanged.AddListener(OnThemeDropdownChanged);
+    }
+
+    private void SyncThemeDropdownToState(int index)
+    {
+        if (themeDropdown == null || !IsValidThemeOptionIndex(index))
+            return;
+
+        themeDropdown.SetValueWithoutNotify(index);
+    }
+
+    private void ResolveThemeManagers()
+    {
+        if (themeManager == null)
+            themeManager = ThemeManager.Instance != null ? ThemeManager.Instance : FindObjectOfType<ThemeManager>(true);
+
+        if (appUIThemeManager == null)
+            appUIThemeManager = AppUIThemeManager.Instance != null ? AppUIThemeManager.Instance : FindObjectOfType<AppUIThemeManager>(true);
+    }
+
+    private int ResolveCurrentThemeOptionIndex()
+    {
+        ResolveThemeManagers();
+
+        if (themeOptions == null || themeOptions.Length == 0)
+            return -1;
+
+        for (int i = 0; i < themeOptions.Length; i++)
+        {
+            var option = themeOptions[i];
+            if (option.osTheme == null || option.appUIThemeData == null)
+                continue;
+
+            if (themeManager != null && appUIThemeManager != null &&
+                themeManager.CurrentTheme == option.osTheme &&
+                appUIThemeManager.CurrentTheme == option.appUIThemeData)
+            {
+                return i;
+            }
+        }
+
+        for (int i = 0; i < themeOptions.Length; i++)
+        {
+            var option = themeOptions[i];
+            if (themeManager != null && option.osTheme == themeManager.CurrentTheme)
+                return i;
+        }
+
+        return 0;
+    }
+
+    private void ApplyThemeSelection(int index)
+    {
+        if (!IsValidThemeOptionIndex(index))
+            return;
+
+        ResolveThemeManagers();
+        var option = themeOptions[index];
+
+        if (themeManager != null && option.osTheme != null)
+            themeManager.SetTheme(option.osTheme, true);
+
+        if (appUIThemeManager != null && option.appUIThemeData != null)
+            appUIThemeManager.SetTheme(option.appUIThemeData);
+    }
+
+    private bool IsValidThemeOptionIndex(int index)
+    {
+        return themeOptions != null && index >= 0 && index < themeOptions.Length;
     }
 }
