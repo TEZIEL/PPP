@@ -226,4 +226,18 @@ public class OptionManager : MonoBehaviour
         preview = applied.Clone();
         UpdateUI();
     }
+
+    public void ApplyThemeVisuals(ThemeData theme)
+    {
+        if (theme == null)
+            return;
+
+        if (theme.optionsMuteOnSprite != null)
+            muteOnSprite = theme.optionsMuteOnSprite;
+
+        if (theme.optionsMuteOffSprite != null)
+            muteOffSprite = theme.optionsMuteOffSprite;
+
+        UpdateUI();
+    }
 }
