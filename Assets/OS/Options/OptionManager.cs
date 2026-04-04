@@ -44,6 +44,11 @@ public class OptionManager : MonoBehaviour
     [SerializeField] private ThemeOptionEntry[] themeOptions = Array.Empty<ThemeOptionEntry>();
     [SerializeField] private ThemeManager themeManager;
     [SerializeField] private AppUIThemeManager appUIThemeManager;
+    [Header("Background Options")]
+    [SerializeField] private TMP_Dropdown skyDropdown;
+    [SerializeField] private TMP_Dropdown buildingDropdown;
+    [SerializeField] private TMP_Dropdown highlightDropdown;
+    [SerializeField] private BackgroundManager backgroundManager;
 
     [SerializeField] private AudioMixer mixer;
 
@@ -66,7 +71,10 @@ public class OptionManager : MonoBehaviour
         ApplyToMixer(applied);
         ResolveThemeManagers();
         InitializeThemeDropdown();
+        ResolveBackgroundManager();
+        InitializeBackgroundDropdowns();
         ApplyThemeSelection(applied.themeOptionIndex);
+        backgroundManager?.Apply();
         UpdateUI(); // 🔥 초기 UI
     }
 
@@ -152,6 +160,7 @@ public class OptionManager : MonoBehaviour
     {
         applied = preview.Clone();
         ApplyThemeSelection(applied.themeOptionIndex);
+        backgroundManager?.Apply();
         Save();
     }
 
@@ -160,8 +169,10 @@ public class OptionManager : MonoBehaviour
     public void Cancel()
     {
         ApplyThemeSelection(applied.themeOptionIndex);
+        backgroundManager?.Cancel();
         ApplyToMixer(applied);
         preview = applied.Clone();
+        SyncBackgroundDropdownsToPending();
         UpdateUI();
     }
 
@@ -248,6 +259,8 @@ public class OptionManager : MonoBehaviour
     {
         preview = applied.Clone();
         SyncThemeDropdownToState(preview.themeOptionIndex);
+        backgroundManager?.OnOpen();
+        SyncBackgroundDropdownsToPending();
         UpdateUI();
     }
 
@@ -272,6 +285,21 @@ public class OptionManager : MonoBehaviour
 
         preview.themeOptionIndex = index;
         ApplyThemeSelection(preview.themeOptionIndex);
+    }
+
+    public void OnSkyDropdownChanged(int index)
+    {
+        backgroundManager?.SetSky(index);
+    }
+
+    public void OnBuildingDropdownChanged(int index)
+    {
+        backgroundManager?.SetBuilding(index);
+    }
+
+    public void OnHighlightDropdownChanged(int index)
+    {
+        backgroundManager?.SetHighlight(index);
     }
 
     private void InitializeThemeDropdown()
@@ -310,6 +338,55 @@ public class OptionManager : MonoBehaviour
             return;
 
         themeDropdown.SetValueWithoutNotify(index);
+    }
+
+    private void ResolveBackgroundManager()
+    {
+        if (backgroundManager == null)
+            backgroundManager = BackgroundManager.Instance != null ? BackgroundManager.Instance : FindObjectOfType<BackgroundManager>(true);
+    }
+
+    private void InitializeBackgroundDropdowns()
+    {
+        ResolveBackgroundManager();
+        InitializeBackgroundDropdown(skyDropdown, "Sky", OnSkyDropdownChanged, backgroundManager?.GetSkyOptions());
+        InitializeBackgroundDropdown(buildingDropdown, "Building", OnBuildingDropdownChanged, backgroundManager?.GetBuildingOptions());
+        InitializeBackgroundDropdown(highlightDropdown, "Highlight", OnHighlightDropdownChanged, backgroundManager?.GetHighlightOptions());
+        SyncBackgroundDropdownsToPending();
+    }
+
+    private void InitializeBackgroundDropdown(TMP_Dropdown dropdown, string prefix, UnityEngine.Events.UnityAction<int> callback, Sprite[] options)
+    {
+        if (dropdown == null)
+            return;
+
+        dropdown.onValueChanged.RemoveListener(callback);
+
+        if (backgroundManager != null)
+            backgroundManager.InitializeDropdown(dropdown, prefix, options);
+        else
+            dropdown.ClearOptions();
+
+        dropdown.onValueChanged.AddListener(callback);
+    }
+
+    private void SyncBackgroundDropdownsToPending()
+    {
+        if (backgroundManager == null)
+            return;
+
+        SetDropdownValueWithoutNotify(skyDropdown, backgroundManager.PendingSky);
+        SetDropdownValueWithoutNotify(buildingDropdown, backgroundManager.PendingBuilding);
+        SetDropdownValueWithoutNotify(highlightDropdown, backgroundManager.PendingHighlight);
+    }
+
+    private static void SetDropdownValueWithoutNotify(TMP_Dropdown dropdown, int index)
+    {
+        if (dropdown == null || dropdown.options == null || dropdown.options.Count == 0)
+            return;
+
+        int clamped = Mathf.Clamp(index, 0, dropdown.options.Count - 1);
+        dropdown.SetValueWithoutNotify(clamped);
     }
 
     private void ResolveThemeManagers()
