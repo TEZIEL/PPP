@@ -14,6 +14,7 @@ public class WindowManager : MonoBehaviour, IVNHostOS
     [SerializeField] private TaskbarManager taskbarManager;
     [SerializeField] private ThemeManager themeManager;
     [SerializeField] private AppUIThemeManager appUIThemeManager;
+    [SerializeField] private OptionManager optionManager;
     [SerializeField] private RectTransform iconsRoot; // DesktopIconBG 같은 부모
     [SerializeField] private DesktopGridManager desktopGridManager;
 
@@ -310,6 +311,7 @@ public class WindowManager : MonoBehaviour, IVNHostOS
     {
         if (themeManager == null) themeManager = ThemeManager.Instance;
         if (appUIThemeManager == null) appUIThemeManager = AppUIThemeManager.Instance;
+        if (optionManager == null) optionManager = OptionManager.Instance != null ? OptionManager.Instance : FindObjectOfType<OptionManager>(true);
         InjectAllWindows();
         InjectAllIcons();
         LoadOS();
@@ -397,6 +399,7 @@ public class WindowManager : MonoBehaviour, IVNHostOS
         saveData.osState ??= new OSGlobalStateData();
         if (BGMManager.Instance != null)
             saveData.osState.bgm = BGMManager.Instance.CaptureOsState();
+        CaptureCustomizationState(saveData.osState);
 
         PPP.OS.Save.OSSaveSystem.Save(saveData);
         cachedSave = saveData;
@@ -430,12 +433,65 @@ public class WindowManager : MonoBehaviour, IVNHostOS
         else
             BGMManager.CachePendingOsState(savedBgmState);
 
+        ApplyCustomizationState(data.osState);
+
         cachedSave = data;
 
         PostApplyLayoutSanity();
         StartCoroutine(CoPostApplyLayoutSanityNextFrame());
 
         Debug.Log($"[OS] LoadOS applied. subBlocks={subBlockJsonByKey.Count}");
+    }
+
+    private void CaptureCustomizationState(OSGlobalStateData osState)
+    {
+        if (osState == null)
+            return;
+
+        osState.customization ??= new OSCustomizationStateData();
+
+        if (optionManager == null)
+            optionManager = OptionManager.Instance != null ? OptionManager.Instance : FindObjectOfType<OptionManager>(true);
+
+        if (optionManager == null)
+        {
+            osState.customization.uiThemeOptionIndex = 0;
+            osState.customization.appUIThemeOptionIndex = 0;
+            osState.customization.backgroundSkyIndex = 0;
+            osState.customization.backgroundBuildingIndex = 0;
+            osState.customization.backgroundHighlightIndex = 0;
+            return;
+        }
+
+        osState.customization.uiThemeOptionIndex = optionManager.GetAppliedThemeOptionIndex();
+        osState.customization.appUIThemeOptionIndex = osState.customization.uiThemeOptionIndex;
+
+        optionManager.GetAppliedBackgroundSelection(
+            out osState.customization.backgroundSkyIndex,
+            out osState.customization.backgroundBuildingIndex,
+            out osState.customization.backgroundHighlightIndex);
+    }
+
+    private void ApplyCustomizationState(OSGlobalStateData osState)
+    {
+        if (optionManager == null)
+            optionManager = OptionManager.Instance != null ? OptionManager.Instance : FindObjectOfType<OptionManager>(true);
+
+        if (optionManager == null)
+            return;
+
+        var customization = osState != null ? osState.customization : null;
+        if (customization == null)
+        {
+            optionManager.ApplyCustomizationState(0, 0, 0, 0);
+            return;
+        }
+
+        optionManager.ApplyCustomizationState(
+            customization.uiThemeOptionIndex,
+            customization.backgroundSkyIndex,
+            customization.backgroundBuildingIndex,
+            customization.backgroundHighlightIndex);
     }
 
     private void PostApplyLayoutSanity()
@@ -681,6 +737,14 @@ public class WindowManager : MonoBehaviour, IVNHostOS
         SaveOS();
 
         Debug.Log("[Desktop] ResetWindowsToDefaults applied.");
+    }
+
+    public void ResetCustomizationToDefaults()
+    {
+        if (optionManager == null)
+            optionManager = OptionManager.Instance != null ? OptionManager.Instance : FindObjectOfType<OptionManager>(true);
+
+        optionManager?.ResetCustomizationToDefault();
     }
 
 

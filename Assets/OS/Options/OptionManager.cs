@@ -49,6 +49,7 @@ public class OptionManager : MonoBehaviour
     [SerializeField] private TMP_Dropdown buildingDropdown;
     [SerializeField] private TMP_Dropdown highlightDropdown;
     [SerializeField] private BackgroundManager backgroundManager;
+    [SerializeField] private WindowManager windowManager;
 
     [SerializeField] private AudioMixer mixer;
 
@@ -162,6 +163,7 @@ public class OptionManager : MonoBehaviour
         ApplyThemeSelection(applied.themeOptionIndex);
         backgroundManager?.Apply();
         Save();
+        PersistCustomizationToOSSave();
     }
 
   
@@ -346,6 +348,12 @@ public class OptionManager : MonoBehaviour
             backgroundManager = BackgroundManager.Instance != null ? BackgroundManager.Instance : FindObjectOfType<BackgroundManager>(true);
     }
 
+    private void ResolveWindowManager()
+    {
+        if (windowManager == null)
+            windowManager = FindObjectOfType<WindowManager>(true);
+    }
+
     private void InitializeBackgroundDropdowns()
     {
         ResolveBackgroundManager();
@@ -447,5 +455,54 @@ public class OptionManager : MonoBehaviour
     private bool IsValidThemeOptionIndex(int index)
     {
         return themeOptions != null && index >= 0 && index < themeOptions.Length;
+    }
+
+    private void PersistCustomizationToOSSave()
+    {
+        ResolveWindowManager();
+        windowManager?.SaveOS();
+    }
+
+    public int GetAppliedThemeOptionIndex()
+    {
+        if (!IsValidThemeOptionIndex(applied.themeOptionIndex))
+            return 0;
+
+        return applied.themeOptionIndex;
+    }
+
+    public void GetAppliedBackgroundSelection(out int skyIndex, out int buildingIndex, out int highlightIndex)
+    {
+        if (backgroundManager == null)
+            ResolveBackgroundManager();
+
+        skyIndex = backgroundManager != null ? backgroundManager.CurrentSky : 0;
+        buildingIndex = backgroundManager != null ? backgroundManager.CurrentBuilding : 0;
+        highlightIndex = backgroundManager != null ? backgroundManager.CurrentHighlight : 0;
+    }
+
+    public void ApplyCustomizationState(int themeOptionIndex, int skyIndex, int buildingIndex, int highlightIndex)
+    {
+        ResolveBackgroundManager();
+
+        int resolvedThemeIndex = IsValidThemeOptionIndex(themeOptionIndex) ? themeOptionIndex : 0;
+        applied.themeOptionIndex = resolvedThemeIndex;
+        preview.themeOptionIndex = resolvedThemeIndex;
+
+        ApplyThemeSelection(resolvedThemeIndex);
+        SyncThemeDropdownToState(resolvedThemeIndex);
+
+        if (backgroundManager != null)
+            backgroundManager.SetAppliedState(skyIndex, buildingIndex, highlightIndex);
+
+        SyncBackgroundDropdownsToPending();
+        UpdateUI();
+    }
+
+    public void ResetCustomizationToDefault()
+    {
+        ApplyCustomizationState(0, 0, 0, 0);
+        Save();
+        PersistCustomizationToOSSave();
     }
 }

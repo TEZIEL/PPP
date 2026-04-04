@@ -22,6 +22,9 @@ public class BackgroundManager : MonoBehaviour
     public int PendingSky => pendingSky;
     public int PendingBuilding => pendingBuilding;
     public int PendingHighlight => pendingHighlight;
+    public int CurrentSky => currentSky;
+    public int CurrentBuilding => currentBuilding;
+    public int CurrentHighlight => currentHighlight;
 
     private void Awake()
     {
@@ -91,6 +94,24 @@ public class BackgroundManager : MonoBehaviour
     {
         ResetPendingToCurrent();
         ApplyPending();
+    }
+
+    public void SetAppliedState(int skyIndex, int buildingIndex, int highlightIndex)
+    {
+        currentSky = ClampSky(skyIndex);
+        currentBuilding = ClampBuilding(buildingIndex);
+        currentHighlight = ClampHighlight(highlightIndex);
+
+        pendingSky = currentSky;
+        pendingBuilding = currentBuilding;
+        pendingHighlight = currentHighlight;
+
+        ApplyPending();
+    }
+
+    public void ResetToDefault()
+    {
+        SetAppliedState(0, 0, 0);
     }
 
     public Sprite[] GetSkyOptions()

@@ -19,6 +19,17 @@ namespace PPP.OS.Save
     public class OSGlobalStateData
     {
         public BGMOsStateData bgm = new();
+        public OSCustomizationStateData customization = new();
+    }
+
+    [Serializable]
+    public class OSCustomizationStateData
+    {
+        public int uiThemeOptionIndex;
+        public int appUIThemeOptionIndex;
+        public int backgroundSkyIndex;
+        public int backgroundBuildingIndex;
+        public int backgroundHighlightIndex;
     }
 
     [Serializable]
