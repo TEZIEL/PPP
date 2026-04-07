@@ -229,6 +229,9 @@ namespace PPP.BLUE.VN
             if (!CanDrag(eventData))
                 return;
 
+            if (!IsTopMostRaycastHitOnThisWindow(eventData.position))
+                return;
+
             BringToFront();
         }
 
@@ -285,6 +288,9 @@ namespace PPP.BLUE.VN
             RaycastResultsBuffer.Clear();
             EventSystem.current.RaycastAll(pointerEventData, RaycastResultsBuffer);
 
+            if (RaycastResultsBuffer.Count == 0)
+                return;
+
             for (int i = 0; i < RaycastResultsBuffer.Count; i++)
             {
                 var hit = RaycastResultsBuffer[i];
@@ -292,12 +298,38 @@ namespace PPP.BLUE.VN
                     continue;
 
                 Transform hitTransform = hit.gameObject.transform;
-                if (hitTransform == transform || hitTransform.IsChildOf(transform))
-                {
-                    BringToFront();
+                if (!hitTransform.IsChildOf(transform) && hitTransform != transform)
                     return;
-                }
+
+                BringToFront();
+                return;
             }
+        }
+
+        private bool IsTopMostRaycastHitOnThisWindow(Vector2 screenPosition)
+        {
+            if (EventSystem.current == null)
+                return false;
+
+            var pointerEventData = new PointerEventData(EventSystem.current)
+            {
+                position = screenPosition
+            };
+
+            RaycastResultsBuffer.Clear();
+            EventSystem.current.RaycastAll(pointerEventData, RaycastResultsBuffer);
+
+            for (int i = 0; i < RaycastResultsBuffer.Count; i++)
+            {
+                var hit = RaycastResultsBuffer[i];
+                if (hit.gameObject == null)
+                    continue;
+
+                Transform hitTransform = hit.gameObject.transform;
+                return hitTransform == transform || hitTransform.IsChildOf(transform);
+            }
+
+            return false;
         }
 
         private void ApplyInitialSiblingIndex()
