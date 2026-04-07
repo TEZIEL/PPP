@@ -80,7 +80,9 @@
             private readonly List<DrinkListItemUI> drinkItems = new List<DrinkListItemUI>();
             private readonly Dictionary<string, Sprite> imageByKey = new Dictionary<string, Sprite>(StringComparer.OrdinalIgnoreCase);
             private readonly HashSet<string> selectedIngredientIds = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+            private readonly Dictionary<string, string> ingredientRawDisplayNameById = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
             private readonly Dictionary<string, string> ingredientDisplayNameById = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
+            private readonly Dictionary<string, string> ingredientColorHexById = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
             private HashSet<string> unlockedRecipes = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
 
             private static RecipeAppController instance;
@@ -202,14 +204,20 @@
                 allIngredients = ingredientRoot?.ingredients ?? new List<IngredientEntry>();
                 allDrinks = drinkRoot?.drinks ?? new List<DrinkEntry>();
 
+                ingredientRawDisplayNameById.Clear();
                 ingredientDisplayNameById.Clear();
+                ingredientColorHexById.Clear();
                 for (int i = 0; i < allIngredients.Count; i++)
                 {
                     var ingredient = allIngredients[i];
                     if (ingredient == null || string.IsNullOrWhiteSpace(ingredient.id))
                         continue;
 
-                    ingredientDisplayNameById[ingredient.id] = ingredient.DisplayName;
+                    ingredientRawDisplayNameById[ingredient.id] = ingredient.DisplayName;
+                    ingredientColorHexById[ingredient.id] = ingredient.DisplayColorHex;
+                    ingredientDisplayNameById[ingredient.id] = RecipeIngredientTextFormatter.FormatIngredientDisplayName(
+                        ingredient.DisplayName,
+                        ingredient.DisplayColorHex);
                 }
             }
 
@@ -478,7 +486,10 @@
                     detailDescriptionText.text = drink.description ?? string.Empty;
 
                 if (detailIngredientsText != null)
-                    detailIngredientsText.text = string.Join(", ", drink.ingredientKeys.OrderBy(x => x));
+                {
+                    detailIngredientsText.richText = true;
+                    detailIngredientsText.text = BuildIngredientSummaryText(drink);
+                }
 
                 if (detailTagsText != null)
                     detailTagsText.text = drink.tags != null ? string.Join(", ", drink.tags) : string.Empty;
@@ -536,6 +547,48 @@
                     return null;
 
                 return imageByKey.TryGetValue(imageKey, out var sprite) ? sprite : null;
+            }
+
+            private string BuildIngredientSummaryText(DrinkEntry drink)
+            {
+                if (drink == null || drink.ingredientAmounts == null || drink.ingredientAmounts.Count == 0)
+                    return string.Empty;
+
+                var ordered = drink.ingredientAmounts.OrderByDescending(x => x.Value).ThenBy(x => x.Key, StringComparer.OrdinalIgnoreCase);
+                var parts = new List<string>();
+                foreach (var pair in ordered)
+                {
+                    string name = GetIngredientDisplayName(pair.Key);
+                    string colorHex = GetIngredientColorHex(pair.Key);
+                    string coloredName = RecipeIngredientTextFormatter.FormatIngredientDisplayName(name, colorHex);
+                    parts.Add($"{coloredName} x{pair.Value}");
+                }
+
+                return string.Join(", ", parts);
+            }
+
+            private string GetIngredientDisplayName(string ingredientId)
+            {
+                if (string.IsNullOrWhiteSpace(ingredientId))
+                    return string.Empty;
+
+                if (ingredientRawDisplayNameById.TryGetValue(ingredientId, out var displayName) && !string.IsNullOrWhiteSpace(displayName))
+                    return displayName;
+
+                Debug.LogWarning($"[RecipeApp] ingredient display name missing: {ingredientId}");
+                return ingredientId;
+            }
+
+            private string GetIngredientColorHex(string ingredientId)
+            {
+                if (string.IsNullOrWhiteSpace(ingredientId))
+                    return string.Empty;
+
+                if (ingredientColorHexById.TryGetValue(ingredientId, out var colorHex))
+                    return colorHex ?? string.Empty;
+
+                Debug.LogWarning($"[RecipeApp] ingredient color missing: {ingredientId}");
+                return string.Empty;
             }
 
 

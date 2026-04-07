@@ -57,6 +57,9 @@ namespace PPP.BLUE.VN.RecipeApp
             if (actionButton != null)
                 actionButton.onClick.AddListener(HandleClick);
 
+            if (ingredientsText != null)
+                ingredientsText.richText = true;
+
             if (themeApplier == null)
                 themeApplier = GetComponent<BlueprintListItemThemeApplier>();
 
