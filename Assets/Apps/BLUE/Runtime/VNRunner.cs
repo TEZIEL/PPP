@@ -19,7 +19,10 @@ namespace PPP.BLUE.VN
         [SerializeField] private VNOSBridge bridge;
         [SerializeField] private DrinkManager drinkManager;
         [SerializeField] private DrinkPanel drinkPanel;
-        [SerializeField] private UIDragMoveClamped melionExpressionDragStateSource;
+        [Header("VN Internal Window State Targets")]
+        [SerializeField] private GameObject vnDialogueWindow;
+        [SerializeField] private GameObject melionFaceWindow;
+        [SerializeField] private GameObject hiddenVNDialogueWindow;
         public bool SaveAllowed { get; private set; }
         [SerializeField] private float typeSpeed = 30f;
 
@@ -317,7 +320,10 @@ namespace PPP.BLUE.VN
         private VNBacklogKey currentBacklogKey = new();
         private bool isCurrentLineTyping;
         public VNBacklogManager BacklogManager => backlogManager;
-        private const string MelionExpressionWindowId = "melion_expression";
+        private const string VNDialogueWindowId = "VNDialogue";
+        private const string MelionExpressionWindowId = "MelionFace";
+        private const string HiddenVNDialogueWindowId = "HiddenVNDialogue";
+        private const string LegacyMelionExpressionWindowId = "melion_expression";
 
         public bool TryGetCurrentSayState(out string currentNodeId, out int currentLineIndex, out string currentText, out string currentSpeaker)
         {
@@ -1487,7 +1493,9 @@ namespace PPP.BLUE.VN
                 ? new VNBacklogKey(currentBacklogKey.scriptId, currentBacklogKey.nodeId, currentBacklogKey.lineIndex)
                 : new VNBacklogKey();
             st.isCurrentLineTyping = isCurrentLineTyping;
-            st.windowStates = CollectWindowStatesForSave();
+            st.vnWindowStates = CollectVNWindowStates();
+            st.windowStates = new List<VNWindowStateData>(st.vnWindowStates);
+            Debug.Log("VN WindowStates Saved Count: " + st.vnWindowStates.Count);
 
             return st;
         }
@@ -1532,74 +1540,106 @@ namespace PPP.BLUE.VN
             return safe;
         }
 
-        private List<VNWindowStateData> CollectWindowStatesForSave()
+        private List<VNWindowStateData> CollectVNWindowStates()
         {
             var result = new List<VNWindowStateData>();
 
             if (drinkPanel == null)
                 drinkPanel = GetComponentInChildren<DrinkPanel>(true);
-            drinkPanel?.CollectWindowStates(result);
+            drinkPanel?.CollectCachedWindowStates(result);
+            AddVNWindowState(result, VNDialogueWindowId, vnDialogueWindow);
+            AddVNWindowState(result, MelionExpressionWindowId, melionFaceWindow);
+            AddVNWindowState(result, HiddenVNDialogueWindowId, hiddenVNDialogueWindow);
 
-            if (dialogueView == null)
-                dialogueView = GetComponentInChildren<VNDialogueView>(true);
-            dialogueView?.CollectWindowStates(result);
-
-            var melionSource = ResolveMelionExpressionDragStateSource();
-            if (melionSource != null && melionSource.TryGetWindowState(MelionExpressionWindowId, out var melionState))
-                result.Add(melionState);
+            Debug.Log("Collected VN Windows: " + result.Count);
 
             return result;
         }
 
-        private void ApplyWindowStatesAfterLoad(IReadOnlyList<VNWindowStateData> states)
+        private void AddVNWindowState(List<VNWindowStateData> list, string id, GameObject go)
+        {
+            if (list == null || string.IsNullOrWhiteSpace(id))
+                return;
+
+            if (go == null)
+            {
+                Debug.LogWarning("VN Window NULL: " + id);
+                return;
+            }
+
+            var rt = go.GetComponent<RectTransform>();
+            if (rt == null)
+            {
+                Debug.LogWarning("RectTransform NULL: " + id);
+                return;
+            }
+
+            var drag = go.GetComponent<UIDragMoveClamped>();
+            if (drag == null)
+            {
+                Debug.LogWarning("Drag NULL: " + id);
+                return;
+            }
+
+            var data = new VNWindowStateData
+            {
+                siblingIndex = rt.GetSiblingIndex()
+            };
+            data.SetState(id, rt.anchoredPosition.x, rt.anchoredPosition.y, drag.GetPinnedState());
+            Debug.Log($"SAVE {id} POS: {data.GetX()}, {data.GetY()}");
+            list.Add(data);
+        }
+
+        private void ApplyVNWindowStates(IReadOnlyList<VNWindowStateData> states)
         {
             if (states == null || states.Count == 0)
                 return;
 
             if (drinkPanel == null)
                 drinkPanel = GetComponentInChildren<DrinkPanel>(true);
-            drinkPanel?.ApplyWindowStates(states);
+            drinkPanel?.RestoreCachedWindowStates(states);
+            ApplySingleVNWindowState(states, VNDialogueWindowId, vnDialogueWindow);
+            ApplySingleVNWindowState(states, MelionExpressionWindowId, melionFaceWindow);
+            ApplySingleVNWindowState(states, HiddenVNDialogueWindowId, hiddenVNDialogueWindow);
+        }
 
-            if (dialogueView == null)
-                dialogueView = GetComponentInChildren<VNDialogueView>(true);
-            dialogueView?.ApplyWindowStates(states);
-
-            var melionSource = ResolveMelionExpressionDragStateSource();
-            if (melionSource == null)
+        private void ApplySingleVNWindowState(IReadOnlyList<VNWindowStateData> states, string id, GameObject go)
+        {
+            if (go == null || string.IsNullOrWhiteSpace(id))
                 return;
+
+            var drag = go.GetComponent<UIDragMoveClamped>();
+            if (drag == null)
+                return;
+
+            var saved = FindVNWindowState(states, id);
+            if (saved == null)
+                return;
+
+            drag.ApplyWindowState(saved);
+        }
+
+        private static VNWindowStateData FindVNWindowState(IReadOnlyList<VNWindowStateData> states, string id)
+        {
+            if (states == null || string.IsNullOrWhiteSpace(id))
+                return null;
 
             for (int i = 0; i < states.Count; i++)
             {
                 var row = states[i];
-                if (row == null || string.IsNullOrWhiteSpace(row.windowId))
+                if (row == null)
                     continue;
 
-                if (!string.Equals(row.windowId, MelionExpressionWindowId, StringComparison.OrdinalIgnoreCase))
+                string stateId = row.GetId();
+                if (string.IsNullOrWhiteSpace(stateId))
                     continue;
 
-                melionSource.ApplyWindowState(row);
-                break;
-            }
-        }
-
-        private UIDragMoveClamped ResolveMelionExpressionDragStateSource()
-        {
-            if (melionExpressionDragStateSource != null)
-                return melionExpressionDragStateSource;
-
-            var sources = GetComponentsInChildren<UIDragMoveClamped>(true);
-            for (int i = 0; i < sources.Length; i++)
-            {
-                var source = sources[i];
-                if (source == null)
-                    continue;
-
-                string sourceName = source.name ?? string.Empty;
-                if (sourceName.IndexOf("melion", StringComparison.OrdinalIgnoreCase) >= 0)
-                {
-                    melionExpressionDragStateSource = source;
-                    return melionExpressionDragStateSource;
-                }
+                bool exactMatch = string.Equals(stateId, id, StringComparison.OrdinalIgnoreCase);
+                bool legacyMelionMatch =
+                    string.Equals(id, MelionExpressionWindowId, StringComparison.OrdinalIgnoreCase) &&
+                    string.Equals(stateId, LegacyMelionExpressionWindowId, StringComparison.OrdinalIgnoreCase);
+                if (exactMatch || legacyMelionMatch)
+                    return row;
             }
 
             return null;
@@ -1813,7 +1853,10 @@ namespace PPP.BLUE.VN
 
                 started = true;
                 EmitCurrent();
-                ApplyWindowStatesAfterLoad(dto.windowStates);
+                var savedWindowStates = dto.vnWindowStates;
+                if (savedWindowStates == null || savedWindowStates.Count == 0)
+                    savedWindowStates = dto.windowStates;
+                ApplyVNWindowStates(savedWindowStates);
                 if (isCurrentLineTyping && currentBacklogKey != null && !string.IsNullOrEmpty(currentBacklogKey.nodeId))
                     Debug.Log($"[VN/BACKLOG] current line rebound after load key={currentBacklogKey.ToCompositeKey()}");
                 return true;
