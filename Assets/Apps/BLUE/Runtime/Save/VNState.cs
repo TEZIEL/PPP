@@ -28,6 +28,7 @@ namespace PPP.BLUE.VN
         public VNBacklogState backlog = new();
         public VNBacklogKey currentLineKey = new();
         public bool isCurrentLineTyping;
+        public List<VNWindowStateData> windowStates = new();
     }
 
     [Serializable]
@@ -42,6 +43,16 @@ namespace PPP.BLUE.VN
     {
         public string key;
         public int value;
+    }
+
+    [Serializable]
+    public sealed class VNWindowStateData
+    {
+        public string windowId;
+        public float anchoredX;
+        public float anchoredY;
+        public bool isPinned;
+        public int siblingIndex;
     }
 
     [Serializable]

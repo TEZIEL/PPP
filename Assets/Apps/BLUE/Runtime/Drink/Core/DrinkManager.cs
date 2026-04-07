@@ -132,6 +132,7 @@ namespace PPP.BLUE.VN
         private void Update()
         {
             HandleIngredientHotkeys();
+            HandleDrinkActionHotkeys();
         }
 
         public void SetRequest(string requestId)
@@ -244,6 +245,53 @@ namespace PPP.BLUE.VN
                 return false;
 
             if (resultLocked || IsConfirmOpen())
+                return false;
+
+            return true;
+        }
+
+        private void HandleDrinkActionHotkeys()
+        {
+            if (!CanUseDrinkActionHotkeys())
+                return;
+
+            if (Input.GetKeyDown(KeyCode.Z))
+            {
+                if (IsConfirmOpen())
+                {
+                    if (confirmProvideButton != null && confirmProvideButton.interactable)
+                        OnConfirmProvide();
+                }
+                else
+                {
+                    if (provideButton != null && provideButton.interactable)
+                        OnMakeDrink();
+                }
+            }
+            else if (Input.GetKeyDown(KeyCode.X))
+            {
+                if (IsConfirmOpen())
+                {
+                    if (confirmRemakeButton != null && confirmRemakeButton.interactable)
+                        OnRemakeDrink();
+                }
+                else
+                {
+                    if (resetButton != null && resetButton.interactable)
+                        ResetIngredients(true);
+                }
+            }
+        }
+
+        private bool CanUseDrinkActionHotkeys()
+        {
+            if (policy == null || !policy.CanAcceptVNInput())
+                return false;
+
+            if (!policy.IsInDrinkMode)
+                return false;
+
+            if (drinkPanel != null && !drinkPanel.IsOpenOrOpening)
                 return false;
 
             return true;
