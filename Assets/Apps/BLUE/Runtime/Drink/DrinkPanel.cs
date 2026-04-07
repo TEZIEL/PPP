@@ -7,8 +7,10 @@ namespace PPP.BLUE.VN
 {
     public sealed class DrinkPanel : MonoBehaviour
     {
-        public const string IngredientWindowId = "drink_ingredient";
-        public const string GridWindowId = "drink_grid";
+        public const string IngredientWindowId = "DrinkIngredients";
+        public const string GridWindowId = "DrinkGrid";
+        private const string LegacyIngredientWindowId = "drink_ingredient";
+        private const string LegacyGridWindowId = "drink_grid";
 
         [Header("Refs")]
         [SerializeField] private GameObject root;
@@ -275,11 +277,25 @@ namespace PPP.BLUE.VN
                 if (row == null || string.IsNullOrWhiteSpace(row.windowId))
                     continue;
 
-                if (string.Equals(row.windowId, windowId, StringComparison.OrdinalIgnoreCase))
+                if (MatchesWindowId(windowId, row.windowId))
                     return row;
             }
 
             return null;
+        }
+
+        private static bool MatchesWindowId(string expectedId, string actualId)
+        {
+            if (string.Equals(expectedId, actualId, StringComparison.OrdinalIgnoreCase))
+                return true;
+
+            if (string.Equals(expectedId, IngredientWindowId, StringComparison.OrdinalIgnoreCase))
+                return string.Equals(actualId, LegacyIngredientWindowId, StringComparison.OrdinalIgnoreCase);
+
+            if (string.Equals(expectedId, GridWindowId, StringComparison.OrdinalIgnoreCase))
+                return string.Equals(actualId, LegacyGridWindowId, StringComparison.OrdinalIgnoreCase);
+
+            return false;
         }
     }
 }
