@@ -703,6 +703,8 @@ namespace PPP.BLUE.VN
         {
             if (IsAnyBacklogOpen)
             {
+                if (Input.GetKeyDown(KeyCode.LeftAlt) && IsBacklogOpen)
+                    backlogView?.Toggle();
                 EventSystem.current?.SetSelectedGameObject(null);
                 return;
             }
@@ -743,6 +745,7 @@ namespace PPP.BLUE.VN
             if (!runner.HasScript) return;
             if (IsBacklogInputBlocked()) return;
             HandleSkipAutoState();
+            if (HandleVNHotkeys()) return;
 
             // InputGate를 통과한 입력만 대사 진행에 사용
             if (policy != null && !VNInputGate.CanAdvanceDialogue(policy))
@@ -796,6 +799,38 @@ namespace PPP.BLUE.VN
             lineDisplayed = false;
             runner.Next();
             Debug.Log("[VN_UI] Next input detected -> runner.Next()");
+        }
+
+        private bool HandleVNHotkeys()
+        {
+            if (Input.GetKeyDown(KeyCode.LeftAlt))
+            {
+                if (backlogView != null)
+                {
+                    backlogView.Toggle();
+                    return true;
+                }
+            }
+
+            if (Input.GetKeyDown(KeyCode.C))
+            {
+                OpenSaveLoadWindow();
+                return true;
+            }
+
+            if (Input.GetKeyDown(KeyCode.V))
+            {
+                HideUI();
+                return true;
+            }
+
+            if (Input.GetKeyDown(KeyCode.Escape))
+            {
+                OnExitButtonClicked();
+                return true;
+            }
+
+            return false;
         }
 
         // Legacy compatibility: older branches may still call this.
@@ -1242,9 +1277,6 @@ namespace PPP.BLUE.VN
                 return;
             if (Time.unscaledTime < controlActionLockedUntil)
                 return;
-            if (Input.GetKeyDown(KeyCode.Alpha3) || Input.GetKeyDown(KeyCode.Keypad3))
-                return;
-
             controlActionLockedUntil = Time.unscaledTime + closeActionLockSeconds;
             // 키보드 3 / 우측 상단 닫기와 동일한 OS RequestClose 경로 사용.
             if (bridge != null)
