@@ -359,7 +359,7 @@ namespace PPP.BLUE.VN
                 int count = onClick.GetPersistentEventCount();
                 for (int j = 0; j < count; j++)
                 {
-                    if (onClick.GetPersistentTarget(j) != (Object)this)
+                    if (onClick.GetPersistentTarget(j) != (UnityEngine.Object)this)
                         continue;
 
                     if (onClick.GetPersistentMethodName(j) != nameof(OpenSaveLoadWindow))
@@ -387,7 +387,7 @@ namespace PPP.BLUE.VN
                 int count = onClick.GetPersistentEventCount();
                 for (int j = 0; j < count; j++)
                 {
-                    if (onClick.GetPersistentTarget(j) != (Object)this)
+                    if (onClick.GetPersistentTarget(j) != (UnityEngine.Object)this)
                         continue;
 
                     if (onClick.GetPersistentMethodName(j) != nameof(HideUI))

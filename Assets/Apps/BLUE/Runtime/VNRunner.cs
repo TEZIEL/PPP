@@ -1592,7 +1592,7 @@ namespace PPP.BLUE.VN
 
         private void ApplyVNWindowStates(IReadOnlyList<VNWindowStateData> states)
         {
-            if (states == null || states.Count == 0)
+            if (list == null || string.IsNullOrWhiteSpace(id))
                 return;
 
             if (drinkPanel == null)
@@ -1607,6 +1607,7 @@ namespace PPP.BLUE.VN
         {
             if (go == null || string.IsNullOrWhiteSpace(id))
                 return;
+            }
 
             var drag = go.GetComponent<UIDragMoveClamped>();
             if (drag == null)
