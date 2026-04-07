@@ -587,7 +587,7 @@ namespace PPP.BLUE.VN
             lastBlocked = blocked;
 
 
-            bool keyboardSkipHeld = !manualInputBlockedByBacklog && Input.GetKey(KeyCode.F1);
+            bool keyboardSkipHeld = !manualInputBlockedByBacklog && Input.GetKey(KeyCode.LeftControl);
             bool holdSkip = keyboardSkipHeld ^ uiSkipHeld; // 동시 입력은 무시 (둘 중 하나만 허용)
             if (manualInputBlockedByBacklog || backlogOpen)
             {
@@ -613,9 +613,9 @@ namespace PPP.BLUE.VN
                 }
             }
 
-            if (!manualInputBlockedByBacklog && !backlogOpen && Input.GetKeyDown(KeyCode.F2))
+            if (!manualInputBlockedByBacklog && !backlogOpen && Input.GetKeyDown(KeyCode.LeftShift))
             {
-                ToggleAutoFromInput("Hotkey F2");
+                ToggleAutoFromInput("Hotkey LeftShift");
             }
             // ----------------------------
             // 4) Safety: 조건 깨졌으면 코루틴 Auto 즉시 정지
