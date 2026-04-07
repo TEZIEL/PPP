@@ -20,8 +20,6 @@ namespace PPP.BLUE.VN
         [SerializeField] private DrinkManager drinkManager;
         [SerializeField] private DrinkPanel drinkPanel;
         [Header("VN Internal Window State Targets")]
-        [SerializeField] private GameObject drinkIngredientsWindow;
-        [SerializeField] private GameObject drinkGridWindow;
         [SerializeField] private GameObject vnDialogueWindow;
         [SerializeField] private GameObject melionFaceWindow;
         [SerializeField] private GameObject hiddenVNDialogueWindow;
@@ -322,8 +320,6 @@ namespace PPP.BLUE.VN
         private VNBacklogKey currentBacklogKey = new();
         private bool isCurrentLineTyping;
         public VNBacklogManager BacklogManager => backlogManager;
-        private const string DrinkIngredientsWindowId = "DrinkIngredients";
-        private const string DrinkGridWindowId = "DrinkGrid";
         private const string VNDialogueWindowId = "VNDialogue";
         private const string MelionExpressionWindowId = "MelionFace";
         private const string HiddenVNDialogueWindowId = "HiddenVNDialogue";
@@ -1548,8 +1544,9 @@ namespace PPP.BLUE.VN
         {
             var result = new List<VNWindowStateData>();
 
-            AddVNWindowState(result, DrinkIngredientsWindowId, drinkIngredientsWindow);
-            AddVNWindowState(result, DrinkGridWindowId, drinkGridWindow);
+            if (drinkPanel == null)
+                drinkPanel = GetComponentInChildren<DrinkPanel>(true);
+            drinkPanel?.CollectCachedWindowStates(result);
             AddVNWindowState(result, VNDialogueWindowId, vnDialogueWindow);
             AddVNWindowState(result, MelionExpressionWindowId, melionFaceWindow);
             AddVNWindowState(result, HiddenVNDialogueWindowId, hiddenVNDialogueWindow);
@@ -1595,11 +1592,12 @@ namespace PPP.BLUE.VN
 
         private void ApplyVNWindowStates(IReadOnlyList<VNWindowStateData> states)
         {
-            if (states == null || states.Count == 0)
+            if (list == null || string.IsNullOrWhiteSpace(id))
                 return;
 
-            ApplySingleVNWindowState(states, DrinkIngredientsWindowId, drinkIngredientsWindow);
-            ApplySingleVNWindowState(states, DrinkGridWindowId, drinkGridWindow);
+            if (drinkPanel == null)
+                drinkPanel = GetComponentInChildren<DrinkPanel>(true);
+            drinkPanel?.RestoreCachedWindowStates(states);
             ApplySingleVNWindowState(states, VNDialogueWindowId, vnDialogueWindow);
             ApplySingleVNWindowState(states, MelionExpressionWindowId, melionFaceWindow);
             ApplySingleVNWindowState(states, HiddenVNDialogueWindowId, hiddenVNDialogueWindow);
@@ -1609,6 +1607,7 @@ namespace PPP.BLUE.VN
         {
             if (go == null || string.IsNullOrWhiteSpace(id))
                 return;
+            }
 
             var drag = go.GetComponent<UIDragMoveClamped>();
             if (drag == null)

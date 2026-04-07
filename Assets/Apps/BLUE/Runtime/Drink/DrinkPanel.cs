@@ -41,6 +41,7 @@ namespace PPP.BLUE.VN
         {
             EnsureClampedDragMove(ingredientPanelRoot, vnContentRoot, ingredientPanelInitialSiblingIndex);
             EnsureClampedDragMove(drinkGridRoot, vnContentRoot, drinkGridInitialSiblingIndex);
+            CaptureCurrentWindowStatesToCache();
 
             if (root != null)
                 root.SetActive(false);
@@ -214,6 +215,36 @@ namespace PPP.BLUE.VN
             CollectSingleWindowState(drinkGridRoot, GridWindowId, states);
         }
 
+        public void CollectCachedWindowStates(System.Collections.Generic.List<VNWindowStateData> states)
+        {
+            if (states == null)
+                return;
+
+            for (int i = 0; i < cachedWindowStates.Count; i++)
+            {
+                var row = cachedWindowStates[i];
+                if (row == null || string.IsNullOrWhiteSpace(row.GetId()))
+                    continue;
+
+                states.Add(row);
+            }
+        }
+
+        public void RestoreCachedWindowStates(System.Collections.Generic.IReadOnlyList<VNWindowStateData> states)
+        {
+            if (states == null || states.Count == 0)
+                return;
+
+            var nextCache = new System.Collections.Generic.List<VNWindowStateData>(cachedWindowStates);
+            UpsertMatchingState(nextCache, states, IngredientWindowId);
+            UpsertMatchingState(nextCache, states, GridWindowId);
+            cachedWindowStates.Clear();
+            cachedWindowStates.AddRange(nextCache);
+
+            if (IsOpenOrOpening)
+                ApplyWindowStates(cachedWindowStates);
+        }
+
         public void ApplyWindowStates(System.Collections.Generic.IReadOnlyList<VNWindowStateData> states)
         {
             if (states == null || states.Count == 0)
@@ -280,6 +311,28 @@ namespace PPP.BLUE.VN
             }
 
             return null;
+        }
+
+        private void UpsertMatchingState(
+            System.Collections.Generic.List<VNWindowStateData> cache,
+            System.Collections.Generic.IReadOnlyList<VNWindowStateData> states,
+            string windowId)
+        {
+            var matched = FindWindowState(states, windowId);
+            if (matched == null)
+                return;
+
+            for (int i = 0; i < cache.Count; i++)
+            {
+                var row = cache[i];
+                if (row == null || !MatchesWindowId(windowId, row.GetId()))
+                    continue;
+
+                cache[i] = matched;
+                return;
+            }
+
+            cache.Add(matched);
         }
 
         private static bool MatchesWindowId(string expectedId, string actualId)
