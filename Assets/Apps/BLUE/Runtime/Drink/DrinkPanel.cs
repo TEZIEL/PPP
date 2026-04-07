@@ -235,14 +235,12 @@ namespace PPP.BLUE.VN
                 return;
             }
 
-            states.Add(new VNWindowStateData
+            var fallbackState = new VNWindowStateData
             {
-                windowId = windowId,
-                anchoredX = target.anchoredPosition.x,
-                anchoredY = target.anchoredPosition.y,
-                isPinned = false,
                 siblingIndex = target.GetSiblingIndex()
-            });
+            };
+            fallbackState.SetState(windowId, target.anchoredPosition.x, target.anchoredPosition.y, false);
+            states.Add(fallbackState);
         }
 
         private static void ApplySingleWindowState(RectTransform target, string windowId, System.Collections.Generic.IReadOnlyList<VNWindowStateData> states)
@@ -261,7 +259,7 @@ namespace PPP.BLUE.VN
                 return;
             }
 
-            target.anchoredPosition = new Vector2(saved.anchoredX, saved.anchoredY);
+            target.anchoredPosition = new Vector2(saved.GetX(), saved.GetY());
             if (target.parent != null)
             {
                 int clampedIndex = Mathf.Clamp(saved.siblingIndex, 0, target.parent.childCount - 1);
@@ -274,10 +272,10 @@ namespace PPP.BLUE.VN
             for (int i = 0; i < states.Count; i++)
             {
                 var row = states[i];
-                if (row == null || string.IsNullOrWhiteSpace(row.windowId))
+                if (row == null || string.IsNullOrWhiteSpace(row.GetId()))
                     continue;
 
-                if (MatchesWindowId(windowId, row.windowId))
+                if (MatchesWindowId(windowId, row.GetId()))
                     return row;
             }
 

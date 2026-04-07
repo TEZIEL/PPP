@@ -79,8 +79,10 @@ namespace PPP.BLUE.VN
         private Coroutine waitAndRefreshCoroutine;
         private VNBacklogView backlogStateObservedView;
         private static readonly HashSet<VNDialogueView> activeDialogueViews = new();
-        public const string DialogueWindowId = "vn_dialogue";
-        public const string HiddenDialogueWindowId = "vn_dialogue_hidden";
+        public const string DialogueWindowId = "VNDialogue";
+        public const string HiddenDialogueWindowId = "HiddenVNDialogue";
+        private const string LegacyDialogueWindowId = "vn_dialogue";
+        private const string LegacyHiddenDialogueWindowId = "vn_dialogue_hidden";
         public static bool IsAnyBacklogOpen
         {
             get
@@ -1490,14 +1492,12 @@ namespace PPP.BLUE.VN
                 return;
             }
 
-            states.Add(new VNWindowStateData
+            var fallbackState = new VNWindowStateData
             {
-                windowId = windowId,
-                anchoredX = rectTransform.anchoredPosition.x,
-                anchoredY = rectTransform.anchoredPosition.y,
-                isPinned = false,
                 siblingIndex = rectTransform.GetSiblingIndex()
-            });
+            };
+            fallbackState.SetState(windowId, rectTransform.anchoredPosition.x, rectTransform.anchoredPosition.y, false);
+            states.Add(fallbackState);
         }
 
         private static void ApplySingleWindowState(RectTransform rectTransform, UIDragMoveClamped dragSource, string windowId, IReadOnlyList<VNWindowStateData> states)
@@ -1518,7 +1518,7 @@ namespace PPP.BLUE.VN
                 return;
             }
 
-            rectTransform.anchoredPosition = new Vector2(saved.anchoredX, saved.anchoredY);
+            rectTransform.anchoredPosition = new Vector2(saved.GetX(), saved.GetY());
             if (rectTransform.parent != null)
             {
                 int clampedIndex = Mathf.Clamp(saved.siblingIndex, 0, rectTransform.parent.childCount - 1);
@@ -1531,14 +1531,28 @@ namespace PPP.BLUE.VN
             for (int i = 0; i < states.Count; i++)
             {
                 var row = states[i];
-                if (row == null || string.IsNullOrWhiteSpace(row.windowId))
+                if (row == null || string.IsNullOrWhiteSpace(row.GetId()))
                     continue;
 
-                if (string.Equals(row.windowId, windowId, StringComparison.OrdinalIgnoreCase))
+                if (MatchesWindowId(windowId, row.GetId()))
                     return row;
             }
 
             return null;
+        }
+
+        private static bool MatchesWindowId(string expectedId, string actualId)
+        {
+            if (string.Equals(expectedId, actualId, StringComparison.OrdinalIgnoreCase))
+                return true;
+
+            if (string.Equals(expectedId, DialogueWindowId, StringComparison.OrdinalIgnoreCase))
+                return string.Equals(actualId, LegacyDialogueWindowId, StringComparison.OrdinalIgnoreCase);
+
+            if (string.Equals(expectedId, HiddenDialogueWindowId, StringComparison.OrdinalIgnoreCase))
+                return string.Equals(actualId, LegacyHiddenDialogueWindowId, StringComparison.OrdinalIgnoreCase);
+
+            return false;
         }
 
         private IEnumerator ReplayClick()

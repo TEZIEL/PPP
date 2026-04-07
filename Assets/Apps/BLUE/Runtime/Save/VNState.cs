@@ -28,6 +28,8 @@ namespace PPP.BLUE.VN
         public VNBacklogState backlog = new();
         public VNBacklogKey currentLineKey = new();
         public bool isCurrentLineTyping;
+        public List<VNWindowStateData> vnWindowStates = new();
+        // Legacy field kept for backward compatibility with older save payloads.
         public List<VNWindowStateData> windowStates = new();
     }
 
@@ -48,11 +50,51 @@ namespace PPP.BLUE.VN
     [Serializable]
     public sealed class VNWindowStateData
     {
+        public string id;
+        public float x;
+        public float y;
+        public bool pinned;
+
+        // Legacy field set kept for backward compatibility with existing save payloads.
         public string windowId;
         public float anchoredX;
         public float anchoredY;
         public bool isPinned;
         public int siblingIndex;
+
+        public void SetState(string stateId, float stateX, float stateY, bool statePinned)
+        {
+            id = stateId;
+            x = stateX;
+            y = stateY;
+            pinned = statePinned;
+
+            // Keep legacy fields in sync for compatibility.
+            windowId = stateId;
+            anchoredX = stateX;
+            anchoredY = stateY;
+            isPinned = statePinned;
+        }
+
+        public string GetId()
+        {
+            return !string.IsNullOrWhiteSpace(id) ? id : windowId;
+        }
+
+        public float GetX()
+        {
+            return !string.IsNullOrWhiteSpace(id) ? x : anchoredX;
+        }
+
+        public float GetY()
+        {
+            return !string.IsNullOrWhiteSpace(id) ? y : anchoredY;
+        }
+
+        public bool GetPinned()
+        {
+            return !string.IsNullOrWhiteSpace(id) ? pinned : isPinned;
+        }
     }
 
     [Serializable]

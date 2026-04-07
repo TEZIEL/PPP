@@ -128,14 +128,9 @@ namespace PPP.BLUE.VN
                 return false;
 
             Vector2 anchored = GetSavedAnchoredPosition();
-            state = new VNWindowStateData
-            {
-                windowId = windowId,
-                anchoredX = anchored.x,
-                anchoredY = anchored.y,
-                isPinned = GetPinnedState(),
-                siblingIndex = rect.GetSiblingIndex()
-            };
+            state = new VNWindowStateData();
+            state.SetState(windowId, anchored.x, anchored.y, GetPinnedState());
+            state.siblingIndex = rect.GetSiblingIndex();
             return true;
         }
 
@@ -144,9 +139,9 @@ namespace PPP.BLUE.VN
             if (state == null || rect == null)
                 return;
 
-            Vector2 next = new Vector2(state.anchoredX, state.anchoredY);
+            Vector2 next = new Vector2(state.GetX(), state.GetY());
             SetSavedAnchoredPosition(next);
-            SetPinnedState(state.isPinned);
+            SetPinnedState(state.GetPinned());
             if (rect.parent != null)
             {
                 int clampedIndex = Mathf.Clamp(state.siblingIndex, 0, rect.parent.childCount - 1);
