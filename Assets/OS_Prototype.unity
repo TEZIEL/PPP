@@ -8352,6 +8352,7 @@ MonoBehaviour:
   buildingDropdown: {fileID: 123334334}
   highlightDropdown: {fileID: 2111964432}
   backgroundManager: {fileID: 1039269266}
+  windowManager: {fileID: 1107218560}
   mixer: {fileID: 24100000, guid: ee21f867146251146adac9cf3abc6afc, type: 2}
 --- !u!114 &725051174
 MonoBehaviour:
@@ -12260,6 +12261,7 @@ MonoBehaviour:
   taskbarManager: {fileID: 501036345}
   themeManager: {fileID: 1696708469}
   appUIThemeManager: {fileID: 458904610}
+  optionManager: {fileID: 725051173}
   iconsRoot: {fileID: 291154894}
   desktopGridManager: {fileID: 1107218561}
   autoSaveDebounce: 0.35
@@ -13286,7 +13288,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_Material: {fileID: 0}
-  m_Color: {r: 1, g: 1, b: 1, a: 1}
+  m_Color: {r: 0.9019608, g: 0.9019608, b: 0.9019608, a: 1}
   m_RaycastTarget: 1
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
@@ -13495,7 +13497,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_Material: {fileID: 0}
-  m_Color: {r: 1, g: 1, b: 1, a: 1}
+  m_Color: {r: 0.9019608, g: 0.9019608, b: 0.9019608, a: 1}
   m_RaycastTarget: 1
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
@@ -14876,7 +14878,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_Material: {fileID: 0}
-  m_Color: {r: 1, g: 1, b: 1, a: 1}
+  m_Color: {r: 0.9019608, g: 0.9019608, b: 0.9019608, a: 1}
   m_RaycastTarget: 1
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
