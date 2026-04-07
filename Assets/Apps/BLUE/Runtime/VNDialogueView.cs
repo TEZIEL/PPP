@@ -79,10 +79,8 @@ namespace PPP.BLUE.VN
         private Coroutine waitAndRefreshCoroutine;
         private VNBacklogView backlogStateObservedView;
         private static readonly HashSet<VNDialogueView> activeDialogueViews = new();
-        public const string DialogueWindowId = "VNDialogue";
-        public const string HiddenDialogueWindowId = "HiddenVNDialogue";
-        private const string LegacyDialogueWindowId = "vn_dialogue";
-        private const string LegacyHiddenDialogueWindowId = "vn_dialogue_hidden";
+        public const string DialogueWindowId = "vn_dialogue";
+        public const string HiddenDialogueWindowId = "vn_dialogue_hidden";
         public static bool IsAnyBacklogOpen
         {
             get
@@ -359,7 +357,7 @@ namespace PPP.BLUE.VN
                 int count = onClick.GetPersistentEventCount();
                 for (int j = 0; j < count; j++)
                 {
-                    if (onClick.GetPersistentTarget(j) != (Object)this)
+                    if (onClick.GetPersistentTarget(j) != (UnityEngine.Object)this)
                         continue;
 
                     if (onClick.GetPersistentMethodName(j) != nameof(OpenSaveLoadWindow))
@@ -387,7 +385,7 @@ namespace PPP.BLUE.VN
                 int count = onClick.GetPersistentEventCount();
                 for (int j = 0; j < count; j++)
                 {
-                    if (onClick.GetPersistentTarget(j) != (Object)this)
+                    if (onClick.GetPersistentTarget(j) != (UnityEngine.Object)this)
                         continue;
 
                     if (onClick.GetPersistentMethodName(j) != nameof(HideUI))
@@ -1536,25 +1534,11 @@ namespace PPP.BLUE.VN
                 if (row == null || string.IsNullOrWhiteSpace(row.windowId))
                     continue;
 
-                if (MatchesWindowId(windowId, row.windowId))
+                if (string.Equals(row.windowId, windowId, StringComparison.OrdinalIgnoreCase))
                     return row;
             }
 
             return null;
-        }
-
-        private static bool MatchesWindowId(string expectedId, string actualId)
-        {
-            if (string.Equals(expectedId, actualId, StringComparison.OrdinalIgnoreCase))
-                return true;
-
-            if (string.Equals(expectedId, DialogueWindowId, StringComparison.OrdinalIgnoreCase))
-                return string.Equals(actualId, LegacyDialogueWindowId, StringComparison.OrdinalIgnoreCase);
-
-            if (string.Equals(expectedId, HiddenDialogueWindowId, StringComparison.OrdinalIgnoreCase))
-                return string.Equals(actualId, LegacyHiddenDialogueWindowId, StringComparison.OrdinalIgnoreCase);
-
-            return false;
         }
 
         private IEnumerator ReplayClick()
