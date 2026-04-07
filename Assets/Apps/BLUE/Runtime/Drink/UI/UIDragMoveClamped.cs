@@ -127,14 +127,10 @@ namespace PPP.BLUE.VN
             if (rect == null || string.IsNullOrWhiteSpace(windowId))
                 return false;
 
-            state = new VNWindowStateData
-            {
-                windowId = windowId,
-                anchoredX = rect.anchoredPosition.x,
-                anchoredY = rect.anchoredPosition.y,
-                isPinned = isPinned,
-                siblingIndex = rect.GetSiblingIndex()
-            };
+            Vector2 anchored = GetSavedAnchoredPosition();
+            state = new VNWindowStateData();
+            state.SetState(windowId, anchored.x, anchored.y, GetPinnedState());
+            state.siblingIndex = rect.GetSiblingIndex();
             return true;
         }
 
@@ -143,18 +139,41 @@ namespace PPP.BLUE.VN
             if (state == null || rect == null)
                 return;
 
-            SetPinned(state.isPinned);
-
-            Vector2 next = new Vector2(state.anchoredX, state.anchoredY);
-            if (dragParent != null && parentArea != null)
-                next = ClampAnchoredPositionToParentArea(next);
-
-            rect.anchoredPosition = next;
+            Vector2 next = new Vector2(state.GetX(), state.GetY());
+            SetSavedAnchoredPosition(next);
+            SetPinnedState(state.GetPinned());
             if (rect.parent != null)
             {
                 int clampedIndex = Mathf.Clamp(state.siblingIndex, 0, rect.parent.childCount - 1);
                 rect.SetSiblingIndex(clampedIndex);
             }
+        }
+
+        public Vector2 GetSavedAnchoredPosition()
+        {
+            return rect != null ? rect.anchoredPosition : Vector2.zero;
+        }
+
+        public void SetSavedAnchoredPosition(Vector2 anchoredPosition)
+        {
+            if (rect == null)
+                return;
+
+            Vector2 next = anchoredPosition;
+            if (dragParent != null && parentArea != null)
+                next = ClampAnchoredPositionToParentArea(next);
+
+            rect.anchoredPosition = next;
+        }
+
+        public bool GetPinnedState()
+        {
+            return isPinned;
+        }
+
+        public void SetPinnedState(bool pinned)
+        {
+            SetPinned(pinned);
         }
 
         public void OnBeginDrag(PointerEventData eventData)

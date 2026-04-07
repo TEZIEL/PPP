@@ -7,8 +7,10 @@ namespace PPP.BLUE.VN
 {
     public sealed class DrinkPanel : MonoBehaviour
     {
-        public const string IngredientWindowId = "drink_ingredient";
-        public const string GridWindowId = "drink_grid";
+        public const string IngredientWindowId = "DrinkIngredients";
+        public const string GridWindowId = "DrinkGrid";
+        private const string LegacyIngredientWindowId = "drink_ingredient";
+        private const string LegacyGridWindowId = "drink_grid";
 
         [Header("Refs")]
         [SerializeField] private GameObject root;
@@ -233,14 +235,12 @@ namespace PPP.BLUE.VN
                 return;
             }
 
-            states.Add(new VNWindowStateData
+            var fallbackState = new VNWindowStateData
             {
-                windowId = windowId,
-                anchoredX = target.anchoredPosition.x,
-                anchoredY = target.anchoredPosition.y,
-                isPinned = false,
                 siblingIndex = target.GetSiblingIndex()
-            });
+            };
+            fallbackState.SetState(windowId, target.anchoredPosition.x, target.anchoredPosition.y, false);
+            states.Add(fallbackState);
         }
 
         private static void ApplySingleWindowState(RectTransform target, string windowId, System.Collections.Generic.IReadOnlyList<VNWindowStateData> states)
@@ -259,7 +259,7 @@ namespace PPP.BLUE.VN
                 return;
             }
 
-            target.anchoredPosition = new Vector2(saved.anchoredX, saved.anchoredY);
+            target.anchoredPosition = new Vector2(saved.GetX(), saved.GetY());
             if (target.parent != null)
             {
                 int clampedIndex = Mathf.Clamp(saved.siblingIndex, 0, target.parent.childCount - 1);
@@ -272,14 +272,28 @@ namespace PPP.BLUE.VN
             for (int i = 0; i < states.Count; i++)
             {
                 var row = states[i];
-                if (row == null || string.IsNullOrWhiteSpace(row.windowId))
+                if (row == null || string.IsNullOrWhiteSpace(row.GetId()))
                     continue;
 
-                if (string.Equals(row.windowId, windowId, StringComparison.OrdinalIgnoreCase))
+                if (MatchesWindowId(windowId, row.GetId()))
                     return row;
             }
 
             return null;
+        }
+
+        private static bool MatchesWindowId(string expectedId, string actualId)
+        {
+            if (string.Equals(expectedId, actualId, StringComparison.OrdinalIgnoreCase))
+                return true;
+
+            if (string.Equals(expectedId, IngredientWindowId, StringComparison.OrdinalIgnoreCase))
+                return string.Equals(actualId, LegacyIngredientWindowId, StringComparison.OrdinalIgnoreCase);
+
+            if (string.Equals(expectedId, GridWindowId, StringComparison.OrdinalIgnoreCase))
+                return string.Equals(actualId, LegacyGridWindowId, StringComparison.OrdinalIgnoreCase);
+
+            return false;
         }
     }
 }
