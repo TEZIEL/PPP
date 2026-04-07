@@ -19,13 +19,17 @@ namespace PPP.BLUE.VN.RecipeApp
     public sealed class IngredientEntry
     {
         public string id;
+        public string nameKey;
         public string name;
         public string english_name;
         public string color;
+        public string colorHex;
         public string taste;
         public string description;
 
         public string DisplayName => string.IsNullOrWhiteSpace(name) ? id : name;
+        public string DisplayNameKey => string.IsNullOrWhiteSpace(nameKey) ? id : nameKey;
+        public string DisplayColorHex => string.IsNullOrWhiteSpace(colorHex) ? color : colorHex;
     }
 
     /// <summary>
