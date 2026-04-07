@@ -717,6 +717,11 @@ namespace PPP.BLUE.VN
             }
 
             HandleControlButtonState();
+            if (isUIHidden && !isUIAnimating && Input.GetKeyDown(KeyCode.V))
+            {
+                ShowUI();
+                return;
+            }
             if (isUIHidden || isUIAnimating)
                 return;
 
