@@ -52,6 +52,7 @@ namespace PPP.BLUE.VN
         public float anchoredX;
         public float anchoredY;
         public bool isPinned;
+        public int siblingIndex;
     }
 
     [Serializable]

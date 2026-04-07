@@ -31,6 +31,7 @@ namespace PPP.BLUE.VN
         private bool isOpen;
         private bool isOpening;
         private bool callSubscribed;
+        private readonly System.Collections.Generic.List<VNWindowStateData> cachedWindowStates = new System.Collections.Generic.List<VNWindowStateData>();
 
         public bool IsOpenOrOpening => isOpen || isOpening;
 
@@ -96,6 +97,7 @@ namespace PPP.BLUE.VN
             Debug.Log($"[DrinkPanel] Open requested requestId={requestId ?? ""}");
             Debug.Log("[VN_TEST] DrinkPanel Open request=" + (requestId ?? string.Empty));
 
+            ApplyWindowStates(cachedWindowStates);
             drinkManager?.StartDrink(requestId);
             drinkManager?.HideConfirmPanel();
             drinkManager?.ResetIngredients();
@@ -106,6 +108,8 @@ namespace PPP.BLUE.VN
 
         private void OnDisable()
         {
+            CaptureCurrentWindowStatesToCache();
+
             if (runner != null && callSubscribed)
             {
                 runner.OnCall -= HandleVNCall;
@@ -139,6 +143,7 @@ namespace PPP.BLUE.VN
 
             isOpen = false;
             isOpening = false;
+            CaptureCurrentWindowStatesToCache();
 
             policy?.ExitDrinkMode();
             policy?.PopModal("DrinkPanel");
@@ -192,6 +197,12 @@ namespace PPP.BLUE.VN
             openCo = null;
         }
 
+        private void CaptureCurrentWindowStatesToCache()
+        {
+            cachedWindowStates.Clear();
+            CollectWindowStates(cachedWindowStates);
+        }
+
         public void CollectWindowStates(System.Collections.Generic.List<VNWindowStateData> states)
         {
             if (states == null)
@@ -227,7 +238,8 @@ namespace PPP.BLUE.VN
                 windowId = windowId,
                 anchoredX = target.anchoredPosition.x,
                 anchoredY = target.anchoredPosition.y,
-                isPinned = false
+                isPinned = false,
+                siblingIndex = target.GetSiblingIndex()
             });
         }
 
@@ -248,6 +260,11 @@ namespace PPP.BLUE.VN
             }
 
             target.anchoredPosition = new Vector2(saved.anchoredX, saved.anchoredY);
+            if (target.parent != null)
+            {
+                int clampedIndex = Mathf.Clamp(saved.siblingIndex, 0, target.parent.childCount - 1);
+                target.SetSiblingIndex(clampedIndex);
+            }
         }
 
         private static VNWindowStateData FindWindowState(System.Collections.Generic.IReadOnlyList<VNWindowStateData> states, string windowId)

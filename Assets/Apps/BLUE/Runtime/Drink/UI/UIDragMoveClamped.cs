@@ -132,7 +132,8 @@ namespace PPP.BLUE.VN
                 windowId = windowId,
                 anchoredX = rect.anchoredPosition.x,
                 anchoredY = rect.anchoredPosition.y,
-                isPinned = isPinned
+                isPinned = isPinned,
+                siblingIndex = rect.GetSiblingIndex()
             };
             return true;
         }
@@ -149,6 +150,11 @@ namespace PPP.BLUE.VN
                 next = ClampAnchoredPositionToParentArea(next);
 
             rect.anchoredPosition = next;
+            if (rect.parent != null)
+            {
+                int clampedIndex = Mathf.Clamp(state.siblingIndex, 0, rect.parent.childCount - 1);
+                rect.SetSiblingIndex(clampedIndex);
+            }
         }
 
         public void OnBeginDrag(PointerEventData eventData)

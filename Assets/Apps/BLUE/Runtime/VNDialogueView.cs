@@ -1494,7 +1494,8 @@ namespace PPP.BLUE.VN
                 windowId = windowId,
                 anchoredX = rectTransform.anchoredPosition.x,
                 anchoredY = rectTransform.anchoredPosition.y,
-                isPinned = false
+                isPinned = false,
+                siblingIndex = rectTransform.GetSiblingIndex()
             });
         }
 
@@ -1517,6 +1518,11 @@ namespace PPP.BLUE.VN
             }
 
             rectTransform.anchoredPosition = new Vector2(saved.anchoredX, saved.anchoredY);
+            if (rectTransform.parent != null)
+            {
+                int clampedIndex = Mathf.Clamp(saved.siblingIndex, 0, rectTransform.parent.childCount - 1);
+                rectTransform.SetSiblingIndex(clampedIndex);
+            }
         }
 
         private static VNWindowStateData FindWindowState(IReadOnlyList<VNWindowStateData> states, string windowId)
