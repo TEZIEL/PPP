@@ -254,6 +254,34 @@ public class FidgetShortsController : MonoBehaviour, IScrollHandler
         return false;
     }
 
+    private RectTransform GetScrollTargetRect()
+    {
+        var windowRect = windowRoot as RectTransform;
+        if (windowRect != null)
+            return windowRect;
+
+        return swipeViewport;
+    }
+
+    private bool IsVisibleOnScreen(RectTransform rect)
+    {
+        if (rect == null) return false;
+
+        Vector3[] corners = new Vector3[4];
+        rect.GetWorldCorners(corners);
+
+        Rect screenRect = new Rect(0, 0, Screen.width, Screen.height);
+
+        for (int i = 0; i < 4; i++)
+        {
+            Vector3 screenPoint = RectTransformUtility.WorldToScreenPoint(null, corners[i]);
+            if (screenRect.Contains(screenPoint))
+                return true;
+        }
+
+        return false;
+    }
+
     public void OpenGallery()
     {
         // 스와이프 중이면 무시 (레이스 방지)
@@ -276,6 +304,7 @@ public class FidgetShortsController : MonoBehaviour, IScrollHandler
 
     public void OnScroll(PointerEventData eventData)
     {
+        if (!IsVisibleOnScreen(GetScrollTargetRect())) return;
         if (!IsPointerOverMyWindow()) return;
         if (!CanSwipe()) return;
         if (isDragging) return;
@@ -302,6 +331,7 @@ public class FidgetShortsController : MonoBehaviour, IScrollHandler
     // ====== 입력(드래그/휠) ======
     private void Update()
     {
+        if (!IsVisibleOnScreen(GetScrollTargetRect())) return;
         if (!CanSwipe()) return;
         if (!IsPointerOverMyWindow()) return;
         if (isSwiping) return;
