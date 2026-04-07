@@ -820,7 +820,10 @@ namespace PPP.BLUE.VN
 
             if (Input.GetKeyDown(KeyCode.V))
             {
-                HideUI();
+                if (isUIHidden)
+                    ShowUI();
+                else
+                    HideUI();
                 return true;
             }
 
