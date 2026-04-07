@@ -80,9 +80,11 @@ namespace PPP.BLUE.VN.RecipeApp
                 var item = new IngredientEntry
                 {
                     id = GetString(row, "id"),
+                    nameKey = GetString(row, "nameKey"),
                     name = GetString(row, "name"),
                     english_name = GetString(row, "english_name"),
                     color = GetString(row, "color"),
+                    colorHex = GetString(row, "colorHex"),
                     taste = GetString(row, "taste"),
                     description = GetString(row, "description")
                 };
