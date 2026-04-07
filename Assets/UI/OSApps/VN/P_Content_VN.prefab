@@ -1971,7 +1971,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_Sprite: {fileID: 21300000, guid: d5cbe481767812c4ca8a69fc7d3395a6, type: 3}
+  m_Sprite: {fileID: 21300000, guid: bcf763dfead173e498e5e11d1870496b, type: 3}
   m_Type: 1
   m_PreserveAspect: 0
   m_FillCenter: 1
@@ -5429,10 +5429,16 @@ MonoBehaviour:
   startDayId: day01
   bridge: {fileID: 8020622904635775800}
   drinkManager: {fileID: 6915780757067922529}
+  drinkPanel: {fileID: 8280133175284287354}
+  drinkIngredientsWindow: {fileID: 4807609249296654914}
+  drinkGridWindow: {fileID: 2406364404087259530}
+  vnDialogueWindow: {fileID: 1974178750765012198}
+  melionFaceWindow: {fileID: 5597632609589760493}
+  hiddenVNDialogueWindow: {fileID: 5915408968421042407}
   typeSpeed: 30
   runner: {fileID: 5088717439015034517}
   policy: {fileID: 5970636519023333258}
-  textTyper: {fileID: 0}
+  textTyper: {fileID: 714973972343246313}
   autoPlayDelaySeconds: 0.75
   skipMode: 1
   holdSkipStepInterval: 0.15
@@ -8784,7 +8790,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_Sprite: {fileID: 21300000, guid: d5cbe481767812c4ca8a69fc7d3395a6, type: 3}
+  m_Sprite: {fileID: 21300000, guid: bcf763dfead173e498e5e11d1870496b, type: 3}
   m_Type: 1
   m_PreserveAspect: 0
   m_FillCenter: 1
@@ -11722,7 +11728,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_Sprite: {fileID: 21300000, guid: d5cbe481767812c4ca8a69fc7d3395a6, type: 3}
+  m_Sprite: {fileID: 21300000, guid: bcf763dfead173e498e5e11d1870496b, type: 3}
   m_Type: 1
   m_PreserveAspect: 0
   m_FillCenter: 1
@@ -13368,32 +13374,32 @@ MonoBehaviour:
     button: {fileID: 2731394500151584352}
     targetImage: {fileID: 5185934426906011879}
     stateSource: {fileID: 6596044333851582442}
-    activeSprite: {fileID: 21300000, guid: 1927cc55cd0eeaf46848c0f48f7ce074, type: 3}
-    inactiveSprite: {fileID: 21300000, guid: d5cbe481767812c4ca8a69fc7d3395a6, type: 3}
+    activeSprite: {fileID: 21300000, guid: 19b9cd19318ddf84793cd1de2ae89355, type: 3}
+    inactiveSprite: {fileID: 21300000, guid: bcf763dfead173e498e5e11d1870496b, type: 3}
   - label: 
     button: {fileID: 8657123684315957331}
     targetImage: {fileID: 7681270869667859639}
     stateSource: {fileID: 7760514949663658624}
-    activeSprite: {fileID: 21300000, guid: 1927cc55cd0eeaf46848c0f48f7ce074, type: 3}
-    inactiveSprite: {fileID: 21300000, guid: d5cbe481767812c4ca8a69fc7d3395a6, type: 3}
+    activeSprite: {fileID: 21300000, guid: 19b9cd19318ddf84793cd1de2ae89355, type: 3}
+    inactiveSprite: {fileID: 21300000, guid: bcf763dfead173e498e5e11d1870496b, type: 3}
   - label: 
     button: {fileID: 7660800011558654163}
     targetImage: {fileID: 2120574677699034338}
     stateSource: {fileID: 4615232419757392711}
-    activeSprite: {fileID: 21300000, guid: 1927cc55cd0eeaf46848c0f48f7ce074, type: 3}
-    inactiveSprite: {fileID: 21300000, guid: d5cbe481767812c4ca8a69fc7d3395a6, type: 3}
+    activeSprite: {fileID: 21300000, guid: 19b9cd19318ddf84793cd1de2ae89355, type: 3}
+    inactiveSprite: {fileID: 21300000, guid: bcf763dfead173e498e5e11d1870496b, type: 3}
   - label: 
     button: {fileID: 2570338192436488418}
     targetImage: {fileID: 8982265876327863111}
     stateSource: {fileID: 7664900197048604631}
-    activeSprite: {fileID: 21300000, guid: 1927cc55cd0eeaf46848c0f48f7ce074, type: 3}
-    inactiveSprite: {fileID: 21300000, guid: d5cbe481767812c4ca8a69fc7d3395a6, type: 3}
+    activeSprite: {fileID: 21300000, guid: 19b9cd19318ddf84793cd1de2ae89355, type: 3}
+    inactiveSprite: {fileID: 21300000, guid: bcf763dfead173e498e5e11d1870496b, type: 3}
   - label: 
     button: {fileID: 5615515203433212443}
     targetImage: {fileID: 2051718547368970632}
     stateSource: {fileID: 3183299283255160418}
-    activeSprite: {fileID: 21300000, guid: 1927cc55cd0eeaf46848c0f48f7ce074, type: 3}
-    inactiveSprite: {fileID: 21300000, guid: d5cbe481767812c4ca8a69fc7d3395a6, type: 3}
+    activeSprite: {fileID: 21300000, guid: 19b9cd19318ddf84793cd1de2ae89355, type: 3}
+    inactiveSprite: {fileID: 21300000, guid: bcf763dfead173e498e5e11d1870496b, type: 3}
 --- !u!1 &4221362403013667188
 GameObject:
   m_ObjectHideFlags: 0
@@ -18528,7 +18534,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_Sprite: {fileID: 21300000, guid: d5cbe481767812c4ca8a69fc7d3395a6, type: 3}
+  m_Sprite: {fileID: 21300000, guid: bcf763dfead173e498e5e11d1870496b, type: 3}
   m_Type: 1
   m_PreserveAspect: 0
   m_FillCenter: 1
@@ -20214,7 +20220,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_Sprite: {fileID: 21300000, guid: d5cbe481767812c4ca8a69fc7d3395a6, type: 3}
+  m_Sprite: {fileID: 21300000, guid: bcf763dfead173e498e5e11d1870496b, type: 3}
   m_Type: 0
   m_PreserveAspect: 0
   m_FillCenter: 1
@@ -23260,6 +23266,8 @@ MonoBehaviour:
   dialogueCanvasGroup: {fileID: 2800437103308851553}
   dialogueRoot: {fileID: 1154989184179664875}
   minimizedUIRoot: {fileID: 5915408968421042407}
+  dialogueWindowDragStateSource: {fileID: 0}
+  minimizedDialogueDragStateSource: {fileID: 0}
   dialogueShowDuration: 0.12
   dialogueHideDuration: 0.1
   minimizedShowDuration: 0.12

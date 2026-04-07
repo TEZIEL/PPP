@@ -1592,12 +1592,14 @@ namespace PPP.BLUE.VN
 
         private void ApplyVNWindowStates(IReadOnlyList<VNWindowStateData> states)
         {
-            if (list == null || string.IsNullOrWhiteSpace(id))
+            if (states == null || states.Count == 0)
                 return;
 
             if (drinkPanel == null)
                 drinkPanel = GetComponentInChildren<DrinkPanel>(true);
+
             drinkPanel?.RestoreCachedWindowStates(states);
+
             ApplySingleVNWindowState(states, VNDialogueWindowId, vnDialogueWindow);
             ApplySingleVNWindowState(states, MelionExpressionWindowId, melionFaceWindow);
             ApplySingleVNWindowState(states, HiddenVNDialogueWindowId, hiddenVNDialogueWindow);
@@ -1605,6 +1607,7 @@ namespace PPP.BLUE.VN
 
         private void ApplySingleVNWindowState(IReadOnlyList<VNWindowStateData> states, string id, GameObject go)
         {
+            { 
             if (go == null || string.IsNullOrWhiteSpace(id))
                 return;
             }
