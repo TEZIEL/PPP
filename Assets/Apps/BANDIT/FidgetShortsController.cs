@@ -254,67 +254,18 @@ public class FidgetShortsController : MonoBehaviour, IScrollHandler
         return false;
     }
 
-    private RectTransform GetScrollTargetRect()
-    {
-        var windowRect = windowRoot as RectTransform;
-        if (windowRect != null)
-            return windowRect;
-
-        return swipeViewport;
-    }
-
-    private bool IsVisibleOnScreen(RectTransform rect)
-    {
-        if (rect == null) return false;
-
-        Vector3[] corners = new Vector3[4];
-        rect.GetWorldCorners(corners);
-
-        Rect screenRect = new Rect(0, 0, Screen.width, Screen.height);
-
-        for (int i = 0; i < 4; i++)
-        {
-            Vector3 screenPoint = RectTransformUtility.WorldToScreenPoint(null, corners[i]);
-            if (screenRect.Contains(screenPoint))
-                return true;
-        }
-
-        return false;
-    }
-
-    private bool IsTopmostAtScreenPoint(Vector2 screenPoint)
+    private bool IsTopmostWidgetUnderPointer()
     {
         var es = EventSystem.current;
         if (es == null) return false;
+        if (windowRoot == null) return false;
 
-        var pointer = new PointerEventData(es) { position = screenPoint };
+        var pointer = new PointerEventData(es) { position = Input.mousePosition };
         var results = new List<RaycastResult>();
         es.RaycastAll(pointer, results);
 
         if (results.Count == 0) return false;
         return results[0].gameObject.transform.IsChildOf(windowRoot);
-    }
-
-    private bool IsWindowVisibleForScroll(RectTransform rect)
-    {
-        if (!IsVisibleOnScreen(rect)) return false;
-        if (rect == null) return false;
-
-        var center = RectTransformUtility.WorldToScreenPoint(null, rect.TransformPoint(rect.rect.center));
-
-        Vector3[] corners = new Vector3[4];
-        rect.GetWorldCorners(corners);
-
-        // 중심 + 4개 코너 중 하나라도 "최상단 히트"면 스크롤 허용
-        if (IsTopmostAtScreenPoint(center)) return true;
-        for (int i = 0; i < 4; i++)
-        {
-            var point = RectTransformUtility.WorldToScreenPoint(null, corners[i]);
-            if (IsTopmostAtScreenPoint(point))
-                return true;
-        }
-
-        return false;
     }
 
     public void OpenGallery()
@@ -339,7 +290,7 @@ public class FidgetShortsController : MonoBehaviour, IScrollHandler
 
     public void OnScroll(PointerEventData eventData)
     {
-        if (!IsWindowVisibleForScroll(GetScrollTargetRect())) return;
+        if (!IsTopmostWidgetUnderPointer()) return;
         if (!IsPointerOverMyWindow()) return;
         if (!CanSwipe()) return;
         if (isDragging) return;
@@ -366,7 +317,7 @@ public class FidgetShortsController : MonoBehaviour, IScrollHandler
     // ====== 입력(드래그/휠) ======
     private void Update()
     {
-        if (!IsWindowVisibleForScroll(GetScrollTargetRect())) return;
+        if (!IsTopmostWidgetUnderPointer()) return;
         if (!CanSwipe()) return;
         if (!IsPointerOverMyWindow()) return;
         if (isSwiping) return;
