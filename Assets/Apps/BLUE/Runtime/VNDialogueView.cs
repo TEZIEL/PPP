@@ -33,6 +33,8 @@ namespace PPP.BLUE.VN
         [SerializeField] private CanvasGroup dialogueCanvasGroup;
         [SerializeField] private RectTransform dialogueRoot;
         [SerializeField] private GameObject minimizedUIRoot;
+        [SerializeField] private UIDragMoveClamped dialogueWindowDragStateSource;
+        [SerializeField] private UIDragMoveClamped minimizedDialogueDragStateSource;
         private VNBacklogKey lastHandledKey;
         private VNBacklogKey currentLineBacklogKey;
         private string lastHandledLineId;
@@ -76,6 +78,8 @@ namespace PPP.BLUE.VN
         private Coroutine waitAndRefreshCoroutine;
         private VNBacklogView backlogStateObservedView;
         private static readonly HashSet<VNDialogueView> activeDialogueViews = new();
+        public const string DialogueWindowId = "vn_dialogue";
+        public const string HiddenDialogueWindowId = "vn_dialogue_hidden";
         public static bool IsAnyBacklogOpen
         {
             get
@@ -703,6 +707,8 @@ namespace PPP.BLUE.VN
         {
             if (IsAnyBacklogOpen)
             {
+                if (Input.GetKeyDown(KeyCode.LeftAlt) && IsBacklogOpen)
+                    backlogView?.Toggle();
                 EventSystem.current?.SetSelectedGameObject(null);
                 return;
             }
@@ -715,6 +721,11 @@ namespace PPP.BLUE.VN
             }
 
             HandleControlButtonState();
+            if (isUIHidden && !isUIAnimating && Input.GetKeyDown(KeyCode.V))
+            {
+                ShowUI();
+                return;
+            }
             if (isUIHidden || isUIAnimating)
                 return;
 
@@ -743,6 +754,7 @@ namespace PPP.BLUE.VN
             if (!runner.HasScript) return;
             if (IsBacklogInputBlocked()) return;
             HandleSkipAutoState();
+            if (HandleVNHotkeys()) return;
 
             // InputGate를 통과한 입력만 대사 진행에 사용
             if (policy != null && !VNInputGate.CanAdvanceDialogue(policy))
@@ -796,6 +808,41 @@ namespace PPP.BLUE.VN
             lineDisplayed = false;
             runner.Next();
             Debug.Log("[VN_UI] Next input detected -> runner.Next()");
+        }
+
+        private bool HandleVNHotkeys()
+        {
+            if (Input.GetKeyDown(KeyCode.LeftAlt))
+            {
+                if (backlogView != null)
+                {
+                    backlogView.Toggle();
+                    return true;
+                }
+            }
+
+            if (Input.GetKeyDown(KeyCode.C))
+            {
+                OpenSaveLoadWindow();
+                return true;
+            }
+
+            if (Input.GetKeyDown(KeyCode.V))
+            {
+                if (isUIHidden)
+                    ShowUI();
+                else
+                    HideUI();
+                return true;
+            }
+
+            if (Input.GetKeyDown(KeyCode.Escape))
+            {
+                OnExitButtonClicked();
+                return true;
+            }
+
+            return false;
         }
 
         // Legacy compatibility: older branches may still call this.
@@ -1242,9 +1289,6 @@ namespace PPP.BLUE.VN
                 return;
             if (Time.unscaledTime < controlActionLockedUntil)
                 return;
-            if (Input.GetKeyDown(KeyCode.Alpha3) || Input.GetKeyDown(KeyCode.Keypad3))
-                return;
-
             controlActionLockedUntil = Time.unscaledTime + closeActionLockSeconds;
             // 키보드 3 / 우측 상단 닫기와 동일한 OS RequestClose 경로 사용.
             if (bridge != null)
@@ -1411,6 +1455,83 @@ namespace PPP.BLUE.VN
             runner?.SetUiInputBlocked(locked, "Dialogue UI Hide/Show");
             if (locked)
                 OnSkipButtonPointerUp();
+        }
+
+        public void CollectWindowStates(List<VNWindowStateData> states)
+        {
+            if (states == null)
+                return;
+
+            CollectSingleWindowState(dialogueRoot, dialogueWindowDragStateSource, DialogueWindowId, states);
+            CollectSingleWindowState(minimizedUIRoot != null ? minimizedUIRoot.transform as RectTransform : null, minimizedDialogueDragStateSource, HiddenDialogueWindowId, states);
+        }
+
+        public void ApplyWindowStates(IReadOnlyList<VNWindowStateData> states)
+        {
+            if (states == null || states.Count == 0)
+                return;
+
+            ApplySingleWindowState(dialogueRoot, dialogueWindowDragStateSource, DialogueWindowId, states);
+            ApplySingleWindowState(minimizedUIRoot != null ? minimizedUIRoot.transform as RectTransform : null, minimizedDialogueDragStateSource, HiddenDialogueWindowId, states);
+        }
+
+        private static void CollectSingleWindowState(RectTransform rectTransform, UIDragMoveClamped dragSource, string windowId, List<VNWindowStateData> states)
+        {
+            if (rectTransform == null || string.IsNullOrWhiteSpace(windowId))
+                return;
+
+            if (dragSource == null)
+                dragSource = rectTransform.GetComponent<UIDragMoveClamped>();
+
+            if (dragSource != null && dragSource.TryGetWindowState(windowId, out var windowState))
+            {
+                states.Add(windowState);
+                return;
+            }
+
+            states.Add(new VNWindowStateData
+            {
+                windowId = windowId,
+                anchoredX = rectTransform.anchoredPosition.x,
+                anchoredY = rectTransform.anchoredPosition.y,
+                isPinned = false
+            });
+        }
+
+        private static void ApplySingleWindowState(RectTransform rectTransform, UIDragMoveClamped dragSource, string windowId, IReadOnlyList<VNWindowStateData> states)
+        {
+            if (rectTransform == null || string.IsNullOrWhiteSpace(windowId))
+                return;
+
+            var saved = FindWindowState(states, windowId);
+            if (saved == null)
+                return;
+
+            if (dragSource == null)
+                dragSource = rectTransform.GetComponent<UIDragMoveClamped>();
+
+            if (dragSource != null)
+            {
+                dragSource.ApplyWindowState(saved);
+                return;
+            }
+
+            rectTransform.anchoredPosition = new Vector2(saved.anchoredX, saved.anchoredY);
+        }
+
+        private static VNWindowStateData FindWindowState(IReadOnlyList<VNWindowStateData> states, string windowId)
+        {
+            for (int i = 0; i < states.Count; i++)
+            {
+                var row = states[i];
+                if (row == null || string.IsNullOrWhiteSpace(row.windowId))
+                    continue;
+
+                if (string.Equals(row.windowId, windowId, StringComparison.OrdinalIgnoreCase))
+                    return row;
+            }
+
+            return null;
         }
 
         private IEnumerator ReplayClick()

@@ -74,7 +74,10 @@ namespace PPP.BLUE.VN.RecipeApp
             ApplyNavigationNone();
 
             if (labelText != null)
-                labelText.text = data.DisplayName;
+            {
+                labelText.richText = true;
+                labelText.text = RecipeIngredientTextFormatter.FormatIngredientDisplayName(data.DisplayName, data.DisplayColorHex);
+            }
 
             SetSelected(false);
         }

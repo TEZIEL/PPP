@@ -121,6 +121,36 @@ namespace PPP.BLUE.VN
             NotifyPinnedStateChanged();
         }
 
+        public bool TryGetWindowState(string windowId, out VNWindowStateData state)
+        {
+            state = null;
+            if (rect == null || string.IsNullOrWhiteSpace(windowId))
+                return false;
+
+            state = new VNWindowStateData
+            {
+                windowId = windowId,
+                anchoredX = rect.anchoredPosition.x,
+                anchoredY = rect.anchoredPosition.y,
+                isPinned = isPinned
+            };
+            return true;
+        }
+
+        public void ApplyWindowState(VNWindowStateData state)
+        {
+            if (state == null || rect == null)
+                return;
+
+            SetPinned(state.isPinned);
+
+            Vector2 next = new Vector2(state.anchoredX, state.anchoredY);
+            if (dragParent != null && parentArea != null)
+                next = ClampAnchoredPositionToParentArea(next);
+
+            rect.anchoredPosition = next;
+        }
+
         public void OnBeginDrag(PointerEventData eventData)
         {
             if (isPinned)

@@ -7,6 +7,9 @@ namespace PPP.BLUE.VN
 {
     public sealed class DrinkPanel : MonoBehaviour
     {
+        public const string IngredientWindowId = "drink_ingredient";
+        public const string GridWindowId = "drink_grid";
+
         [Header("Refs")]
         [SerializeField] private GameObject root;
         [SerializeField] private VNRunner runner;
@@ -187,6 +190,79 @@ namespace PPP.BLUE.VN
 
             isOpening = false;
             openCo = null;
+        }
+
+        public void CollectWindowStates(System.Collections.Generic.List<VNWindowStateData> states)
+        {
+            if (states == null)
+                return;
+
+            CollectSingleWindowState(ingredientPanelRoot, IngredientWindowId, states);
+            CollectSingleWindowState(drinkGridRoot, GridWindowId, states);
+        }
+
+        public void ApplyWindowStates(System.Collections.Generic.IReadOnlyList<VNWindowStateData> states)
+        {
+            if (states == null || states.Count == 0)
+                return;
+
+            ApplySingleWindowState(ingredientPanelRoot, IngredientWindowId, states);
+            ApplySingleWindowState(drinkGridRoot, GridWindowId, states);
+        }
+
+        private static void CollectSingleWindowState(RectTransform target, string windowId, System.Collections.Generic.List<VNWindowStateData> states)
+        {
+            if (target == null || string.IsNullOrWhiteSpace(windowId))
+                return;
+
+            var drag = target.GetComponent<UIDragMoveClamped>();
+            if (drag != null && drag.TryGetWindowState(windowId, out var saved))
+            {
+                states.Add(saved);
+                return;
+            }
+
+            states.Add(new VNWindowStateData
+            {
+                windowId = windowId,
+                anchoredX = target.anchoredPosition.x,
+                anchoredY = target.anchoredPosition.y,
+                isPinned = false
+            });
+        }
+
+        private static void ApplySingleWindowState(RectTransform target, string windowId, System.Collections.Generic.IReadOnlyList<VNWindowStateData> states)
+        {
+            if (target == null || string.IsNullOrWhiteSpace(windowId))
+                return;
+
+            var saved = FindWindowState(states, windowId);
+            if (saved == null)
+                return;
+
+            var drag = target.GetComponent<UIDragMoveClamped>();
+            if (drag != null)
+            {
+                drag.ApplyWindowState(saved);
+                return;
+            }
+
+            target.anchoredPosition = new Vector2(saved.anchoredX, saved.anchoredY);
+        }
+
+        private static VNWindowStateData FindWindowState(System.Collections.Generic.IReadOnlyList<VNWindowStateData> states, string windowId)
+        {
+            for (int i = 0; i < states.Count; i++)
+            {
+                var row = states[i];
+                if (row == null || string.IsNullOrWhiteSpace(row.windowId))
+                    continue;
+
+                if (string.Equals(row.windowId, windowId, StringComparison.OrdinalIgnoreCase))
+                    return row;
+            }
+
+            return null;
         }
     }
 }

@@ -254,6 +254,20 @@ public class FidgetShortsController : MonoBehaviour, IScrollHandler
         return false;
     }
 
+    private bool IsTopmostWidgetUnderPointer()
+    {
+        var es = EventSystem.current;
+        if (es == null) return false;
+        if (windowRoot == null) return false;
+
+        var pointer = new PointerEventData(es) { position = Input.mousePosition };
+        var results = new List<RaycastResult>();
+        es.RaycastAll(pointer, results);
+
+        if (results.Count == 0) return false;
+        return results[0].gameObject.transform.IsChildOf(windowRoot);
+    }
+
     public void OpenGallery()
     {
         // 스와이프 중이면 무시 (레이스 방지)
@@ -276,6 +290,7 @@ public class FidgetShortsController : MonoBehaviour, IScrollHandler
 
     public void OnScroll(PointerEventData eventData)
     {
+        if (!IsTopmostWidgetUnderPointer()) return;
         if (!IsPointerOverMyWindow()) return;
         if (!CanSwipe()) return;
         if (isDragging) return;
@@ -302,6 +317,7 @@ public class FidgetShortsController : MonoBehaviour, IScrollHandler
     // ====== 입력(드래그/휠) ======
     private void Update()
     {
+        if (!IsTopmostWidgetUnderPointer()) return;
         if (!CanSwipe()) return;
         if (!IsPointerOverMyWindow()) return;
         if (isSwiping) return;
