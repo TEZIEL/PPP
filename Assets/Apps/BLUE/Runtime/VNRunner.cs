@@ -317,7 +317,8 @@ namespace PPP.BLUE.VN
         private VNBacklogKey currentBacklogKey = new();
         private bool isCurrentLineTyping;
         public VNBacklogManager BacklogManager => backlogManager;
-        private const string MelionExpressionWindowId = "melion_expression";
+        private const string MelionExpressionWindowId = "MelionFace";
+        private const string LegacyMelionExpressionWindowId = "melion_expression";
 
         public bool TryGetCurrentSayState(out string currentNodeId, out int currentLineIndex, out string currentText, out string currentSpeaker)
         {
@@ -1574,7 +1575,9 @@ namespace PPP.BLUE.VN
                 if (row == null || string.IsNullOrWhiteSpace(row.windowId))
                     continue;
 
-                if (!string.Equals(row.windowId, MelionExpressionWindowId, StringComparison.OrdinalIgnoreCase))
+                bool isCurrentId = string.Equals(row.windowId, MelionExpressionWindowId, StringComparison.OrdinalIgnoreCase);
+                bool isLegacyId = string.Equals(row.windowId, LegacyMelionExpressionWindowId, StringComparison.OrdinalIgnoreCase);
+                if (!isCurrentId && !isLegacyId)
                     continue;
 
                 melionSource.ApplyWindowState(row);
@@ -1584,25 +1587,7 @@ namespace PPP.BLUE.VN
 
         private UIDragMoveClamped ResolveMelionExpressionDragStateSource()
         {
-            if (melionExpressionDragStateSource != null)
-                return melionExpressionDragStateSource;
-
-            var sources = GetComponentsInChildren<UIDragMoveClamped>(true);
-            for (int i = 0; i < sources.Length; i++)
-            {
-                var source = sources[i];
-                if (source == null)
-                    continue;
-
-                string sourceName = source.name ?? string.Empty;
-                if (sourceName.IndexOf("melion", StringComparison.OrdinalIgnoreCase) >= 0)
-                {
-                    melionExpressionDragStateSource = source;
-                    return melionExpressionDragStateSource;
-                }
-            }
-
-            return null;
+            return melionExpressionDragStateSource;
         }
 
 
