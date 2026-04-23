@@ -11193,6 +11193,8 @@ MonoBehaviour:
   - {fileID: 11400000, guid: f7621a8bbd44b634793423794ba786bc, type: 2}
   - {fileID: 11400000, guid: 8c9f8d43f77b86241ab6e012e38ee9bc, type: 2}
   - {fileID: 11400000, guid: 0f488c7e69e74994d8e3d80f768e1092, type: 2}
+  - {fileID: 11400000, guid: b9a4a9df175d29142b64a7f6466ce53a, type: 2}
+  - {fileID: 11400000, guid: 51d33a1ec17b31847b9604a7dcf9e48d, type: 2}
 --- !u!224 &1039269265
 RectTransform:
   m_ObjectHideFlags: 0
@@ -14442,6 +14444,10 @@ MonoBehaviour:
   startDayId: day01
   bridge: {fileID: 1560260780}
   drinkManager: {fileID: 0}
+  drinkPanel: {fileID: 0}
+  vnDialogueWindow: {fileID: 0}
+  melionFaceWindow: {fileID: 0}
+  hiddenVNDialogueWindow: {fileID: 0}
   typeSpeed: 30
   runner: {fileID: 1296095885}
   policy: {fileID: 0}
