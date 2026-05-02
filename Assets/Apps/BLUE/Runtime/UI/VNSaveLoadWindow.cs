@@ -230,6 +230,7 @@ namespace PPP.BLUE.VN
             }
 
             SetWindowVisible(false);
+            currentOpenMode = OpenMode.Normal;
             bridge?.ClearCloseRequestPending();
             ReleaseModal();
             RefreshActionButtonState();
@@ -318,13 +319,16 @@ namespace PPP.BLUE.VN
                 AcquireLoadingModal();
                 ForceAutoOff($"Load slot {slotNumber}");
 
-                if (fadeController != null)
+                bool titleContinueMode = currentOpenMode == OpenMode.ContinueLoadOnly;
+
+                if (!titleContinueMode && fadeController != null)
                     yield return fadeController.FadeOut(loadFadeOutSeconds);
 
-                // 검은 화면에서 창을 정리
-                CloseImmediate();
+                // 검은 화면에서 창을 정리 (타이틀 Continue는 AppFlow에서 정리)
+                if (!titleContinueMode)
+                    CloseImmediate();
 
-                if (loadBlackHoldSeconds > 0f)
+                if (!titleContinueMode && loadBlackHoldSeconds > 0f)
                     yield return new WaitForSecondsRealtime(loadBlackHoldSeconds);
 
                 bool copied = CopySlotToDefaultSave(slotNumber);
@@ -343,7 +347,7 @@ namespace PPP.BLUE.VN
                         ? $"[VN][SaveLoad] Loaded slot={slotNumber}"
                         : $"[VN][SaveLoad] Load blocked/fail slot={slotNumber}");
 
-                if (fadeController != null)
+                if (!titleContinueMode && fadeController != null)
                     yield return fadeController.FadeIn(loadFadeInSeconds);
 
                 OnLoadCompleted?.Invoke(copied && ok);
