@@ -522,11 +522,19 @@ namespace PPP.BLUE.VN
 
             LogRequest(currentRequest);
 
-            result = blockedByArtheon ? "fail" : requestEvaluator.Evaluate(drinkId, currentRequest, currentRequestId);
+            DrinkData producedDrinkForEval = database?.FindDrink(drinkId);
+            var evalContext = new DrinkEvalContext
+            {
+                artheonAdded = artheonEnabled,
+                producedDrink = producedDrinkForEval,
+                producedIngredients = producedDrinkForEval?.ingredients
+            };
+
+            result = blockedByArtheon ? "fail" : requestEvaluator.Evaluate(drinkId, currentRequest, evalContext, currentRequestId);
             normalizedResult = NormalizeResultForRunner(result);
             pendingDrinkId = drinkId ?? string.Empty;
 
-            var produced = database?.FindDrink(drinkId);
+            var produced = producedDrinkForEval;
             producedName = produced != null ? produced.name : "Unknown Drink";
             if (artheonEnabled && produced != null && !string.IsNullOrEmpty(produced.name))
                 producedName = WarmPrefix + produced.name;

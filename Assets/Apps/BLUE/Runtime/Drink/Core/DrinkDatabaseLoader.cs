@@ -43,6 +43,26 @@ namespace PPP.BLUE.VN.DrinkSystem
             return result;
         }
 
+        private Dictionary<string, int> GetIntDictionary(Dictionary<string, object> raw, string key)
+        {
+            if (!raw.TryGetValue(key, out var value) || value == null)
+                return null;
+
+            if (!(value is Dictionary<string, object> dict))
+                return null;
+
+            var result = new Dictionary<string, int>(StringComparer.OrdinalIgnoreCase);
+            foreach (var pair in dict)
+            {
+                if (string.IsNullOrWhiteSpace(pair.Key))
+                    continue;
+
+                result[pair.Key] = ToInt(pair.Value);
+            }
+
+            return result;
+        }
+
         private void TryLoadDrinks(DrinkDatabase db, string drinksPath)
         {
             string json = ReadJsonFile(drinksPath);
@@ -119,7 +139,20 @@ namespace PPP.BLUE.VN.DrinkSystem
                     drinkID = GetString(rawRequest, "drinkID"),
                     category = "",
                     likedDrink = GetStringList(rawRequest, "likedDrink"),   // ⭕
-                    dislikedDrink = GetString(rawRequest, "dislikedDrink")
+                    dislikedDrink = GetString(rawRequest, "dislikedDrink"),
+                    greatDrinkIds = GetStringList(rawRequest, "greatDrinkIds"),
+                    successDrinkIds = GetStringList(rawRequest, "successDrinkIds"),
+                    greatTags = GetStringList(rawRequest, "greatTags"),
+                    successTags = GetStringList(rawRequest, "successTags"),
+                    greatCategories = GetStringList(rawRequest, "greatCategories"),
+                    successCategories = GetStringList(rawRequest, "successCategories"),
+                    noSuccess = GetBool(rawRequest, "noSuccess"),
+                    greatRequiresArtheon = GetBool(rawRequest, "greatRequiresArtheon"),
+                    successRequiresArtheon = GetBool(rawRequest, "successRequiresArtheon"),
+                    greatRequiredIngredients = GetIntDictionary(rawRequest, "greatRequiredIngredients"),
+                    successRequiredIngredients = GetIntDictionary(rawRequest, "successRequiredIngredients"),
+                    greatForbiddenIngredients = GetStringList(rawRequest, "greatForbiddenIngredients"),
+                    successForbiddenIngredients = GetStringList(rawRequest, "successForbiddenIngredients")
                 };
 
                 request.requestID = GetString(rawRequest, "id");
