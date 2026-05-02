@@ -328,8 +328,16 @@ namespace PPP.BLUE.VN
                     yield return fadeController.FadeOut(loadFadeOutSeconds);
                 Debug.Log("[VN_LOAD_FLOW] FadeOut complete");
 
-                // 검은 화면에서 창을 정리
-                CloseImmediate();
+                // 검은 화면에서 창을 정리 (타이틀 Continue는 AppFlow에서 정리)
+                if (currentOpenMode != OpenMode.ContinueLoadOnly)
+                    CloseImmediate();
+
+
+                OnBeforeLoadStateApplyUnderFade?.Invoke();
+
+                OnBeforeLoadStateApplyUnderFade?.Invoke();
+
+                OnBeforeLoadStateApplyUnderFade?.Invoke();
 
                 OnBeforeLoadStateApplyUnderFade?.Invoke();
 
@@ -1071,10 +1079,14 @@ namespace PPP.BLUE.VN
                     break;
                 case PendingAction.Load:
                     if (currentOpenMode == OpenMode.ContinueLoadOnly)
+                    {
                         StartCoroutine(CoLoadSlotFromTitleContinue(selectedSlotIndex + 1));
+                    }
                     else
+                    {
                         Debug.Log($"[VN_LOAD_FLOW] Normal Load clicked slot={selectedSlotIndex + 1}");
                         StartCoroutine(CoLoadSlot(selectedSlotIndex + 1));
+                    }
                     break;
                 case PendingAction.Delete:
                     ExecuteDelete();
