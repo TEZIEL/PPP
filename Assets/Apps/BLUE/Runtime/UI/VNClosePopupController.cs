@@ -137,16 +137,17 @@ namespace PPP.BLUE.VN
             ForceExit();
         }
 
-        public void RequestForceCloseFromPopup()
+        public void RequestCloseFromPopup()
         {
-            Debug.Log($"[TITLE] bridge.RequestForceClose called bridge={(bridge != null)}");
-            bridge?.RequestForceClose();
+            Debug.Log($"[TITLE] bridge.RequestCloseFromUI called bridge={(bridge != null)}");
+            bridge?.RequestCloseFromUI();
         }
 
         private void ForceExit()
         {
-            confirmAction?.Invoke();
+            var action = confirmAction;
             Hide();
+            action?.Invoke();
         }
 
         private void EnsureCanvasGroup()
