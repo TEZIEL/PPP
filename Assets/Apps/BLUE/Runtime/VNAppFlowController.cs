@@ -167,6 +167,7 @@ namespace PPP.BLUE.VN
 
         private IEnumerator CoStartNewGame()
         {
+            transitionLocked = true;
             SetState(VNAppState.Transition);
 
             if (fadeController != null)
@@ -176,6 +177,11 @@ namespace PPP.BLUE.VN
                 yield return fadeController.FadeOut(titleTransitionFadeOut);
                 Debug.Log("[FADE] Title NewGame FadeOut complete alpha=1");
             }
+
+            saveLoadWindow?.CloseImmediate();
+            closePopupController?.Hide();
+            dialogueView?.ClearForNewGame();
+            Debug.Log("[TITLE] Fresh runtime reset complete");
 
             saveLoadWindow?.CloseImmediate();
             closePopupController?.Hide();
