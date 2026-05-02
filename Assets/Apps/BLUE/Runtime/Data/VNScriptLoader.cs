@@ -74,7 +74,12 @@ namespace PPP.BLUE.VN
                         id = nodeDto.id,
                         type = t,
                         speakerId = FirstNonEmpty(nodeDto.speakerId, nodeDto.speaker),
+                        expressionId = FirstNonEmpty(nodeDto.expressionId, nodeDto.expression),
                         text = nodeDto.text ?? string.Empty,
+                        background = nodeDto.background ?? string.Empty,
+                        bgm = nodeDto.bgm ?? string.Empty,
+                        sfx = nodeDto.sfx ?? string.Empty,
+                        command = nodeDto.command ?? string.Empty,
                         label = FirstNonEmpty(
                             nodeDto.label,
                             FirstNonEmpty(
@@ -98,6 +103,23 @@ namespace PPP.BLUE.VN
 
             var scriptId = string.IsNullOrWhiteSpace(dto.scriptId) ? (fileNameNoExt ?? string.Empty) : dto.scriptId;
             var script = new VNScript(scriptId, nodes);
+            if (dto.characters != null)
+            {
+                for (int i = 0; i < dto.characters.Length; i++)
+                {
+                    var ch = dto.characters[i];
+                    if (ch == null || string.IsNullOrWhiteSpace(ch.characterId))
+                        continue;
+
+                    var key = ch.characterId.Trim();
+                    script.characterMap[key] = new VNScript.CharacterProfile
+                    {
+                        characterId = key,
+                        displayName = string.IsNullOrWhiteSpace(ch.displayName) ? key : ch.displayName.Trim(),
+                        defaultExpression = ch.defaultExpression ?? string.Empty,
+                    };
+                }
+            }
             Debug.Log($"[VN] Loaded scriptId={script.ScriptId} nodes={script.nodes.Count} labels={script.LabelCount}");
             return script;
         }

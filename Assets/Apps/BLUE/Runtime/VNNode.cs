@@ -11,7 +11,12 @@ namespace PPP.BLUE.VN
 
         // Say
         public string speakerId;
+        public string expressionId;
         public string text;
+        public string background;
+        public string bgm;
+        public string sfx;
+        public string command;
 
         // Label / Jump
         public string label;

@@ -1,0 +1,30 @@
+{
+  "scenarioId": "demo_template",
+  "scriptId": "demo_template",
+  "startNodeId": "start",
+  "characters": [
+    { "characterId": "ch_01", "displayName": "캐릭터A", "defaultExpression": "neutral" },
+    { "characterId": "ch_02", "displayName": "캐릭터B", "defaultExpression": "normal" }
+  ],
+  "nodes": [
+    { "id": "n001", "type": "Label", "label": "start" },
+    { "id": "n002", "type": "Say", "speakerId": "ch_01", "expressionId": "neutral", "text": "[dialogue placeholder]" },
+    { "id": "n003", "type": "Say", "text": "[narration placeholder]" },
+    {
+      "id": "n004",
+      "type": "Choice",
+      "choices": [
+        { "choiceText": "[choice A]", "jumpLabel": "route_a" },
+        { "choiceText": "[choice B]", "jumpLabel": "route_b" }
+      ]
+    },
+    { "id": "n005", "type": "Label", "label": "route_a" },
+    { "id": "n006", "type": "Call", "target": "Drink", "arg": "request_placeholder" },
+    { "id": "n007", "type": "Jump", "label": "end" },
+    { "id": "n008", "type": "Label", "label": "route_b" },
+    { "id": "n009", "type": "Say", "speakerId": "ch_02", "expressionId": "normal", "text": "[route B dialogue]" },
+    { "id": "n010", "type": "Jump", "label": "end" },
+    { "id": "n011", "type": "Label", "label": "end" },
+    { "id": "n012", "type": "End" }
+  ]
+}

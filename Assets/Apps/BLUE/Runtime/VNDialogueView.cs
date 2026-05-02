@@ -1096,7 +1096,7 @@ namespace PPP.BLUE.VN
             if (backlogKey != null)
                 runner?.BacklogUpdateLineText(backlogKey, string.Empty);
 
-            if (nameText != null) nameText.text = speakerId ?? "";
+            if (nameText != null) nameText.text = runner != null ? runner.ResolveSpeakerDisplayName(speakerId) : (speakerId ?? "");
             if (dialogueText != null && !lineDisplayed)
                 dialogueText.text = "";
 
