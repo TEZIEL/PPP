@@ -21,8 +21,10 @@ namespace PPP.BLUE.VN
         [Header("Text")]
         [TextArea]
         [SerializeField] private string defaultMessage = "Are you sure you want to quit?";
+        [SerializeField] private string returnToTitleMessage = "타이틀 화면으로 돌아가시겠습니까?";
 
         private bool isShowing;
+        private System.Action confirmAction;
 
         private void Awake()
         {
@@ -38,11 +40,6 @@ namespace PPP.BLUE.VN
             btnCancel?.onClick.AddListener(Hide);
             btnExit?.onClick.AddListener(ForceExit);
 
-            if (bridge != null)
-            {
-                bridge.OnCloseRequested -= Show; // 중복 방지
-                bridge.OnCloseRequested += Show;
-            }
         }
 
         private void OnEnable()
@@ -54,11 +51,24 @@ namespace PPP.BLUE.VN
 
         private void OnDestroy()
         {
-            if (bridge != null)
-                bridge.OnCloseRequested -= Show;
         }
 
         public void Show()
+        {
+            ShowExitConfirm();
+        }
+
+        public void ShowExitConfirm()
+        {
+            ShowPopup(defaultMessage, () => bridge?.RequestForceClose());
+        }
+
+        public void ShowReturnToTitleConfirm(System.Action onConfirm)
+        {
+            ShowPopup(returnToTitleMessage, onConfirm);
+        }
+
+        private void ShowPopup(string message, System.Action onConfirm)
         {
             Debug.Log($"[VNClosePopup] Show requested isShowing={isShowing}");
             if (popupRoot == null) return;
@@ -69,9 +79,10 @@ namespace PPP.BLUE.VN
             }
 
             isShowing = true;
+            confirmAction = onConfirm;
 
             if (messageText != null)
-                messageText.text = defaultMessage;
+                messageText.text = message;
 
             SetPopupVisible(true);
             Debug.Log("[UI] ClosePopup show");
@@ -120,9 +131,7 @@ namespace PPP.BLUE.VN
 
         private void ForceExit()
         {
-             // 🔥 추가
-
-            bridge?.RequestForceClose();
+            confirmAction?.Invoke();
             Hide();
         }
 
