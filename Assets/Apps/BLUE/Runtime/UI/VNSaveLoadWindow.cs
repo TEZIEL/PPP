@@ -79,6 +79,9 @@ namespace PPP.BLUE.VN
         private Color themedSlotPressedColor;
         private OpenMode currentOpenMode = OpenMode.Normal;
         public event System.Action<bool> OnLoadCompleted;
+        public float LoadFadeOutSeconds => loadFadeOutSeconds;
+        public float LoadFadeInSeconds => loadFadeInSeconds;
+        public float LoadBlackHoldSeconds => loadBlackHoldSeconds;
         public System.Action OnBeforeLoadStateApplyUnderFade;
 
         private sealed class SlotPointerRelay : MonoBehaviour, IPointerDownHandler, IPointerUpHandler, IPointerExitHandler
@@ -329,6 +332,8 @@ namespace PPP.BLUE.VN
                 if (currentOpenMode != OpenMode.ContinueLoadOnly)
                     CloseImmediate();
 
+
+                OnBeforeLoadStateApplyUnderFade?.Invoke();
 
                 OnBeforeLoadStateApplyUnderFade?.Invoke();
 

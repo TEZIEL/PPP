@@ -173,56 +173,58 @@ namespace PPP.BLUE.VN
             transitionLocked = true;
             SetState(VNAppState.Transition);
 
+            float fadeOutSeconds = saveLoadWindow != null ? saveLoadWindow.LoadFadeOutSeconds : titleTransitionFadeOut;
+            float fadeInSeconds = saveLoadWindow != null ? saveLoadWindow.LoadFadeInSeconds : titleTransitionFadeIn;
+            float holdSeconds = saveLoadWindow != null ? saveLoadWindow.LoadBlackHoldSeconds : 0f;
+
             if (fadeController != null)
             {
                 fadeController.transform.SetAsLastSibling();
                 Debug.Log("[TITLE_NEWGAME] FadeOut start");
-                Debug.Log("[FADE] Title NewGame FadeOut start");
-                yield return fadeController.FadeOut(titleTransitionFadeOut);
+                yield return fadeController.FadeOut(fadeOutSeconds);
                 Debug.Log("[TITLE_NEWGAME] FadeOut complete");
-                Debug.Log("[FADE] Title NewGame FadeOut complete alpha=1");
+            }
+
+            if (holdSeconds > 0f)
+            {
+                Debug.Log($"[TITLE_NEWGAME] Delay start seconds={holdSeconds}");
+                yield return new WaitForSecondsRealtime(holdSeconds);
+                Debug.Log("[TITLE_NEWGAME] Delay end");
             }
 
             saveLoadWindow?.CloseImmediate();
             closePopupController?.Hide();
             dialogueView?.ClearForNewGame();
-            Debug.Log("[TITLE] Fresh runtime reset complete");
 
             if (titleRoot != null)
                 titleRoot.SetActive(false);
             if (inGameRoot != null)
                 inGameRoot.SetActive(true);
             Debug.Log("[TITLE_NEWGAME] root switch under black");
-            Debug.Log("[TITLE] NewGame root switch under black");
 
             SetState(VNAppState.InGame);
-            Debug.Log("[TITLE] InGame input unblocked");
+            dialogueView?.SetExternalInputBlocked(false);
 
             Debug.Log("[TITLE_NEWGAME] Fresh start");
-            Debug.Log("[TITLE] NewGame Begin under black");
             runner?.StartNewGameFromBeginning();
-            Debug.Log($"[TITLE] Script fresh loaded scriptId={runner?.CurrentScriptId}");
-
-            dialogueView?.OnStateLoadedForValidation();
 
             string currentNodeId = string.Empty;
             string text = string.Empty;
             if (runner != null && runner.TryGetCurrentSayState(out currentNodeId, out var lineIndex, out text, out _))
                 Debug.Log($"[TITLE_NEWGAME] Typing first line start text={text}");
-            Debug.Log($"[TITLE] Begin complete pointer={runner?.CurrentPointer} node={currentNodeId} firstSay={text}");
 
             if (fadeController != null)
             {
                 Debug.Log("[TITLE_NEWGAME] FadeIn start");
-                Debug.Log("[FADE] Title NewGame FadeIn start");
-                yield return fadeController.FadeIn(titleTransitionFadeIn);
+                yield return fadeController.FadeIn(fadeInSeconds);
                 Debug.Log("[TITLE_NEWGAME] FadeIn complete");
-                Debug.Log("[FADE] Title NewGame FadeIn complete");
             }
 
             transitionLocked = false;
             if (newGameButton != null)
                 newGameButton.interactable = true;
+
+            Debug.Log($"[TITLE_NEWGAME] input ready blocked={dialogueView?.IsExternalInputBlocked}");
         }
 
         private void HandleContinueLoadCompleted(bool ok)
