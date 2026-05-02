@@ -187,10 +187,6 @@ namespace PPP.BLUE.VN
             float fadeInSeconds = saveLoadWindow != null ? saveLoadWindow.LoadFadeInSeconds : titleTransitionFadeIn;
             float holdSeconds = saveLoadWindow != null ? saveLoadWindow.LoadBlackHoldSeconds : 0f;
 
-            float fadeOutSeconds = saveLoadWindow != null ? saveLoadWindow.LoadFadeOutSeconds : titleTransitionFadeOut;
-            float fadeInSeconds = saveLoadWindow != null ? saveLoadWindow.LoadFadeInSeconds : titleTransitionFadeIn;
-            float holdSeconds = saveLoadWindow != null ? saveLoadWindow.LoadBlackHoldSeconds : 0f;
-
             if (fadeController != null)
             {
                 fadeController.transform.SetAsLastSibling();
@@ -295,6 +291,15 @@ namespace PPP.BLUE.VN
         private void SetState(VNAppState next)
         {
             State = next;
+
+            if (next == VNAppState.Transition)
+            {
+                LogRoots("SetState Transition (roots unchanged)");
+                if (dialogueView != null)
+                    dialogueView.SetExternalInputBlocked(true);
+                return;
+            }
+
             bool title = next == VNAppState.Title;
             bool inGame = next == VNAppState.InGame;
 
@@ -303,6 +308,7 @@ namespace PPP.BLUE.VN
                 titleRoot.SetActive(title);
             if (inGameRoot != null)
                 inGameRoot.SetActive(inGame);
+            LogRoots("After root switch");
             if (dialogueView != null)
                 dialogueView.SetExternalInputBlocked(next != VNAppState.InGame);
 
