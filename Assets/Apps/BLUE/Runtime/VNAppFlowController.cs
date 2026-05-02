@@ -205,9 +205,11 @@ namespace PPP.BLUE.VN
 
             dialogueView?.OnStateLoadedForValidation();
 
-            if (runner != null && runner.TryGetCurrentSayState(out var currentNodeId, out var lineIndex, out var text, out _))
+            string currentNodeId = string.Empty;
+            string text = string.Empty;
+            if (runner != null && runner.TryGetCurrentSayState(out currentNodeId, out var lineIndex, out text, out _))
                 Debug.Log($"[TITLE_NEWGAME] Typing first line start text={text}");
-                Debug.Log($"[TITLE] Begin complete pointer={runner.CurrentPointer} node={currentNodeId} firstSay={text}");
+            Debug.Log($"[TITLE] Begin complete pointer={runner?.CurrentPointer} node={currentNodeId} firstSay={text}");
 
             if (fadeController != null)
             {
