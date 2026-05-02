@@ -4,8 +4,16 @@ namespace PPP.BLUE.VN
 {
     public sealed class VNScript
     {
+        public sealed class CharacterProfile
+        {
+            public string characterId;
+            public string displayName;
+            public string defaultExpression;
+        }
+
         public string ScriptId { get; }
         public List<VNNode> nodes;
+        public Dictionary<string, CharacterProfile> characterMap;
 
         // label -> index
         private readonly Dictionary<string, int> labelToIndex = new();
@@ -15,6 +23,7 @@ namespace PPP.BLUE.VN
         {
             ScriptId = scriptId ?? string.Empty;
             this.nodes = nodes ?? new List<VNNode>();
+            characterMap = new Dictionary<string, CharacterProfile>(System.StringComparer.OrdinalIgnoreCase);
 
             BuildLabelIndex(); // ✅ 필수
         }

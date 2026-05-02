@@ -357,6 +357,20 @@ namespace PPP.BLUE.VN
             return true;
         }
 
+        public string ResolveSpeakerDisplayName(string speakerId)
+        {
+            if (string.IsNullOrWhiteSpace(speakerId))
+                return string.Empty;
+
+            if (script != null && script.characterMap != null && script.characterMap.TryGetValue(speakerId.Trim(), out var profile))
+            {
+                if (!string.IsNullOrWhiteSpace(profile?.displayName))
+                    return profile.displayName;
+            }
+
+            return speakerId.Trim();
+        }
+
         public bool HasValidNode()
         {
             if (script == null || script.nodes == null || script.nodes.Count == 0)
