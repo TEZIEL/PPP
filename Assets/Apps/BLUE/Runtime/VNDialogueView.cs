@@ -1109,7 +1109,13 @@ namespace PPP.BLUE.VN
 
         private bool CanScheduleCurrentLineRefresh()
         {
-            return !externalInputBlocked && gameObject.activeInHierarchy;
+            if (externalInputBlocked || !gameObject.activeInHierarchy)
+                return false;
+
+            if (appFlowController != null && appFlowController.State != VNAppFlowController.VNAppState.InGame)
+                return false;
+
+            return true;
         }
 
         private bool CanRunCurrentLineRefresh()
