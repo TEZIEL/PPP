@@ -139,8 +139,8 @@ namespace PPP.BLUE.VN
 
         public void RequestCloseFromPopup()
         {
-            Debug.Log($"[TITLE] bridge.RequestCloseFromUI called bridge={(bridge != null)}");
-            bridge?.RequestCloseFromUI();
+            Debug.Log($"[TITLE] bridge.RequestConfirmedForceClose called bridge={(bridge != null)}");
+            bridge?.RequestConfirmedForceClose();
         }
 
         private void ForceExit()
