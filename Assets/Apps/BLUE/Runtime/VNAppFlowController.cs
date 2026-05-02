@@ -147,8 +147,8 @@ namespace PPP.BLUE.VN
             closePopupController?.ShowExitConfirm(() =>
             {
                 Debug.Log($"[TITLE] Exit confirmed source={source}");
-                Debug.Log("[TITLE] Force close requested");
-                bridge?.RequestForceClose();
+                Debug.Log($"[TITLE] Force close requested source={source}");
+                closePopupController?.RequestForceCloseFromPopup();
             }, () => Debug.Log($"[TITLE] Exit cancelled source={source}"));
         }
 

@@ -1090,6 +1090,8 @@ namespace PPP.BLUE.VN
             if (typer != null)
             {
                 typer.ForceComplete(); // 무조건 죽여
+                if (dialogueText != null)
+                    dialogueText.text = currentFullText;
             }
 
             inputLocked = false;
@@ -1103,6 +1105,8 @@ namespace PPP.BLUE.VN
             Debug.Log($"[VN] isWaitingInput={isWaitingInput}, isTyping={isTyping}");
             Debug.Log($"[VN] lineIndex={currentLineIndex}, displayed={lineDisplayed}");
             Debug.Log($"[VN] ForceRefresh → {currentFullText}");
+            Debug.Log($"[VN] Loaded line refreshed speaker={currentSpeaker} text={currentFullText}");
+            Debug.Log($"[VN] dialogueText after refresh={dialogueText?.text}");
             }
             finally
             {

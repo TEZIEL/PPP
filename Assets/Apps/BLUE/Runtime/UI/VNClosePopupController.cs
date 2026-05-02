@@ -137,6 +137,12 @@ namespace PPP.BLUE.VN
             ForceExit();
         }
 
+        public void RequestForceCloseFromPopup()
+        {
+            Debug.Log($"[TITLE] bridge.RequestForceClose called bridge={(bridge != null)}");
+            bridge?.RequestForceClose();
+        }
+
         private void ForceExit()
         {
             confirmAction?.Invoke();
