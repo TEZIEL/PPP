@@ -76,10 +76,17 @@ namespace PPP.BLUE.VN
 
         public void OnNewGameClicked()
         {
-            Debug.Log($"[TITLE] NewGame clicked state={State}");
             if (State != VNAppState.Title || transitionLocked)
+            {
+                Debug.Log($"[TITLE] NewGame ignored state={State} locked={transitionLocked}");
                 return;
+            }
 
+            transitionLocked = true;
+            if (newGameButton != null)
+                newGameButton.interactable = false;
+
+            Debug.Log($"[TITLE] NewGame clicked state={State}");
             StartCoroutine(CoStartNewGame());
         }
 
@@ -143,26 +150,28 @@ namespace PPP.BLUE.VN
             dialogueView?.ClearForNewGame();
             Debug.Log("[TITLE] Fresh runtime reset complete");
 
-            runner?.StartNewGameFromBeginning();
-            Debug.Log($"[TITLE] Script fresh loaded scriptId={runner?.CurrentScriptId}");
-
             if (titleRoot != null)
                 titleRoot.SetActive(false);
             if (inGameRoot != null)
                 inGameRoot.SetActive(true);
 
-            dialogueView?.OnStateLoadedForValidation();
-
-            if (runner != null && runner.TryGetCurrentSayState(out var currentNodeId, out var lineIndex, out _, out _))
-                Debug.Log($"[TITLE] Begin complete pointer={runner.CurrentPointer} node={currentNodeId}");
-
             SetState(VNAppState.InGame);
             Debug.Log("[TITLE] InGame input unblocked");
+
+            runner?.StartNewGameFromBeginning();
+            Debug.Log($"[TITLE] Script fresh loaded scriptId={runner?.CurrentScriptId}");
+
+            dialogueView?.OnStateLoadedForValidation();
+
+            if (runner != null && runner.TryGetCurrentSayState(out var currentNodeId, out var lineIndex, out var text, out _))
+                Debug.Log($"[TITLE] Begin complete pointer={runner.CurrentPointer} node={currentNodeId} firstSay={text}");
 
             if (fadeController != null)
                 yield return fadeController.FadeIn(titleTransitionFadeIn);
 
             transitionLocked = false;
+            if (newGameButton != null)
+                newGameButton.interactable = true;
         }
 
         private void HandleContinueLoadCompleted(bool ok)
