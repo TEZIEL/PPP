@@ -1021,7 +1021,7 @@ namespace PPP.BLUE.VN
             }
         }
 
-        private void ForceRefreshCurrentLine(bool scheduleRetryOnFail = true)
+        private void ForceRefreshCurrentLine(bool scheduleRetryOnFail = false)
         {
             if (isRefreshingCurrentLine)
                 return;
@@ -1117,10 +1117,10 @@ namespace PPP.BLUE.VN
             bool blocked = externalInputBlocked || !gameObject.activeInHierarchy;
             if (!blocked) return true;
 
-            if (!warnedRefreshBlocked)
+            if (!warnedRefreshBlocked && gameObject.activeInHierarchy)
             {
                 warnedRefreshBlocked = true;
-                Debug.Log("[VN] Refresh blocked (title/inactive state)");
+                Debug.Log("[VN] Refresh blocked (external input state)");
             }
 
             return false;
