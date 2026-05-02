@@ -1971,7 +1971,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_Sprite: {fileID: 21300000, guid: c05c0e30ebbc56949af0ef19a1ad7555, type: 3}
+  m_Sprite: {fileID: 21300000, guid: b26aa24f3596eb64a8e0c173d7368d2b, type: 3}
   m_Type: 1
   m_PreserveAspect: 0
   m_FillCenter: 1
@@ -5426,7 +5426,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   logToConsole: 1
   loadFromJsonOnStart: 1
-  startDayId: day01
+  startDayId: demo01
   bridge: {fileID: 8020622904635775800}
   drinkManager: {fileID: 6915780757067922529}
   drinkPanel: {fileID: 8280133175284287354}
@@ -8788,7 +8788,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_Sprite: {fileID: 21300000, guid: c05c0e30ebbc56949af0ef19a1ad7555, type: 3}
+  m_Sprite: {fileID: 21300000, guid: b26aa24f3596eb64a8e0c173d7368d2b, type: 3}
   m_Type: 1
   m_PreserveAspect: 0
   m_FillCenter: 1
@@ -11726,7 +11726,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_Sprite: {fileID: 21300000, guid: c05c0e30ebbc56949af0ef19a1ad7555, type: 3}
+  m_Sprite: {fileID: 21300000, guid: b26aa24f3596eb64a8e0c173d7368d2b, type: 3}
   m_Type: 1
   m_PreserveAspect: 0
   m_FillCenter: 1
@@ -13447,32 +13447,32 @@ MonoBehaviour:
     button: {fileID: 2731394500151584352}
     targetImage: {fileID: 5185934426906011879}
     stateSource: {fileID: 6596044333851582442}
-    activeSprite: {fileID: 21300000, guid: 05d322989e1bf9e46ae8de7ee6e993e7, type: 3}
-    inactiveSprite: {fileID: 21300000, guid: c05c0e30ebbc56949af0ef19a1ad7555, type: 3}
+    activeSprite: {fileID: 21300000, guid: a9418d10ce6b8bf4b8adb8b279b791a4, type: 3}
+    inactiveSprite: {fileID: 21300000, guid: b26aa24f3596eb64a8e0c173d7368d2b, type: 3}
   - label: 
     button: {fileID: 8657123684315957331}
     targetImage: {fileID: 7681270869667859639}
     stateSource: {fileID: 7760514949663658624}
-    activeSprite: {fileID: 21300000, guid: 05d322989e1bf9e46ae8de7ee6e993e7, type: 3}
-    inactiveSprite: {fileID: 21300000, guid: c05c0e30ebbc56949af0ef19a1ad7555, type: 3}
+    activeSprite: {fileID: 21300000, guid: a9418d10ce6b8bf4b8adb8b279b791a4, type: 3}
+    inactiveSprite: {fileID: 21300000, guid: b26aa24f3596eb64a8e0c173d7368d2b, type: 3}
   - label: 
     button: {fileID: 7660800011558654163}
     targetImage: {fileID: 2120574677699034338}
     stateSource: {fileID: 4615232419757392711}
-    activeSprite: {fileID: 21300000, guid: 05d322989e1bf9e46ae8de7ee6e993e7, type: 3}
-    inactiveSprite: {fileID: 21300000, guid: c05c0e30ebbc56949af0ef19a1ad7555, type: 3}
+    activeSprite: {fileID: 21300000, guid: a9418d10ce6b8bf4b8adb8b279b791a4, type: 3}
+    inactiveSprite: {fileID: 21300000, guid: b26aa24f3596eb64a8e0c173d7368d2b, type: 3}
   - label: 
     button: {fileID: 2570338192436488418}
     targetImage: {fileID: 8982265876327863111}
     stateSource: {fileID: 7664900197048604631}
-    activeSprite: {fileID: 21300000, guid: 05d322989e1bf9e46ae8de7ee6e993e7, type: 3}
-    inactiveSprite: {fileID: 21300000, guid: c05c0e30ebbc56949af0ef19a1ad7555, type: 3}
+    activeSprite: {fileID: 21300000, guid: a9418d10ce6b8bf4b8adb8b279b791a4, type: 3}
+    inactiveSprite: {fileID: 21300000, guid: b26aa24f3596eb64a8e0c173d7368d2b, type: 3}
   - label: 
     button: {fileID: 5615515203433212443}
     targetImage: {fileID: 2051718547368970632}
     stateSource: {fileID: 3183299283255160418}
-    activeSprite: {fileID: 21300000, guid: 05d322989e1bf9e46ae8de7ee6e993e7, type: 3}
-    inactiveSprite: {fileID: 21300000, guid: c05c0e30ebbc56949af0ef19a1ad7555, type: 3}
+    activeSprite: {fileID: 21300000, guid: a9418d10ce6b8bf4b8adb8b279b791a4, type: 3}
+    inactiveSprite: {fileID: 21300000, guid: b26aa24f3596eb64a8e0c173d7368d2b, type: 3}
 --- !u!1 &4221362403013667188
 GameObject:
   m_ObjectHideFlags: 0
@@ -18607,7 +18607,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_Sprite: {fileID: 21300000, guid: c05c0e30ebbc56949af0ef19a1ad7555, type: 3}
+  m_Sprite: {fileID: 21300000, guid: b26aa24f3596eb64a8e0c173d7368d2b, type: 3}
   m_Type: 1
   m_PreserveAspect: 0
   m_FillCenter: 1
@@ -20293,7 +20293,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_Sprite: {fileID: 21300000, guid: c05c0e30ebbc56949af0ef19a1ad7555, type: 3}
+  m_Sprite: {fileID: 21300000, guid: b26aa24f3596eb64a8e0c173d7368d2b, type: 3}
   m_Type: 0
   m_PreserveAspect: 0
   m_FillCenter: 1
@@ -28388,7 +28388,7 @@ MonoBehaviour:
   - {fileID: 2856773031630618666}
   - {fileID: 2369208094139773013}
   - {fileID: 8790796338520169236}
-  emptySlotSprite: {fileID: 21300000, guid: 8e02bc242ba14524585a0fd82d540302, type: 3}
+  emptySlotSprite: {fileID: 21300000, guid: ef1e0f1d3537b7d489af94887382fda1, type: 3}
   selectedSlotSprite: {fileID: 0}
   ingredientSlotVisuals:
   - ingredientId: INGREDIENT_VELTRINE
