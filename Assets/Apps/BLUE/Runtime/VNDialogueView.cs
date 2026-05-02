@@ -1031,7 +1031,7 @@ namespace PPP.BLUE.VN
             }
 
             if (nameText != null)
-                nameText.text = currentSpeaker;
+                nameText.text = runner != null ? runner.ResolveSpeakerDisplayName(currentSpeaker) : (currentSpeaker ?? string.Empty);
 
             if (dialogueText != null)
                 dialogueText.text = currentText;
