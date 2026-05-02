@@ -113,6 +113,9 @@ public class BGMManager : MonoBehaviour
         }
 
         Instance = this;
+        if (transform.parent != null)
+            transform.SetParent(null, true);
+
         DontDestroyOnLoad(gameObject);
         RebuildShuffleBag();
 
