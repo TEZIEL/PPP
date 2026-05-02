@@ -9,6 +9,12 @@ namespace PPP.BLUE.VN
 {
     public sealed class VNSaveLoadWindow : MonoBehaviour
     {
+        public enum OpenMode
+        {
+            Normal,
+            ContinueLoadOnly,
+        }
+
         [System.Serializable]
         private sealed class SlotUI
         {
@@ -71,6 +77,8 @@ namespace PPP.BLUE.VN
         private bool[] slotPressedStates = System.Array.Empty<bool>();
         private Color themedSlotSelectedColor;
         private Color themedSlotPressedColor;
+        private OpenMode currentOpenMode = OpenMode.Normal;
+        public event System.Action<bool> OnLoadCompleted;
 
         private sealed class SlotPointerRelay : MonoBehaviour, IPointerDownHandler, IPointerUpHandler, IPointerExitHandler
         {
@@ -162,6 +170,11 @@ namespace PPP.BLUE.VN
 
         public void Open()
         {
+            Open(OpenMode.Normal);
+        }
+
+        public void Open(OpenMode mode)
+        {
             if (busy && !loadingModalPushed)
             {
                 Debug.LogWarning("[VN][SaveLoad] Open requested while busy=true but loading modal is not active. Recovering busy flag.");
@@ -185,6 +198,7 @@ namespace PPP.BLUE.VN
             ForceAutoOff("Open SaveLoad Modal");
             bridge?.ClearCloseRequestPending();
             AcquireModal();
+            currentOpenMode = mode;
             EnsureSlotButtonNavigationNone();
             ApplyCurrentTheme();
             EnsureValidSelection();
@@ -331,6 +345,8 @@ namespace PPP.BLUE.VN
 
                 if (fadeController != null)
                     yield return fadeController.FadeIn(loadFadeInSeconds);
+
+                OnLoadCompleted?.Invoke(copied && ok);
             }
             finally
             {
@@ -880,9 +896,25 @@ namespace PPP.BLUE.VN
             bool runnerReady = runner == null || runner.SaveAllowed;
             bool canSaveNow = interactable && notDrinkMode && runnerReady;
 
-            if (saveButton != null) saveButton.interactable = canSaveNow;
+            bool saveEnabledByMode = currentOpenMode == OpenMode.Normal;
+            if (saveButton != null)
+            {
+                saveButton.gameObject.SetActive(saveEnabledByMode);
+                saveButton.interactable = saveEnabledByMode && canSaveNow;
+            }
             if (loadButton != null) loadButton.interactable = interactable && hasSave;
             if (deleteButton != null) deleteButton.interactable = interactable && hasSave;
+        }
+
+        public bool HasAnySaveSlots()
+        {
+            for (int i = 0; i < slots.Length; i++)
+            {
+                if (SlotHasSave(i))
+                    return true;
+            }
+
+            return false;
         }
 
         private void EnsureValidSelection()
