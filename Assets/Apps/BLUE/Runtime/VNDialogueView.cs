@@ -30,6 +30,7 @@ namespace PPP.BLUE.VN
         [SerializeField] private Button saveLoadButton;
         [SerializeField] private Button hideUIButton;
         [SerializeField] private VNSaveLoadWindow saveLoadWindow;
+        [SerializeField] private VNAppFlowController appFlowController;
         [SerializeField] private VNBacklogView backlogView;
         [SerializeField] private CanvasGroup dialogueCanvasGroup;
         [SerializeField] private RectTransform dialogueRoot;
@@ -67,6 +68,7 @@ namespace PPP.BLUE.VN
         private bool isUIDisappearing = false;
         private bool isUIHidden = false;
         private bool isUIAnimating = false;
+        private bool externalInputBlocked;
         private bool? lastSkipButtonInteractable;
         private bool? lastAutoButtonInteractable;
         private bool? lastExitButtonInteractable;
@@ -190,6 +192,9 @@ namespace PPP.BLUE.VN
 
         private bool CanAcceptVNInput()
         {
+            if (externalInputBlocked)
+                return false;
+
             if (policy != null)
                 return VNInputGate.CanRouteInput(policy);
 
@@ -212,6 +217,7 @@ namespace PPP.BLUE.VN
             if (closePopupController == null) closePopupController = GetComponentInChildren<VNClosePopupController>(true);
             if (typer != null) typer.SetTarget(dialogueText);
             if (runner == null) runner = GetComponentInParent<VNRunner>(true);
+            if (appFlowController == null) appFlowController = GetComponentInParent<VNAppFlowController>(true);
             if (backlogView == null) backlogView = GetComponentInChildren<VNBacklogView>(true);
             EnsureBacklogBinding("Awake");
             if (advanceClickArea == null && dialogueText != null)
@@ -1293,13 +1299,50 @@ namespace PPP.BLUE.VN
             if (Time.unscaledTime < controlActionLockedUntil)
                 return;
             controlActionLockedUntil = Time.unscaledTime + closeActionLockSeconds;
-            // 키보드 3 / 우측 상단 닫기와 동일한 OS RequestClose 경로 사용.
+            if (appFlowController != null)
+            {
+                appFlowController.RequestReturnToTitleFromInGame();
+                return;
+            }
+
             if (bridge != null)
                 bridge.RequestCloseFromUI();
             else if (osBridge != null)
                 osBridge.RequestCloseFromUI();
             else
-                closePopupController?.Show(); // legacy fallback
+                closePopupController?.Show();
+        }
+
+        public void SetExternalInputBlocked(bool blocked)
+        {
+            externalInputBlocked = blocked;
+            if (blocked)
+            {
+                runner?.SetUiSkipHeld(false, "External Input Blocked");
+                runner?.ForceAutoOff("External Input Blocked");
+            }
+
+            RefreshButtonVisualStates();
+        }
+
+        public void ClearForNewGame()
+        {
+            typer?.StopTyping();
+            currentFullText = string.Empty;
+            lineCompleted = true;
+            lineDisplayed = false;
+            currentLineIndex = -1;
+            lastHandledKey = new VNBacklogKey();
+            currentLineBacklogKey = new VNBacklogKey();
+            lastHandledLineId = string.Empty;
+
+            if (nameText != null)
+                nameText.text = string.Empty;
+            if (dialogueText != null)
+                dialogueText.text = string.Empty;
+
+            backlogView?.SetOpen(false);
+            RefreshButtonVisualStates();
         }
 
         public void OpenSaveLoadWindow()
