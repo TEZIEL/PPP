@@ -171,8 +171,17 @@ namespace PPP.BLUE.VN
             SetState(VNAppState.Transition);
 
             if (fadeController != null)
+            {
+                fadeController.transform.SetAsLastSibling();
+                Debug.Log("[FADE] Title NewGame FadeOut start");
                 yield return fadeController.FadeOut(titleTransitionFadeOut);
-            Debug.Log("[TITLE] FadeOut complete");
+                Debug.Log("[FADE] Title NewGame FadeOut complete alpha=1");
+            }
+
+            saveLoadWindow?.CloseImmediate();
+            closePopupController?.Hide();
+            dialogueView?.ClearForNewGame();
+            Debug.Log("[TITLE] Fresh runtime reset complete");
 
             saveLoadWindow?.CloseImmediate();
             closePopupController?.Hide();
@@ -183,10 +192,12 @@ namespace PPP.BLUE.VN
                 titleRoot.SetActive(false);
             if (inGameRoot != null)
                 inGameRoot.SetActive(true);
+            Debug.Log("[TITLE] NewGame root switch under black");
 
             SetState(VNAppState.InGame);
             Debug.Log("[TITLE] InGame input unblocked");
 
+            Debug.Log("[TITLE] NewGame Begin under black");
             runner?.StartNewGameFromBeginning();
             Debug.Log($"[TITLE] Script fresh loaded scriptId={runner?.CurrentScriptId}");
 
@@ -196,7 +207,11 @@ namespace PPP.BLUE.VN
                 Debug.Log($"[TITLE] Begin complete pointer={runner.CurrentPointer} node={currentNodeId} firstSay={text}");
 
             if (fadeController != null)
+            {
+                Debug.Log("[FADE] Title NewGame FadeIn start");
                 yield return fadeController.FadeIn(titleTransitionFadeIn);
+                Debug.Log("[FADE] Title NewGame FadeIn complete");
+            }
 
             transitionLocked = false;
             if (newGameButton != null)
@@ -213,6 +228,7 @@ namespace PPP.BLUE.VN
                 titleRoot.SetActive(false);
             if (inGameRoot != null)
                 inGameRoot.SetActive(true);
+            Debug.Log("[TITLE] NewGame root switch under black");
 
             Debug.Log($"[TITLE] Continue root switched TitleRoot={(titleRoot != null && titleRoot.activeSelf)} InGameRoot={(inGameRoot != null && inGameRoot.activeSelf)}");
             SetState(VNAppState.InGame);
