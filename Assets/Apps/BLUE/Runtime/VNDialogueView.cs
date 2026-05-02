@@ -1139,6 +1139,22 @@ namespace PPP.BLUE.VN
             return false;
         }
 
+        
+        public bool TryStartTypingCurrentLoadedLine()
+        {
+            if (runner == null)
+                return false;
+
+            if (!runner.TryGetCurrentSayState(out var nodeId, out var lineIndex, out var text, out var speaker))
+                return false;
+
+            var backlogKey = new VNBacklogKey(runner.CurrentScriptId, nodeId, lineIndex);
+            lastHandledLineId = null;
+            HandleSay(speaker, text, nodeId, backlogKey);
+            inputLocked = false;
+            return true;
+        }
+
         public void OnStateLoadedForValidation()
         {
             lastHandledLineId = null;

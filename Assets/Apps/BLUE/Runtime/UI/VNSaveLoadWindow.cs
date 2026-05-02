@@ -320,10 +320,10 @@ namespace PPP.BLUE.VN
                 AcquireLoadingModal();
                 ForceAutoOff($"Load slot {slotNumber}");
 
-                bool titleContinueMode = currentOpenMode == OpenMode.ContinueLoadOnly;
-
-                if (!titleContinueMode && fadeController != null)
+                Debug.Log("[VN_LOAD_FLOW] FadeOut start");
+                if (fadeController != null)
                     yield return fadeController.FadeOut(loadFadeOutSeconds);
+                Debug.Log("[VN_LOAD_FLOW] FadeOut complete");
 
                 // 검은 화면에서 창을 정리 (타이틀 Continue는 AppFlow에서 정리)
                 if (!titleContinueMode)
@@ -333,12 +333,19 @@ namespace PPP.BLUE.VN
 
                 OnBeforeLoadStateApplyUnderFade?.Invoke();
 
+                OnBeforeLoadStateApplyUnderFade?.Invoke();
+
                 if (loadBlackHoldSeconds > 0f)
+                {
+                    Debug.Log("[VN_LOAD_FLOW] Delay start");
                     yield return new WaitForSecondsRealtime(loadBlackHoldSeconds);
+                    Debug.Log("[VN_LOAD_FLOW] Delay end");
+                }
 
                 bool copied = CopySlotToDefaultSave(slotNumber);
                 bool ok = false;
 
+                Debug.Log("[VN_LOAD_FLOW] Restore start");
                 if (copied && runner != null)
                     ok = runner.TryLoadNow($"VN_SAVE_{slotNumber}");
 
@@ -352,8 +359,10 @@ namespace PPP.BLUE.VN
                         ? $"[VN][SaveLoad] Loaded slot={slotNumber}"
                         : $"[VN][SaveLoad] Load blocked/fail slot={slotNumber}");
 
-                if (!titleContinueMode && fadeController != null)
+                Debug.Log("[VN_LOAD_FLOW] FadeIn start");
+                if (fadeController != null)
                     yield return fadeController.FadeIn(loadFadeInSeconds);
+                Debug.Log("[VN_LOAD_FLOW] FadeIn complete");
 
                 OnLoadCompleted?.Invoke(copied && ok);
             }
@@ -380,15 +389,21 @@ namespace PPP.BLUE.VN
                 ForceAutoOff($"TitleContinue Load slot {slotNumber}");
 
                 Debug.Log("[TITLE_CONTINUE_LOAD] FadeOut start");
+                Debug.Log("[VN_LOAD_FLOW] FadeOut start");
                 if (fadeController != null)
                     yield return fadeController.FadeOut(loadFadeOutSeconds);
+                Debug.Log("[VN_LOAD_FLOW] FadeOut complete");
                 Debug.Log("[TITLE_CONTINUE_LOAD] FadeOut complete alpha=1");
 
                 CloseImmediate();
                 OnBeforeLoadStateApplyUnderFade?.Invoke();
 
                 if (loadBlackHoldSeconds > 0f)
+                {
+                    Debug.Log("[VN_LOAD_FLOW] Delay start");
                     yield return new WaitForSecondsRealtime(loadBlackHoldSeconds);
+                    Debug.Log("[VN_LOAD_FLOW] Delay end");
+                }
 
                 Debug.Log($"[TITLE_CONTINUE_LOAD] Restore start slot={slotNumber}");
                 bool copied = CopySlotToDefaultSave(slotNumber);
@@ -403,13 +418,17 @@ namespace PPP.BLUE.VN
                     Debug.Log($"[TITLE_CONTINUE_LOAD] Restore complete pointer={runner.CurrentPointer} node={nodeId}");
                 }
 
-                dialogueView?.OnStateLoadedForValidation();
-                Debug.Log($"[TITLE_CONTINUE_LOAD] text refreshed name={restoredSpeaker} text={restoredText}");
+                bool typingStarted = dialogueView != null && dialogueView.TryStartTypingCurrentLoadedLine();
+                Debug.Log($"[TITLE_CONTINUE_LOAD] Typing current line start text={restoredText}");
+                if (!typingStarted)
+                    dialogueView?.OnStateLoadedForValidation();
 
                 Debug.Log("[TITLE_CONTINUE_LOAD] SaveLoad closed");
                 Debug.Log("[TITLE_CONTINUE_LOAD] FadeIn start");
+                Debug.Log("[VN_LOAD_FLOW] FadeIn start");
                 if (fadeController != null)
                     yield return fadeController.FadeIn(loadFadeInSeconds);
+                Debug.Log("[VN_LOAD_FLOW] FadeIn complete");
                 Debug.Log("[TITLE_CONTINUE_LOAD] FadeIn complete");
                 Debug.Log($"[TITLE_CONTINUE_LOAD] input ready blocked={dialogueView?.IsExternalInputBlocked}");
 
@@ -1056,6 +1075,7 @@ namespace PPP.BLUE.VN
                     if (currentOpenMode == OpenMode.ContinueLoadOnly)
                         StartCoroutine(CoLoadSlotFromTitleContinue(selectedSlotIndex + 1));
                     else
+                        Debug.Log($"[VN_LOAD_FLOW] Normal Load clicked slot={selectedSlotIndex + 1}");
                         StartCoroutine(CoLoadSlot(selectedSlotIndex + 1));
                     break;
                 case PendingAction.Delete:

@@ -102,6 +102,7 @@ namespace PPP.BLUE.VN
             if (newGameButton != null)
                 newGameButton.interactable = false;
 
+            Debug.Log("[TITLE_NEWGAME] clicked");
             Debug.Log($"[TITLE] NewGame clicked state={State}");
             StartCoroutine(CoStartNewGame());
         }
@@ -175,8 +176,10 @@ namespace PPP.BLUE.VN
             if (fadeController != null)
             {
                 fadeController.transform.SetAsLastSibling();
+                Debug.Log("[TITLE_NEWGAME] FadeOut start");
                 Debug.Log("[FADE] Title NewGame FadeOut start");
                 yield return fadeController.FadeOut(titleTransitionFadeOut);
+                Debug.Log("[TITLE_NEWGAME] FadeOut complete");
                 Debug.Log("[FADE] Title NewGame FadeOut complete alpha=1");
             }
 
@@ -189,11 +192,13 @@ namespace PPP.BLUE.VN
                 titleRoot.SetActive(false);
             if (inGameRoot != null)
                 inGameRoot.SetActive(true);
+            Debug.Log("[TITLE_NEWGAME] root switch under black");
             Debug.Log("[TITLE] NewGame root switch under black");
 
             SetState(VNAppState.InGame);
             Debug.Log("[TITLE] InGame input unblocked");
 
+            Debug.Log("[TITLE_NEWGAME] Fresh start");
             Debug.Log("[TITLE] NewGame Begin under black");
             runner?.StartNewGameFromBeginning();
             Debug.Log($"[TITLE] Script fresh loaded scriptId={runner?.CurrentScriptId}");
@@ -201,12 +206,15 @@ namespace PPP.BLUE.VN
             dialogueView?.OnStateLoadedForValidation();
 
             if (runner != null && runner.TryGetCurrentSayState(out var currentNodeId, out var lineIndex, out var text, out _))
+                Debug.Log($"[TITLE_NEWGAME] Typing first line start text={text}");
                 Debug.Log($"[TITLE] Begin complete pointer={runner.CurrentPointer} node={currentNodeId} firstSay={text}");
 
             if (fadeController != null)
             {
+                Debug.Log("[TITLE_NEWGAME] FadeIn start");
                 Debug.Log("[FADE] Title NewGame FadeIn start");
                 yield return fadeController.FadeIn(titleTransitionFadeIn);
+                Debug.Log("[TITLE_NEWGAME] FadeIn complete");
                 Debug.Log("[FADE] Title NewGame FadeIn complete");
             }
 
