@@ -74,6 +74,22 @@ namespace PPP.BLUE.VN
                 saveLoadWindow.OnLoadCompleted -= HandleContinueLoadCompleted;
         }
 
+
+        private void Update()
+        {
+            if (!Input.GetKeyDown(KeyCode.Escape))
+                return;
+
+            if (State == VNAppState.Title)
+            {
+                RequestExitFromTitle("Esc");
+                return;
+            }
+
+            if (State == VNAppState.InGame)
+                RequestReturnToTitleFromInGame("Esc");
+        }
+
         public void OnNewGameClicked()
         {
             if (State != VNAppState.Title || transitionLocked)
@@ -109,18 +125,31 @@ namespace PPP.BLUE.VN
 
         public void OnExitClicked()
         {
-            if (State != VNAppState.Title)
-                return;
-
-            closePopupController?.ShowExitConfirm();
+            RequestExitFromTitle("Button");
         }
 
-        public void RequestReturnToTitleFromInGame()
+        public void RequestReturnToTitleFromInGame(string source = "Button")
         {
             if (State != VNAppState.InGame)
                 return;
 
+            Debug.Log($"[TITLE] Show return-to-title confirm source={source}");
             closePopupController?.ShowReturnToTitleConfirm(ReturnToTitle);
+        }
+
+        public void RequestExitFromTitle(string source)
+        {
+            Debug.Log($"[TITLE] Exit requested source={source} state={State}");
+            if (State != VNAppState.Title || transitionLocked)
+                return;
+
+            Debug.Log($"[TITLE] Show exit confirm source={source}");
+            closePopupController?.ShowExitConfirm(() =>
+            {
+                Debug.Log($"[TITLE] Exit confirmed source={source}");
+                Debug.Log("[TITLE] Force close requested");
+                bridge?.RequestForceClose();
+            }, () => Debug.Log($"[TITLE] Exit cancelled source={source}"));
         }
 
         public void ReturnToTitle()
@@ -185,12 +214,17 @@ namespace PPP.BLUE.VN
             if (inGameRoot != null)
                 inGameRoot.SetActive(true);
 
+            Debug.Log($"[TITLE] Continue root switched TitleRoot={(titleRoot != null && titleRoot.activeSelf)} InGameRoot={(inGameRoot != null && inGameRoot.activeSelf)}");
+            SetState(VNAppState.InGame);
+            Debug.Log("[TITLE] Continue input unblock before restore");
+
             dialogueView?.OnStateLoadedForValidation();
             if (runner != null && runner.TryGetCurrentSayState(out var currentNodeId, out var lineIndex, out _, out _))
                 Debug.Log($"[TITLE] Restore complete pointer={runner.CurrentPointer} node={currentNodeId}");
 
-            SetState(VNAppState.InGame);
+            Debug.Log($"[TITLE] Continue displayed={dialogueView?.IsLineDisplayed} inputLocked={dialogueView?.IsInputLocked} externalBlocked={dialogueView?.IsExternalInputBlocked}");
             Debug.Log("[TITLE] Continue InGame input unblocked");
+            Debug.Log($"[VNPolicy] modal count after continue load={GetComponentInChildren<VNPolicyController>(true)?.ModalCount}");
         }
 
         private void HandleCloseRequested()
@@ -199,12 +233,12 @@ namespace PPP.BLUE.VN
             if (State == VNAppState.Title)
             {
                 Debug.Log("[TITLE] Show exit confirm");
-                closePopupController?.ShowExitConfirm();
+                RequestExitFromTitle("X");
             }
             else if (State == VNAppState.InGame)
             {
                 Debug.Log("[TITLE] Show return-to-title confirm");
-                RequestReturnToTitleFromInGame();
+                RequestReturnToTitleFromInGame("X");
             }
         }
 

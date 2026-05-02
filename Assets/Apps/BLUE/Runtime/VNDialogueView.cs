@@ -102,6 +102,9 @@ namespace PPP.BLUE.VN
             }
         }
         public bool IsBacklogOpen => backlogView != null && backlogView.IsOpen;
+        public bool IsInputLocked => inputLocked;
+        public bool IsExternalInputBlocked => externalInputBlocked;
+        public bool IsLineDisplayed => lineDisplayed;
 
         private enum ButtonVisualMode
         {
@@ -1136,6 +1139,8 @@ namespace PPP.BLUE.VN
         {
             lastHandledLineId = null;
             ForceRefreshCurrentLine();
+            if (lineDisplayed)
+                inputLocked = false;
 
             bool isTyping = typer != null && typer.IsTyping;
             Debug.Log($"[CHECK] displayed={lineDisplayed}");
