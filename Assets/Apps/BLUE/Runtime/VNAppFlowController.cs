@@ -90,20 +90,29 @@ namespace PPP.BLUE.VN
                 RequestReturnToTitleFromInGame("Esc");
         }
 
+        private void LogRoots(string tag)
+        {
+            Debug.Log($"[TITLE_ROOT_TRACE] {tag} state={State} locked={transitionLocked} title={(titleRoot != null && titleRoot.activeSelf)} titleHierarchy={(titleRoot != null && titleRoot.activeInHierarchy)} ingame={(inGameRoot != null && inGameRoot.activeSelf)} ingameHierarchy={(inGameRoot != null && inGameRoot.activeInHierarchy)}");
+        }
+
         public void OnNewGameClicked()
         {
+            LogRoots("OnNewGameClicked enter");
             if (State != VNAppState.Title || transitionLocked)
             {
                 Debug.Log($"[TITLE] NewGame ignored state={State} locked={transitionLocked}");
                 return;
             }
 
+            LogRoots("OnNewGameClicked before lock");
             transitionLocked = true;
+            LogRoots("OnNewGameClicked after lock");
             if (newGameButton != null)
                 newGameButton.interactable = false;
 
             Debug.Log("[TITLE_NEWGAME] clicked");
             Debug.Log($"[TITLE] NewGame clicked state={State}");
+            LogRoots("OnNewGameClicked before coroutine");
             StartCoroutine(CoStartNewGame());
         }
 
@@ -170,8 +179,13 @@ namespace PPP.BLUE.VN
 
         private IEnumerator CoStartNewGame()
         {
-            transitionLocked = true;
+            LogRoots("CoStartNewGame start");
             SetState(VNAppState.Transition);
+            LogRoots("After SetState Transition");
+
+            float fadeOutSeconds = saveLoadWindow != null ? saveLoadWindow.LoadFadeOutSeconds : titleTransitionFadeOut;
+            float fadeInSeconds = saveLoadWindow != null ? saveLoadWindow.LoadFadeInSeconds : titleTransitionFadeIn;
+            float holdSeconds = saveLoadWindow != null ? saveLoadWindow.LoadBlackHoldSeconds : 0f;
 
             float fadeOutSeconds = saveLoadWindow != null ? saveLoadWindow.LoadFadeOutSeconds : titleTransitionFadeOut;
             float fadeInSeconds = saveLoadWindow != null ? saveLoadWindow.LoadFadeInSeconds : titleTransitionFadeIn;
@@ -180,31 +194,38 @@ namespace PPP.BLUE.VN
             if (fadeController != null)
             {
                 fadeController.transform.SetAsLastSibling();
+                LogRoots("Before FadeOut");
                 Debug.Log("[TITLE_NEWGAME] FadeOut start");
                 yield return fadeController.FadeOut(fadeOutSeconds);
                 Debug.Log("[TITLE_NEWGAME] FadeOut complete");
+                LogRoots("After FadeOut complete");
             }
 
             if (holdSeconds > 0f)
             {
+                LogRoots("Delay start");
                 Debug.Log($"[TITLE_NEWGAME] Delay start seconds={holdSeconds}");
                 yield return new WaitForSecondsRealtime(holdSeconds);
                 Debug.Log("[TITLE_NEWGAME] Delay end");
+                LogRoots("Delay end");
             }
 
             saveLoadWindow?.CloseImmediate();
             closePopupController?.Hide();
             dialogueView?.ClearForNewGame();
 
+            LogRoots("Before root switch");
             if (titleRoot != null)
                 titleRoot.SetActive(false);
             if (inGameRoot != null)
                 inGameRoot.SetActive(true);
             Debug.Log("[TITLE_NEWGAME] root switch under black");
+            LogRoots("After root switch");
 
             SetState(VNAppState.InGame);
             dialogueView?.SetExternalInputBlocked(false);
 
+            LogRoots("Before fresh start");
             Debug.Log("[TITLE_NEWGAME] Fresh start");
             runner?.StartNewGameFromBeginning();
 
@@ -215,6 +236,7 @@ namespace PPP.BLUE.VN
 
             if (fadeController != null)
             {
+                LogRoots("Before FadeIn");
                 Debug.Log("[TITLE_NEWGAME] FadeIn start");
                 yield return fadeController.FadeIn(fadeInSeconds);
                 Debug.Log("[TITLE_NEWGAME] FadeIn complete");
@@ -244,6 +266,7 @@ namespace PPP.BLUE.VN
         private void HandleContinueBeforeLoadUnderFade()
         {
             Debug.Log("[TITLE] Continue SaveLoad close under black");
+            LogRoots("Before root switch");
             if (titleRoot != null)
                 titleRoot.SetActive(false);
             if (inGameRoot != null)
@@ -275,6 +298,7 @@ namespace PPP.BLUE.VN
             bool title = next == VNAppState.Title;
             bool inGame = next == VNAppState.InGame;
 
+            LogRoots("Before root switch");
             if (titleRoot != null)
                 titleRoot.SetActive(title);
             if (inGameRoot != null)

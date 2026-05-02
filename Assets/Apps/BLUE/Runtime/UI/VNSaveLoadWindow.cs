@@ -337,6 +337,8 @@ namespace PPP.BLUE.VN
 
                 OnBeforeLoadStateApplyUnderFade?.Invoke();
 
+                OnBeforeLoadStateApplyUnderFade?.Invoke();
+
                 if (loadBlackHoldSeconds > 0f)
                 {
                     Debug.Log("[VN_LOAD_FLOW] Delay start");
