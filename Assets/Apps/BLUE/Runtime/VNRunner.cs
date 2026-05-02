@@ -1020,6 +1020,55 @@ namespace PPP.BLUE.VN
                             return;
                         }
 
+                    case VNNodeType.SetVar:
+                        {
+                            string key = !string.IsNullOrWhiteSpace(node.arg) ? node.arg : node.callArg;
+                            int value = 0;
+                            if (!int.TryParse(node.arg1, out value))
+                                value = 0;
+
+                            if (!string.IsNullOrWhiteSpace(key))
+                            {
+                                SetVar(key.Trim(), value);
+                                VNLog($"[VN] SetVar key={key} value={value}");
+                            }
+                            else
+                            {
+                                Debug.LogWarning("[VN] SetVar skipped: empty key");
+                            }
+
+                            pointer++;
+                            if (pointer == previousPointer)
+                                pointer++;
+                            continue;
+                        }
+
+                    case VNNodeType.AddVar:
+                        {
+                            string key = !string.IsNullOrWhiteSpace(node.arg) ? node.arg : node.callArg;
+                            int delta = 0;
+                            if (!int.TryParse(node.arg1, out delta))
+                                delta = 0;
+
+                            if (!string.IsNullOrWhiteSpace(key))
+                            {
+                                var trimmedKey = key.Trim();
+                                int current = GetVar(trimmedKey, 0);
+                                int next = current + delta;
+                                SetVar(trimmedKey, next);
+                                VNLog($"[VN] AddVar key={trimmedKey} current={current} delta={delta} next={next}");
+                            }
+                            else
+                            {
+                                Debug.LogWarning("[VN] AddVar skipped: empty key");
+                            }
+
+                            pointer++;
+                            if (pointer == previousPointer)
+                                pointer++;
+                            continue;
+                        }
+
                     case VNNodeType.Return:
                         {
                             if (callStack.Count == 0)

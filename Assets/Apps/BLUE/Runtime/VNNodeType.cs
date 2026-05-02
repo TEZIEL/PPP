@@ -8,6 +8,8 @@ namespace PPP.BLUE.VN
         Jump,
         Call,
         Return,
+        SetVar,
+        AddVar,
         Branch,
         Switch,
         End,
