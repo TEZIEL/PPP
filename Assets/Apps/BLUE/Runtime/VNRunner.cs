@@ -294,6 +294,8 @@ namespace PPP.BLUE.VN
         public event Action OnEnd;
 
         public bool HasScript => script != null;
+        public int CurrentPointer => pointer;
+        public string CurrentScriptId => script != null ? script.ScriptId : string.Empty;
         public bool IsAutoPlayEnabled => settings.auto;
         private VNScript script;
         private int pointer = 0;
@@ -569,10 +571,25 @@ namespace PPP.BLUE.VN
             flags.Clear();
             callStack.Clear();
             backlogManager.RestoreBacklog(null);
+            pendingCallResumeFrame = null;
+
+            greatCount = 0;
+            successCount = 0;
+            failCount = 0;
+            lastResult = "great";
+            lastDrinkResult = string.Empty;
+            SetVar("lastDrink", 0);
+            SetVar("greatCount", 0);
 
             settings = VNSettings.Default();
             currentBacklogKey = new VNBacklogKey();
             SaveAllowed = false;
+
+            drinkManager?.RestoreState(new DrinkManager.DrinkRuntimeState
+            {
+                currentRequestId = string.Empty,
+                isActive = false,
+            });
 
             if (script == null && loadFromJsonOnStart)
             {

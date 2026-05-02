@@ -1325,6 +1325,26 @@ namespace PPP.BLUE.VN
             RefreshButtonVisualStates();
         }
 
+        public void ClearForNewGame()
+        {
+            typer?.StopTyping();
+            currentFullText = string.Empty;
+            lineCompleted = true;
+            lineDisplayed = false;
+            currentLineIndex = -1;
+            lastHandledKey = new VNBacklogKey();
+            currentLineBacklogKey = new VNBacklogKey();
+            lastHandledLineId = string.Empty;
+
+            if (nameText != null)
+                nameText.text = string.Empty;
+            if (dialogueText != null)
+                dialogueText.text = string.Empty;
+
+            backlogView?.SetOpen(false);
+            RefreshButtonVisualStates();
+        }
+
         public void OpenSaveLoadWindow()
         {
             if (isUIHidden || isUIAnimating)

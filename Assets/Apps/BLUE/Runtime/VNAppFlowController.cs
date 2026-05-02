@@ -58,12 +58,19 @@ namespace PPP.BLUE.VN
 
             SetState(VNAppState.Title);
             RefreshContinueButton();
+            if (saveLoadWindow != null)
+            {
+                saveLoadWindow.OnLoadCompleted -= HandleContinueLoadCompleted;
+                saveLoadWindow.OnLoadCompleted += HandleContinueLoadCompleted;
+            }
         }
 
         private void OnDisable()
         {
             if (bridge != null)
                 bridge.OnCloseRequested -= HandleCloseRequested;
+            if (saveLoadWindow != null)
+                saveLoadWindow.OnLoadCompleted -= HandleContinueLoadCompleted;
         }
 
         public void OnNewGameClicked()
@@ -71,6 +78,7 @@ namespace PPP.BLUE.VN
             if (State != VNAppState.Title)
                 return;
 
+            Debug.Log("[TITLE] NewGame clicked");
             StartCoroutine(CoStartNewGame());
         }
 
@@ -79,15 +87,16 @@ namespace PPP.BLUE.VN
             if (State != VNAppState.Title || saveLoadWindow == null)
                 return;
 
+            Debug.Log($"[TITLE] Continue clicked state={State}");
+
             if (!saveLoadWindow.HasAnySaveSlots())
             {
                 RefreshContinueButton();
                 return;
             }
 
-            SetState(VNAppState.Transition);
             saveLoadWindow.Open(VNSaveLoadWindow.OpenMode.ContinueLoadOnly);
-            SetState(VNAppState.InGame);
+            Debug.Log($"[TITLE] Open SaveLoad ContinueLoadOnly, keep TitleRoot={(titleRoot != null && titleRoot.activeSelf)} InGameRoot={(inGameRoot != null && inGameRoot.activeSelf)}");
         }
 
         public void OnExitClicked()
@@ -108,11 +117,15 @@ namespace PPP.BLUE.VN
 
         public void ReturnToTitle()
         {
+            Debug.Log("[TITLE] ReturnToTitle start");
             if (saveLoadWindow != null)
                 saveLoadWindow.CloseImmediate();
 
+            dialogueView?.ClearForNewGame();
+
             SetState(VNAppState.Title);
             RefreshContinueButton();
+            Debug.Log($"[TITLE] ReturnToTitle complete TitleRoot={(titleRoot != null && titleRoot.activeSelf)} InGameRoot={(inGameRoot != null && inGameRoot.activeSelf)}");
         }
 
         private IEnumerator CoStartNewGame()
@@ -121,12 +134,44 @@ namespace PPP.BLUE.VN
 
             if (fadeController != null)
                 yield return fadeController.FadeOut(titleTransitionFadeOut);
+            Debug.Log("[TITLE] FadeOut complete");
+
+            if (titleRoot != null)
+                titleRoot.SetActive(false);
+            if (inGameRoot != null)
+                inGameRoot.SetActive(true);
+
+            Debug.Log("[TITLE] Clear runtime start");
+            saveLoadWindow?.CloseImmediate();
+            dialogueView?.ClearForNewGame();
+
+            if (runner != null)
+                Debug.Log($"[TITLE] Script loaded scriptId={runner.CurrentScriptId}");
+
+            if (runner != null)
+                Debug.Log($"[TITLE] Before Begin pointer={runner.CurrentPointer}");
 
             runner?.StartNewGameFromBeginning();
+
+            if (runner != null && runner.TryGetCurrentSayState(out var currentNodeId, out var lineIndex, out var text, out var speaker))
+            {
+                Debug.Log($"[TITLE] After Begin pointer={runner.CurrentPointer} currentNode={currentNodeId} lineIndex={lineIndex}");
+                Debug.Log($"[TITLE] First Say speaker={speaker} text={text}");
+            }
             SetState(VNAppState.InGame);
 
             if (fadeController != null)
                 yield return fadeController.FadeIn(titleTransitionFadeIn);
+        }
+
+        private void HandleContinueLoadCompleted(bool ok)
+        {
+            if (!ok || State == VNAppState.InGame)
+                return;
+
+            Debug.Log("[TITLE] Continue load completed");
+            SetState(VNAppState.InGame);
+            Debug.Log("[TITLE] Enter InGame after continue load");
         }
 
         private void HandleCloseRequested()

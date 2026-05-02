@@ -78,6 +78,7 @@ namespace PPP.BLUE.VN
         private Color themedSlotSelectedColor;
         private Color themedSlotPressedColor;
         private OpenMode currentOpenMode = OpenMode.Normal;
+        public event System.Action<bool> OnLoadCompleted;
 
         private sealed class SlotPointerRelay : MonoBehaviour, IPointerDownHandler, IPointerUpHandler, IPointerExitHandler
         {
@@ -344,6 +345,8 @@ namespace PPP.BLUE.VN
 
                 if (fadeController != null)
                     yield return fadeController.FadeIn(loadFadeInSeconds);
+
+                OnLoadCompleted?.Invoke(copied && ok);
             }
             finally
             {
