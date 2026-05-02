@@ -24,5 +24,22 @@ namespace PPP.BLUE.VN.DrinkSystem
         public List<string> tags = new List<string>();
         public List<string> likedDrink;
         public string dislikedDrink;
+
+        // Phase 1 extensions
+        public List<string> greatDrinkIds;
+        public List<string> successDrinkIds;
+        public List<string> greatTags;
+        public List<string> successTags;
+        public List<string> greatCategories;
+        public List<string> successCategories;
+        public bool noSuccess;
+
+        // Phase 2 extensions
+        public bool greatRequiresArtheon;
+        public bool successRequiresArtheon;
+        public Dictionary<string, int> greatRequiredIngredients;
+        public Dictionary<string, int> successRequiredIngredients;
+        public List<string> greatForbiddenIngredients;
+        public List<string> successForbiddenIngredients;
     }
 }
