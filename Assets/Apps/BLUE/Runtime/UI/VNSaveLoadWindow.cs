@@ -331,6 +331,8 @@ namespace PPP.BLUE.VN
 
                 OnBeforeLoadStateApplyUnderFade?.Invoke();
 
+                OnBeforeLoadStateApplyUnderFade?.Invoke();
+
                 if (loadBlackHoldSeconds > 0f)
                     yield return new WaitForSecondsRealtime(loadBlackHoldSeconds);
 
@@ -354,6 +356,64 @@ namespace PPP.BLUE.VN
                     yield return fadeController.FadeIn(loadFadeInSeconds);
 
                 OnLoadCompleted?.Invoke(copied && ok);
+            }
+            finally
+            {
+                ReleaseLoadingModal();
+                busy = false;
+                dialogueView?.LockInputFrames(2);
+            }
+        }
+
+
+        private IEnumerator CoLoadSlotFromTitleContinue(int slotNumber)
+        {
+            if (busy)
+                yield break;
+
+            Debug.Log($"[TITLE_CONTINUE_LOAD] clicked slot={slotNumber}");
+            busy = true;
+            try
+            {
+                AcquireModal();
+                AcquireLoadingModal();
+                ForceAutoOff($"TitleContinue Load slot {slotNumber}");
+
+                Debug.Log("[TITLE_CONTINUE_LOAD] FadeOut start");
+                if (fadeController != null)
+                    yield return fadeController.FadeOut(loadFadeOutSeconds);
+                Debug.Log("[TITLE_CONTINUE_LOAD] FadeOut complete alpha=1");
+
+                CloseImmediate();
+                OnBeforeLoadStateApplyUnderFade?.Invoke();
+
+                if (loadBlackHoldSeconds > 0f)
+                    yield return new WaitForSecondsRealtime(loadBlackHoldSeconds);
+
+                Debug.Log($"[TITLE_CONTINUE_LOAD] Restore start slot={slotNumber}");
+                bool copied = CopySlotToDefaultSave(slotNumber);
+                bool ok = copied && runner != null && runner.TryLoadNow($"VN_SAVE_{slotNumber}");
+
+                string restoredSpeaker = string.Empty;
+                string restoredText = string.Empty;
+                if (runner != null && runner.TryGetCurrentSayState(out var nodeId, out var lineIndex, out var text, out var speaker))
+                {
+                    restoredSpeaker = speaker ?? string.Empty;
+                    restoredText = text ?? string.Empty;
+                    Debug.Log($"[TITLE_CONTINUE_LOAD] Restore complete pointer={runner.CurrentPointer} node={nodeId}");
+                }
+
+                dialogueView?.OnStateLoadedForValidation();
+                Debug.Log($"[TITLE_CONTINUE_LOAD] text refreshed name={restoredSpeaker} text={restoredText}");
+
+                Debug.Log("[TITLE_CONTINUE_LOAD] SaveLoad closed");
+                Debug.Log("[TITLE_CONTINUE_LOAD] FadeIn start");
+                if (fadeController != null)
+                    yield return fadeController.FadeIn(loadFadeInSeconds);
+                Debug.Log("[TITLE_CONTINUE_LOAD] FadeIn complete");
+                Debug.Log($"[TITLE_CONTINUE_LOAD] input ready blocked={dialogueView?.IsExternalInputBlocked}");
+
+                OnLoadCompleted?.Invoke(ok);
             }
             finally
             {
@@ -993,7 +1053,10 @@ namespace PPP.BLUE.VN
                     ExecuteSave();
                     break;
                 case PendingAction.Load:
-                    StartCoroutine(CoLoadSlot(selectedSlotIndex + 1));
+                    if (currentOpenMode == OpenMode.ContinueLoadOnly)
+                        StartCoroutine(CoLoadSlotFromTitleContinue(selectedSlotIndex + 1));
+                    else
+                        StartCoroutine(CoLoadSlot(selectedSlotIndex + 1));
                     break;
                 case PendingAction.Delete:
                     ExecuteDelete();
