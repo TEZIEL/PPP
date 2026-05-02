@@ -230,6 +230,7 @@ namespace PPP.BLUE.VN
             }
 
             SetWindowVisible(false);
+            currentOpenMode = OpenMode.Normal;
             bridge?.ClearCloseRequestPending();
             ReleaseModal();
             RefreshActionButtonState();
