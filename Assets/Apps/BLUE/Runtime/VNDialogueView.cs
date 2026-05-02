@@ -79,6 +79,9 @@ namespace PPP.BLUE.VN
         private readonly Dictionary<Button, bool> interactableVisualPressedStates = new();
         private float controlActionLockedUntil;
         private Coroutine waitAndRefreshCoroutine;
+        private bool isRefreshingCurrentLine;
+        private bool warnedRefreshBlocked;
+        private bool warnedNoNode;
         private VNBacklogView backlogStateObservedView;
         private static readonly HashSet<VNDialogueView> activeDialogueViews = new();
         public const string DialogueWindowId = "VNDialogue";
@@ -962,7 +965,9 @@ namespace PPP.BLUE.VN
 
         private void StartWaitAndRefresh()
         {
-            StopWaitAndRefresh();
+            if (waitAndRefreshCoroutine != null)
+                return;
+
             waitAndRefreshCoroutine = StartCoroutine(WaitAndRefresh());
         }
 
@@ -984,6 +989,12 @@ namespace PPP.BLUE.VN
 
             while (runner == null || !runner.HasValidNode())
             {
+                if (!CanRunCurrentLineRefresh())
+                {
+                    waitAndRefreshCoroutine = null;
+                    yield break;
+                }
+
                 if (!loggedNullState)
                 {
                     Debug.Log($"[VN] WaitAndRefresh pending runner={(runner != null)} hasValidNode={(runner != null && runner.HasValidNode())}");
@@ -1001,22 +1012,41 @@ namespace PPP.BLUE.VN
             }
 
             Debug.Log("[VN] WaitAndRefresh ready -> ForceRefreshCurrentLine");
-            ForceRefreshCurrentLine();
+            ForceRefreshCurrentLine(scheduleRetryOnFail: false);
             waitAndRefreshCoroutine = null;
         }
 
-        private void ForceRefreshCurrentLine()
+        private void ForceRefreshCurrentLine(bool scheduleRetryOnFail = true)
         {
+            if (isRefreshingCurrentLine)
+                return;
+
+            if (!CanRunCurrentLineRefresh())
+                return;
+
+            isRefreshingCurrentLine = true;
+            try
+            {
             if (runner == null)
             {
-                Debug.LogError("[VN] ForceRefresh currentNode is unavailable (runner null)");
+                if (!warnedRefreshBlocked)
+                {
+                    warnedRefreshBlocked = true;
+                    Debug.LogWarning("[VN] ForceRefresh skipped (runner null)");
+                }
                 return;
             }
 
             if (!runner.TryGetCurrentSayState(out var currentNodeId, out var refreshedLineIndex, out var currentText, out var currentSpeaker))
             {
-                Debug.LogWarning("[VN] no node → retry next frame");
-                StartWaitAndRefresh();
+                if (scheduleRetryOnFail)
+                    StartWaitAndRefresh();
+
+                if (!warnedNoNode)
+                {
+                    warnedNoNode = true;
+                    Debug.LogWarning("[VN] ForceRefresh skipped: no current Say node");
+                }
 
                 if (dialogueText != null && !string.IsNullOrEmpty(currentFullText))
                 {
@@ -1031,10 +1061,12 @@ namespace PPP.BLUE.VN
                 lineDisplayed = !string.IsNullOrEmpty(dialogueText != null ? dialogueText.text : string.Empty);
                 lineCompleted = true;
 
-                Debug.LogWarning("[VN] ForceRefresh skipped: no current Say node");
                 Debug.Log($"[VN] lineIndex={currentLineIndex}, displayed={lineDisplayed}");
                 return;
             }
+
+            warnedNoNode = false;
+            warnedRefreshBlocked = false;
 
             if (nameText != null)
                 nameText.text = runner != null ? runner.ResolveSpeakerDisplayName(currentSpeaker) : (currentSpeaker ?? string.Empty);
@@ -1063,6 +1095,25 @@ namespace PPP.BLUE.VN
             Debug.Log($"[VN] isWaitingInput={isWaitingInput}, isTyping={isTyping}");
             Debug.Log($"[VN] lineIndex={currentLineIndex}, displayed={lineDisplayed}");
             Debug.Log($"[VN] ForceRefresh → {currentFullText}");
+            }
+            finally
+            {
+                isRefreshingCurrentLine = false;
+            }
+        }
+
+        private bool CanRunCurrentLineRefresh()
+        {
+            bool blocked = externalInputBlocked || !gameObject.activeInHierarchy;
+            if (!blocked) return true;
+
+            if (!warnedRefreshBlocked)
+            {
+                warnedRefreshBlocked = true;
+                Debug.Log("[VN] Refresh blocked (title/inactive state)");
+            }
+
+            return false;
         }
 
         public void OnStateLoadedForValidation()
@@ -1327,6 +1378,10 @@ namespace PPP.BLUE.VN
 
         public void ClearForNewGame()
         {
+            StopWaitAndRefresh();
+            isRefreshingCurrentLine = false;
+            warnedRefreshBlocked = false;
+            warnedNoNode = false;
             typer?.StopTyping();
             currentFullText = string.Empty;
             lineCompleted = true;
@@ -1335,6 +1390,9 @@ namespace PPP.BLUE.VN
             lastHandledKey = new VNBacklogKey();
             currentLineBacklogKey = new VNBacklogKey();
             lastHandledLineId = string.Empty;
+
+            warnedNoNode = false;
+            warnedRefreshBlocked = false;
 
             if (nameText != null)
                 nameText.text = string.Empty;
