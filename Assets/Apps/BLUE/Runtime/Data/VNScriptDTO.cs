@@ -5,8 +5,19 @@ namespace PPP.BLUE.VN
     [Serializable]
     public sealed class VNScriptDTO
     {
+        public string scenarioId;
         public string scriptId;
+        public string startNodeId;
+        public VNCharacterDTO[] characters;
         public VNNodeDTO[] nodes;
+    }
+
+    [Serializable]
+    public sealed class VNCharacterDTO
+    {
+        public string characterId;
+        public string displayName;
+        public string defaultExpression;
     }
 
     [Serializable]
@@ -16,6 +27,8 @@ namespace PPP.BLUE.VN
         public string type;
         public string speakerId;
         public string speaker;
+        public string expressionId;
+        public string expression;
         public string text;
         public string label;
         public string target;
@@ -24,6 +37,10 @@ namespace PPP.BLUE.VN
         public string next;
         public string arg1;
         public string arg2;
+        public string background;
+        public string bgm;
+        public string sfx;
+        public string command;
         public VNBranchRuleDTO[] branches;
         public VNChoiceOptionDTO[] choices;
     }
