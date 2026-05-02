@@ -33,6 +33,7 @@ namespace PPP.BLUE.VN
         [SerializeField, Min(0f)] private float titleTransitionFadeIn = 0.35f;
 
         public VNAppState State { get; private set; } = VNAppState.Title;
+        private bool transitionLocked;
 
         private void Awake()
         {
@@ -73,12 +74,45 @@ namespace PPP.BLUE.VN
                 saveLoadWindow.OnLoadCompleted -= HandleContinueLoadCompleted;
         }
 
-        public void OnNewGameClicked()
+
+        private void Update()
         {
-            if (State != VNAppState.Title)
+            if (!Input.GetKeyDown(KeyCode.Escape))
                 return;
 
-            Debug.Log("[TITLE] NewGame clicked");
+            if (State == VNAppState.Title)
+            {
+                RequestExitFromTitle("Esc");
+                return;
+            }
+
+            if (State == VNAppState.InGame)
+                RequestReturnToTitleFromInGame("Esc");
+        }
+
+        private void LogRoots(string tag)
+        {
+            Debug.Log($"[TITLE_ROOT_TRACE] {tag} state={State} locked={transitionLocked} title={(titleRoot != null && titleRoot.activeSelf)} titleHierarchy={(titleRoot != null && titleRoot.activeInHierarchy)} ingame={(inGameRoot != null && inGameRoot.activeSelf)} ingameHierarchy={(inGameRoot != null && inGameRoot.activeInHierarchy)}");
+        }
+
+        public void OnNewGameClicked()
+        {
+            LogRoots("OnNewGameClicked enter");
+            if (State != VNAppState.Title || transitionLocked)
+            {
+                Debug.Log($"[TITLE] NewGame ignored state={State} locked={transitionLocked}");
+                return;
+            }
+
+            LogRoots("OnNewGameClicked before lock");
+            transitionLocked = true;
+            LogRoots("OnNewGameClicked after lock");
+            if (newGameButton != null)
+                newGameButton.interactable = false;
+
+            Debug.Log("[TITLE_NEWGAME] clicked");
+            Debug.Log($"[TITLE] NewGame clicked state={State}");
+            LogRoots("OnNewGameClicked before coroutine");
             StartCoroutine(CoStartNewGame());
         }
 
@@ -95,29 +129,44 @@ namespace PPP.BLUE.VN
                 return;
             }
 
+            transitionLocked = true;
+            saveLoadWindow.OnBeforeLoadStateApplyUnderFade = HandleContinueBeforeLoadUnderFade;
             saveLoadWindow.Open(VNSaveLoadWindow.OpenMode.ContinueLoadOnly);
-            Debug.Log($"[TITLE] Open SaveLoad ContinueLoadOnly, keep TitleRoot={(titleRoot != null && titleRoot.activeSelf)} InGameRoot={(inGameRoot != null && inGameRoot.activeSelf)}");
+            Debug.Log($"[TITLE] Open SaveLoad ContinueLoadOnly TitleRoot={(titleRoot != null && titleRoot.activeSelf)} InGameRoot={(inGameRoot != null && inGameRoot.activeSelf)}");
         }
 
         public void OnExitClicked()
         {
-            if (State != VNAppState.Title)
-                return;
-
-            closePopupController?.ShowExitConfirm();
+            RequestExitFromTitle("Button");
         }
 
-        public void RequestReturnToTitleFromInGame()
+        public void RequestReturnToTitleFromInGame(string source = "Button")
         {
             if (State != VNAppState.InGame)
                 return;
 
+            Debug.Log($"[TITLE] Show return-to-title confirm source={source}");
             closePopupController?.ShowReturnToTitleConfirm(ReturnToTitle);
+        }
+
+        public void RequestExitFromTitle(string source)
+        {
+            Debug.Log($"[TITLE] Exit requested source={source} state={State}");
+            if (State != VNAppState.Title || transitionLocked)
+                return;
+
+            Debug.Log($"[TITLE] Show exit confirm source={source}");
+            closePopupController?.ShowExitConfirm(() =>
+            {
+                Debug.Log($"[TITLE] Exit confirmed source={source}");
+                Debug.Log($"[TITLE] Force close requested source={source}");
+                closePopupController?.RequestCloseFromPopup();
+            }, () => Debug.Log($"[TITLE] Exit cancelled source={source}"));
         }
 
         public void ReturnToTitle()
         {
-            Debug.Log("[TITLE] ReturnToTitle start");
+            Debug.Log($"[TITLE] ReturnToTitle start state={State}");
             if (saveLoadWindow != null)
                 saveLoadWindow.CloseImmediate();
 
@@ -130,56 +179,113 @@ namespace PPP.BLUE.VN
 
         private IEnumerator CoStartNewGame()
         {
+            LogRoots("CoStartNewGame start");
             SetState(VNAppState.Transition);
+            LogRoots("After SetState Transition");
+
+            float fadeOutSeconds = saveLoadWindow != null ? saveLoadWindow.LoadFadeOutSeconds : titleTransitionFadeOut;
+            float fadeInSeconds = saveLoadWindow != null ? saveLoadWindow.LoadFadeInSeconds : titleTransitionFadeIn;
+            float holdSeconds = saveLoadWindow != null ? saveLoadWindow.LoadBlackHoldSeconds : 0f;
 
             if (fadeController != null)
-                yield return fadeController.FadeOut(titleTransitionFadeOut);
-            Debug.Log("[TITLE] FadeOut complete");
+            {
+                fadeController.transform.SetAsLastSibling();
+                LogRoots("Before FadeOut");
+                Debug.Log("[TITLE_NEWGAME] FadeOut start");
+                yield return fadeController.FadeOut(fadeOutSeconds);
+                Debug.Log("[TITLE_NEWGAME] FadeOut complete");
+                LogRoots("After FadeOut complete");
+            }
 
+            if (holdSeconds > 0f)
+            {
+                LogRoots("Delay start");
+                Debug.Log($"[TITLE_NEWGAME] Delay start seconds={holdSeconds}");
+                yield return new WaitForSecondsRealtime(holdSeconds);
+                Debug.Log("[TITLE_NEWGAME] Delay end");
+                LogRoots("Delay end");
+            }
+
+            saveLoadWindow?.CloseImmediate();
+            closePopupController?.Hide();
+            dialogueView?.ClearForNewGame();
+
+            LogRoots("Before root switch");
+            if (titleRoot != null)
+                titleRoot.SetActive(false);
+            if (inGameRoot != null)
+                inGameRoot.SetActive(true);
+            Debug.Log("[TITLE_NEWGAME] root switch under black");
+            LogRoots("After root switch");
+
+            SetState(VNAppState.InGame);
+            dialogueView?.SetExternalInputBlocked(false);
+
+            LogRoots("Before fresh start");
+            Debug.Log("[TITLE_NEWGAME] Fresh start");
+            runner?.StartNewGameFromBeginning();
+
+            string currentNodeId = string.Empty;
+            string text = string.Empty;
+            if (runner != null && runner.TryGetCurrentSayState(out currentNodeId, out var lineIndex, out text, out _))
+                Debug.Log($"[TITLE_NEWGAME] Typing first line start text={text}");
+
+            if (fadeController != null)
+            {
+                LogRoots("Before FadeIn");
+                Debug.Log("[TITLE_NEWGAME] FadeIn start");
+                yield return fadeController.FadeIn(fadeInSeconds);
+                Debug.Log("[TITLE_NEWGAME] FadeIn complete");
+            }
+
+            transitionLocked = false;
+            if (newGameButton != null)
+                newGameButton.interactable = true;
+
+            Debug.Log($"[TITLE_NEWGAME] input ready blocked={dialogueView?.IsExternalInputBlocked}");
+        }
+
+        private void HandleContinueLoadCompleted(bool ok)
+        {
+            Debug.Log("[TITLE] Continue slot load selected");
+            saveLoadWindow.OnBeforeLoadStateApplyUnderFade = null;
+            transitionLocked = false;
+
+            if (!ok)
+                return;
+
+            Debug.Log($"[TITLE] Continue displayed={dialogueView?.IsLineDisplayed} inputLocked={dialogueView?.IsInputLocked} externalBlocked={dialogueView?.IsExternalInputBlocked}");
+            Debug.Log("[TITLE] Continue InGame input unblocked");
+            Debug.Log($"[VNPolicy] modal count after continue load={GetComponentInChildren<VNPolicyController>(true)?.ModalCount}");
+        }
+
+        private void HandleContinueBeforeLoadUnderFade()
+        {
+            Debug.Log("[TITLE] Continue SaveLoad close under black");
+            LogRoots("Before root switch");
             if (titleRoot != null)
                 titleRoot.SetActive(false);
             if (inGameRoot != null)
                 inGameRoot.SetActive(true);
 
-            Debug.Log("[TITLE] Clear runtime start");
-            saveLoadWindow?.CloseImmediate();
-            dialogueView?.ClearForNewGame();
-
-            if (runner != null)
-                Debug.Log($"[TITLE] Script loaded scriptId={runner.CurrentScriptId}");
-
-            if (runner != null)
-                Debug.Log($"[TITLE] Before Begin pointer={runner.CurrentPointer}");
-
-            runner?.StartNewGameFromBeginning();
-
-            if (runner != null && runner.TryGetCurrentSayState(out var currentNodeId, out var lineIndex, out var text, out var speaker))
-            {
-                Debug.Log($"[TITLE] After Begin pointer={runner.CurrentPointer} currentNode={currentNodeId} lineIndex={lineIndex}");
-                Debug.Log($"[TITLE] First Say speaker={speaker} text={text}");
-            }
+            Debug.Log("[TITLE] Continue root switch under black");
             SetState(VNAppState.InGame);
-
-            if (fadeController != null)
-                yield return fadeController.FadeIn(titleTransitionFadeIn);
-        }
-
-        private void HandleContinueLoadCompleted(bool ok)
-        {
-            if (!ok || State == VNAppState.InGame)
-                return;
-
-            Debug.Log("[TITLE] Continue load completed");
-            SetState(VNAppState.InGame);
-            Debug.Log("[TITLE] Enter InGame after continue load");
+            Debug.Log("[TITLE] Continue input unblock before restore");
         }
 
         private void HandleCloseRequested()
         {
+            Debug.Log($"[TITLE] Close requested state={State}");
             if (State == VNAppState.Title)
-                closePopupController?.ShowExitConfirm();
+            {
+                Debug.Log("[TITLE] Show exit confirm");
+                RequestExitFromTitle("X");
+            }
             else if (State == VNAppState.InGame)
-                RequestReturnToTitleFromInGame();
+            {
+                Debug.Log("[TITLE] Show return-to-title confirm");
+                RequestReturnToTitleFromInGame("X");
+            }
         }
 
         private void SetState(VNAppState next)
@@ -188,6 +294,7 @@ namespace PPP.BLUE.VN
             bool title = next == VNAppState.Title;
             bool inGame = next == VNAppState.InGame;
 
+            LogRoots("Before root switch");
             if (titleRoot != null)
                 titleRoot.SetActive(title);
             if (inGameRoot != null)
