@@ -325,8 +325,15 @@ namespace PPP.BLUE.VN
                     yield return fadeController.FadeOut(loadFadeOutSeconds);
                 Debug.Log("[VN_LOAD_FLOW] FadeOut complete");
 
-                // 검은 화면에서 창을 정리
-                CloseImmediate();
+                // 검은 화면에서 창을 정리 (타이틀 Continue는 AppFlow에서 정리)
+                if (!titleContinueMode)
+                    CloseImmediate();
+
+                OnBeforeLoadStateApplyUnderFade?.Invoke();
+
+                OnBeforeLoadStateApplyUnderFade?.Invoke();
+
+                OnBeforeLoadStateApplyUnderFade?.Invoke();
 
                 OnBeforeLoadStateApplyUnderFade?.Invoke();
 
