@@ -119,6 +119,8 @@ namespace PPP.BLUE.VN
                 return;
             }
 
+            transitionLocked = true;
+            saveLoadWindow.OnBeforeLoadStateApplyUnderFade = HandleContinueBeforeLoadUnderFade;
             saveLoadWindow.Open(VNSaveLoadWindow.OpenMode.ContinueLoadOnly);
             Debug.Log($"[TITLE] Open SaveLoad ContinueLoadOnly TitleRoot={(titleRoot != null && titleRoot.activeSelf)} InGameRoot={(inGameRoot != null && inGameRoot.activeSelf)}");
         }
@@ -183,11 +185,6 @@ namespace PPP.BLUE.VN
             dialogueView?.ClearForNewGame();
             Debug.Log("[TITLE] Fresh runtime reset complete");
 
-            saveLoadWindow?.CloseImmediate();
-            closePopupController?.Hide();
-            dialogueView?.ClearForNewGame();
-            Debug.Log("[TITLE] Fresh runtime reset complete");
-
             if (titleRoot != null)
                 titleRoot.SetActive(false);
             if (inGameRoot != null)
@@ -221,26 +218,28 @@ namespace PPP.BLUE.VN
         private void HandleContinueLoadCompleted(bool ok)
         {
             Debug.Log("[TITLE] Continue slot load selected");
-            if (!ok || State == VNAppState.InGame)
+            saveLoadWindow.OnBeforeLoadStateApplyUnderFade = null;
+            transitionLocked = false;
+
+            if (!ok)
                 return;
-
-            if (titleRoot != null)
-                titleRoot.SetActive(false);
-            if (inGameRoot != null)
-                inGameRoot.SetActive(true);
-            Debug.Log("[TITLE] NewGame root switch under black");
-
-            Debug.Log($"[TITLE] Continue root switched TitleRoot={(titleRoot != null && titleRoot.activeSelf)} InGameRoot={(inGameRoot != null && inGameRoot.activeSelf)}");
-            SetState(VNAppState.InGame);
-            Debug.Log("[TITLE] Continue input unblock before restore");
-
-            dialogueView?.OnStateLoadedForValidation();
-            if (runner != null && runner.TryGetCurrentSayState(out var currentNodeId, out var lineIndex, out _, out _))
-                Debug.Log($"[TITLE] Restore complete pointer={runner.CurrentPointer} node={currentNodeId}");
 
             Debug.Log($"[TITLE] Continue displayed={dialogueView?.IsLineDisplayed} inputLocked={dialogueView?.IsInputLocked} externalBlocked={dialogueView?.IsExternalInputBlocked}");
             Debug.Log("[TITLE] Continue InGame input unblocked");
             Debug.Log($"[VNPolicy] modal count after continue load={GetComponentInChildren<VNPolicyController>(true)?.ModalCount}");
+        }
+
+        private void HandleContinueBeforeLoadUnderFade()
+        {
+            Debug.Log("[TITLE] Continue SaveLoad close under black");
+            if (titleRoot != null)
+                titleRoot.SetActive(false);
+            if (inGameRoot != null)
+                inGameRoot.SetActive(true);
+
+            Debug.Log("[TITLE] Continue root switch under black");
+            SetState(VNAppState.InGame);
+            Debug.Log("[TITLE] Continue input unblock before restore");
         }
 
         private void HandleCloseRequested()

@@ -79,6 +79,7 @@ namespace PPP.BLUE.VN
         private Color themedSlotPressedColor;
         private OpenMode currentOpenMode = OpenMode.Normal;
         public event System.Action<bool> OnLoadCompleted;
+        public System.Action OnBeforeLoadStateApplyUnderFade;
 
         private sealed class SlotPointerRelay : MonoBehaviour, IPointerDownHandler, IPointerUpHandler, IPointerExitHandler
         {
@@ -328,7 +329,9 @@ namespace PPP.BLUE.VN
                 if (!titleContinueMode)
                     CloseImmediate();
 
-                if (!titleContinueMode && loadBlackHoldSeconds > 0f)
+                OnBeforeLoadStateApplyUnderFade?.Invoke();
+
+                if (loadBlackHoldSeconds > 0f)
                     yield return new WaitForSecondsRealtime(loadBlackHoldSeconds);
 
                 bool copied = CopySlotToDefaultSave(slotNumber);
