@@ -46,7 +46,15 @@ namespace PPP.BLUE.VN.DrinkSystem
             switch (request.type)
             {
                 case DrinkRequestType.EXACT_DRINK:
-                    return "fail";
+                    if (string.IsNullOrEmpty(drinkId))
+                        return "fail";
+                    bool exactExtendedSuccess = MatchesAnyDrinkId(drinkId, request.successDrinkIds)
+                                                || HasAnyTagMatch(producedDrink, request.successTags)
+                                                || HasAnyCategoryMatch(producedDrink, request.successCategories)
+                                                || HasSuccessConstraintSeed(request);
+                    return exactExtendedSuccess && MeetsExtendedConstraints(false, request, producedDrink, context)
+                        ? "success"
+                        : "fail";
 
                 case DrinkRequestType.CATEGORY_REQUEST:
                     if (string.IsNullOrEmpty(drinkId))
@@ -60,7 +68,7 @@ namespace PPP.BLUE.VN.DrinkSystem
                     bool extendedSuccess = MatchesAnyDrinkId(drinkId, request.successDrinkIds)
                                            || HasAnyTagMatch(categoryDrink, request.successTags)
                                            || HasAnyCategoryMatch(categoryDrink, request.successCategories);
-                    bool successCandidate = categoryMatch || extendedSuccess;
+                    bool successCandidate = categoryMatch || extendedSuccess || HasSuccessConstraintSeed(request);
                     string categoryResult = successCandidate && MeetsExtendedConstraints(false, request, categoryDrink, context)
                         ? "success"
                         : "fail";
@@ -81,7 +89,7 @@ namespace PPP.BLUE.VN.DrinkSystem
                     bool tagExtendedSuccess = MatchesAnyDrinkId(drinkId, request.successDrinkIds)
                                               || HasAnyTagMatch(tagDrink, request.successTags)
                                               || HasAnyCategoryMatch(tagDrink, request.successCategories);
-                    bool tagSuccessCandidate = tagBaseSuccess || tagExtendedSuccess;
+                    bool tagSuccessCandidate = tagBaseSuccess || tagExtendedSuccess || HasSuccessConstraintSeed(request);
                     return tagSuccessCandidate && MeetsExtendedConstraints(false, request, tagDrink, context) ? "success" : "fail";
 
                 case DrinkRequestType.ANY_DRINK:
@@ -236,6 +244,16 @@ namespace PPP.BLUE.VN.DrinkSystem
             }
 
             return false;
+        }
+
+        private static bool HasSuccessConstraintSeed(DrinkRequest request)
+        {
+            if (request == null)
+                return false;
+
+            return request.successRequiresArtheon
+                   || (request.successRequiredIngredients != null && request.successRequiredIngredients.Count > 0)
+                   || (request.successForbiddenIngredients != null && request.successForbiddenIngredients.Count > 0);
         }
 
         private static bool HasAnyTag(DrinkData drink, DrinkRequest request)
