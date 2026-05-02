@@ -79,6 +79,7 @@ namespace PPP.BLUE.VN
         private Color themedSlotPressedColor;
         private OpenMode currentOpenMode = OpenMode.Normal;
         public event System.Action<bool> OnLoadCompleted;
+        public System.Action OnBeforeLoadStateApplyUnderFade;
 
         private sealed class SlotPointerRelay : MonoBehaviour, IPointerDownHandler, IPointerUpHandler, IPointerExitHandler
         {
@@ -230,6 +231,7 @@ namespace PPP.BLUE.VN
             }
 
             SetWindowVisible(false);
+            currentOpenMode = OpenMode.Normal;
             bridge?.ClearCloseRequestPending();
             ReleaseModal();
             RefreshActionButtonState();
@@ -323,6 +325,8 @@ namespace PPP.BLUE.VN
 
                 // 검은 화면에서 창을 정리
                 CloseImmediate();
+
+                OnBeforeLoadStateApplyUnderFade?.Invoke();
 
                 if (loadBlackHoldSeconds > 0f)
                     yield return new WaitForSecondsRealtime(loadBlackHoldSeconds);

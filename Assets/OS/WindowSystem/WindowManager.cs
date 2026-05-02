@@ -1122,6 +1122,19 @@ public class WindowManager : MonoBehaviour, IVNHostOS
         TryHandleClose(appId, "RequestClose");
     }
 
+    public void ForceClose(string appId)
+    {
+        if (string.IsNullOrEmpty(appId))
+            return;
+
+        if (!openWindows.TryGetValue(appId, out var window) || window == null)
+            return;
+
+        Debug.Log($"[OS] Window close appId={appId} (ForceClose)");
+        PerformClose(window, appId);
+    }
+
+
     public void SaveSubBlock(string key, object data)
     {
         if (string.IsNullOrEmpty(key) || data == null) return;
