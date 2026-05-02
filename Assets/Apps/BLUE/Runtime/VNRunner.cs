@@ -16,6 +16,7 @@ namespace PPP.BLUE.VN
         [SerializeField] private VNScript testScript;
         [SerializeField] private bool loadFromJsonOnStart;
         [SerializeField] private string startDayId = "day01";
+        [SerializeField] private bool autoBeginOnStart = false;
         [SerializeField] private VNOSBridge bridge;
         [SerializeField] private DrinkManager drinkManager;
         [SerializeField] private DrinkPanel drinkPanel;
@@ -509,14 +510,6 @@ namespace PPP.BLUE.VN
             dialogueView?.EnsureBacklogBindingFromRunner();
 
             RebuildExternalCallTargetSet();
-            var bootState = VNFileSaveSystem.Load(VN_STATE_KEY);
-            if (bootState != null && RestoreState(bootState))
-            {
-                Debug.Log("[VN] Restored saved state at Start().");
-                GetComponentInChildren<VNDialogueView>(true)?.LockInputFrames(1);
-                return;
-            }
-
             if (testScript != null)
                 SetScript(testScript);
 
@@ -536,6 +529,61 @@ namespace PPP.BLUE.VN
             if (!HasScript)
             {
                 Debug.LogError("[VNRunner] No script configured to start.");
+                return;
+            }
+
+            if (autoBeginOnStart)
+                Begin();
+        }
+
+        public bool TryRestoreDefaultSaveAtRuntime()
+        {
+            var bootState = VNFileSaveSystem.Load(VN_STATE_KEY);
+            if (bootState == null)
+                return false;
+
+            if (!RestoreState(bootState))
+                return false;
+
+            GetComponentInChildren<VNDialogueView>(true)?.LockInputFrames(1);
+            return true;
+        }
+
+        public void StartNewGameFromBeginning()
+        {
+            started = false;
+            pointer = 0;
+            waitPointer = -1;
+            lastShownPointer = -1;
+            lastStopIndex = 0;
+            isWaiting = false;
+            isCurrentLineTyping = false;
+            isExternalCallWaiting = false;
+            pendingCallResumeFrame = null;
+            dispatchingRestoredCall = false;
+            isRestoringFromLoad = false;
+            restoreStateInProgress = false;
+
+            vars.Clear();
+            seenLineIds.Clear();
+            flags.Clear();
+            callStack.Clear();
+            backlogManager.RestoreBacklog(null);
+
+            settings = VNSettings.Default();
+            currentBacklogKey = new VNBacklogKey();
+            SaveAllowed = false;
+
+            if (script == null && loadFromJsonOnStart)
+            {
+                var loaded = VNScriptLoader.LoadDay(startDayId);
+                if (loaded != null)
+                    SetScript(loaded);
+            }
+
+            if (!HasScript)
+            {
+                Debug.LogError("[VNRunner] StartNewGameFromBeginning failed: script missing.");
                 return;
             }
 
