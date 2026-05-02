@@ -968,8 +968,8 @@
     "type": "Branch",
     "branches": [
       { "expr": "lastDrink==1", "jumpLabel": "c_energy_great" },
-      { "expr": "lastDrink==2", "jumpLabel": "c_energy_fail_carbonated" },
-      { "expr": "else", "jumpLabel": "c_energy_fail_other" }
+      { "expr": "lastDrink==2", "jumpLabel": "c_energy_success" },
+      { "expr": "else", "jumpLabel": "c_energy_fail" }
     ]
   },
 
@@ -982,22 +982,22 @@
   { "id": "c.energy.g.0005", "type": "Say", "speakerId": "melion", "expressionId": "normal", "text": "그럼 된 거 아닐까요." },
   { "id": "jump.c_energy_great.after", "type": "Jump", "label": "after_c_energy" },
 
-  { "id": "lb.c_energy_fail_carbonated", "type": "Label", "label": "c_energy_fail_carbonated" },
+  { "id": "lb.c_energy_success", "type": "Label", "label": "c_energy_success" },
   { "id": "c.energy.fc.0001", "type": "Say", "speakerId": "melion", "expressionId": "normal", "text": "여기요." },
   { "id": "c.energy.fc.0002", "type": "Say", "speakerId": "guest_c", "expressionId": "normal", "text": "…" },
   { "id": "c.energy.fc.0003", "type": "Say", "speakerId": "guest_c", "expressionId": "normal", "text": "탄산이 들어갔던가?" },
   { "id": "c.energy.fc.0004", "type": "Say", "speakerId": "melion", "expressionId": "normal", "text": "저도 기억이 잘…" },
   { "id": "c.energy.fc.0005", "type": "Say", "speakerId": "guest_c", "expressionId": "normal", "text": "못 먹겠어." },
   { "id": "c.energy.fc.0006", "type": "Say", "speakerId": "melion", "expressionId": "normal", "text": "좋아요, 탄산은 싫어하는 걸로." },
-  { "id": "jump.c_energy_fail_carbonated.after", "type": "Jump", "label": "after_c_energy" },
+  { "id": "jump.c_energy_success.after", "type": "Jump", "label": "after_c_energy" },
 
-  { "id": "lb.c_energy_fail_other", "type": "Label", "label": "c_energy_fail_other" },
+  { "id": "lb.c_energy_fail", "type": "Label", "label": "c_energy_fail" },
   { "id": "c.energy.fo.0001", "type": "Say", "speakerId": "melion", "expressionId": "normal", "text": "여기요." },
   { "id": "c.energy.fo.0002", "type": "Say", "speakerId": "guest_c", "expressionId": "normal", "text": "이름에 에너지가 들어있지 않은데." },
   { "id": "c.energy.fo.0003", "type": "Say", "speakerId": "guest_c", "expressionId": "normal", "text": "…" },
   { "id": "c.energy.fo.0004", "type": "Say", "speakerId": "guest_c", "expressionId": "normal", "text": "그쪽도 나랑 비슷한 체질인가?" },
   { "id": "c.energy.fo.0005", "type": "Say", "speakerId": "melion", "expressionId": "normal", "text": "아뇨…" },
-  { "id": "jump.c_energy_fail_other.after", "type": "Jump", "label": "after_c_energy" },
+  { "id": "jump.c_energy_fail.after", "type": "Jump", "label": "after_c_energy" },
 
   { "id": "lb.after_c_energy", "type": "Label", "label": "after_c_energy" },
   { "id": "c.0087", "type": "Say", "speakerId": "guest_c", "expressionId": "normal", "text": "그쪽은… 어때." },
@@ -1257,12 +1257,10 @@
 
   { "id": "lb.d_can_fail", "type": "Label", "label": "d_can_fail" },
   { "id": "d.can.f.0001", "type": "Say", "speakerId": "melion", "expressionId": "normal", "text": "음료 드릴게요." },
-  { "id": "d.can.f.0002", "type": "Say", "speakerId": "guest_d_unknown", "expressionId": "normal", "text": "…" },
-  { "id": "d.can.f.0003", "type": "Say", "speakerId": "guest_d_unknown", "expressionId": "embarrassed", "text": "이#!@건…" },
-  { "id": "d.can.f.0004", "type": "Say", "speakerId": "guest_d_unknown", "expressionId": "normal", "text": "^#%…브!#%랙시움이…" },
-  { "id": "d.can.f.0005", "type": "Say", "speakerId": "guest_d_unknown", "expressionId": "normal", "text": "… 휴." },
-  { "id": "d.can.f.0006", "type": "Say", "speakerId": "guest_d_unknown", "expressionId": "normal", "text": "브랙시움은 넣지 말아달라고 했는데." },
-  { "id": "d.can.f.0007", "type": "Say", "speakerId": "melion", "expressionId": "normal", "text": "… 죄송합니다." },
+  { "id": "d.can.f.0002", "type": "Say", "speakerId": "guest_d_unknown", "expressionId": "normal", "text": "이게 캔이라는거구나." },
+  { "id": "d.can.f.0003", "type": "Say", "speakerId": "guest_d_unknown", "expressionId": "smile", "text": "특이하게 생겼네요!" },
+  { "id": "d.can.f.0004", "type": "Say", "speakerId": "melion", "expressionId": "normal", "text": "어… 음." },
+  { "id": "d.can.f.0005", "type": "Say", "speakerId": "melion", "expressionId": "normal", "text": "그렇긴 하죠." },
   { "id": "jump.d_can_fail.after", "type": "Jump", "label": "after_d_can" },
 
   { "id": "lb.after_d_can", "type": "Label", "label": "after_d_can" },
@@ -1457,8 +1455,7 @@
 
   { "id": "lb.d_not_sweet_fail", "type": "Label", "label": "d_not_sweet_fail" },
   { "id": "d.not_sweet.f.0001", "type": "Say", "speakerId": "guest_d", "expressionId": "normal", "text": "주문을 틀리셨네요." },
-  { "id": "d.not_sweet.f.0002", "type": "Say", "speakerId": "guest_d", "expressionId": "normal", "text": "이건… 달아요!" },
-  { "id": "d.not_sweet.f.0003", "type": "Say", "speakerId": "guest_d", "expressionId": "normal", "text": "그래도 성의를 생각해서 마실게요." },
+  { "id": "d.not_sweet.f.0002", "type": "Say", "speakerId": "guest_d", "expressionId": "normal", "text": "그래도 성의를 생각해서 마실게요." },
   { "id": "jump.d_not_sweet_fail.after", "type": "Jump", "label": "after_d_not_sweet" },
 
   { "id": "lb.after_d_not_sweet", "type": "Label", "label": "after_d_not_sweet" },

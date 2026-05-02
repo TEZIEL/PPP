@@ -3,91 +3,114 @@
     {
       "id": "REQ_DAY01_SENA_COLA",
       "type": "CATEGORY_REQUEST",
-      "category": ["CATEGORY_SODA"],
-      "likedDrink": ["DRINK_MORVION_COLA", "DRINK_VELTRINE_COLA"]
+      "greatTags": ["TAG_COLA"],
+      "successCategories": ["CATEGORY_SODA"]
     },
 
     {
       "id": "REQ_DAY01_A_ANY",
       "type": "ANY_DRINK",
-      "likedDrink": "DRINK_MILK_SODA"
+      "greatDrinkIds": ["DRINK_YOGURT_BERRY"],
+      "likedDrink": ["DRINK_YOGURT_BERRY"]
     },
 
     {
       "id": "REQ_DAY01_A_SOUR",
       "type": "CATEGORY_REQUEST",
-      "category": ["CATEGORY_SOUR"],
-      "likedDrink": ["DRINK_BAD_APPLE"]
+      "greatDrinkIds": ["DRINK_VITAMIN_PLUS"],
+      "successDrinkIds": [
+        "DRINK_ORANGE_JUICE",
+        "DRINK_PLUM_TEA"
+      ]
     },
 
     {
       "id": "REQ_DAY01_A_HOT_TEA",
       "type": "CATEGORY_REQUEST",
-      "category": ["CATEGORY_HOT_TEA"],
-      "likedDrink": ["DRINK_HOT_TEA"]
+      "greatDrinkIds": [
+        "DRINK_GREEN_TEA",
+        "DRINK_BLACK_TEA"
+      ],
+      "successCategories": ["CATEGORY_TRADITIONAL_TEA"],
+      "successTags": ["TAG_TEA"],
+      "greatRequiresArtheon": true,
+      "successRequiresArtheon": true
     },
 
     {
       "id": "REQ_DAY01_B_FRUIT_NOT_TOO_SWEET",
-      "type": "CATEGORY_REQUEST",
-      "category": ["CATEGORY_FRUIT_NOT_TOO_SWEET"],
-      "likedDrink": ["DRINK_YOGURT_APPLE", "DRINK_SAIMENTHOL_COLA"]
+      "type": "EXACT_DRINK",
+      "greatDrinkIds": [
+        "DRINK_YOGURT_APPLE",
+        "DRINK_CYMENTOL_COLA"
+      ],
+      "noSuccess": true
     },
 
     {
       "id": "REQ_DAY01_B_MILK_FRUIT",
       "type": "CATEGORY_REQUEST",
-      "category": ["CATEGORY_DAIRY"],
-      "likedDrink": ["DRINK_BANANA_MILK"]
+      "greatDrinkIds": ["DRINK_BANANA_MILK"],
+      "successCategories": ["CATEGORY_DAIRY"]
     },
 
     {
       "id": "REQ_DAY01_B_CARBONATED",
       "type": "CATEGORY_REQUEST",
-      "category": ["CATEGORY_SODA"],
-      "likedDrink": ["DRINK_MILK_SODA"]
+      "greatDrinkIds": ["DRINK_MILK_SODA"],
+      "successCategories": ["CATEGORY_SODA"]
     },
 
     {
       "id": "REQ_DAY01_C_SWEET_HOT",
       "type": "CATEGORY_REQUEST",
-      "category": ["CATEGORY_SWEET_HOT"],
-      "likedDrink": ["DRINK_MILK_CHOCOLATE", "DRINK_CARAMEL_LATTE"]
+      "greatDrinkIds": [
+        "DRINK_CHOCOLATE_MILK",
+        "DRINK_CARAMEL_LATTE"
+      ],
+      "successRequiredIngredients": {
+        "INGREDIENT_VELTRINE": 1
+      },
+      "greatRequiresArtheon": true,
+      "successRequiresArtheon": true
     },
 
     {
       "id": "REQ_DAY01_C_ENERGY",
       "type": "CATEGORY_REQUEST",
-      "category": ["CATEGORY_ENERGY"],
-      "likedDrink": ["DRINK_LEDULIN_ENERGY"]
+      "greatDrinkIds": ["DRINK_REDULINE_ENERGY"],
+      "successDrinkIds": ["DRINK_CYMENTOL_ENERGY"]
     },
 
     {
       "id": "REQ_DAY01_C_COFFEE",
       "type": "CATEGORY_REQUEST",
-      "category": ["CATEGORY_COFFEE"],
-      "likedDrink": ["DRINK_CARAMEL_LATTE"]
+      "greatDrinkIds": ["DRINK_CARAMEL_LATTE"],
+      "successTags": ["TAG_COFFEE"]
     },
 
     {
       "id": "REQ_DAY01_D_CAN_NO_BRAXIUM",
-      "type": "CATEGORY_REQUEST",
-      "category": ["CATEGORY_CAN_NO_BRAXIUM"],
-      "likedDrink": ["DRINK_ORANGE_CAN"]
+      "type": "EXACT_DRINK",
+      "greatDrinkIds": ["DRINK_ORANGE_SODA"],
+      "successDrinkIds": [
+        "DRINK_CYMENTOL_ENERGY",
+        "DRINK_CYMENTOL_COLA"
+      ]
     },
 
     {
       "id": "REQ_DAY01_D_JUICE",
       "type": "CATEGORY_REQUEST",
-      "category": ["CATEGORY_JUICE"],
-      "likedDrink": ["DRINK_BAD_APPLE"]
+      "greatDrinkIds": ["DRINK_BAD_APPLE"],
+      "successCategories": ["CATEGORY_JUICE"]
     },
 
     {
       "id": "REQ_DAY01_D_NOT_SWEET",
       "type": "CATEGORY_REQUEST",
-      "category": ["CATEGORY_NOT_SWEET"],
-      "likedDrink": ["DRINK_CLEAR_WATER"]
+      "greatDrinkIds": ["DRINK_BARLEY_TEA"],
+      "successDrinkIds": ["DRINK_SPARKLING_WATER"]
     }
   ]
 }
