@@ -21,6 +21,7 @@ namespace PPP.BLUE.VN
 
         private int modalCount;
         public bool IsModalOpen => modalCount > 0;
+        public int ModalCount => modalCount;
 
         public bool IsClosePopupOpen => IsModalReasonOpen("ClosePopup");
         public bool IsDrinkPanelOpen => IsModalReasonOpen("DrinkPanel") || IsInDrinkMode;

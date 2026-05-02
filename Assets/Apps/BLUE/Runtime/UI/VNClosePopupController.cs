@@ -25,6 +25,7 @@ namespace PPP.BLUE.VN
 
         private bool isShowing;
         private System.Action confirmAction;
+        private System.Action cancelAction;
 
         private void Awake()
         {
@@ -37,7 +38,7 @@ namespace PPP.BLUE.VN
             EnsureCanvasGroup();
             SetPopupVisible(false);
 
-            btnCancel?.onClick.AddListener(Hide);
+            btnCancel?.onClick.AddListener(OnCloseCancel);
             btnExit?.onClick.AddListener(ForceExit);
 
         }
@@ -60,7 +61,13 @@ namespace PPP.BLUE.VN
 
         public void ShowExitConfirm()
         {
-            ShowPopup(defaultMessage, () => bridge?.RequestForceClose());
+            ShowExitConfirm(() => bridge?.RequestForceClose(), null);
+        }
+
+        public void ShowExitConfirm(System.Action onConfirm, System.Action onCancel)
+        {
+            cancelAction = onCancel;
+            ShowPopup(defaultMessage, onConfirm);
         }
 
         public void ShowReturnToTitleConfirm(System.Action onConfirm)
@@ -80,6 +87,7 @@ namespace PPP.BLUE.VN
 
             isShowing = true;
             confirmAction = onConfirm;
+            cancelAction ??= null;
 
             if (messageText != null)
                 messageText.text = message;
@@ -112,27 +120,34 @@ namespace PPP.BLUE.VN
             policy?.PopModal("ClosePopup");
 
             bridge?.ClearCloseRequestPending();
+            cancelAction = null;
+            confirmAction = null;
             shortcutController?.LockForSeconds(0.15f);
             UnityEngine.EventSystems.EventSystem.current?.SetSelectedGameObject(null);
         }
 
         public void OnCloseCancel()
         {
+            cancelAction?.Invoke();
             Hide();
         }
 
         public void OnCloseConfirm()
         {
-            // 🔥 추가
+            ForceExit();
+        }
 
-            bridge?.RequestForceClose();
-            Hide();
+        public void RequestCloseFromPopup()
+        {
+            Debug.Log($"[TITLE] bridge.RequestCloseFromUI called bridge={(bridge != null)}");
+            bridge?.RequestCloseFromUI();
         }
 
         private void ForceExit()
         {
-            confirmAction?.Invoke();
+            var action = confirmAction;
             Hide();
+            action?.Invoke();
         }
 
         private void EnsureCanvasGroup()
