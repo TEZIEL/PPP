@@ -170,6 +170,7 @@ namespace PPP.BLUE.VN
 
         private IEnumerator CoStartNewGame()
         {
+            transitionLocked = true;
             SetState(VNAppState.Transition);
 
             float fadeOutSeconds = saveLoadWindow != null ? saveLoadWindow.LoadFadeOutSeconds : titleTransitionFadeOut;
