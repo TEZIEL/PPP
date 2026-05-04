@@ -822,6 +822,8 @@ MonoBehaviour:
   fadeController: {fileID: 874612822924668884}
   closePopupController: {fileID: 1861449070072624014}
   bridge: {fileID: 8020622904635775800}
+  policy: {fileID: 0}
+  windowManager: {fileID: 0}
   titleRoot: {fileID: 6318639803712885781}
   newGameButton: {fileID: 4927625247799634157}
   continueButton: {fileID: 7200038638784534988}
@@ -5464,6 +5466,7 @@ MonoBehaviour:
   typeSpeed: 30
   runner: {fileID: 5088717439015034517}
   policy: {fileID: 5970636519023333258}
+  windowManager: {fileID: 0}
   textTyper: {fileID: 714973972343246313}
   autoPlayDelaySeconds: 0.75
   skipMode: 1
@@ -8264,6 +8267,9 @@ MonoBehaviour:
   selectedSlotNameText: {fileID: 6515758473680482040}
   selectedSlotInfoText: {fileID: 7077596256494232664}
   selectedSlotDateText: {fileID: 3626833554370754621}
+  selectedSlotPreviewImage: {fileID: 1446776439210165185}
+  thumbnailCaptureTarget: {fileID: 6771399588559872768}
+  overlayRootToHideDuringCapture: {fileID: 2630372750320227256}
   confirmPopupRoot: {fileID: 3333972376641994083}
   confirmMessageText: {fileID: 6871258036484433800}
   confirmYesButton: {fileID: 1405277107437799409}
@@ -8272,6 +8278,8 @@ MonoBehaviour:
   loadFadeOutSeconds: 0.5
   loadFadeInSeconds: 0.5
   loadBlackHoldSeconds: 3
+  thumbnailWidth: 158
+  thumbnailHeight: 97
   selectedSlotButtonColor: {r: 0.5019608, g: 0.5019608, b: 0.72156864, a: 1}
   selectedTextColor: {r: 1, g: 1, b: 1, a: 1}
   normalTextColor: {r: 0.11764706, g: 0.11764706, b: 0.11764706, a: 1}
@@ -24012,6 +24020,7 @@ MonoBehaviour:
   hideUIButton: {fileID: 905946360053600017}
   saveLoadWindow: {fileID: 3270875385100370035}
   appFlowController: {fileID: 0}
+  windowManager: {fileID: 0}
   backlogView: {fileID: 5746052801380046462}
   dialogueCanvasGroup: {fileID: 2800437103308851553}
   dialogueRoot: {fileID: 1154989184179664875}
@@ -25262,8 +25271,8 @@ RectTransform:
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 7828190581851026466}
-  - {fileID: 2364063306045196858}
   - {fileID: 4906037463695743716}
+  - {fileID: 2364063306045196858}
   m_Father: {fileID: 7551348740662702333}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
