@@ -173,6 +173,27 @@
                     return;
                 osData.osState.recipeState.servedDrinkIds.Add(recipeId);
                 OSSaveSystem.Save(osData);
+                Debug.Log($"[RECIPE_DISCOVERY] SaveOS servedCount={osData.osState.recipeState.servedDrinkIds.Count}");
+            }
+
+            private static IReadOnlyList<string> ResolveServedDrinkIds()
+            {
+                var wm = ResolveWindowManager();
+                if (wm != null)
+                    return wm.GetServedDrinkIds();
+
+                var osData = OSSaveSystem.Load() ?? new OSSaveData();
+                osData.osState ??= new OSGlobalStateData();
+                osData.osState.recipeState ??= new RecipeAppStateData();
+                osData.osState.recipeState.servedDrinkIds ??= new List<string>();
+                return osData.osState.recipeState.servedDrinkIds;
+            }
+
+            private static WindowManager ResolveWindowManager()
+            {
+                if (cachedWindowManager == null)
+                    cachedWindowManager = UnityEngine.Object.FindFirstObjectByType<WindowManager>(FindObjectsInactive.Include);
+                return cachedWindowManager;
             }
 
             private static IReadOnlyList<string> ResolveServedDrinkIds()
