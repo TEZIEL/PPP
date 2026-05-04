@@ -164,21 +164,7 @@ namespace PPP.BLUE.VN
             }, () => Debug.Log($"[TITLE] Exit cancelled source={source}"));
         }
 
-        public void RequestExitFromTitle(string source)
-        {
-            Debug.Log($"[TITLE] Exit requested source={source} state={State}");
-            if (State != VNAppState.Title || transitionLocked)
-                return;
-
-            Debug.Log($"[TITLE] Show exit confirm source={source}");
-            closePopupController?.ShowExitConfirm(() =>
-            {
-                Debug.Log($"[TITLE] Exit confirmed source={source}");
-                Debug.Log($"[TITLE] Force close requested source={source}");
-                closePopupController?.RequestCloseFromPopup();
-            }, () => Debug.Log($"[TITLE] Exit cancelled source={source}"));
-        }
-
+        
         public void ReturnToTitle()
         {
             StartCoroutine(CoReturnToTitle("Legacy"));
