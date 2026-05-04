@@ -202,7 +202,7 @@ namespace PPP.BLUE.VN
                 return false;
 
             if (policy != null)
-                return VNInputGate.CanRouteInput(policy);
+                return VNInputGate.CanAdvanceDialogue(policy);
 
             // policy 미주입 시 보수적 폴백
             if (bridge != null)

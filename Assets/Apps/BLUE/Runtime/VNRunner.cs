@@ -1371,8 +1371,11 @@ namespace PPP.BLUE.VN
             var commands = ParseInlineCommands(text);
 
             string cleanText = RemoveInlineCommands(text);
+            string speakerId = node?.speakerId ?? string.Empty;
+            string backlogSpeakerDisplayName = ResolveSpeakerDisplayName(speakerId);
             var backlogKey = BuildBacklogKey(node);
-            backlogManager.BeginOrGetEntry(backlogKey, node?.speakerId ?? string.Empty);
+            backlogManager.BeginOrGetEntry(backlogKey, backlogSpeakerDisplayName);
+            Debug.Log($"[BACKLOG_SPEAKER] speakerId={speakerId} displayName={backlogSpeakerDisplayName}");
             currentBacklogKey = backlogKey;
             isCurrentLineTyping = true;
 

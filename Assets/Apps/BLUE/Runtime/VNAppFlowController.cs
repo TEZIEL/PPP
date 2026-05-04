@@ -20,6 +20,7 @@ namespace PPP.BLUE.VN
         [SerializeField] private VNFadeController fadeController;
         [SerializeField] private VNClosePopupController closePopupController;
         [SerializeField] private VNOSBridge bridge;
+        [SerializeField] private VNPolicyController policy;
 
         [Header("Title UI")]
         [SerializeField] private GameObject titleRoot;
@@ -43,6 +44,7 @@ namespace PPP.BLUE.VN
             if (fadeController == null) fadeController = GetComponentInParent<VNFadeController>(true);
             if (closePopupController == null) closePopupController = GetComponentInParent<VNClosePopupController>(true);
             if (bridge == null) bridge = GetComponentInParent<VNOSBridge>(true);
+            if (policy == null) policy = GetComponentInParent<VNPolicyController>(true);
 
             BindButtons();
             SetState(VNAppState.Title);
@@ -140,9 +142,30 @@ namespace PPP.BLUE.VN
             RequestExitFromTitle("Button");
         }
 
+
+        private bool CanReturnToTitle(string source)
+        {
+            if (policy != null && policy.IsDrinkModeActive())
+            {
+                Debug.Log($"[RETURN_TITLE_BLOCKED] source={source} reason=DrinkActive");
+                return false;
+            }
+
+            if (policy != null && policy.ModalCount > 0)
+            {
+                string reason = policy.IsModalReasonOpen("Options") ? "OptionsModal" : "ModalCount>0";
+                Debug.Log($"[VN_INPUT_BLOCKED] reason={reason}");
+                return false;
+            }
+
+            return true;
+        }
         public void RequestReturnToTitleFromInGame(string source = "Button")
         {
             if (State != VNAppState.InGame)
+                return;
+
+            if (!CanReturnToTitle(source))
                 return;
 
             Debug.Log($"[TITLE] Show return-to-title confirm source={source}");
