@@ -118,9 +118,16 @@
             private void InitializeUnlockState()
             {
                 var osData = OSSaveSystem.Load() ?? new OSSaveData();
-                unlockedRecipes = osData.unlockedRecipeIds != null
-                    ? new HashSet<string>(osData.unlockedRecipeIds, StringComparer.OrdinalIgnoreCase)
-                    : new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+                osData.osState ??= new OSGlobalStateData();
+                osData.osState.recipeState ??= new RecipeAppStateData();
+                osData.osState.recipeState.servedDrinkIds ??= new List<string>();
+                unlockedRecipes = new HashSet<string>(osData.osState.recipeState.servedDrinkIds, StringComparer.OrdinalIgnoreCase);
+                if (osData.unlockedRecipeIds != null)
+                {
+                    for (int i = 0; i < osData.unlockedRecipeIds.Count; i++)
+                        unlockedRecipes.Add(osData.unlockedRecipeIds[i]);
+                }
+                Debug.Log($"[RECIPE_APP] Load servedCount={unlockedRecipes.Count}");
             }
 
             public static void UnlockRecipeFromServe(string recipeId)
@@ -153,12 +160,21 @@
             private static void PersistRecipeUnlock(string recipeId)
             {
                 var osData = OSSaveSystem.Load() ?? new OSSaveData();
+                osData.osState ??= new OSGlobalStateData();
+                osData.osState.recipeState ??= new RecipeAppStateData();
+                osData.osState.recipeState.servedDrinkIds ??= new List<string>();
                 osData.unlockedRecipeIds ??= new List<string>();
-                if (osData.unlockedRecipeIds.Contains(recipeId))
+                if (osData.osState.recipeState.servedDrinkIds.Contains(recipeId))
+                {
+                    Debug.Log($"[RECIPE_DISCOVERY] AlreadyServed drinkId={recipeId}");
                     return;
+                }
 
+                osData.osState.recipeState.servedDrinkIds.Add(recipeId);
                 osData.unlockedRecipeIds.Add(recipeId);
+                Debug.Log($"[RECIPE_DISCOVERY] MarkServed drinkId={recipeId}");
                 OSSaveSystem.Save(osData);
+                Debug.Log($"[RECIPE_DISCOVERY] SaveOS servedCount={osData.osState.recipeState.servedDrinkIds.Count}");
             }
 
             /// <summary>
@@ -349,6 +365,7 @@
                         Sprite sprite = unlocked
                             ? FindDrinkSprite(drink.imageKey)
                             : GetDefaultSprite(drink.imageKey);
+                        Debug.Log($"[RECIPE_APP] ApplyImage drinkId={drink.id} served={unlocked}");
 
                         item.Setup(drink, sprite, ingredientDisplayNameById, OnDrinkClicked);
                         drinkItems.Add(item);
@@ -534,7 +551,13 @@
                     if (item == null)
                         continue;
 
-                    item.ApplyUnlockVisual(IsRecipeUnlocked(item.DrinkId));
+                    var drink = allDrinks.Find(x => x != null && string.Equals(x.id, item.DrinkId, StringComparison.OrdinalIgnoreCase));
+                    bool unlocked = IsRecipeUnlocked(item.DrinkId);
+                    Sprite sprite = unlocked
+                        ? FindDrinkSprite(drink?.imageKey)
+                        : GetDefaultSprite(drink?.imageKey);
+                    item.Setup(drink, sprite, ingredientDisplayNameById, OnDrinkClicked);
+                    Debug.Log($"[RECIPE_APP] ApplyImage drinkId={item.DrinkId} served={unlocked}");
                 }
 
                 if (openedDetailDrink != null)
