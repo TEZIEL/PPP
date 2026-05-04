@@ -150,6 +150,12 @@ namespace PPP.BLUE.VN
 
         private bool CanReturnToTitle(string source)
         {
+            if (VNDialogueView.IsAnyBacklogOpen)
+            {
+                Debug.Log($"[RETURN_TITLE_BLOCKED] source={source} reason=BacklogOpen");
+                return false;
+            }
+
             if (policy != null && policy.IsDrinkModeActive())
             {
                 Debug.Log($"[RETURN_TITLE_BLOCKED] source={source} reason=DrinkActive");
