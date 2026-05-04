@@ -763,41 +763,91 @@ namespace PPP.BLUE.VN
         private IEnumerator CaptureAndSaveThumbnailCoroutine(int slotNumber)
         {
             Debug.Log($"[VN_THUMB] Capture start slot={slotNumber}");
-            if (thumbnailCaptureTarget == null) { Debug.LogWarning("[VN_THUMB] Missing thumbnailCaptureTarget"); yield break; }
-            if (overlayRootToHideDuringCapture == null) { Debug.LogWarning("[VN_THUMB] Missing overlayRootToHideDuringCapture"); yield break; }
-            if (selectedSlotPreviewImage == null) Debug.LogWarning("[VN_THUMB] Missing selectedSlotPreviewImage");
+
+            if (thumbnailCaptureTarget == null)
+            {
+                Debug.LogWarning("[VN_THUMB] Missing thumbnailCaptureTarget");
+                yield break;
+            }
+
+            if (overlayRootToHideDuringCapture == null)
+            {
+                Debug.LogWarning("[VN_THUMB] Missing overlayRootToHideDuringCapture");
+                yield break;
+            }
+
+            if (selectedSlotPreviewImage == null)
+            {
+                Debug.LogWarning("[VN_THUMB] Missing selectedSlotPreviewImage");
+            }
 
             bool activeBefore = overlayRootToHideDuringCapture.activeSelf;
+
             Debug.Log($"[VN_THUMB] Hide overlay activeBefore={activeBefore}");
+            overlayRootToHideDuringCapture.SetActive(false);
+
+            yield return null;
+            yield return new WaitForEndOfFrame();
+
+            TryCaptureAndSaveThumbnail(slotNumber);
+
+            overlayRootToHideDuringCapture.SetActive(activeBefore);
+            Debug.Log($"[VN_THUMB] Restore overlay active={overlayRootToHideDuringCapture.activeSelf}");
+        }
+
+        private void TryCaptureAndSaveThumbnail(int slotNumber)
+        {
+            Texture2D src = null;
+            Texture2D dst = null;
+
             try
             {
-                overlayRootToHideDuringCapture.SetActive(false);
-                yield return null;
-                yield return new WaitForEndOfFrame();
-
                 var corners = new Vector3[4];
                 thumbnailCaptureTarget.GetWorldCorners(corners);
+
                 int x = Mathf.Clamp(Mathf.RoundToInt(corners[0].x), 0, Screen.width - 1);
                 int y = Mathf.Clamp(Mathf.RoundToInt(corners[0].y), 0, Screen.height - 1);
                 int w = Mathf.Clamp(Mathf.RoundToInt(corners[2].x - corners[0].x), 0, Screen.width - x);
                 int h = Mathf.Clamp(Mathf.RoundToInt(corners[2].y - corners[0].y), 0, Screen.height - y);
-                Debug.Log($"[VN_THUMB] capture rect x={x} y={y} w={w} h={h}");
-                if (w <= 0 || h <= 0) { Debug.LogWarning("[VN_THUMB] capture failed invalid rect"); yield break; }
 
-                var src = new Texture2D(w, h, TextureFormat.RGB24, false);
+                Debug.Log($"[VN_THUMB] capture rect x={x} y={y} w={w} h={h}");
+
+                if (w <= 0 || h <= 0)
+                {
+                    Debug.LogWarning("[VN_THUMB] capture failed invalid rect");
+                    return;
+                }
+
+                src = new Texture2D(w, h, TextureFormat.RGB24, false);
                 src.ReadPixels(new Rect(x, y, w, h), 0, 0);
                 src.Apply();
+
                 int tw = thumbnailWidth > 0 ? thumbnailWidth : 158;
                 int th = thumbnailHeight > 0 ? thumbnailHeight : 97;
-                var dst = new Texture2D(tw, th, TextureFormat.RGB24, false);
+
+                dst = new Texture2D(tw, th, TextureFormat.RGB24, false);
+
                 for (int py = 0; py < th; py++)
+                {
                     for (int px = 0; px < tw; px++)
-                        dst.SetPixel(px, py, src.GetPixelBilinear((float)px / tw, (float)py / th));
+                    {
+                        dst.SetPixel(
+                            px,
+                            py,
+                            src.GetPixelBilinear((float)px / tw, (float)py / th)
+                        );
+                    }
+                }
+
                 dst.Apply();
+
                 Debug.Log($"[VN_THUMB] resized {tw}x{th}");
+
                 string path = GetThumbnailPath(slotNumber);
                 File.WriteAllBytes(path, dst.EncodeToPNG());
+
                 Debug.Log($"[VN_THUMB] Save png path={path}");
+
                 LoadSelectedSlotThumbnail(slotNumber);
             }
             catch (System.Exception ex)
@@ -806,8 +856,15 @@ namespace PPP.BLUE.VN
             }
             finally
             {
-                overlayRootToHideDuringCapture.SetActive(activeBefore);
-                Debug.Log($"[VN_THUMB] Restore overlay active={overlayRootToHideDuringCapture.activeSelf}");
+                if (src != null)
+                {
+                    Destroy(src);
+                }
+
+                if (dst != null)
+                {
+                    Destroy(dst);
+                }
             }
         }
 
