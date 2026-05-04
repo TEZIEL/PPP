@@ -145,6 +145,19 @@ namespace PPP.BLUE.VN
             OnForceCloseRequested?.Invoke();
         }
 
+
+        public void RequestConfirmedForceClose()
+        {
+            if (Host != null)
+            {
+                Debug.Log($"[TITLE] Calling host.ForceClose appId={appId}");
+                Host.ForceClose(appId);
+                return;
+            }
+
+            RequestForceClose();
+        }
+
         public void RequestCloseFromUI()
         {
             if (Host != null)
