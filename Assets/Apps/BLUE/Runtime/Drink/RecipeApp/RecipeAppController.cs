@@ -86,6 +86,7 @@
             private HashSet<string> unlockedRecipes = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
 
             private static RecipeAppController instance;
+            private static WindowManager cachedWindowManager;
 
             private List<IngredientEntry> allIngredients = new List<IngredientEntry>();
             private List<DrinkEntry> allDrinks = new List<DrinkEntry>();
@@ -117,11 +118,9 @@
 
             private void InitializeUnlockState()
             {
+                var servedIds = ResolveServedDrinkIds();
+                unlockedRecipes = new HashSet<string>(servedIds, StringComparer.OrdinalIgnoreCase);
                 var osData = OSSaveSystem.Load() ?? new OSSaveData();
-                osData.osState ??= new OSGlobalStateData();
-                osData.osState.recipeState ??= new RecipeAppStateData();
-                osData.osState.recipeState.servedDrinkIds ??= new List<string>();
-                unlockedRecipes = new HashSet<string>(osData.osState.recipeState.servedDrinkIds, StringComparer.OrdinalIgnoreCase);
                 if (osData.unlockedRecipeIds != null)
                 {
                     for (int i = 0; i < osData.unlockedRecipeIds.Count; i++)
@@ -159,22 +158,42 @@
 
             private static void PersistRecipeUnlock(string recipeId)
             {
+                var wm = ResolveWindowManager();
+                if (wm != null)
+                {
+                    wm.MarkRecipeDrinkServed(recipeId);
+                    return;
+                }
+                Debug.LogWarning("[RECIPE_DISCOVERY] WindowManager not found; fallback save path used.");
                 var osData = OSSaveSystem.Load() ?? new OSSaveData();
                 osData.osState ??= new OSGlobalStateData();
                 osData.osState.recipeState ??= new RecipeAppStateData();
                 osData.osState.recipeState.servedDrinkIds ??= new List<string>();
-                osData.unlockedRecipeIds ??= new List<string>();
                 if (osData.osState.recipeState.servedDrinkIds.Contains(recipeId))
-                {
-                    Debug.Log($"[RECIPE_DISCOVERY] AlreadyServed drinkId={recipeId}");
                     return;
-                }
-
                 osData.osState.recipeState.servedDrinkIds.Add(recipeId);
-                osData.unlockedRecipeIds.Add(recipeId);
-                Debug.Log($"[RECIPE_DISCOVERY] MarkServed drinkId={recipeId}");
                 OSSaveSystem.Save(osData);
                 Debug.Log($"[RECIPE_DISCOVERY] SaveOS servedCount={osData.osState.recipeState.servedDrinkIds.Count}");
+            }
+
+            private static IReadOnlyList<string> ResolveServedDrinkIds()
+            {
+                var wm = ResolveWindowManager();
+                if (wm != null)
+                    return wm.GetServedDrinkIds();
+
+                var osData = OSSaveSystem.Load() ?? new OSSaveData();
+                osData.osState ??= new OSGlobalStateData();
+                osData.osState.recipeState ??= new RecipeAppStateData();
+                osData.osState.recipeState.servedDrinkIds ??= new List<string>();
+                return osData.osState.recipeState.servedDrinkIds;
+            }
+
+            private static WindowManager ResolveWindowManager()
+            {
+                if (cachedWindowManager == null)
+                    cachedWindowManager = UnityEngine.Object.FindFirstObjectByType<WindowManager>(FindObjectsInactive.Include);
+                return cachedWindowManager;
             }
 
             /// <summary>

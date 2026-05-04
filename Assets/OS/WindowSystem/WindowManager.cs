@@ -44,6 +44,7 @@ public class WindowManager : MonoBehaviour, IVNHostOS
     private string activeAppId;
     public string ActiveAppId => activeAppId;
     private OSSaveData cachedSave;
+    private RecipeAppStateData recipeState = new();
 
     [SerializeField] private bool logWindowState = false; // 필요할 때만 Inspector에서 켜기
     [SerializeField] private bool logWindowLifecycle = true;
@@ -405,9 +406,11 @@ public class WindowManager : MonoBehaviour, IVNHostOS
         }
 
         saveData.osState ??= new OSGlobalStateData();
+        saveData.osState.recipeState = CloneRecipeState(recipeState);
         if (BGMManager.Instance != null)
             saveData.osState.bgm = BGMManager.Instance.CaptureOsState();
         CaptureCustomizationState(saveData.osState);
+        Debug.Log($"[OS SAVE] recipe servedCount={saveData.osState.recipeState?.servedDrinkIds?.Count ?? 0}");
 
         PPP.OS.Save.OSSaveSystem.Save(saveData);
         cachedSave = saveData;
@@ -436,6 +439,11 @@ public class WindowManager : MonoBehaviour, IVNHostOS
         ApplyIcons(data);
 
         var savedBgmState = data.osState != null ? data.osState.bgm : null;
+        data.osState ??= new OSGlobalStateData();
+        data.osState.recipeState ??= new RecipeAppStateData();
+        data.osState.recipeState.servedDrinkIds ??= new List<string>();
+        recipeState = CloneRecipeState(data.osState.recipeState);
+        Debug.Log($"[OS LOAD] recipe servedCount={recipeState.servedDrinkIds.Count}");
         if (BGMManager.Instance != null)
             BGMManager.Instance.ApplyOsState(savedBgmState);
         else
@@ -449,6 +457,46 @@ public class WindowManager : MonoBehaviour, IVNHostOS
         StartCoroutine(CoPostApplyLayoutSanityNextFrame());
 
         Debug.Log($"[OS] LoadOS applied. subBlocks={subBlockJsonByKey.Count}");
+    }
+
+    public void MarkRecipeDrinkServed(string drinkId)
+    {
+        if (string.IsNullOrWhiteSpace(drinkId))
+            return;
+        EnsureRecipeState();
+        Debug.Log($"[RECIPE_DISCOVERY] BeforeAdd servedCount={recipeState.servedDrinkIds.Count}");
+        if (recipeState.servedDrinkIds.Contains(drinkId))
+        {
+            Debug.Log($"[RECIPE_DISCOVERY] AlreadyServed drinkId={drinkId}");
+            return;
+        }
+        recipeState.servedDrinkIds.Add(drinkId);
+        Debug.Log($"[RECIPE_DISCOVERY] MarkServed drinkId={drinkId}");
+        Debug.Log($"[RECIPE_DISCOVERY] AfterAdd servedCount={recipeState.servedDrinkIds.Count}");
+        Debug.Log($"[RECIPE_DISCOVERY] SaveOS requested servedCount={recipeState.servedDrinkIds.Count}");
+        SaveOS();
+    }
+
+    public IReadOnlyList<string> GetServedDrinkIds()
+    {
+        EnsureRecipeState();
+        return recipeState.servedDrinkIds;
+    }
+
+    private void EnsureRecipeState()
+    {
+        recipeState ??= new RecipeAppStateData();
+        recipeState.servedDrinkIds ??= new List<string>();
+    }
+
+    private static RecipeAppStateData CloneRecipeState(RecipeAppStateData src)
+    {
+        var dst = new RecipeAppStateData();
+        if (src?.servedDrinkIds != null)
+            dst.servedDrinkIds = new List<string>(src.servedDrinkIds);
+        else
+            dst.servedDrinkIds = new List<string>();
+        return dst;
     }
 
     private void CaptureCustomizationState(OSGlobalStateData osState)
