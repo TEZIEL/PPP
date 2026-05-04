@@ -1999,7 +1999,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_Sprite: {fileID: 21300000, guid: b26aa24f3596eb64a8e0c173d7368d2b, type: 3}
+  m_Sprite: {fileID: 21300000, guid: bcf763dfead173e498e5e11d1870496b, type: 3}
   m_Type: 1
   m_PreserveAspect: 0
   m_FillCenter: 1
@@ -8173,6 +8173,7 @@ MonoBehaviour:
   dialogueView: {fileID: 5735854688594582119}
   fadeController: {fileID: 874612822924668884}
   bridge: {fileID: 8020622904635775800}
+  appFlowController: {fileID: 0}
   windowRoot: {fileID: 6560962918296567885}
   windowCanvasGroup: {fileID: 6662508580495934891}
   closeButton: {fileID: 67346339271199680}
@@ -8268,6 +8269,7 @@ MonoBehaviour:
   selectedSlotInfoText: {fileID: 7077596256494232664}
   selectedSlotDateText: {fileID: 3626833554370754621}
   selectedSlotPreviewImage: {fileID: 1446776439210165185}
+  selectedSlotPreviewPlaceholderSprite: {fileID: 21300000, guid: 7b6399339b4aba34a9980679ec0484d8, type: 3}
   thumbnailCaptureTarget: {fileID: 6771399588559872768}
   overlayRootToHideDuringCapture: {fileID: 2630372750320227256}
   confirmPopupRoot: {fileID: 3333972376641994083}
@@ -8824,7 +8826,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_Sprite: {fileID: 21300000, guid: b26aa24f3596eb64a8e0c173d7368d2b, type: 3}
+  m_Sprite: {fileID: 21300000, guid: bcf763dfead173e498e5e11d1870496b, type: 3}
   m_Type: 1
   m_PreserveAspect: 0
   m_FillCenter: 1
@@ -11896,7 +11898,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_Sprite: {fileID: 21300000, guid: b26aa24f3596eb64a8e0c173d7368d2b, type: 3}
+  m_Sprite: {fileID: 21300000, guid: bcf763dfead173e498e5e11d1870496b, type: 3}
   m_Type: 1
   m_PreserveAspect: 0
   m_FillCenter: 1
@@ -13617,32 +13619,32 @@ MonoBehaviour:
     button: {fileID: 2731394500151584352}
     targetImage: {fileID: 5185934426906011879}
     stateSource: {fileID: 6596044333851582442}
-    activeSprite: {fileID: 21300000, guid: a9418d10ce6b8bf4b8adb8b279b791a4, type: 3}
-    inactiveSprite: {fileID: 21300000, guid: b26aa24f3596eb64a8e0c173d7368d2b, type: 3}
+    activeSprite: {fileID: 21300000, guid: 19b9cd19318ddf84793cd1de2ae89355, type: 3}
+    inactiveSprite: {fileID: 21300000, guid: bcf763dfead173e498e5e11d1870496b, type: 3}
   - label: 
     button: {fileID: 8657123684315957331}
     targetImage: {fileID: 7681270869667859639}
     stateSource: {fileID: 7760514949663658624}
-    activeSprite: {fileID: 21300000, guid: a9418d10ce6b8bf4b8adb8b279b791a4, type: 3}
-    inactiveSprite: {fileID: 21300000, guid: b26aa24f3596eb64a8e0c173d7368d2b, type: 3}
+    activeSprite: {fileID: 21300000, guid: 19b9cd19318ddf84793cd1de2ae89355, type: 3}
+    inactiveSprite: {fileID: 21300000, guid: bcf763dfead173e498e5e11d1870496b, type: 3}
   - label: 
     button: {fileID: 7660800011558654163}
     targetImage: {fileID: 2120574677699034338}
     stateSource: {fileID: 4615232419757392711}
-    activeSprite: {fileID: 21300000, guid: a9418d10ce6b8bf4b8adb8b279b791a4, type: 3}
-    inactiveSprite: {fileID: 21300000, guid: b26aa24f3596eb64a8e0c173d7368d2b, type: 3}
+    activeSprite: {fileID: 21300000, guid: 19b9cd19318ddf84793cd1de2ae89355, type: 3}
+    inactiveSprite: {fileID: 21300000, guid: bcf763dfead173e498e5e11d1870496b, type: 3}
   - label: 
     button: {fileID: 2570338192436488418}
     targetImage: {fileID: 8982265876327863111}
     stateSource: {fileID: 7664900197048604631}
-    activeSprite: {fileID: 21300000, guid: a9418d10ce6b8bf4b8adb8b279b791a4, type: 3}
-    inactiveSprite: {fileID: 21300000, guid: b26aa24f3596eb64a8e0c173d7368d2b, type: 3}
+    activeSprite: {fileID: 21300000, guid: 19b9cd19318ddf84793cd1de2ae89355, type: 3}
+    inactiveSprite: {fileID: 21300000, guid: bcf763dfead173e498e5e11d1870496b, type: 3}
   - label: 
     button: {fileID: 5615515203433212443}
     targetImage: {fileID: 2051718547368970632}
     stateSource: {fileID: 3183299283255160418}
-    activeSprite: {fileID: 21300000, guid: a9418d10ce6b8bf4b8adb8b279b791a4, type: 3}
-    inactiveSprite: {fileID: 21300000, guid: b26aa24f3596eb64a8e0c173d7368d2b, type: 3}
+    activeSprite: {fileID: 21300000, guid: 19b9cd19318ddf84793cd1de2ae89355, type: 3}
+    inactiveSprite: {fileID: 21300000, guid: bcf763dfead173e498e5e11d1870496b, type: 3}
 --- !u!1 &4221362403013667188
 GameObject:
   m_ObjectHideFlags: 0
@@ -19177,7 +19179,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_Sprite: {fileID: 21300000, guid: b26aa24f3596eb64a8e0c173d7368d2b, type: 3}
+  m_Sprite: {fileID: 21300000, guid: bcf763dfead173e498e5e11d1870496b, type: 3}
   m_Type: 1
   m_PreserveAspect: 0
   m_FillCenter: 1
@@ -20938,7 +20940,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_Sprite: {fileID: 21300000, guid: b26aa24f3596eb64a8e0c173d7368d2b, type: 3}
+  m_Sprite: {fileID: 21300000, guid: bcf763dfead173e498e5e11d1870496b, type: 3}
   m_Type: 0
   m_PreserveAspect: 0
   m_FillCenter: 1
