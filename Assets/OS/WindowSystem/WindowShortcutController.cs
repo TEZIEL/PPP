@@ -24,6 +24,12 @@ public class WindowShortcutController : MonoBehaviour
     {
         if (Time.unscaledTime < shortcutLockUntil) return;
         if (windowManager == null) return;
+        if (windowManager.IsBlockingModalOpen)
+        {
+            if (Input.GetKeyDown(KeyCode.Alpha3) || Input.GetKeyDown(KeyCode.Keypad3))
+                Debug.Log("[VN_INPUT_BLOCKED] source=Alpha3 reason=OSModal");
+            return;
+        }
 
         // 
 

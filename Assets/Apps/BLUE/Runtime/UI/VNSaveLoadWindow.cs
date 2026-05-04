@@ -45,6 +45,9 @@ namespace PPP.BLUE.VN
         [SerializeField] private TMP_Text selectedSlotNameText;
         [SerializeField] private TMP_Text selectedSlotInfoText;
         [SerializeField] private TMP_Text selectedSlotDateText;
+        [SerializeField] private Image selectedSlotPreviewImage;
+        [SerializeField] private RectTransform thumbnailCaptureTarget;
+        [SerializeField] private GameObject overlayRootToHideDuringCapture;
         [SerializeField] private GameObject confirmPopupRoot;
         [SerializeField] private TMP_Text confirmMessageText;
         [SerializeField] private Button confirmYesButton;
@@ -55,6 +58,9 @@ namespace PPP.BLUE.VN
         [SerializeField, Min(0f)] private float loadFadeOutSeconds = 0.35f;
         [SerializeField, Min(0f)] private float loadFadeInSeconds = 0.35f;
         [SerializeField, Min(0f)] private float loadBlackHoldSeconds = 3f;
+        [Header("Thumbnail")]
+        [SerializeField] private int thumbnailWidth = 158;
+        [SerializeField] private int thumbnailHeight = 97;
 
         [Header("Slot Selection Fallback")]
         [SerializeField] private Color selectedSlotButtonColor = new Color32(128, 128, 184, 255);
@@ -78,7 +84,15 @@ namespace PPP.BLUE.VN
         private Color themedSlotSelectedColor;
         private Color themedSlotPressedColor;
         private OpenMode currentOpenMode = OpenMode.Normal;
+        private byte[] pendingThumbnailPngBytes;
         public event System.Action<bool> OnLoadCompleted;
+        public float LoadFadeOutSeconds => loadFadeOutSeconds;
+        public float LoadFadeInSeconds => loadFadeInSeconds;
+        public float LoadBlackHoldSeconds => loadBlackHoldSeconds;
+        public bool IsBusy => busy;
+        public OpenMode CurrentOpenMode => currentOpenMode;
+        public bool IsWindowVisible => windowRoot != null && windowRoot.activeInHierarchy;
+        public System.Action OnBeforeLoadStateApplyUnderFade;
 
         private sealed class SlotPointerRelay : MonoBehaviour, IPointerDownHandler, IPointerUpHandler, IPointerExitHandler
         {
@@ -173,6 +187,20 @@ namespace PPP.BLUE.VN
             Open(OpenMode.Normal);
         }
 
+        public void OpenWithThumbnailPreCapture()
+        {
+            Debug.LogWarning("[VN_THUMB] PreCapture coroutine must be started by active owner");
+            Debug.Log($"[VN_THUMB] owner activeInHierarchy={gameObject.activeInHierarchy}");
+        }
+
+        public IEnumerator CoOpenWithThumbnailPreCapture(OpenMode mode)
+        {
+            if (mode == OpenMode.Normal)
+                yield return CaptureVNUIToPendingThumbnailBytes();
+            Debug.Log("[VN_THUMB] Open SaveLoad after precapture");
+            Open(mode);
+        }
+
         public void Open(OpenMode mode)
         {
             if (busy && !loadingModalPushed)
@@ -230,6 +258,8 @@ namespace PPP.BLUE.VN
             }
 
             SetWindowVisible(false);
+            pendingThumbnailPngBytes = null;
+            currentOpenMode = OpenMode.Normal;
             bridge?.ClearCloseRequestPending();
             ReleaseModal();
             RefreshActionButtonState();
@@ -318,18 +348,27 @@ namespace PPP.BLUE.VN
                 AcquireLoadingModal();
                 ForceAutoOff($"Load slot {slotNumber}");
 
+                Debug.Log("[VN_LOAD_FLOW] FadeOut start");
                 if (fadeController != null)
                     yield return fadeController.FadeOut(loadFadeOutSeconds);
+                Debug.Log("[VN_LOAD_FLOW] FadeOut complete");
 
                 // 검은 화면에서 창을 정리
                 CloseImmediate();
 
+                OnBeforeLoadStateApplyUnderFade?.Invoke();
+
                 if (loadBlackHoldSeconds > 0f)
+                {
+                    Debug.Log("[VN_LOAD_FLOW] Delay start");
                     yield return new WaitForSecondsRealtime(loadBlackHoldSeconds);
+                    Debug.Log("[VN_LOAD_FLOW] Delay end");
+                }
 
                 bool copied = CopySlotToDefaultSave(slotNumber);
                 bool ok = false;
 
+                Debug.Log("[VN_LOAD_FLOW] Restore start");
                 if (copied && runner != null)
                     ok = runner.TryLoadNow($"VN_SAVE_{slotNumber}");
 
@@ -343,10 +382,80 @@ namespace PPP.BLUE.VN
                         ? $"[VN][SaveLoad] Loaded slot={slotNumber}"
                         : $"[VN][SaveLoad] Load blocked/fail slot={slotNumber}");
 
+                Debug.Log("[VN_LOAD_FLOW] FadeIn start");
                 if (fadeController != null)
                     yield return fadeController.FadeIn(loadFadeInSeconds);
+                Debug.Log("[VN_LOAD_FLOW] FadeIn complete");
 
                 OnLoadCompleted?.Invoke(copied && ok);
+            }
+            finally
+            {
+                ReleaseLoadingModal();
+                busy = false;
+                dialogueView?.LockInputFrames(2);
+            }
+        }
+
+
+        private IEnumerator CoLoadSlotFromTitleContinue(int slotNumber)
+        {
+            if (busy)
+                yield break;
+
+            Debug.Log($"[TITLE_CONTINUE_LOAD] clicked slot={slotNumber}");
+            busy = true;
+            try
+            {
+                AcquireModal();
+                AcquireLoadingModal();
+                ForceAutoOff($"TitleContinue Load slot {slotNumber}");
+
+                Debug.Log("[TITLE_CONTINUE_LOAD] FadeOut start");
+                Debug.Log("[VN_LOAD_FLOW] FadeOut start");
+                if (fadeController != null)
+                    yield return fadeController.FadeOut(loadFadeOutSeconds);
+                Debug.Log("[VN_LOAD_FLOW] FadeOut complete");
+                Debug.Log("[TITLE_CONTINUE_LOAD] FadeOut complete alpha=1");
+
+                CloseImmediate();
+                OnBeforeLoadStateApplyUnderFade?.Invoke();
+
+                if (loadBlackHoldSeconds > 0f)
+                {
+                    Debug.Log("[VN_LOAD_FLOW] Delay start");
+                    yield return new WaitForSecondsRealtime(loadBlackHoldSeconds);
+                    Debug.Log("[VN_LOAD_FLOW] Delay end");
+                }
+
+                Debug.Log($"[TITLE_CONTINUE_LOAD] Restore start slot={slotNumber}");
+                bool copied = CopySlotToDefaultSave(slotNumber);
+                bool ok = copied && runner != null && runner.TryLoadNow($"VN_SAVE_{slotNumber}");
+
+                string restoredSpeaker = string.Empty;
+                string restoredText = string.Empty;
+                if (runner != null && runner.TryGetCurrentSayState(out var nodeId, out var lineIndex, out var text, out var speaker))
+                {
+                    restoredSpeaker = speaker ?? string.Empty;
+                    restoredText = text ?? string.Empty;
+                    Debug.Log($"[TITLE_CONTINUE_LOAD] Restore complete pointer={runner.CurrentPointer} node={nodeId}");
+                }
+
+                bool typingStarted = dialogueView != null && dialogueView.TryStartTypingCurrentLoadedLine();
+                Debug.Log($"[TITLE_CONTINUE_LOAD] Typing current line start text={restoredText}");
+                if (!typingStarted)
+                    dialogueView?.OnStateLoadedForValidation();
+
+                Debug.Log("[TITLE_CONTINUE_LOAD] SaveLoad closed");
+                Debug.Log("[TITLE_CONTINUE_LOAD] FadeIn start");
+                Debug.Log("[VN_LOAD_FLOW] FadeIn start");
+                if (fadeController != null)
+                    yield return fadeController.FadeIn(loadFadeInSeconds);
+                Debug.Log("[VN_LOAD_FLOW] FadeIn complete");
+                Debug.Log("[TITLE_CONTINUE_LOAD] FadeIn complete");
+                Debug.Log($"[TITLE_CONTINUE_LOAD] input ready blocked={dialogueView?.IsExternalInputBlocked}");
+
+                OnLoadCompleted?.Invoke(ok);
             }
             finally
             {
@@ -395,6 +504,7 @@ namespace PPP.BLUE.VN
             RefreshSelectedSlotMetadata();
             RefreshSlotVisuals();
             RefreshActionButtonState();
+            SaveCachedThumbnailForSlot(slotNumber);
         }
 
         private void ExecuteDelete()
@@ -405,6 +515,7 @@ namespace PPP.BLUE.VN
             if (File.Exists(path))
             {
                 File.Delete(path);
+                DeleteThumbnailFile(slotNumber);
                 SoundManager.Instance.PlayOS(OSSoundEvent.Delete);
 
                 Debug.Log($"[VN][SaveLoad] Deleted slot={slotNumber}");
@@ -632,6 +743,89 @@ namespace PPP.BLUE.VN
             SetText(selectedSlotNameText, slotName);
             SetText(selectedSlotInfoText, slotInfo);
             SetText(selectedSlotDateText, slotDate);
+            LoadSelectedSlotThumbnail(selectedSlotIndex + 1);
+        }
+
+        private string GetThumbnailPath(int slotNumber)
+        {
+            string path = Path.Combine(Application.persistentDataPath, $"VN_SAVE_{slotNumber}_thumb.png");
+            Debug.Log($"[VN_THUMB] path slot={slotNumber} path={path}");
+            return path;
+        }
+
+        private IEnumerator CaptureVNUIToPendingThumbnailBytes()
+        {
+            Debug.Log("[VN_THUMB] PreCapture start");
+            if (thumbnailCaptureTarget == null) { Debug.LogWarning("[VN_THUMB] Missing thumbnailCaptureTarget"); yield break; }
+            yield return new WaitForEndOfFrame();
+            try
+            {
+                var corners = new Vector3[4];
+                thumbnailCaptureTarget.GetWorldCorners(corners);
+                int x = Mathf.Clamp(Mathf.RoundToInt(corners[0].x), 0, Screen.width - 1);
+                int y = Mathf.Clamp(Mathf.RoundToInt(corners[0].y), 0, Screen.height - 1);
+                int w = Mathf.Clamp(Mathf.RoundToInt(corners[2].x - corners[0].x), 0, Screen.width - x);
+                int h = Mathf.Clamp(Mathf.RoundToInt(corners[2].y - corners[0].y), 0, Screen.height - y);
+                Debug.Log($"[VN_THUMB] PreCapture rect x={x} y={y} w={w} h={h}");
+                if (w <= 0 || h <= 0) { Debug.LogWarning("[VN_THUMB] capture failed invalid rect"); yield break; }
+
+                var src = new Texture2D(w, h, TextureFormat.RGB24, false);
+                src.ReadPixels(new Rect(x, y, w, h), 0, 0);
+                src.Apply();
+                int tw = thumbnailWidth > 0 ? thumbnailWidth : 158;
+                int th = thumbnailHeight > 0 ? thumbnailHeight : 97;
+                var dst = new Texture2D(tw, th, TextureFormat.RGB24, false);
+                for (int py = 0; py < th; py++)
+                    for (int px = 0; px < tw; px++)
+                        dst.SetPixel(px, py, src.GetPixelBilinear((float)px / tw, (float)py / th));
+                dst.Apply();
+                pendingThumbnailPngBytes = dst.EncodeToPNG();
+                Debug.Log($"[VN_THUMB] PreCapture cached bytes={pendingThumbnailPngBytes.Length}");
+            }
+            catch (System.Exception ex)
+            {
+                Debug.LogWarning($"[VN_THUMB] PreCapture failed reason={ex.Message}");
+            }
+        }
+
+        private void SaveCachedThumbnailForSlot(int slotNumber)
+        {
+            if (pendingThumbnailPngBytes == null || pendingThumbnailPngBytes.Length == 0)
+                return;
+            Debug.Log($"[VN_THUMB] Save cached thumbnail slot={slotNumber} bytes={pendingThumbnailPngBytes.Length}");
+            string path = GetThumbnailPath(slotNumber);
+            File.WriteAllBytes(path, pendingThumbnailPngBytes);
+            Debug.Log($"[VN_THUMB] Save png path={path}");
+            LoadSelectedSlotThumbnail(slotNumber);
+        }
+
+        private void LoadSelectedSlotThumbnail(int slotNumber)
+        {
+            if (selectedSlotPreviewImage == null) return;
+            string path = GetThumbnailPath(slotNumber);
+            bool exists = File.Exists(path);
+            Debug.Log($"[VN_THUMB] Load slot={slotNumber} exists={exists}");
+            if (!exists) return;
+            var bytes = File.ReadAllBytes(path);
+            var tex = new Texture2D(2, 2, TextureFormat.RGB24, false);
+            if (!tex.LoadImage(bytes)) return;
+            selectedSlotPreviewImage.sprite = Sprite.Create(tex, new Rect(0, 0, tex.width, tex.height), new Vector2(0.5f, 0.5f));
+            selectedSlotPreviewImage.enabled = true;
+            Debug.Log($"[VN_THUMB] Apply preview slot={slotNumber}");
+        }
+
+        private void DeleteThumbnailFile(int slotNumber)
+        {
+            string path = GetThumbnailPath(slotNumber);
+            if (File.Exists(path))
+            {
+                File.Delete(path);
+                Debug.Log($"[VN_THUMB] Delete slot={slotNumber} path={path}");
+            }
+            else
+            {
+                Debug.Log($"[VN_THUMB] Delete skipped no file slot={slotNumber}");
+            }
         }
 
         private void AutoBindIntegratedSlotMetadataTexts()
@@ -986,7 +1180,11 @@ namespace PPP.BLUE.VN
                     ExecuteSave();
                     break;
                 case PendingAction.Load:
-                    StartCoroutine(CoLoadSlot(selectedSlotIndex + 1));
+                    if (currentOpenMode == OpenMode.ContinueLoadOnly)
+                        StartCoroutine(CoLoadSlotFromTitleContinue(selectedSlotIndex + 1));
+                    else
+                        Debug.Log($"[VN_LOAD_FLOW] Normal Load clicked slot={selectedSlotIndex + 1}");
+                        StartCoroutine(CoLoadSlot(selectedSlotIndex + 1));
                     break;
                 case PendingAction.Delete:
                     ExecuteDelete();
