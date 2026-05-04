@@ -432,13 +432,13 @@ namespace PPP.BLUE.VN
         }
 
 
-        public void Begin()
+        public void Begin(bool loadDefaultSave = true)
         {
             if (started) return;
             if (script == null) { Debug.LogError("[VNRunner] No script loaded."); return; }
             VNLog($"[VN] Begin() id={GetInstanceID()} go={gameObject.name} started={started}");
 
-            if (LoadState())
+            if (loadDefaultSave && LoadState())
                 GetComponentInChildren<VNDialogueView>(true)?.LockInputFrames(1);
 
             // ✅ 시작 시 Auto는 항상 OFF로 강제(저장 상태가 ON이어도 시작 직후 자동 진행 방지)
@@ -604,7 +604,7 @@ namespace PPP.BLUE.VN
                 return;
             }
 
-            Begin();
+            Begin(loadDefaultSave: false);
         }
 
         private void TryResolveBridge(bool silent)
