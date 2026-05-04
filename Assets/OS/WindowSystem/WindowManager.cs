@@ -451,6 +451,10 @@ public class WindowManager : MonoBehaviour, IVNHostOS
 
         ApplyCustomizationState(data.osState);
 
+        if (optionManager == null)
+            optionManager = OptionManager.Instance != null ? OptionManager.Instance : FindObjectOfType<OptionManager>(true);
+        optionManager?.LoadGlobalCustomization();
+
         cachedSave = data;
 
         PostApplyLayoutSanity();
