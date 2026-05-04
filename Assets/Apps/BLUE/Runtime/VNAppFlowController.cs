@@ -146,7 +146,22 @@ namespace PPP.BLUE.VN
                 return;
 
             Debug.Log($"[TITLE] Show return-to-title confirm source={source}");
-            closePopupController?.ShowReturnToTitleConfirm(ReturnToTitle);
+            closePopupController?.ShowReturnToTitleConfirm(() => StartCoroutine(CoReturnToTitle(source)));
+        }
+
+        public void RequestExitFromTitle(string source)
+        {
+            Debug.Log($"[TITLE] Exit requested source={source} state={State}");
+            if (State != VNAppState.Title || transitionLocked)
+                return;
+
+            Debug.Log($"[TITLE] Show exit confirm source={source}");
+            closePopupController?.ShowExitConfirm(() =>
+            {
+                Debug.Log($"[TITLE] Exit confirmed source={source}");
+                Debug.Log($"[TITLE] Force close requested source={source}");
+                closePopupController?.RequestCloseFromPopup();
+            }, () => Debug.Log($"[TITLE] Exit cancelled source={source}"));
         }
 
         public void RequestExitFromTitle(string source)
@@ -166,15 +181,54 @@ namespace PPP.BLUE.VN
 
         public void ReturnToTitle()
         {
-            Debug.Log($"[TITLE] ReturnToTitle start state={State}");
-            if (saveLoadWindow != null)
-                saveLoadWindow.CloseImmediate();
+            StartCoroutine(CoReturnToTitle("Legacy"));
+        }
 
+        private IEnumerator CoReturnToTitle(string source)
+        {
+            Debug.Log($"[RETURN_TITLE] requested source={source}");
+            transitionLocked = true;
+            SetState(VNAppState.Transition);
+
+            float fadeOutSeconds = saveLoadWindow != null ? saveLoadWindow.LoadFadeOutSeconds : titleTransitionFadeOut;
+            float fadeInSeconds = saveLoadWindow != null ? saveLoadWindow.LoadFadeInSeconds : titleTransitionFadeIn;
+            float holdSeconds = saveLoadWindow != null ? saveLoadWindow.LoadBlackHoldSeconds : 0f;
+
+            if (fadeController != null)
+            {
+                fadeController.transform.SetAsLastSibling();
+                Debug.Log("[RETURN_TITLE] FadeOut start");
+                yield return fadeController.FadeOut(fadeOutSeconds);
+                Debug.Log("[RETURN_TITLE] FadeOut complete");
+            }
+
+            if (holdSeconds > 0f)
+            {
+                Debug.Log("[RETURN_TITLE] Delay start");
+                yield return new WaitForSecondsRealtime(holdSeconds);
+                Debug.Log("[RETURN_TITLE] Delay end");
+            }
+
+            saveLoadWindow?.CloseImmediate();
+            closePopupController?.Hide();
             dialogueView?.ClearForNewGame();
+
+            if (inGameRoot != null) inGameRoot.SetActive(false);
+            if (titleRoot != null) titleRoot.SetActive(true);
+            Debug.Log("[RETURN_TITLE] root switch under black");
 
             SetState(VNAppState.Title);
             RefreshContinueButton();
-            Debug.Log($"[TITLE] ReturnToTitle complete TitleRoot={(titleRoot != null && titleRoot.activeSelf)} InGameRoot={(inGameRoot != null && inGameRoot.activeSelf)}");
+
+            if (fadeController != null)
+            {
+                Debug.Log("[RETURN_TITLE] FadeIn start");
+                yield return fadeController.FadeIn(fadeInSeconds);
+                Debug.Log("[RETURN_TITLE] FadeIn complete");
+            }
+
+            transitionLocked = false;
+            Debug.Log($"[RETURN_TITLE] done state={State} locked={transitionLocked}");
         }
 
         private IEnumerator CoStartNewGame()
@@ -238,11 +292,17 @@ namespace PPP.BLUE.VN
                 Debug.Log("[TITLE_NEWGAME] FadeIn complete");
             }
 
+            Debug.Log($"[TITLE_NEWGAME] before finish state={State} locked={transitionLocked}");
             transitionLocked = false;
             if (newGameButton != null)
                 newGameButton.interactable = true;
 
+            var policyController = GetComponentInChildren<VNPolicyController>(true);
             Debug.Log($"[TITLE_NEWGAME] input ready blocked={dialogueView?.IsExternalInputBlocked}");
+            Debug.Log($"[TITLE_NEWGAME] policy modal count={policyController?.ModalCount}");
+            Debug.Log($"[TITLE_NEWGAME] saveLoad open={saveLoadWindow?.IsWindowVisible} busy={saveLoadWindow?.IsBusy} mode={saveLoadWindow?.CurrentOpenMode}");
+            Debug.Log($"[TITLE_NEWGAME] runner saveAllowed={runner?.SaveAllowed}");
+            Debug.Log($"[TITLE_NEWGAME] done state={State} locked={transitionLocked}");
         }
 
         private void HandleContinueLoadCompleted(bool ok)

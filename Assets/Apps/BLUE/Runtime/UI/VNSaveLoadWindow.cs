@@ -82,6 +82,9 @@ namespace PPP.BLUE.VN
         public float LoadFadeOutSeconds => loadFadeOutSeconds;
         public float LoadFadeInSeconds => loadFadeInSeconds;
         public float LoadBlackHoldSeconds => loadBlackHoldSeconds;
+        public bool IsBusy => busy;
+        public OpenMode CurrentOpenMode => currentOpenMode;
+        public bool IsWindowVisible => windowRoot != null && windowRoot.activeInHierarchy;
         public System.Action OnBeforeLoadStateApplyUnderFade;
 
         private sealed class SlotPointerRelay : MonoBehaviour, IPointerDownHandler, IPointerUpHandler, IPointerExitHandler
@@ -332,6 +335,8 @@ namespace PPP.BLUE.VN
                 if (currentOpenMode != OpenMode.ContinueLoadOnly)
                     CloseImmediate();
 
+
+                OnBeforeLoadStateApplyUnderFade?.Invoke();
 
                 OnBeforeLoadStateApplyUnderFade?.Invoke();
 
@@ -1079,14 +1084,10 @@ namespace PPP.BLUE.VN
                     break;
                 case PendingAction.Load:
                     if (currentOpenMode == OpenMode.ContinueLoadOnly)
-                    {
                         StartCoroutine(CoLoadSlotFromTitleContinue(selectedSlotIndex + 1));
-                    }
                     else
-                    {
                         Debug.Log($"[VN_LOAD_FLOW] Normal Load clicked slot={selectedSlotIndex + 1}");
                         StartCoroutine(CoLoadSlot(selectedSlotIndex + 1));
-                    }
                     break;
                 case PendingAction.Delete:
                     ExecuteDelete();
