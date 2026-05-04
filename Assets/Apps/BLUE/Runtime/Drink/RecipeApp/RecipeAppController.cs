@@ -173,6 +173,7 @@
                     return;
                 osData.osState.recipeState.servedDrinkIds.Add(recipeId);
                 OSSaveSystem.Save(osData);
+                Debug.Log($"[RECIPE_DISCOVERY] SaveOS servedCount={osData.osState.recipeState.servedDrinkIds.Count}");
             }
 
             private static IReadOnlyList<string> ResolveServedDrinkIds()
