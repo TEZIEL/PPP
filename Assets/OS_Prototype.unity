@@ -14442,6 +14442,7 @@ MonoBehaviour:
   logToConsole: 1
   loadFromJsonOnStart: 1
   startDayId: day01
+  autoBeginOnStart: 0
   bridge: {fileID: 1560260780}
   drinkManager: {fileID: 0}
   drinkPanel: {fileID: 0}

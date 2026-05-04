@@ -2,8 +2,12 @@
 
 public class OptionsModal : MonoBehaviour
 {
+    private PPP.BLUE.VN.VNPolicyController policy;
+    private bool isModalPushed;
+
     private void Awake()
     {
+        policy = FindFirstObjectByType<PPP.BLUE.VN.VNPolicyController>(FindObjectsInactive.Include);
         gameObject.SetActive(false);
     }
 
