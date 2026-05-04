@@ -76,6 +76,7 @@ public class OptionManager : MonoBehaviour
         InitializeBackgroundDropdowns();
         ApplyThemeSelection(applied.themeOptionIndex);
         backgroundManager?.Apply();
+        LoadGlobalCustomization();
         UpdateUI(); // 🔥 초기 UI
     }
 
@@ -163,7 +164,7 @@ public class OptionManager : MonoBehaviour
         ApplyThemeSelection(applied.themeOptionIndex);
         backgroundManager?.Apply();
         Save();
-        PersistCustomizationToOSSave();
+        SaveGlobalCustomization();
     }
 
   
@@ -457,11 +458,46 @@ public class OptionManager : MonoBehaviour
         return themeOptions != null && index >= 0 && index < themeOptions.Length;
     }
 
-    private void PersistCustomizationToOSSave()
+
+    public CustomizationSaveData CaptureCustomizationSaveData()
     {
-        ResolveWindowManager();
-        windowManager?.SaveOS();
+        GetAppliedBackgroundSelection(out int sky, out int building, out int highlight);
+        int themeIndex = GetAppliedThemeOptionIndex();
+
+        return new CustomizationSaveData
+        {
+            version = 1,
+            uiThemeOptionIndex = themeIndex,
+            appUIThemeOptionIndex = themeIndex,
+            backgroundSkyIndex = sky,
+            backgroundBuildingIndex = building,
+            backgroundHighlightIndex = highlight
+        };
     }
+
+    public void ApplyCustomizationSaveData(CustomizationSaveData data)
+    {
+        if (data == null)
+            data = CustomizationSaveSystem.CreateDefault();
+
+        ApplyCustomizationState(
+            data.uiThemeOptionIndex,
+            data.backgroundSkyIndex,
+            data.backgroundBuildingIndex,
+            data.backgroundHighlightIndex);
+    }
+
+    public void LoadGlobalCustomization()
+    {
+        var data = CustomizationSaveSystem.Load();
+        ApplyCustomizationSaveData(data);
+    }
+
+    public void SaveGlobalCustomization()
+    {
+        CustomizationSaveSystem.Save(CaptureCustomizationSaveData());
+    }
+
 
     public int GetAppliedThemeOptionIndex()
     {
@@ -503,6 +539,6 @@ public class OptionManager : MonoBehaviour
     {
         ApplyCustomizationState(0, 0, 0, 0);
         Save();
-        PersistCustomizationToOSSave();
+        SaveGlobalCustomization();
     }
 }
