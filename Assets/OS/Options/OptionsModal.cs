@@ -11,6 +11,7 @@ public class OptionsModal : MonoBehaviour
     public void Open()
     {
         gameObject.SetActive(true);
+        Debug.Log("[OS_MODAL] Options open blocking=True");
 
         // 🔥 UI 최신 상태로 갱신
         if (OptionManager.Instance != null)
@@ -23,6 +24,7 @@ public class OptionsModal : MonoBehaviour
     public void Close()
     {
         gameObject.SetActive(false);
+        Debug.Log("[OS_MODAL] Options close blocking=False");
     }
 
     // 🔥 OK 버튼 (적용 + 닫기)
@@ -34,6 +36,7 @@ public class OptionsModal : MonoBehaviour
         }
 
         gameObject.SetActive(false);
+        Debug.Log("[OS_MODAL] Options close blocking=False");
     }
 
     // 🔥 Apply 버튼 (적용만)
@@ -54,5 +57,6 @@ public class OptionsModal : MonoBehaviour
         }
 
         gameObject.SetActive(false);
+        Debug.Log("[OS_MODAL] Options close blocking=False");
     }
 }
