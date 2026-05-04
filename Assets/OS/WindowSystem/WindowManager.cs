@@ -15,6 +15,7 @@ public class WindowManager : MonoBehaviour, IVNHostOS
     [SerializeField] private ThemeManager themeManager;
     [SerializeField] private AppUIThemeManager appUIThemeManager;
     [SerializeField] private OptionManager optionManager;
+    [SerializeField] private OptionsModal optionsModal;
     [SerializeField] private RectTransform iconsRoot; // DesktopIconBG 같은 부모
     [SerializeField] private DesktopGridManager desktopGridManager;
 
@@ -49,6 +50,7 @@ public class WindowManager : MonoBehaviour, IVNHostOS
 
     private bool isAnimating;
     public bool IsAnimating => isAnimating;
+    public bool IsBlockingModalOpen => optionsModal != null && optionsModal.gameObject.activeInHierarchy;
 
     [SerializeField] private bool logSaveVerbose = false;
     [Header("Save Split")]
@@ -78,6 +80,12 @@ public class WindowManager : MonoBehaviour, IVNHostOS
         if (!logWindowLifecycle) return;
         var suffix = string.IsNullOrEmpty(extra) ? string.Empty : $" {extra}";
         Debug.Log($"[OS] Window {evt} appId={appId}{suffix}");
+    }
+
+    private void LateUpdate()
+    {
+        if (optionsModal == null)
+            optionsModal = FindFirstObjectByType<OptionsModal>(FindObjectsInactive.Include);
     }
 
     public void SetMinimized(string appId, bool minimized)

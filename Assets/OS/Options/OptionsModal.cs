@@ -15,7 +15,7 @@ public class OptionsModal : MonoBehaviour
     public void Open()
     {
         gameObject.SetActive(true);
-        PushOptionsModalIfNeeded();
+        Debug.Log("[OS_MODAL] Options open blocking=True");
 
         // 🔥 UI 최신 상태로 갱신
         if (OptionManager.Instance != null)
@@ -28,7 +28,7 @@ public class OptionsModal : MonoBehaviour
     public void Close()
     {
         gameObject.SetActive(false);
-        PopOptionsModalIfNeeded();
+        Debug.Log("[OS_MODAL] Options close blocking=False");
     }
 
     // 🔥 OK 버튼 (적용 + 닫기)
@@ -40,7 +40,7 @@ public class OptionsModal : MonoBehaviour
         }
 
         gameObject.SetActive(false);
-        PopOptionsModalIfNeeded();
+        Debug.Log("[OS_MODAL] Options close blocking=False");
     }
 
     // 🔥 Apply 버튼 (적용만)
@@ -61,29 +61,6 @@ public class OptionsModal : MonoBehaviour
         }
 
         gameObject.SetActive(false);
-        PopOptionsModalIfNeeded();
-    }
-
-    private void PushOptionsModalIfNeeded()
-    {
-        if (isModalPushed)
-            return;
-
-        policy?.PushModal("Options");
-        isModalPushed = true;
-    }
-
-    private void PopOptionsModalIfNeeded()
-    {
-        if (!isModalPushed)
-            return;
-
-        policy?.PopModal("Options");
-        isModalPushed = false;
-    }
-
-    private void OnDisable()
-    {
-        PopOptionsModalIfNeeded();
+        Debug.Log("[OS_MODAL] Options close blocking=False");
     }
 }

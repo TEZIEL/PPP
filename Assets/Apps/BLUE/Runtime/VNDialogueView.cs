@@ -31,6 +31,7 @@ namespace PPP.BLUE.VN
         [SerializeField] private Button hideUIButton;
         [SerializeField] private VNSaveLoadWindow saveLoadWindow;
         [SerializeField] private VNAppFlowController appFlowController;
+        [SerializeField] private WindowManager windowManager;
         [SerializeField] private VNBacklogView backlogView;
         [SerializeField] private CanvasGroup dialogueCanvasGroup;
         [SerializeField] private RectTransform dialogueRoot;
@@ -217,6 +218,7 @@ namespace PPP.BLUE.VN
 
         private void Awake()
         {
+            if (windowManager == null) windowManager = FindFirstObjectByType<WindowManager>(FindObjectsInactive.Include);
             if (bridge == null) bridge = GetComponentInParent<VNOSBridge>(true);
             if (bridge == null) bridge = GetComponentInChildren<VNOSBridge>(true);
             if (closePopupController == null) closePopupController = GetComponentInParent<VNClosePopupController>(true);
@@ -720,6 +722,9 @@ namespace PPP.BLUE.VN
 
         private void Update()
         {
+            if (IsBlockedByOSModal(null))
+                return;
+
             if (IsAnyBacklogOpen)
             {
                 if (Input.GetKeyDown(KeyCode.LeftAlt) && IsBacklogOpen)
@@ -778,7 +783,9 @@ namespace PPP.BLUE.VN
             // ✅ Next 입력
             bool pressedSpace = Input.GetKeyDown(KeyCode.Space);
             bool clicked = Input.GetMouseButtonDown(0);
+            if (pressedSpace && IsBlockedByOSModal("Space")) return;
             if (!pressedSpace && !clicked) return;
+            if (clicked && IsBlockedByOSModal("Next")) return;
 
             if (clicked)
             {
@@ -830,6 +837,7 @@ namespace PPP.BLUE.VN
         {
             if (Input.GetKeyDown(KeyCode.LeftAlt))
             {
+                if (IsBlockedByOSModal("Backlog")) return true;
                 if (backlogView != null)
                 {
                     backlogView.Toggle();
@@ -839,6 +847,7 @@ namespace PPP.BLUE.VN
 
             if (Input.GetKeyDown(KeyCode.C))
             {
+                if (IsBlockedByOSModal("SaveLoad")) return true;
                 OpenSaveLoadWindow();
                 return true;
             }
@@ -854,6 +863,7 @@ namespace PPP.BLUE.VN
 
             if (Input.GetKeyDown(KeyCode.Escape))
             {
+                if (IsBlockedByOSModal("Esc")) return true;
                 OnExitButtonClicked();
                 return true;
             }
@@ -1299,6 +1309,8 @@ namespace PPP.BLUE.VN
 
         public void ToggleSkip()
         {
+            if (IsBlockedByOSModal("Skip"))
+                return;
             if (IsAnyBacklogOpen)
                 return;
 
@@ -1323,6 +1335,8 @@ namespace PPP.BLUE.VN
 
         public void ToggleAuto()
         {
+            if (IsBlockedByOSModal("Auto"))
+                return;
             if (inputLocked)
                 return;
             if (IsAnyBacklogOpen)
@@ -1339,6 +1353,8 @@ namespace PPP.BLUE.VN
 
         public void OnSkipButtonClicked()
         {
+            if (IsBlockedByOSModal("Skip"))
+                return;
             if (inputLocked)
                 return;
             if (IsAnyBacklogOpen)
@@ -1381,6 +1397,8 @@ namespace PPP.BLUE.VN
 
         public void OnAutoPlayButtonClicked()
         {
+            if (IsBlockedByOSModal("Auto"))
+                return;
             if (inputLocked)
                 return;
             if (IsAnyBacklogOpen)
@@ -1400,6 +1418,8 @@ namespace PPP.BLUE.VN
 
         public void OnExitButtonClicked()
         {
+            if (IsBlockedByOSModal("Esc"))
+                return;
             if (isUIHidden || isUIAnimating)
                 return;
             if (IsBacklogInputBlocked())
@@ -1468,6 +1488,8 @@ namespace PPP.BLUE.VN
 
         public void OpenSaveLoadWindow()
         {
+            if (IsBlockedByOSModal("SaveLoad"))
+                return;
             if (isUIHidden || isUIAnimating)
                 return;
             if (policy != null && policy.IsDrinkModeActive())
@@ -1482,6 +1504,20 @@ namespace PPP.BLUE.VN
             runner?.ForceAutoOff("Open SaveLoad Window");
             runner?.SetUiSkipHeld(false, "Open SaveLoad Window");
             saveLoadWindow.Open();
+        }
+
+        private bool IsBlockedByOSModal(string source)
+        {
+            if (windowManager == null)
+                return false;
+            if (!windowManager.IsBlockingModalOpen)
+                return false;
+
+            if (string.IsNullOrEmpty(source))
+                Debug.Log("[VN_INPUT_BLOCKED] reason=OSModal");
+            else
+                Debug.Log($"[VN_INPUT_BLOCKED] source={source} reason=OSModal");
+            return true;
         }
 
         public void HideUI()

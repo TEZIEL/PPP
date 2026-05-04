@@ -21,6 +21,7 @@ namespace PPP.BLUE.VN
         [SerializeField] private VNClosePopupController closePopupController;
         [SerializeField] private VNOSBridge bridge;
         [SerializeField] private VNPolicyController policy;
+        [SerializeField] private WindowManager windowManager;
 
         [Header("Title UI")]
         [SerializeField] private GameObject titleRoot;
@@ -45,6 +46,7 @@ namespace PPP.BLUE.VN
             if (closePopupController == null) closePopupController = GetComponentInParent<VNClosePopupController>(true);
             if (bridge == null) bridge = GetComponentInParent<VNOSBridge>(true);
             if (policy == null) policy = GetComponentInParent<VNPolicyController>(true);
+            if (windowManager == null) windowManager = FindFirstObjectByType<WindowManager>(FindObjectsInactive.Include);
 
             BindButtons();
             SetState(VNAppState.Title);
@@ -79,6 +81,9 @@ namespace PPP.BLUE.VN
 
         private void Update()
         {
+            if (IsBlockedByOSModal("Esc") && Input.GetKeyDown(KeyCode.Escape))
+                return;
+
             if (!Input.GetKeyDown(KeyCode.Escape))
                 return;
 
@@ -344,6 +349,9 @@ namespace PPP.BLUE.VN
 
         private void HandleCloseRequested()
         {
+            if (IsBlockedByOSModal("Alpha3"))
+                return;
+
             Debug.Log($"[TITLE] Close requested state={State}");
             if (State == VNAppState.Title)
             {
@@ -355,6 +363,14 @@ namespace PPP.BLUE.VN
                 Debug.Log("[TITLE] Show return-to-title confirm");
                 RequestReturnToTitleFromInGame("X");
             }
+        }
+
+        private bool IsBlockedByOSModal(string source)
+        {
+            if (windowManager == null || !windowManager.IsBlockingModalOpen)
+                return false;
+            Debug.Log($"[VN_INPUT_BLOCKED] source={source} reason=OSModal");
+            return true;
         }
 
         private void SetState(VNAppState next)

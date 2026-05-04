@@ -31,6 +31,7 @@ namespace PPP.BLUE.VN
         private VNState state;
         private Coroutine autoCo;
         [SerializeField] private VNPolicyController policy;
+        [SerializeField] private WindowManager windowManager;
         private VNDialogueView dialogueView;
         [SerializeField] private VNTextTyper textTyper;
         // --- Auto suspend/resume by modal/drink ---
@@ -201,6 +202,7 @@ namespace PPP.BLUE.VN
 
         private void Awake()
         {
+            if (windowManager == null) windowManager = FindFirstObjectByType<WindowManager>(FindObjectsInactive.Include);
             var runners = GetComponentsInChildren<VNRunner>(true);
             if (runners != null && runners.Length > 1)
             {
@@ -622,6 +624,8 @@ namespace PPP.BLUE.VN
         private void Update()
         {
             if (!HasScript) return;
+            if (windowManager != null && windowManager.IsBlockingModalOpen)
+                return;
             bool manualInputBlockedByBacklog = VNDialogueView.IsAnyBacklogOpen;
             if (manualInputBlockedByBacklog && UnityEngine.EventSystems.EventSystem.current != null)
                 UnityEngine.EventSystems.EventSystem.current.SetSelectedGameObject(null);
