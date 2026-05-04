@@ -30,6 +30,7 @@ namespace PPP.BLUE.VN
         void SetCloseHandler(string appId, IVNCloseRequestHandler handler);
         void ClearCloseHandler(string appId, IVNCloseRequestHandler handler);
         void RequestClose(string appId);
+        void ForceClose(string appId);
         void SaveSubBlock(string key, object data);
         T LoadSubBlock<T>(string key) where T : class;
     }
