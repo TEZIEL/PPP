@@ -196,8 +196,6 @@
                 return cachedWindowManager;
             }
 
-            
-
             /// <summary>
             /// 인스펙터에서 OnClick에 직접 연결할 수 있는 헬퍼.
             /// </summary>
