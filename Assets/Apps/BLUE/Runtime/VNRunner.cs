@@ -801,6 +801,16 @@ namespace PPP.BLUE.VN
             if (IsBacklogOpenByUI()) return false;
             if (!HasScript) return false;
             if (policy == null) return false;
+
+            if (dialogueView == null)
+                dialogueView = GetComponentInChildren<VNDialogueView>(true);
+
+            if (dialogueView != null)
+            {
+                if (dialogueView.IsExternalInputBlocked) return false;
+                if (dialogueView.IsInputLocked) return false;
+            }
+
             return VNInputGate.CanUseSkipOrAuto(policy);
         }
 

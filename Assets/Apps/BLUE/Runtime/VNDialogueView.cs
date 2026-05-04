@@ -793,6 +793,7 @@ namespace PPP.BLUE.VN
             // ✅ 유저 입력이면 무조건 Auto OFF (타이핑완료/Next 둘 다 포함)
             if (inputLocked)
             {
+                Debug.Log($"[VN_READY_CHECK] blocked externalBlocked={externalInputBlocked} inputLocked={inputLocked} isTyping={(typer != null && typer.IsTyping)} displayed={lineDisplayed} currentFullTextEmpty={string.IsNullOrEmpty(currentFullText)} lineIndex={currentLineIndex} runnerSaveAllowed={(runner != null && runner.SaveAllowed)} saveLoadOpen={(saveLoadWindow != null && saveLoadWindow.gameObject.activeInHierarchy)} saveLoadBusy={(saveLoadWindow != null && saveLoadWindow.IsBusy)} policyModalCount={(policy != null ? policy.ModalCount : -1)} nextInteractable={(advanceClickArea != null)} saveLoadInteractable={(saveLoadButton != null && saveLoadButton.interactable)} autoInteractable={(autoPlayButton != null && autoPlayButton.interactable)} skipInteractable={(skipButton != null && skipButton.interactable)} gameObjectActive={gameObject.activeSelf} activeInHierarchy={gameObject.activeInHierarchy}");
                 Debug.Log("[VN] input blocked (not ready)");
                 return;
             }
@@ -864,6 +865,11 @@ namespace PPP.BLUE.VN
         private void HandleSkipAutoState()
         {
             // Intentionally empty. Skip/Auto behavior is runner-owned.
+        }
+
+        public void RefreshInputButtons()
+        {
+            HandleControlButtonState();
         }
 
         private void HandleControlButtonState()
@@ -1211,6 +1217,7 @@ namespace PPP.BLUE.VN
 
                 runner?.MarkSaveAllowed(true, "No Typer => Immediate");
                 runner?.NotifyLineTypedEnd();
+                inputLocked = false;
                 Debug.Log("[VN] SaveAllowed TRUE (No Typer => Immediate)");
                 return;
             }
@@ -1224,6 +1231,7 @@ namespace PPP.BLUE.VN
                 runner?.BacklogFinalizeLine(currentLineBacklogKey, currentFullText);
 
                 runner?.NotifyLineTypedEnd();
+                inputLocked = false;
                 runner?.MarkSaveAllowed(true, "Skip Immediate");
                 return;
             }
@@ -1238,7 +1246,9 @@ namespace PPP.BLUE.VN
                 runner?.NotifyLineTypedEnd();
 
                 runner?.MarkSaveAllowed(true, "Typing Completed");
+                inputLocked = false;
                 Debug.Log("[VN] SaveAllowed TRUE (Typing Completed)");
+                RefreshInputButtons();
             }, onUpdated: partial =>
             {
                 runner?.BacklogUpdateLineText(currentLineBacklogKey, partial);
@@ -1297,6 +1307,8 @@ namespace PPP.BLUE.VN
 
         public void SetAutoPlay(bool value)
         {
+            if (inputLocked)
+                return;
             if (IsAnyBacklogOpen)
                 return;
 
@@ -1311,6 +1323,8 @@ namespace PPP.BLUE.VN
 
         public void ToggleAuto()
         {
+            if (inputLocked)
+                return;
             if (IsAnyBacklogOpen)
                 return;
 
@@ -1325,6 +1339,8 @@ namespace PPP.BLUE.VN
 
         public void OnSkipButtonClicked()
         {
+            if (inputLocked)
+                return;
             if (IsAnyBacklogOpen)
                 return;
 
@@ -1334,6 +1350,8 @@ namespace PPP.BLUE.VN
 
         public void OnSkipButtonPointerDown()
         {
+            if (inputLocked)
+                return;
             if (IsAnyBacklogOpen)
                 return;
 
@@ -1363,6 +1381,8 @@ namespace PPP.BLUE.VN
 
         public void OnAutoPlayButtonClicked()
         {
+            if (inputLocked)
+                return;
             if (IsAnyBacklogOpen)
                 return;
 
