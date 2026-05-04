@@ -30,6 +30,7 @@ namespace PPP.BLUE.VN
         [SerializeField] private VNDialogueView dialogueView;
         [SerializeField] private VNFadeController fadeController;
         [SerializeField] private VNOSBridge bridge;
+        [SerializeField] private VNAppFlowController appFlowController;
         [SerializeField] private GameObject windowRoot;
         [SerializeField] private CanvasGroup windowCanvasGroup;
         [SerializeField] private Button closeButton;
@@ -88,6 +89,7 @@ namespace PPP.BLUE.VN
         private byte[] pendingThumbnailPngBytes;
         private Sprite currentPreviewRuntimeSprite;
         private Texture2D currentPreviewRuntimeTexture;
+        private bool continueLoadStarted;
         public event System.Action<bool> OnLoadCompleted;
         public float LoadFadeOutSeconds => loadFadeOutSeconds;
         public float LoadFadeInSeconds => loadFadeInSeconds;
@@ -121,6 +123,7 @@ namespace PPP.BLUE.VN
             if (policy == null) policy = GetComponentInParent<VNPolicyController>(true);
             if (dialogueView == null) dialogueView = GetComponentInParent<VNDialogueView>(true);
             if (bridge == null) bridge = GetComponentInParent<VNOSBridge>(true);
+            if (appFlowController == null) appFlowController = GetComponentInParent<VNAppFlowController>(true);
             if (windowRoot == null)
             {
                 var candidate = transform.Find("Image");
@@ -230,6 +233,7 @@ namespace PPP.BLUE.VN
             bridge?.ClearCloseRequestPending();
             AcquireModal();
             currentOpenMode = mode;
+            continueLoadStarted = false;
             EnsureSlotButtonNavigationNone();
             ApplyCurrentTheme();
             EnsureValidSelection();
@@ -262,6 +266,7 @@ namespace PPP.BLUE.VN
 
             SetWindowVisible(false);
             pendingThumbnailPngBytes = null;
+            NotifyContinueClosedWithoutLoadIfNeeded();
             currentOpenMode = OpenMode.Normal;
             bridge?.ClearCloseRequestPending();
             ReleaseModal();
@@ -360,6 +365,8 @@ namespace PPP.BLUE.VN
                 if (currentOpenMode != OpenMode.ContinueLoadOnly)
                     CloseImmediate();
 
+
+                OnBeforeLoadStateApplyUnderFade?.Invoke();
 
                 OnBeforeLoadStateApplyUnderFade?.Invoke();
 
@@ -1261,16 +1268,28 @@ namespace PPP.BLUE.VN
                     ExecuteSave();
                     break;
                 case PendingAction.Load:
+                    continueLoadStarted = true;
                     if (currentOpenMode == OpenMode.ContinueLoadOnly)
+                    {
                         StartCoroutine(CoLoadSlotFromTitleContinue(selectedSlotIndex + 1));
+                    }
                     else
+                    {
                         Debug.Log($"[VN_LOAD_FLOW] Normal Load clicked slot={selectedSlotIndex + 1}");
                         StartCoroutine(CoLoadSlot(selectedSlotIndex + 1));
+                    }
                     break;
                 case PendingAction.Delete:
                     ExecuteDelete();
                     break;
             }
+        }
+
+        private void NotifyContinueClosedWithoutLoadIfNeeded()
+        {
+            if (currentOpenMode != OpenMode.ContinueLoadOnly || continueLoadStarted)
+                return;
+            appFlowController?.HandleTitleContinueWindowClosedWithoutLoad();
         }
 
         private void OnConfirmCancelClicked()

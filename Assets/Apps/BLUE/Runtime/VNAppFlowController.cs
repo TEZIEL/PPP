@@ -107,7 +107,8 @@ namespace PPP.BLUE.VN
             LogRoots("OnNewGameClicked enter");
             if (State != VNAppState.Title || transitionLocked)
             {
-                Debug.Log($"[TITLE] NewGame ignored state={State} locked={transitionLocked}");
+                var policyController = GetComponentInChildren<VNPolicyController>(true);
+                Debug.Log($"[TITLE] NewGame ignored state={State} locked={transitionLocked} modalCount={policyController?.ModalCount} saveLoadOpen={saveLoadWindow?.IsWindowVisible}");
                 return;
             }
 
@@ -202,6 +203,16 @@ namespace PPP.BLUE.VN
         public void ReturnToTitle()
         {
             StartCoroutine(CoReturnToTitle("Legacy"));
+        }
+
+        public void HandleTitleContinueWindowClosedWithoutLoad()
+        {
+            if (State != VNAppState.Title)
+                return;
+            transitionLocked = false;
+            SetState(VNAppState.Title);
+            closePopupController?.Hide();
+            Debug.Log("[TITLE] ContinueLoadOnly closed without load -> unlock state=Title locked=False");
         }
 
         private IEnumerator CoReturnToTitle(string source)
