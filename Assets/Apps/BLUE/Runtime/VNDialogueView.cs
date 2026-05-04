@@ -1503,7 +1503,21 @@ namespace PPP.BLUE.VN
 
             runner?.ForceAutoOff("Open SaveLoad Window");
             runner?.SetUiSkipHeld(false, "Open SaveLoad Window");
-            saveLoadWindow.OpenWithThumbnailPreCapture();
+            StartCoroutine(saveLoadWindow.CoOpenWithThumbnailPreCapture(VNSaveLoadWindow.OpenMode.Normal));
+        }
+
+        private bool IsBlockedByOSModal(string source)
+        {
+            if (windowManager == null)
+                return false;
+            if (!windowManager.IsBlockingModalOpen)
+                return false;
+
+            if (string.IsNullOrEmpty(source))
+                Debug.Log("[VN_INPUT_BLOCKED] reason=OSModal");
+            else
+                Debug.Log($"[VN_INPUT_BLOCKED] source={source} reason=OSModal");
+            return true;
         }
 
         private bool IsBlockedByOSModal(string source)

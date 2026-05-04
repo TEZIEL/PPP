@@ -189,10 +189,11 @@ namespace PPP.BLUE.VN
 
         public void OpenWithThumbnailPreCapture()
         {
-            StartCoroutine(CoOpenWithThumbnailPreCapture(OpenMode.Normal));
+            Debug.LogWarning("[VN_THUMB] PreCapture coroutine must be started by active owner");
+            Debug.Log($"[VN_THUMB] owner activeInHierarchy={gameObject.activeInHierarchy}");
         }
 
-        private IEnumerator CoOpenWithThumbnailPreCapture(OpenMode mode)
+        public IEnumerator CoOpenWithThumbnailPreCapture(OpenMode mode)
         {
             if (mode == OpenMode.Normal)
                 yield return CaptureVNUIToPendingThumbnailBytes();
@@ -356,6 +357,8 @@ namespace PPP.BLUE.VN
                 if (currentOpenMode != OpenMode.ContinueLoadOnly)
                     CloseImmediate();
 
+
+                OnBeforeLoadStateApplyUnderFade?.Invoke();
 
                 OnBeforeLoadStateApplyUnderFade?.Invoke();
 
