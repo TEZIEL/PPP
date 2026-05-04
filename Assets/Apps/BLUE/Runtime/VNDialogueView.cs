@@ -1524,6 +1524,12 @@ namespace PPP.BLUE.VN
             return true;
         }
 
+        
+
+        
+
+       
+
         public void HideUI()
         {
             SoundManager.Instance.PlayOS(OSSoundEvent.Minimize);
