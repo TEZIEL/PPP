@@ -1520,19 +1520,7 @@ namespace PPP.BLUE.VN
             return true;
         }
 
-        private bool IsBlockedByOSModal(string source)
-        {
-            if (windowManager == null)
-                return false;
-            if (!windowManager.IsBlockingModalOpen)
-                return false;
-
-            if (string.IsNullOrEmpty(source))
-                Debug.Log("[VN_INPUT_BLOCKED] reason=OSModal");
-            else
-                Debug.Log($"[VN_INPUT_BLOCKED] source={source} reason=OSModal");
-            return true;
-        }
+        
 
         
 

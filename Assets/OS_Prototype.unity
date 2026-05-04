@@ -12264,13 +12264,14 @@ MonoBehaviour:
   themeManager: {fileID: 1696708469}
   appUIThemeManager: {fileID: 458904610}
   optionManager: {fileID: 725051173}
+  optionsModal: {fileID: 725051174}
   iconsRoot: {fileID: 291154894}
   desktopGridManager: {fileID: 1107218561}
   autoSaveDebounce: 0.35
   logSaveOS: 0
-  logWindowState: 0
+  logWindowState: 1
   logWindowLifecycle: 1
-  logSaveVerbose: 0
+  logSaveVerbose: 1
   excludeAppIdsFromOSWindowSave: 1
   excludedWindowAppIdsFromOSSave:
   - app.vn
@@ -14452,6 +14453,7 @@ MonoBehaviour:
   typeSpeed: 30
   runner: {fileID: 1296095885}
   policy: {fileID: 0}
+  windowManager: {fileID: 0}
   textTyper: {fileID: 0}
   autoPlayDelaySeconds: 0.35
   skipMode: 0
