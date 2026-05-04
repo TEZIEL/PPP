@@ -20,6 +20,13 @@ namespace PPP.OS.Save
     {
         public BGMOsStateData bgm = new();
         public OSCustomizationStateData customization = new();
+        public RecipeAppStateData recipeState = new();
+    }
+
+    [Serializable]
+    public class RecipeAppStateData
+    {
+        public List<string> servedDrinkIds = new();
     }
 
     [Serializable]
