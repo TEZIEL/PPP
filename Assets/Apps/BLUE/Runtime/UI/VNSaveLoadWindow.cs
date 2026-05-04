@@ -84,6 +84,7 @@ namespace PPP.BLUE.VN
         private Color themedSlotSelectedColor;
         private Color themedSlotPressedColor;
         private OpenMode currentOpenMode = OpenMode.Normal;
+        private byte[] pendingThumbnailPngBytes;
         public event System.Action<bool> OnLoadCompleted;
         public float LoadFadeOutSeconds => loadFadeOutSeconds;
         public float LoadFadeInSeconds => loadFadeInSeconds;
@@ -186,6 +187,19 @@ namespace PPP.BLUE.VN
             Open(OpenMode.Normal);
         }
 
+        public void OpenWithThumbnailPreCapture()
+        {
+            StartCoroutine(CoOpenWithThumbnailPreCapture(OpenMode.Normal));
+        }
+
+        private IEnumerator CoOpenWithThumbnailPreCapture(OpenMode mode)
+        {
+            if (mode == OpenMode.Normal)
+                yield return CaptureVNUIToPendingThumbnailBytes();
+            Debug.Log("[VN_THUMB] Open SaveLoad after precapture");
+            Open(mode);
+        }
+
         public void Open(OpenMode mode)
         {
             if (busy && !loadingModalPushed)
@@ -243,6 +257,7 @@ namespace PPP.BLUE.VN
             }
 
             SetWindowVisible(false);
+            pendingThumbnailPngBytes = null;
             currentOpenMode = OpenMode.Normal;
             bridge?.ClearCloseRequestPending();
             ReleaseModal();
@@ -341,6 +356,8 @@ namespace PPP.BLUE.VN
                 if (currentOpenMode != OpenMode.ContinueLoadOnly)
                     CloseImmediate();
 
+
+                OnBeforeLoadStateApplyUnderFade?.Invoke();
 
                 OnBeforeLoadStateApplyUnderFade?.Invoke();
 
@@ -512,8 +529,7 @@ namespace PPP.BLUE.VN
             RefreshSelectedSlotMetadata();
             RefreshSlotVisuals();
             RefreshActionButtonState();
-            if (currentOpenMode == OpenMode.Normal)
-                StartCoroutine(CaptureAndSaveThumbnailCoroutine(slotNumber));
+            SaveCachedThumbnailForSlot(slotNumber);
         }
 
         private void ExecuteDelete()
@@ -762,136 +778,50 @@ namespace PPP.BLUE.VN
             return path;
         }
 
-        private IEnumerator CaptureAndSaveThumbnailCoroutine(int slotNumber)
+        private IEnumerator CaptureVNUIToPendingThumbnailBytes()
         {
-            Debug.Log($"[VN_THUMB] Capture start slot={slotNumber}");
-
-            if (thumbnailCaptureTarget == null)
-            {
-                Debug.LogWarning("[VN_THUMB] Missing thumbnailCaptureTarget");
-                yield break;
-            }
-
-            if (overlayRootToHideDuringCapture == null)
-            {
-                Debug.LogWarning("[VN_THUMB] Missing overlayRootToHideDuringCapture");
-                yield break;
-            }
-
-            if (selectedSlotPreviewImage == null)
-            {
-                Debug.LogWarning("[VN_THUMB] Missing selectedSlotPreviewImage");
-            }
-
-            var overlayCanvasGroup = overlayRootToHideDuringCapture.GetComponent<CanvasGroup>();
-            if (overlayCanvasGroup == null)
-            {
-                overlayCanvasGroup = overlayRootToHideDuringCapture.AddComponent<CanvasGroup>();
-            }
-
-            float prevAlpha = overlayCanvasGroup.alpha;
-            bool prevInteractable = overlayCanvasGroup.interactable;
-            bool prevBlocksRaycasts = overlayCanvasGroup.blocksRaycasts;
-
-            Debug.Log($"[VN_THUMB] Hide overlay using CanvasGroup prevAlpha={prevAlpha}");
-
-            overlayCanvasGroup.alpha = 0f;
-            overlayCanvasGroup.interactable = false;
-            overlayCanvasGroup.blocksRaycasts = false;
-
-            yield return null;
+            Debug.Log("[VN_THUMB] PreCapture start");
+            if (thumbnailCaptureTarget == null) { Debug.LogWarning("[VN_THUMB] Missing thumbnailCaptureTarget"); yield break; }
             yield return new WaitForEndOfFrame();
-
-            Debug.Log("[VN_THUMB] Capture coroutine alive before ReadPixels");
-
-            bool savedPng = TryCaptureAndSaveThumbnail(slotNumber);
-
-            overlayCanvasGroup.alpha = prevAlpha;
-            overlayCanvasGroup.interactable = prevInteractable;
-            overlayCanvasGroup.blocksRaycasts = prevBlocksRaycasts;
-
-            Debug.Log($"[VN_THUMB] Restore overlay CanvasGroup alpha={overlayCanvasGroup.alpha}");
-
-            if (savedPng)
-            {
-                LoadSelectedSlotThumbnail(slotNumber);
-            }
-
-            Debug.Log($"[VN_THUMB] Capture end slot={slotNumber}");
-        }
-
-        private bool TryCaptureAndSaveThumbnail(int slotNumber)
-        {
-            Texture2D src = null;
-            Texture2D dst = null;
-
             try
             {
                 var corners = new Vector3[4];
                 thumbnailCaptureTarget.GetWorldCorners(corners);
-
                 int x = Mathf.Clamp(Mathf.RoundToInt(corners[0].x), 0, Screen.width - 1);
                 int y = Mathf.Clamp(Mathf.RoundToInt(corners[0].y), 0, Screen.height - 1);
                 int w = Mathf.Clamp(Mathf.RoundToInt(corners[2].x - corners[0].x), 0, Screen.width - x);
                 int h = Mathf.Clamp(Mathf.RoundToInt(corners[2].y - corners[0].y), 0, Screen.height - y);
+                Debug.Log($"[VN_THUMB] PreCapture rect x={x} y={y} w={w} h={h}");
+                if (w <= 0 || h <= 0) { Debug.LogWarning("[VN_THUMB] capture failed invalid rect"); yield break; }
 
-                Debug.Log($"[VN_THUMB] capture rect x={x} y={y} w={w} h={h}");
-
-                if (w <= 0 || h <= 0)
-                {
-                    Debug.LogWarning("[VN_THUMB] capture failed invalid rect");
-                    return false;
-                }
-
-                src = new Texture2D(w, h, TextureFormat.RGB24, false);
+                var src = new Texture2D(w, h, TextureFormat.RGB24, false);
                 src.ReadPixels(new Rect(x, y, w, h), 0, 0);
                 src.Apply();
-
                 int tw = thumbnailWidth > 0 ? thumbnailWidth : 158;
                 int th = thumbnailHeight > 0 ? thumbnailHeight : 97;
-
-                dst = new Texture2D(tw, th, TextureFormat.RGB24, false);
-
+                var dst = new Texture2D(tw, th, TextureFormat.RGB24, false);
                 for (int py = 0; py < th; py++)
-                {
                     for (int px = 0; px < tw; px++)
-                    {
-                        dst.SetPixel(
-                            px,
-                            py,
-                            src.GetPixelBilinear((float)px / tw, (float)py / th)
-                        );
-                    }
-                }
-
+                        dst.SetPixel(px, py, src.GetPixelBilinear((float)px / tw, (float)py / th));
                 dst.Apply();
-
-                Debug.Log($"[VN_THUMB] resized {tw}x{th}");
-
-                string path = GetThumbnailPath(slotNumber);
-                File.WriteAllBytes(path, dst.EncodeToPNG());
-
-                Debug.Log($"[VN_THUMB] Save png path={path}");
-
-                return true;
+                pendingThumbnailPngBytes = dst.EncodeToPNG();
+                Debug.Log($"[VN_THUMB] PreCapture cached bytes={pendingThumbnailPngBytes.Length}");
             }
             catch (System.Exception ex)
             {
-                Debug.LogWarning($"[VN_THUMB] Capture failed reason={ex.Message}");
-                return false;
+                Debug.LogWarning($"[VN_THUMB] PreCapture failed reason={ex.Message}");
             }
-            finally
-            {
-                if (src != null)
-                {
-                    Destroy(src);
-                }
+        }
 
-                if (dst != null)
-                {
-                    Destroy(dst);
-                }
-            }
+        private void SaveCachedThumbnailForSlot(int slotNumber)
+        {
+            if (pendingThumbnailPngBytes == null || pendingThumbnailPngBytes.Length == 0)
+                return;
+            Debug.Log($"[VN_THUMB] Save cached thumbnail slot={slotNumber} bytes={pendingThumbnailPngBytes.Length}");
+            string path = GetThumbnailPath(slotNumber);
+            File.WriteAllBytes(path, pendingThumbnailPngBytes);
+            Debug.Log($"[VN_THUMB] Save png path={path}");
+            LoadSelectedSlotThumbnail(slotNumber);
         }
 
         private void LoadSelectedSlotThumbnail(int slotNumber)
