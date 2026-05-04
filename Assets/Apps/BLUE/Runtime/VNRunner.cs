@@ -31,6 +31,7 @@ namespace PPP.BLUE.VN
         private VNState state;
         private Coroutine autoCo;
         [SerializeField] private VNPolicyController policy;
+        [SerializeField] private WindowManager windowManager;
         private VNDialogueView dialogueView;
         [SerializeField] private VNTextTyper textTyper;
         // --- Auto suspend/resume by modal/drink ---
@@ -201,6 +202,7 @@ namespace PPP.BLUE.VN
 
         private void Awake()
         {
+            if (windowManager == null) windowManager = FindFirstObjectByType<WindowManager>(FindObjectsInactive.Include);
             var runners = GetComponentsInChildren<VNRunner>(true);
             if (runners != null && runners.Length > 1)
             {
@@ -432,13 +434,13 @@ namespace PPP.BLUE.VN
         }
 
 
-        public void Begin()
+        public void Begin(bool loadDefaultSave = true)
         {
             if (started) return;
             if (script == null) { Debug.LogError("[VNRunner] No script loaded."); return; }
             VNLog($"[VN] Begin() id={GetInstanceID()} go={gameObject.name} started={started}");
 
-            if (LoadState())
+            if (loadDefaultSave && LoadState())
                 GetComponentInChildren<VNDialogueView>(true)?.LockInputFrames(1);
 
             // ✅ 시작 시 Auto는 항상 OFF로 강제(저장 상태가 ON이어도 시작 직후 자동 진행 방지)
@@ -604,7 +606,7 @@ namespace PPP.BLUE.VN
                 return;
             }
 
-            Begin();
+            Begin(loadDefaultSave: false);
         }
 
         private void TryResolveBridge(bool silent)
@@ -622,6 +624,8 @@ namespace PPP.BLUE.VN
         private void Update()
         {
             if (!HasScript) return;
+            if (windowManager != null && windowManager.IsBlockingModalOpen)
+                return;
             bool manualInputBlockedByBacklog = VNDialogueView.IsAnyBacklogOpen;
             if (manualInputBlockedByBacklog && UnityEngine.EventSystems.EventSystem.current != null)
                 UnityEngine.EventSystems.EventSystem.current.SetSelectedGameObject(null);
@@ -801,6 +805,16 @@ namespace PPP.BLUE.VN
             if (IsBacklogOpenByUI()) return false;
             if (!HasScript) return false;
             if (policy == null) return false;
+
+            if (dialogueView == null)
+                dialogueView = GetComponentInChildren<VNDialogueView>(true);
+
+            if (dialogueView != null)
+            {
+                if (dialogueView.IsExternalInputBlocked) return false;
+                if (dialogueView.IsInputLocked) return false;
+            }
+
             return VNInputGate.CanUseSkipOrAuto(policy);
         }
 
@@ -1361,8 +1375,11 @@ namespace PPP.BLUE.VN
             var commands = ParseInlineCommands(text);
 
             string cleanText = RemoveInlineCommands(text);
+            string speakerId = node?.speakerId ?? string.Empty;
+            string backlogSpeakerDisplayName = ResolveSpeakerDisplayName(speakerId);
             var backlogKey = BuildBacklogKey(node);
-            backlogManager.BeginOrGetEntry(backlogKey, node?.speakerId ?? string.Empty);
+            backlogManager.BeginOrGetEntry(backlogKey, backlogSpeakerDisplayName);
+            Debug.Log($"[BACKLOG_SPEAKER] speakerId={speakerId} displayName={backlogSpeakerDisplayName}");
             currentBacklogKey = backlogKey;
             isCurrentLineTyping = true;
 

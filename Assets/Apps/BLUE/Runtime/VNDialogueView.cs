@@ -31,6 +31,7 @@ namespace PPP.BLUE.VN
         [SerializeField] private Button hideUIButton;
         [SerializeField] private VNSaveLoadWindow saveLoadWindow;
         [SerializeField] private VNAppFlowController appFlowController;
+        [SerializeField] private WindowManager windowManager;
         [SerializeField] private VNBacklogView backlogView;
         [SerializeField] private CanvasGroup dialogueCanvasGroup;
         [SerializeField] private RectTransform dialogueRoot;
@@ -78,7 +79,7 @@ namespace PPP.BLUE.VN
         private readonly HashSet<Button> interactableVisualBindingEventBoundButtons = new();
         private readonly Dictionary<Button, bool> interactableVisualPressedStates = new();
         private float controlActionLockedUntil;
-        private Coroutine waitAndRefreshCoroutine;
+        private Coroutine waitAndRefreshRoutine;
         private bool isRefreshingCurrentLine;
         private bool warnedRefreshBlocked;
         private bool warnedNoNode;
@@ -102,6 +103,9 @@ namespace PPP.BLUE.VN
             }
         }
         public bool IsBacklogOpen => backlogView != null && backlogView.IsOpen;
+        public bool IsInputLocked => inputLocked;
+        public bool IsExternalInputBlocked => externalInputBlocked;
+        public bool IsLineDisplayed => lineDisplayed;
 
         private enum ButtonVisualMode
         {
@@ -199,7 +203,7 @@ namespace PPP.BLUE.VN
                 return false;
 
             if (policy != null)
-                return VNInputGate.CanRouteInput(policy);
+                return VNInputGate.CanAdvanceDialogue(policy);
 
             // policy 미주입 시 보수적 폴백
             if (bridge != null)
@@ -214,6 +218,7 @@ namespace PPP.BLUE.VN
 
         private void Awake()
         {
+            if (windowManager == null) windowManager = FindFirstObjectByType<WindowManager>(FindObjectsInactive.Include);
             if (bridge == null) bridge = GetComponentInParent<VNOSBridge>(true);
             if (bridge == null) bridge = GetComponentInChildren<VNOSBridge>(true);
             if (closePopupController == null) closePopupController = GetComponentInParent<VNClosePopupController>(true);
@@ -717,10 +722,24 @@ namespace PPP.BLUE.VN
 
         private void Update()
         {
+            if (IsBlockedByOSModal(null))
+                return;
+
+            bool altPressed = Input.GetKeyDown(KeyCode.LeftAlt) || Input.GetKeyDown(KeyCode.RightAlt);
+            if (altPressed && !IsBlockedByOSModal("AltBacklog") && backlogView != null)
+            {
+                bool allowed = policy == null || (!policy.IsSaveLoadModalOpen && !policy.IsClosePopupOpen);
+                bool drink = policy != null && policy.IsDrinkModeActive();
+                if (allowed)
+                {
+                    backlogView.Toggle();
+                    Debug.Log($"[VN_BACKLOG] Toggle source=Alt allowed=True drink={drink}");
+                }
+                return;
+            }
+
             if (IsAnyBacklogOpen)
             {
-                if (Input.GetKeyDown(KeyCode.LeftAlt) && IsBacklogOpen)
-                    backlogView?.Toggle();
                 EventSystem.current?.SetSelectedGameObject(null);
                 return;
             }
@@ -775,7 +794,9 @@ namespace PPP.BLUE.VN
             // ✅ Next 입력
             bool pressedSpace = Input.GetKeyDown(KeyCode.Space);
             bool clicked = Input.GetMouseButtonDown(0);
+            if (pressedSpace && IsBlockedByOSModal("Space")) return;
             if (!pressedSpace && !clicked) return;
+            if (clicked && IsBlockedByOSModal("Next")) return;
 
             if (clicked)
             {
@@ -790,6 +811,7 @@ namespace PPP.BLUE.VN
             // ✅ 유저 입력이면 무조건 Auto OFF (타이핑완료/Next 둘 다 포함)
             if (inputLocked)
             {
+                Debug.Log($"[VN_READY_CHECK] blocked externalBlocked={externalInputBlocked} inputLocked={inputLocked} isTyping={(typer != null && typer.IsTyping)} displayed={lineDisplayed} currentFullTextEmpty={string.IsNullOrEmpty(currentFullText)} lineIndex={currentLineIndex} runnerSaveAllowed={(runner != null && runner.SaveAllowed)} saveLoadOpen={(saveLoadWindow != null && saveLoadWindow.gameObject.activeInHierarchy)} saveLoadBusy={(saveLoadWindow != null && saveLoadWindow.IsBusy)} policyModalCount={(policy != null ? policy.ModalCount : -1)} nextInteractable={(advanceClickArea != null)} saveLoadInteractable={(saveLoadButton != null && saveLoadButton.interactable)} autoInteractable={(autoPlayButton != null && autoPlayButton.interactable)} skipInteractable={(skipButton != null && skipButton.interactable)} gameObjectActive={gameObject.activeSelf} activeInHierarchy={gameObject.activeInHierarchy}");
                 Debug.Log("[VN] input blocked (not ready)");
                 return;
             }
@@ -824,17 +846,12 @@ namespace PPP.BLUE.VN
 
         private bool HandleVNHotkeys()
         {
-            if (Input.GetKeyDown(KeyCode.LeftAlt))
-            {
-                if (backlogView != null)
-                {
-                    backlogView.Toggle();
-                    return true;
-                }
-            }
+            if (Input.GetKeyDown(KeyCode.LeftAlt) || Input.GetKeyDown(KeyCode.RightAlt))
+                return true;
 
             if (Input.GetKeyDown(KeyCode.C))
             {
+                if (IsBlockedByOSModal("SaveLoad")) return true;
                 OpenSaveLoadWindow();
                 return true;
             }
@@ -850,6 +867,7 @@ namespace PPP.BLUE.VN
 
             if (Input.GetKeyDown(KeyCode.Escape))
             {
+                if (IsBlockedByOSModal("Esc")) return true;
                 OnExitButtonClicked();
                 return true;
             }
@@ -861,6 +879,11 @@ namespace PPP.BLUE.VN
         private void HandleSkipAutoState()
         {
             // Intentionally empty. Skip/Auto behavior is runner-owned.
+        }
+
+        public void RefreshInputButtons()
+        {
+            HandleControlButtonState();
         }
 
         private void HandleControlButtonState()
@@ -965,19 +988,22 @@ namespace PPP.BLUE.VN
 
         private void StartWaitAndRefresh()
         {
-            if (waitAndRefreshCoroutine != null)
+            if (!CanScheduleCurrentLineRefresh())
                 return;
 
-            waitAndRefreshCoroutine = StartCoroutine(WaitAndRefresh());
+            if (waitAndRefreshRoutine != null)
+                return;
+
+            waitAndRefreshRoutine = StartCoroutine(WaitAndRefresh());
         }
 
         private void StopWaitAndRefresh()
         {
-            if (waitAndRefreshCoroutine == null)
+            if (waitAndRefreshRoutine == null)
                 return;
 
-            StopCoroutine(waitAndRefreshCoroutine);
-            waitAndRefreshCoroutine = null;
+            StopCoroutine(waitAndRefreshRoutine);
+            waitAndRefreshRoutine = null;
         }
 
         private IEnumerator WaitAndRefresh()
@@ -987,36 +1013,38 @@ namespace PPP.BLUE.VN
             bool loggedNullState = false;
             Debug.Log("[VN] WaitAndRefresh start");
 
-            while (runner == null || !runner.HasValidNode())
+            try
             {
-                if (!CanRunCurrentLineRefresh())
+                while (runner == null || !runner.HasValidNode())
                 {
-                    waitAndRefreshCoroutine = null;
-                    yield break;
+                    if (!CanScheduleCurrentLineRefresh())
+                        yield break;
+
+                    if (!loggedNullState)
+                    {
+                        Debug.Log($"[VN] WaitAndRefresh pending runner={(runner != null)} hasValidNode={(runner != null && runner.HasValidNode())}");
+                        loggedNullState = true;
+                    }
+
+                    yield return null;
+                    remaining--;
+                    if (remaining <= 0)
+                    {
+                        Debug.LogError("[VN] Runner not ready after wait");
+                        yield break;
+                    }
                 }
 
-                if (!loggedNullState)
-                {
-                    Debug.Log($"[VN] WaitAndRefresh pending runner={(runner != null)} hasValidNode={(runner != null && runner.HasValidNode())}");
-                    loggedNullState = true;
-                }
-
-                yield return null;
-                remaining--;
-                if (remaining <= 0)
-                {
-                    Debug.LogError("[VN] Runner not ready after wait");
-                    waitAndRefreshCoroutine = null;
-                    yield break;
-                }
+                Debug.Log("[VN] WaitAndRefresh ready -> ForceRefreshCurrentLine");
+                ForceRefreshCurrentLine(scheduleRetryOnFail: false);
             }
-
-            Debug.Log("[VN] WaitAndRefresh ready -> ForceRefreshCurrentLine");
-            ForceRefreshCurrentLine(scheduleRetryOnFail: false);
-            waitAndRefreshCoroutine = null;
+            finally
+            {
+                waitAndRefreshRoutine = null;
+            }
         }
 
-        private void ForceRefreshCurrentLine(bool scheduleRetryOnFail = true)
+        private void ForceRefreshCurrentLine(bool scheduleRetryOnFail = false)
         {
             if (isRefreshingCurrentLine)
                 return;
@@ -1039,7 +1067,7 @@ namespace PPP.BLUE.VN
 
             if (!runner.TryGetCurrentSayState(out var currentNodeId, out var refreshedLineIndex, out var currentText, out var currentSpeaker))
             {
-                if (scheduleRetryOnFail)
+                if (scheduleRetryOnFail && CanScheduleCurrentLineRefresh())
                     StartWaitAndRefresh();
 
                 if (!warnedNoNode)
@@ -1082,6 +1110,8 @@ namespace PPP.BLUE.VN
             if (typer != null)
             {
                 typer.ForceComplete(); // 무조건 죽여
+                if (dialogueText != null)
+                    dialogueText.text = currentFullText;
             }
 
             inputLocked = false;
@@ -1095,6 +1125,8 @@ namespace PPP.BLUE.VN
             Debug.Log($"[VN] isWaitingInput={isWaitingInput}, isTyping={isTyping}");
             Debug.Log($"[VN] lineIndex={currentLineIndex}, displayed={lineDisplayed}");
             Debug.Log($"[VN] ForceRefresh → {currentFullText}");
+            Debug.Log($"[VN] Loaded line refreshed speaker={currentSpeaker} text={currentFullText}");
+            Debug.Log($"[VN] dialogueText after refresh={dialogueText?.text}");
             }
             finally
             {
@@ -1102,24 +1134,53 @@ namespace PPP.BLUE.VN
             }
         }
 
+        private bool CanScheduleCurrentLineRefresh()
+        {
+            if (externalInputBlocked || !gameObject.activeInHierarchy)
+                return false;
+
+            if (appFlowController != null && appFlowController.State != VNAppFlowController.VNAppState.InGame)
+                return false;
+
+            return true;
+        }
+
         private bool CanRunCurrentLineRefresh()
         {
             bool blocked = externalInputBlocked || !gameObject.activeInHierarchy;
             if (!blocked) return true;
 
-            if (!warnedRefreshBlocked)
+            if (!warnedRefreshBlocked && gameObject.activeInHierarchy)
             {
                 warnedRefreshBlocked = true;
-                Debug.Log("[VN] Refresh blocked (title/inactive state)");
+                Debug.Log("[VN] Refresh blocked (external input state)");
             }
 
             return false;
+        }
+
+        
+        public bool TryStartTypingCurrentLoadedLine()
+        {
+            if (runner == null)
+                return false;
+
+            if (!runner.TryGetCurrentSayState(out var nodeId, out var lineIndex, out var text, out var speaker))
+                return false;
+
+            var backlogKey = new VNBacklogKey(runner.CurrentScriptId, nodeId, lineIndex);
+            lastHandledLineId = null;
+            HandleSay(speaker, text, nodeId, backlogKey);
+            inputLocked = false;
+            return true;
         }
 
         public void OnStateLoadedForValidation()
         {
             lastHandledLineId = null;
             ForceRefreshCurrentLine();
+            if (lineDisplayed)
+                inputLocked = false;
 
             bool isTyping = typer != null && typer.IsTyping;
             Debug.Log($"[CHECK] displayed={lineDisplayed}");
@@ -1170,6 +1231,7 @@ namespace PPP.BLUE.VN
 
                 runner?.MarkSaveAllowed(true, "No Typer => Immediate");
                 runner?.NotifyLineTypedEnd();
+                inputLocked = false;
                 Debug.Log("[VN] SaveAllowed TRUE (No Typer => Immediate)");
                 return;
             }
@@ -1183,6 +1245,7 @@ namespace PPP.BLUE.VN
                 runner?.BacklogFinalizeLine(currentLineBacklogKey, currentFullText);
 
                 runner?.NotifyLineTypedEnd();
+                inputLocked = false;
                 runner?.MarkSaveAllowed(true, "Skip Immediate");
                 return;
             }
@@ -1197,7 +1260,9 @@ namespace PPP.BLUE.VN
                 runner?.NotifyLineTypedEnd();
 
                 runner?.MarkSaveAllowed(true, "Typing Completed");
+                inputLocked = false;
                 Debug.Log("[VN] SaveAllowed TRUE (Typing Completed)");
+                RefreshInputButtons();
             }, onUpdated: partial =>
             {
                 runner?.BacklogUpdateLineText(currentLineBacklogKey, partial);
@@ -1248,6 +1313,8 @@ namespace PPP.BLUE.VN
 
         public void ToggleSkip()
         {
+            if (IsBlockedByOSModal("Skip"))
+                return;
             if (IsAnyBacklogOpen)
                 return;
 
@@ -1256,6 +1323,8 @@ namespace PPP.BLUE.VN
 
         public void SetAutoPlay(bool value)
         {
+            if (inputLocked)
+                return;
             if (IsAnyBacklogOpen)
                 return;
 
@@ -1270,6 +1339,10 @@ namespace PPP.BLUE.VN
 
         public void ToggleAuto()
         {
+            if (IsBlockedByOSModal("Auto"))
+                return;
+            if (inputLocked)
+                return;
             if (IsAnyBacklogOpen)
                 return;
 
@@ -1284,6 +1357,10 @@ namespace PPP.BLUE.VN
 
         public void OnSkipButtonClicked()
         {
+            if (IsBlockedByOSModal("Skip"))
+                return;
+            if (inputLocked)
+                return;
             if (IsAnyBacklogOpen)
                 return;
 
@@ -1293,6 +1370,8 @@ namespace PPP.BLUE.VN
 
         public void OnSkipButtonPointerDown()
         {
+            if (inputLocked)
+                return;
             if (IsAnyBacklogOpen)
                 return;
 
@@ -1322,6 +1401,10 @@ namespace PPP.BLUE.VN
 
         public void OnAutoPlayButtonClicked()
         {
+            if (IsBlockedByOSModal("Auto"))
+                return;
+            if (inputLocked)
+                return;
             if (IsAnyBacklogOpen)
                 return;
 
@@ -1339,6 +1422,8 @@ namespace PPP.BLUE.VN
 
         public void OnExitButtonClicked()
         {
+            if (IsBlockedByOSModal("Esc"))
+                return;
             if (isUIHidden || isUIAnimating)
                 return;
             if (IsBacklogInputBlocked())
@@ -1369,6 +1454,8 @@ namespace PPP.BLUE.VN
             externalInputBlocked = blocked;
             if (blocked)
             {
+                StopWaitAndRefresh();
+                isRefreshingCurrentLine = false;
                 runner?.SetUiSkipHeld(false, "External Input Blocked");
                 runner?.ForceAutoOff("External Input Blocked");
             }
@@ -1405,6 +1492,8 @@ namespace PPP.BLUE.VN
 
         public void OpenSaveLoadWindow()
         {
+            if (IsBlockedByOSModal("SaveLoad"))
+                return;
             if (isUIHidden || isUIAnimating)
                 return;
             if (policy != null && policy.IsDrinkModeActive())
@@ -1418,7 +1507,21 @@ namespace PPP.BLUE.VN
 
             runner?.ForceAutoOff("Open SaveLoad Window");
             runner?.SetUiSkipHeld(false, "Open SaveLoad Window");
-            saveLoadWindow.Open();
+            StartCoroutine(saveLoadWindow.CoOpenWithThumbnailPreCapture(VNSaveLoadWindow.OpenMode.Normal));
+        }
+
+        private bool IsBlockedByOSModal(string source)
+        {
+            if (windowManager == null)
+                return false;
+            if (!windowManager.IsBlockingModalOpen)
+                return false;
+
+            if (string.IsNullOrEmpty(source))
+                Debug.Log("[VN_INPUT_BLOCKED] reason=OSModal");
+            else
+                Debug.Log($"[VN_INPUT_BLOCKED] source={source} reason=OSModal");
+            return true;
         }
 
         public void HideUI()
