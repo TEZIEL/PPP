@@ -725,10 +725,21 @@ namespace PPP.BLUE.VN
             if (IsBlockedByOSModal(null))
                 return;
 
+            bool altPressed = Input.GetKeyDown(KeyCode.LeftAlt) || Input.GetKeyDown(KeyCode.RightAlt);
+            if (altPressed && !IsBlockedByOSModal("AltBacklog") && backlogView != null)
+            {
+                bool allowed = policy == null || (!policy.IsSaveLoadModalOpen && !policy.IsClosePopupOpen);
+                bool drink = policy != null && policy.IsDrinkModeActive();
+                if (allowed)
+                {
+                    backlogView.Toggle();
+                    Debug.Log($"[VN_BACKLOG] Toggle source=Alt allowed=True drink={drink}");
+                }
+                return;
+            }
+
             if (IsAnyBacklogOpen)
             {
-                if (Input.GetKeyDown(KeyCode.LeftAlt) && IsBacklogOpen)
-                    backlogView?.Toggle();
                 EventSystem.current?.SetSelectedGameObject(null);
                 return;
             }
@@ -835,15 +846,8 @@ namespace PPP.BLUE.VN
 
         private bool HandleVNHotkeys()
         {
-            if (Input.GetKeyDown(KeyCode.LeftAlt))
-            {
-                if (IsBlockedByOSModal("Backlog")) return true;
-                if (backlogView != null)
-                {
-                    backlogView.Toggle();
-                    return true;
-                }
-            }
+            if (Input.GetKeyDown(KeyCode.LeftAlt) || Input.GetKeyDown(KeyCode.RightAlt))
+                return true;
 
             if (Input.GetKeyDown(KeyCode.C))
             {

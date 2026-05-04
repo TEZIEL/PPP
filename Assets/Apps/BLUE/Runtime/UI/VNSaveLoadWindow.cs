@@ -46,6 +46,7 @@ namespace PPP.BLUE.VN
         [SerializeField] private TMP_Text selectedSlotInfoText;
         [SerializeField] private TMP_Text selectedSlotDateText;
         [SerializeField] private Image selectedSlotPreviewImage;
+        [SerializeField] private Sprite selectedSlotPreviewPlaceholderSprite;
         [SerializeField] private RectTransform thumbnailCaptureTarget;
         [SerializeField] private GameObject overlayRootToHideDuringCapture;
         [SerializeField] private GameObject confirmPopupRoot;
@@ -85,6 +86,8 @@ namespace PPP.BLUE.VN
         private Color themedSlotPressedColor;
         private OpenMode currentOpenMode = OpenMode.Normal;
         private byte[] pendingThumbnailPngBytes;
+        private Sprite currentPreviewRuntimeSprite;
+        private Texture2D currentPreviewRuntimeTexture;
         public event System.Action<bool> OnLoadCompleted;
         public float LoadFadeOutSeconds => loadFadeOutSeconds;
         public float LoadFadeInSeconds => loadFadeInSeconds;
@@ -357,6 +360,8 @@ namespace PPP.BLUE.VN
                 if (currentOpenMode != OpenMode.ContinueLoadOnly)
                     CloseImmediate();
 
+
+                OnBeforeLoadStateApplyUnderFade?.Invoke();
 
                 OnBeforeLoadStateApplyUnderFade?.Invoke();
 
@@ -832,16 +837,62 @@ namespace PPP.BLUE.VN
         private void LoadSelectedSlotThumbnail(int slotNumber)
         {
             if (selectedSlotPreviewImage == null) return;
+            if (!File.Exists(GetSlotPath(slotNumber)))
+            {
+                ClearSelectedSlotThumbnail(slotNumber);
+                string orphanPath = GetThumbnailPath(slotNumber);
+                if (File.Exists(orphanPath))
+                {
+                    File.Delete(orphanPath);
+                    Debug.Log($"[VN_THUMB] Delete orphan slot={slotNumber} path={orphanPath}");
+                }
+                Debug.Log($"[VN_THUMB] Skip empty slot={slotNumber}");
+                return;
+            }
+
             string path = GetThumbnailPath(slotNumber);
             bool exists = File.Exists(path);
             Debug.Log($"[VN_THUMB] Load slot={slotNumber} exists={exists}");
-            if (!exists) return;
+            if (!exists)
+            {
+                ClearSelectedSlotThumbnail(slotNumber);
+                Debug.Log($"[VN_THUMB] Missing thumbnail for occupied slot={slotNumber}");
+                return;
+            }
             var bytes = File.ReadAllBytes(path);
             var tex = new Texture2D(2, 2, TextureFormat.RGB24, false);
-            if (!tex.LoadImage(bytes)) return;
-            selectedSlotPreviewImage.sprite = Sprite.Create(tex, new Rect(0, 0, tex.width, tex.height), new Vector2(0.5f, 0.5f));
+            if (!tex.LoadImage(bytes)) { ClearSelectedSlotThumbnail(slotNumber); return; }
+            ClearPreviewRuntimeObjects();
+            currentPreviewRuntimeTexture = tex;
+            currentPreviewRuntimeSprite = Sprite.Create(tex, new Rect(0, 0, tex.width, tex.height), new Vector2(0.5f, 0.5f));
+            selectedSlotPreviewImage.sprite = currentPreviewRuntimeSprite;
             selectedSlotPreviewImage.enabled = true;
             Debug.Log($"[VN_THUMB] Apply preview slot={slotNumber}");
+        }
+
+        private void ClearSelectedSlotThumbnail(int slotNumber)
+        {
+            if (selectedSlotPreviewImage == null) return;
+            ClearPreviewRuntimeObjects();
+            selectedSlotPreviewImage.sprite = selectedSlotPreviewPlaceholderSprite;
+            selectedSlotPreviewImage.enabled = selectedSlotPreviewPlaceholderSprite != null;
+            Debug.Log($"[VN_THUMB] Clear preview slot={slotNumber}");
+        }
+
+        private void ClearPreviewRuntimeObjects()
+        {
+            if (currentPreviewRuntimeSprite != null)
+            {
+                if (Application.isPlaying) Destroy(currentPreviewRuntimeSprite);
+                else DestroyImmediate(currentPreviewRuntimeSprite);
+                currentPreviewRuntimeSprite = null;
+            }
+            if (currentPreviewRuntimeTexture != null)
+            {
+                if (Application.isPlaying) Destroy(currentPreviewRuntimeTexture);
+                else DestroyImmediate(currentPreviewRuntimeTexture);
+                currentPreviewRuntimeTexture = null;
+            }
         }
 
         private void DeleteThumbnailFile(int slotNumber)
