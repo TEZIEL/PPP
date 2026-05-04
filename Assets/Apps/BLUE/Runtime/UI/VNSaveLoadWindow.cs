@@ -45,6 +45,9 @@ namespace PPP.BLUE.VN
         [SerializeField] private TMP_Text selectedSlotNameText;
         [SerializeField] private TMP_Text selectedSlotInfoText;
         [SerializeField] private TMP_Text selectedSlotDateText;
+        [SerializeField] private Image selectedSlotPreviewImage;
+        [SerializeField] private RectTransform thumbnailCaptureTarget;
+        [SerializeField] private GameObject overlayRootToHideDuringCapture;
         [SerializeField] private GameObject confirmPopupRoot;
         [SerializeField] private TMP_Text confirmMessageText;
         [SerializeField] private Button confirmYesButton;
@@ -55,6 +58,9 @@ namespace PPP.BLUE.VN
         [SerializeField, Min(0f)] private float loadFadeOutSeconds = 0.35f;
         [SerializeField, Min(0f)] private float loadFadeInSeconds = 0.35f;
         [SerializeField, Min(0f)] private float loadBlackHoldSeconds = 3f;
+        [Header("Thumbnail")]
+        [SerializeField] private int thumbnailWidth = 158;
+        [SerializeField] private int thumbnailHeight = 97;
 
         [Header("Slot Selection Fallback")]
         [SerializeField] private Color selectedSlotButtonColor = new Color32(128, 128, 184, 255);
@@ -356,6 +362,8 @@ namespace PPP.BLUE.VN
 
                 OnBeforeLoadStateApplyUnderFade?.Invoke();
 
+                OnBeforeLoadStateApplyUnderFade?.Invoke();
+
                 if (loadBlackHoldSeconds > 0f)
                 {
                     Debug.Log("[VN_LOAD_FLOW] Delay start");
@@ -502,6 +510,8 @@ namespace PPP.BLUE.VN
             RefreshSelectedSlotMetadata();
             RefreshSlotVisuals();
             RefreshActionButtonState();
+            if (currentOpenMode == OpenMode.Normal)
+                StartCoroutine(CaptureAndSaveThumbnailCoroutine(slotNumber));
         }
 
         private void ExecuteDelete()
@@ -512,6 +522,7 @@ namespace PPP.BLUE.VN
             if (File.Exists(path))
             {
                 File.Delete(path);
+                DeleteThumbnailFile(slotNumber);
                 SoundManager.Instance.PlayOS(OSSoundEvent.Delete);
 
                 Debug.Log($"[VN][SaveLoad] Deleted slot={slotNumber}");
@@ -739,6 +750,94 @@ namespace PPP.BLUE.VN
             SetText(selectedSlotNameText, slotName);
             SetText(selectedSlotInfoText, slotInfo);
             SetText(selectedSlotDateText, slotDate);
+            LoadSelectedSlotThumbnail(selectedSlotIndex + 1);
+        }
+
+        private string GetThumbnailPath(int slotNumber)
+        {
+            string path = Path.Combine(Application.persistentDataPath, $"VN_SAVE_{slotNumber}_thumb.png");
+            Debug.Log($"[VN_THUMB] path slot={slotNumber} path={path}");
+            return path;
+        }
+
+        private IEnumerator CaptureAndSaveThumbnailCoroutine(int slotNumber)
+        {
+            Debug.Log($"[VN_THUMB] Capture start slot={slotNumber}");
+            if (thumbnailCaptureTarget == null) { Debug.LogWarning("[VN_THUMB] Missing thumbnailCaptureTarget"); yield break; }
+            if (overlayRootToHideDuringCapture == null) { Debug.LogWarning("[VN_THUMB] Missing overlayRootToHideDuringCapture"); yield break; }
+            if (selectedSlotPreviewImage == null) Debug.LogWarning("[VN_THUMB] Missing selectedSlotPreviewImage");
+
+            bool activeBefore = overlayRootToHideDuringCapture.activeSelf;
+            Debug.Log($"[VN_THUMB] Hide overlay activeBefore={activeBefore}");
+            try
+            {
+                overlayRootToHideDuringCapture.SetActive(false);
+                yield return null;
+                yield return new WaitForEndOfFrame();
+
+                var corners = new Vector3[4];
+                thumbnailCaptureTarget.GetWorldCorners(corners);
+                int x = Mathf.Clamp(Mathf.RoundToInt(corners[0].x), 0, Screen.width - 1);
+                int y = Mathf.Clamp(Mathf.RoundToInt(corners[0].y), 0, Screen.height - 1);
+                int w = Mathf.Clamp(Mathf.RoundToInt(corners[2].x - corners[0].x), 0, Screen.width - x);
+                int h = Mathf.Clamp(Mathf.RoundToInt(corners[2].y - corners[0].y), 0, Screen.height - y);
+                Debug.Log($"[VN_THUMB] capture rect x={x} y={y} w={w} h={h}");
+                if (w <= 0 || h <= 0) { Debug.LogWarning("[VN_THUMB] capture failed invalid rect"); yield break; }
+
+                var src = new Texture2D(w, h, TextureFormat.RGB24, false);
+                src.ReadPixels(new Rect(x, y, w, h), 0, 0);
+                src.Apply();
+                int tw = thumbnailWidth > 0 ? thumbnailWidth : 158;
+                int th = thumbnailHeight > 0 ? thumbnailHeight : 97;
+                var dst = new Texture2D(tw, th, TextureFormat.RGB24, false);
+                for (int py = 0; py < th; py++)
+                    for (int px = 0; px < tw; px++)
+                        dst.SetPixel(px, py, src.GetPixelBilinear((float)px / tw, (float)py / th));
+                dst.Apply();
+                Debug.Log($"[VN_THUMB] resized {tw}x{th}");
+                string path = GetThumbnailPath(slotNumber);
+                File.WriteAllBytes(path, dst.EncodeToPNG());
+                Debug.Log($"[VN_THUMB] Save png path={path}");
+                LoadSelectedSlotThumbnail(slotNumber);
+            }
+            catch (System.Exception ex)
+            {
+                Debug.LogWarning($"[VN_THUMB] Capture failed reason={ex.Message}");
+            }
+            finally
+            {
+                overlayRootToHideDuringCapture.SetActive(activeBefore);
+                Debug.Log($"[VN_THUMB] Restore overlay active={overlayRootToHideDuringCapture.activeSelf}");
+            }
+        }
+
+        private void LoadSelectedSlotThumbnail(int slotNumber)
+        {
+            if (selectedSlotPreviewImage == null) return;
+            string path = GetThumbnailPath(slotNumber);
+            bool exists = File.Exists(path);
+            Debug.Log($"[VN_THUMB] Load slot={slotNumber} exists={exists}");
+            if (!exists) return;
+            var bytes = File.ReadAllBytes(path);
+            var tex = new Texture2D(2, 2, TextureFormat.RGB24, false);
+            if (!tex.LoadImage(bytes)) return;
+            selectedSlotPreviewImage.sprite = Sprite.Create(tex, new Rect(0, 0, tex.width, tex.height), new Vector2(0.5f, 0.5f));
+            selectedSlotPreviewImage.enabled = true;
+            Debug.Log($"[VN_THUMB] Apply preview slot={slotNumber}");
+        }
+
+        private void DeleteThumbnailFile(int slotNumber)
+        {
+            string path = GetThumbnailPath(slotNumber);
+            if (File.Exists(path))
+            {
+                File.Delete(path);
+                Debug.Log($"[VN_THUMB] Delete slot={slotNumber} path={path}");
+            }
+            else
+            {
+                Debug.Log($"[VN_THUMB] Delete skipped no file slot={slotNumber}");
+            }
         }
 
         private void AutoBindIntegratedSlotMetadataTexts()
