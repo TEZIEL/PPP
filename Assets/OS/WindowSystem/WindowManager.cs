@@ -15,6 +15,7 @@ public class WindowManager : MonoBehaviour, IVNHostOS
     [SerializeField] private ThemeManager themeManager;
     [SerializeField] private AppUIThemeManager appUIThemeManager;
     [SerializeField] private OptionManager optionManager;
+    [SerializeField] private OptionsModal optionsModal;
     [SerializeField] private RectTransform iconsRoot; // DesktopIconBG 같은 부모
     [SerializeField] private DesktopGridManager desktopGridManager;
 
@@ -43,12 +44,14 @@ public class WindowManager : MonoBehaviour, IVNHostOS
     private string activeAppId;
     public string ActiveAppId => activeAppId;
     private OSSaveData cachedSave;
+    private RecipeAppStateData recipeState = new();
 
     [SerializeField] private bool logWindowState = false; // 필요할 때만 Inspector에서 켜기
     [SerializeField] private bool logWindowLifecycle = true;
 
     private bool isAnimating;
     public bool IsAnimating => isAnimating;
+    public bool IsBlockingModalOpen => optionsModal != null && optionsModal.gameObject.activeInHierarchy;
 
     [SerializeField] private bool logSaveVerbose = false;
     [Header("Save Split")]
@@ -78,6 +81,12 @@ public class WindowManager : MonoBehaviour, IVNHostOS
         if (!logWindowLifecycle) return;
         var suffix = string.IsNullOrEmpty(extra) ? string.Empty : $" {extra}";
         Debug.Log($"[OS] Window {evt} appId={appId}{suffix}");
+    }
+
+    private void LateUpdate()
+    {
+        if (optionsModal == null)
+            optionsModal = FindFirstObjectByType<OptionsModal>(FindObjectsInactive.Include);
     }
 
     public void SetMinimized(string appId, bool minimized)
@@ -397,9 +406,11 @@ public class WindowManager : MonoBehaviour, IVNHostOS
         }
 
         saveData.osState ??= new OSGlobalStateData();
+        saveData.osState.recipeState = CloneRecipeState(recipeState);
         if (BGMManager.Instance != null)
             saveData.osState.bgm = BGMManager.Instance.CaptureOsState();
         CaptureCustomizationState(saveData.osState);
+        Debug.Log($"[OS SAVE] recipe servedCount={saveData.osState.recipeState?.servedDrinkIds?.Count ?? 0}");
 
         PPP.OS.Save.OSSaveSystem.Save(saveData);
         cachedSave = saveData;
@@ -428,6 +439,11 @@ public class WindowManager : MonoBehaviour, IVNHostOS
         ApplyIcons(data);
 
         var savedBgmState = data.osState != null ? data.osState.bgm : null;
+        data.osState ??= new OSGlobalStateData();
+        data.osState.recipeState ??= new RecipeAppStateData();
+        data.osState.recipeState.servedDrinkIds ??= new List<string>();
+        recipeState = CloneRecipeState(data.osState.recipeState);
+        Debug.Log($"[OS LOAD] recipe servedCount={recipeState.servedDrinkIds.Count}");
         if (BGMManager.Instance != null)
             BGMManager.Instance.ApplyOsState(savedBgmState);
         else
@@ -441,6 +457,46 @@ public class WindowManager : MonoBehaviour, IVNHostOS
         StartCoroutine(CoPostApplyLayoutSanityNextFrame());
 
         Debug.Log($"[OS] LoadOS applied. subBlocks={subBlockJsonByKey.Count}");
+    }
+
+    public void MarkRecipeDrinkServed(string drinkId)
+    {
+        if (string.IsNullOrWhiteSpace(drinkId))
+            return;
+        EnsureRecipeState();
+        Debug.Log($"[RECIPE_DISCOVERY] BeforeAdd servedCount={recipeState.servedDrinkIds.Count}");
+        if (recipeState.servedDrinkIds.Contains(drinkId))
+        {
+            Debug.Log($"[RECIPE_DISCOVERY] AlreadyServed drinkId={drinkId}");
+            return;
+        }
+        recipeState.servedDrinkIds.Add(drinkId);
+        Debug.Log($"[RECIPE_DISCOVERY] MarkServed drinkId={drinkId}");
+        Debug.Log($"[RECIPE_DISCOVERY] AfterAdd servedCount={recipeState.servedDrinkIds.Count}");
+        Debug.Log($"[RECIPE_DISCOVERY] SaveOS requested servedCount={recipeState.servedDrinkIds.Count}");
+        SaveOS();
+    }
+
+    public IReadOnlyList<string> GetServedDrinkIds()
+    {
+        EnsureRecipeState();
+        return recipeState.servedDrinkIds;
+    }
+
+    private void EnsureRecipeState()
+    {
+        recipeState ??= new RecipeAppStateData();
+        recipeState.servedDrinkIds ??= new List<string>();
+    }
+
+    private static RecipeAppStateData CloneRecipeState(RecipeAppStateData src)
+    {
+        var dst = new RecipeAppStateData();
+        if (src?.servedDrinkIds != null)
+            dst.servedDrinkIds = new List<string>(src.servedDrinkIds);
+        else
+            dst.servedDrinkIds = new List<string>();
+        return dst;
     }
 
     private void CaptureCustomizationState(OSGlobalStateData osState)
@@ -1121,6 +1177,19 @@ public class WindowManager : MonoBehaviour, IVNHostOS
     {
         TryHandleClose(appId, "RequestClose");
     }
+
+    public void ForceClose(string appId)
+    {
+        if (string.IsNullOrEmpty(appId))
+            return;
+
+        if (!openWindows.TryGetValue(appId, out var window) || window == null)
+            return;
+
+        Debug.Log($"[OS] Window close appId={appId} (ForceClose)");
+        PerformClose(window, appId);
+    }
+
 
     public void SaveSubBlock(string key, object data)
     {
