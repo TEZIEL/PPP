@@ -205,8 +205,18 @@ namespace PPP.BLUE.VN
             StartCoroutine(CoReturnToTitle("Legacy"));
         }
 
+        private void ClearContinueLoadHooks(string reason)
+        {
+            if (saveLoadWindow == null)
+                return;
+
+            saveLoadWindow.OnBeforeLoadStateApplyUnderFade = null;
+            Debug.Log($"[TITLE] Continue hooks cleared reason={reason}");
+        }
+
         public void HandleTitleContinueWindowClosedWithoutLoad()
         {
+            ClearContinueLoadHooks("closedWithoutLoad");
             if (State != VNAppState.Title)
                 return;
             transitionLocked = false;
@@ -339,7 +349,7 @@ namespace PPP.BLUE.VN
         private void HandleContinueLoadCompleted(bool ok)
         {
             Debug.Log("[TITLE] Continue slot load selected");
-            saveLoadWindow.OnBeforeLoadStateApplyUnderFade = null;
+            ClearContinueLoadHooks("loadCompleted");
             transitionLocked = false;
 
             if (!ok)
