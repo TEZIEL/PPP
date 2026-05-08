@@ -16,6 +16,9 @@ namespace PPP.BLUE.VN
         [Header("Character Definitions")]
         [SerializeField] private List<VNCharacterDefinition> characterDefinitions = new();
 
+        [Header("Character Definitions")]
+        [SerializeField] private List<VNCharacterDefinition> characterDefinitions = new();
+
         [Header("Sprite Mapping")]
         [SerializeField] private List<VNCharacterSpriteMapping> spriteMappings = new();
 
