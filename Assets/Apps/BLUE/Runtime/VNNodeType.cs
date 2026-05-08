@@ -12,6 +12,9 @@ namespace PPP.BLUE.VN
         AddVar,
         Branch,
         Switch,
+        ShowCharacter,
+        ChangeExpression,
+        HideCharacter,
         End,
     }
 }
