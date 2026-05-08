@@ -28,6 +28,7 @@ namespace PPP.BLUE.VN
         public VNBacklogState backlog = new();
         public VNBacklogKey currentLineKey = new();
         public bool isCurrentLineTyping;
+        public List<VNCharacterState> characterStates = new();
         public List<VNWindowStateData> vnWindowStates = new();
         // Legacy field kept for backward compatibility with older save payloads.
         public List<VNWindowStateData> windowStates = new();
