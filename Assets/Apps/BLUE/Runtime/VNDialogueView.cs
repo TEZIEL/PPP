@@ -1272,7 +1272,8 @@ namespace PPP.BLUE.VN
 
             runner?.MarkSaveAllowed(false, "Typing Start");
 
-            bool isMelionSpeaker = allowMouthAnimation && IsMelionSpeaker(speakerId);
+            bool suppressMouthAnimationForRestore = runner != null && runner.SuppressMouthAnimationForCurrentSay;
+            bool isMelionSpeaker = allowMouthAnimation && !suppressMouthAnimationForRestore && IsMelionSpeaker(speakerId);
 
             // ✅ 타이퍼 없으면 즉시 출력
             if (typer == null)
