@@ -23,6 +23,7 @@ namespace PPP.BLUE.VN
 
         [Header("Fade")]
         [SerializeField, Min(0f)] private float fadeDuration = 0.25f;
+        [SerializeField] private bool logFadeDebug;
 
         private readonly Dictionary<string, VNCharacterSpriteMapping> spriteLookup = new();
         private readonly Dictionary<string, VNCharacterState> activeStates = new(System.StringComparer.OrdinalIgnoreCase);
@@ -83,8 +84,12 @@ namespace PPP.BLUE.VN
                 visible = true,
             };
 
+            bool isPortrait = state.position == PortraitPosition;
+            bool useFade = !isPortrait;
+            LogFadeDebug($"ShowCharacter called: characterId={characterId}, expressionId={expressionId}, position={state.position}, isPortrait={isPortrait}, useFade={useFade}");
+
             activeStates[characterId] = state;
-            ApplyStateToSlot(state, useFade: state.position != PortraitPosition);
+            ApplyStateToSlot(state, useFade: useFade);
         }
 
         public void ChangeExpression(string characterId, string expressionId)
@@ -228,7 +233,13 @@ namespace PPP.BLUE.VN
             }
 
             Sprite sprite = GetSprite(state.characterId, state.expressionId);
-            ApplySpriteToSlot(slot, sprite, normalizedPosition, useFade);
+            ApplySpriteToSlot(
+                slot,
+                sprite,
+                normalizedPosition,
+                useFade,
+                forceAlphaOneWhenImmediate: true,
+                stopExistingFade: true);
         }
 
         private void ApplyStateToSlot(VNCharacterState state, Sprite sprite)
@@ -246,37 +257,56 @@ namespace PPP.BLUE.VN
                 return;
             }
 
-            ApplySpriteToSlot(slot, sprite, normalizedPosition, useFade: false);
+            ApplySpriteToSlot(
+                slot,
+                sprite,
+                normalizedPosition,
+                useFade: false,
+                forceAlphaOneWhenImmediate: false,
+                stopExistingFade: false);
         }
 
-        private void ApplySpriteToSlot(Image slot, Sprite sprite, string normalizedPosition, bool useFade)
+        private void ApplySpriteToSlot(
+            Image slot,
+            Sprite sprite,
+            string normalizedPosition,
+            bool useFade,
+            bool forceAlphaOneWhenImmediate,
+            bool stopExistingFade)
         {
             if (slot == null)
                 return;
 
-            StopSlotFade(slot);
+            if (stopExistingFade)
+                StopSlotFade(slot);
 
-            slot.sprite = sprite;
+            if (normalizedPosition != PortraitPosition)
+                slot.gameObject.SetActive(true);
+
             slot.enabled = sprite != null;
+            slot.sprite = sprite;
 
             if (normalizedPosition == PortraitPosition)
                 return;
 
-            slot.gameObject.SetActive(true);
-
             if (sprite == null)
             {
-                SetAlpha(slot, 1f);
+                if (forceAlphaOneWhenImmediate)
+                    SetAlpha(slot, 1f);
+
                 return;
             }
 
             if (!useFade || fadeDuration <= 0f)
             {
-                SetAlpha(slot, 1f);
+                if (forceAlphaOneWhenImmediate)
+                    SetAlpha(slot, 1f);
+
                 return;
             }
 
             SetAlpha(slot, 0f);
+            LogFadeDebug($"Start fade in: slot={slot.name}, from alpha=0, to alpha=1, duration={fadeDuration:0.###}");
             fadeCoroutines[slot] = StartCoroutine(FadeSlot(slot, 0f, 1f, fadeDuration, clearOnComplete: false));
         }
 
@@ -324,6 +354,7 @@ namespace PPP.BLUE.VN
             }
 
             slot.gameObject.SetActive(true);
+            LogFadeDebug($"Start fade out: slot={slot.name}, from alpha={slot.color.a:0.###}, to alpha=0, duration={fadeDuration:0.###}");
             fadeCoroutines[slot] = StartCoroutine(FadeSlot(slot, slot.color.a, 0f, fadeDuration, clearOnComplete: true));
         }
 
@@ -355,6 +386,8 @@ namespace PPP.BLUE.VN
 
             fadeCoroutines.Remove(slot);
 
+            LogFadeDebug($"Fade complete: slot={slot.name}, final alpha={slot.color.a:0.###}");
+
             if (clearOnComplete)
             {
                 slot.sprite = null;
@@ -384,6 +417,14 @@ namespace PPP.BLUE.VN
             }
 
             fadeCoroutines.Clear();
+        }
+
+        private void LogFadeDebug(string message)
+        {
+            if (!logFadeDebug)
+                return;
+
+            Debug.Log($"[VNCharacterFade] {message}");
         }
 
         private static void SetAlpha(Image slot, float alpha)
