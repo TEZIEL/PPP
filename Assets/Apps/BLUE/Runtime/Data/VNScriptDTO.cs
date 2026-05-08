@@ -27,8 +27,11 @@ namespace PPP.BLUE.VN
         public string type;
         public string speakerId;
         public string speaker;
+        public string characterId;
+        public string character;
         public string expressionId;
         public string expression;
+        public string position;
         public string text;
         public string label;
         public string target;

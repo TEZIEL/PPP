@@ -9,9 +9,11 @@ namespace PPP.BLUE.VN
         public string id;          // Stable line key (seenSet, save)
         public VNNodeType type;
 
-        // Say
+        // Say / Character display
         public string speakerId;
+        public string characterId;
         public string expressionId;
+        public string position;
         public string text;
         public string background;
         public string bgm;
@@ -26,6 +28,7 @@ namespace PPP.BLUE.VN
         public string callArg;
         public string arg;
         public string arg1;
+        public string arg2;
 
         // Branch
         public BranchRule[] branches;
