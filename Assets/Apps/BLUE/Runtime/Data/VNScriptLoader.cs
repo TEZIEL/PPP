@@ -74,7 +74,9 @@ namespace PPP.BLUE.VN
                         id = nodeDto.id,
                         type = t,
                         speakerId = FirstNonEmpty(nodeDto.speakerId, nodeDto.speaker),
+                        characterId = FirstNonEmpty(nodeDto.characterId, nodeDto.character),
                         expressionId = FirstNonEmpty(nodeDto.expressionId, nodeDto.expression),
+                        position = nodeDto.position ?? string.Empty,
                         text = nodeDto.text ?? string.Empty,
                         background = nodeDto.background ?? string.Empty,
                         bgm = nodeDto.bgm ?? string.Empty,
@@ -91,6 +93,7 @@ namespace PPP.BLUE.VN
                         callArg = callArg,
                         arg = nodeDto.arg ?? string.Empty,
                         arg1 = nodeDto.arg1 ?? string.Empty,
+                        arg2 = nodeDto.arg2 ?? string.Empty,
                         branches = ConvertBranches(nodeDto.branches),
                         choices = ConvertChoices(nodeDto.choices),
                     };
