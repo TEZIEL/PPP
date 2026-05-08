@@ -1,3 +1,4 @@
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
@@ -20,8 +21,12 @@ namespace PPP.BLUE.VN
         [SerializeField] private Image rightImage;
         [SerializeField] private Image portraitImage;
 
+        [Header("Fade")]
+        [SerializeField, Min(0f)] private float fadeDuration = 0.25f;
+
         private readonly Dictionary<string, VNCharacterSpriteMapping> spriteLookup = new();
         private readonly Dictionary<string, VNCharacterState> activeStates = new(System.StringComparer.OrdinalIgnoreCase);
+        private readonly Dictionary<Image, Coroutine> fadeCoroutines = new();
 
         private void Awake()
         {
@@ -79,7 +84,7 @@ namespace PPP.BLUE.VN
             };
 
             activeStates[characterId] = state;
-            ApplyStateToSlot(state);
+            ApplyStateToSlot(state, useFade: state.position != PortraitPosition);
         }
 
         public void ChangeExpression(string characterId, string expressionId)
@@ -126,7 +131,7 @@ namespace PPP.BLUE.VN
 
             string normalizedPosition = NormalizePosition(state.position);
             if (normalizedPosition != PortraitPosition)
-                ClearSlot(normalizedPosition);
+                FadeOutAndClearSlot(normalizedPosition);
 
             activeStates.Remove(characterId);
         }
@@ -134,6 +139,7 @@ namespace PPP.BLUE.VN
         public void ClearAll()
         {
             activeStates.Clear();
+            StopAllSlotFades();
             ClearSlotImages();
         }
 
@@ -203,6 +209,11 @@ namespace PPP.BLUE.VN
 
         private void ApplyStateToSlot(VNCharacterState state)
         {
+            ApplyStateToSlot(state, useFade: false);
+        }
+
+        private void ApplyStateToSlot(VNCharacterState state, bool useFade)
+        {
             if (state == null || !state.visible)
                 return;
 
@@ -216,11 +227,8 @@ namespace PPP.BLUE.VN
                 return;
             }
 
-            slot.sprite = GetSprite(state.characterId, state.expressionId);
-            slot.enabled = slot.sprite != null;
-
-            if (normalizedPosition != PortraitPosition)
-                slot.gameObject.SetActive(true);
+            Sprite sprite = GetSprite(state.characterId, state.expressionId);
+            ApplySpriteToSlot(slot, sprite, normalizedPosition, useFade);
         }
 
         private void ApplyStateToSlot(VNCharacterState state, Sprite sprite)
@@ -238,11 +246,38 @@ namespace PPP.BLUE.VN
                 return;
             }
 
+            ApplySpriteToSlot(slot, sprite, normalizedPosition, useFade: false);
+        }
+
+        private void ApplySpriteToSlot(Image slot, Sprite sprite, string normalizedPosition, bool useFade)
+        {
+            if (slot == null)
+                return;
+
+            StopSlotFade(slot);
+
             slot.sprite = sprite;
             slot.enabled = sprite != null;
 
-            if (normalizedPosition != PortraitPosition)
-                slot.gameObject.SetActive(true);
+            if (normalizedPosition == PortraitPosition)
+                return;
+
+            slot.gameObject.SetActive(true);
+
+            if (sprite == null)
+            {
+                SetAlpha(slot, 1f);
+                return;
+            }
+
+            if (!useFade || fadeDuration <= 0f)
+            {
+                SetAlpha(slot, 1f);
+                return;
+            }
+
+            SetAlpha(slot, 0f);
+            fadeCoroutines[slot] = StartCoroutine(FadeSlot(slot, 0f, 1f, fadeDuration, clearOnComplete: false));
         }
 
         private Image GetSlotImage(string position)
@@ -266,8 +301,99 @@ namespace PPP.BLUE.VN
             if (slot == null)
                 return;
 
+            StopSlotFade(slot);
             slot.sprite = null;
             slot.enabled = false;
+            SetAlpha(slot, 1f);
+        }
+
+        private void FadeOutAndClearSlot(string position)
+        {
+            Image slot = GetSlotImage(position);
+            if (slot == null)
+                return;
+
+            StopSlotFade(slot);
+
+            if (fadeDuration <= 0f || !slot.enabled || slot.sprite == null)
+            {
+                slot.sprite = null;
+                slot.enabled = false;
+                SetAlpha(slot, 1f);
+                return;
+            }
+
+            slot.gameObject.SetActive(true);
+            fadeCoroutines[slot] = StartCoroutine(FadeSlot(slot, slot.color.a, 0f, fadeDuration, clearOnComplete: true));
+        }
+
+        private IEnumerator FadeSlot(Image slot, float fromAlpha, float toAlpha, float duration, bool clearOnComplete)
+        {
+            if (slot == null)
+                yield break;
+
+            if (duration <= 0f)
+            {
+                SetAlpha(slot, toAlpha);
+            }
+            else
+            {
+                float elapsed = 0f;
+                while (elapsed < duration)
+                {
+                    if (slot == null)
+                        yield break;
+
+                    elapsed += Time.deltaTime;
+                    float t = Mathf.Clamp01(elapsed / duration);
+                    SetAlpha(slot, Mathf.Lerp(fromAlpha, toAlpha, t));
+                    yield return null;
+                }
+
+                SetAlpha(slot, toAlpha);
+            }
+
+            fadeCoroutines.Remove(slot);
+
+            if (clearOnComplete)
+            {
+                slot.sprite = null;
+                slot.enabled = false;
+                SetAlpha(slot, 1f);
+            }
+        }
+
+        private void StopSlotFade(Image slot)
+        {
+            if (slot == null)
+                return;
+
+            if (!fadeCoroutines.TryGetValue(slot, out Coroutine coroutine) || coroutine == null)
+                return;
+
+            StopCoroutine(coroutine);
+            fadeCoroutines.Remove(slot);
+        }
+
+        private void StopAllSlotFades()
+        {
+            foreach (Coroutine coroutine in fadeCoroutines.Values)
+            {
+                if (coroutine != null)
+                    StopCoroutine(coroutine);
+            }
+
+            fadeCoroutines.Clear();
+        }
+
+        private static void SetAlpha(Image slot, float alpha)
+        {
+            if (slot == null)
+                return;
+
+            Color color = slot.color;
+            color.a = alpha;
+            slot.color = color;
         }
 
         private void ClearSlotImages()
