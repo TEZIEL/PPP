@@ -228,6 +228,81 @@ MonoBehaviour:
   m_FillOrigin: 0
   m_UseSpriteMesh: 0
   m_PixelsPerUnitMultiplier: 1
+--- !u!1 &89270599204395963
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 5373723943662312880}
+  - component: {fileID: 8641551495338349321}
+  - component: {fileID: 273414373664353400}
+  m_Layer: 5
+  m_Name: MelionEyebrowImage
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!224 &5373723943662312880
+RectTransform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 89270599204395963}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 5123328615493210782}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+  m_AnchorMin: {x: 0, y: 0}
+  m_AnchorMax: {x: 1, y: 1}
+  m_AnchoredPosition: {x: 0, y: 0}
+  m_SizeDelta: {x: 0, y: 0}
+  m_Pivot: {x: 0.5, y: 0.5}
+--- !u!222 &8641551495338349321
+CanvasRenderer:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 89270599204395963}
+  m_CullTransparentMesh: 1
+--- !u!114 &273414373664353400
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 89270599204395963}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fe87c0e1cc204ed48ad3b37840f39efc, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_Material: {fileID: 0}
+  m_Color: {r: 1, g: 1, b: 1, a: 1}
+  m_RaycastTarget: 0
+  m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
+  m_Maskable: 1
+  m_OnCullStateChanged:
+    m_PersistentCalls:
+      m_Calls: []
+  m_Sprite: {fileID: 0}
+  m_Type: 0
+  m_PreserveAspect: 0
+  m_FillCenter: 1
+  m_FillMethod: 4
+  m_FillAmount: 1
+  m_FillClockwise: 1
+  m_FillOrigin: 0
+  m_UseSpriteMesh: 0
+  m_PixelsPerUnitMultiplier: 1
 --- !u!1 &95234036173725458
 GameObject:
   m_ObjectHideFlags: 0
@@ -12612,6 +12687,54 @@ MonoBehaviour:
   - {fileID: 2570338192436488418}
   - {fileID: 8657123684315957331}
   - {fileID: 5615515203433212443}
+--- !u!1 &3922788841237825718
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 5123328615493210782}
+  - component: {fileID: 40218681833625458}
+  m_Layer: 5
+  m_Name: MelionPortraitRoot
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!224 &5123328615493210782
+RectTransform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3922788841237825718}
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children:
+  - {fileID: 5868027449058712522}
+  - {fileID: 5373723943662312880}
+  - {fileID: 6509950843977661645}
+  - {fileID: 7056981900747600758}
+  m_Father: {fileID: 2363876383938546611}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+  m_AnchorMin: {x: 0.5, y: 0.5}
+  m_AnchorMax: {x: 0.5, y: 0.5}
+  m_AnchoredPosition: {x: 0, y: -22.5}
+  m_SizeDelta: {x: 252, y: 267}
+  m_Pivot: {x: 0.5, y: 0.5}
+--- !u!222 &40218681833625458
+CanvasRenderer:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3922788841237825718}
+  m_CullTransparentMesh: 1
 --- !u!1 &3962404159267132742
 GameObject:
   m_ObjectHideFlags: 0
@@ -14967,6 +15090,81 @@ MonoBehaviour:
   pressedTextColor: {r: 1, g: 1, b: 1, a: 1}
   hotkeyPressScale: 0.92
   hotkeyPressDuration: 0.08
+--- !u!1 &4478989100760372639
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 5868027449058712522}
+  - component: {fileID: 843900969570195569}
+  - component: {fileID: 5065819125521471535}
+  m_Layer: 5
+  m_Name: MelionBaseImage
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!224 &5868027449058712522
+RectTransform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4478989100760372639}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 5123328615493210782}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+  m_AnchorMin: {x: 0, y: 0}
+  m_AnchorMax: {x: 1, y: 1}
+  m_AnchoredPosition: {x: 0, y: 0}
+  m_SizeDelta: {x: 0, y: 0}
+  m_Pivot: {x: 0.5, y: 0.5}
+--- !u!222 &843900969570195569
+CanvasRenderer:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4478989100760372639}
+  m_CullTransparentMesh: 1
+--- !u!114 &5065819125521471535
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4478989100760372639}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fe87c0e1cc204ed48ad3b37840f39efc, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_Material: {fileID: 0}
+  m_Color: {r: 1, g: 1, b: 1, a: 1}
+  m_RaycastTarget: 0
+  m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
+  m_Maskable: 1
+  m_OnCullStateChanged:
+    m_PersistentCalls:
+      m_Calls: []
+  m_Sprite: {fileID: 0}
+  m_Type: 0
+  m_PreserveAspect: 0
+  m_FillCenter: 1
+  m_FillMethod: 4
+  m_FillAmount: 1
+  m_FillClockwise: 1
+  m_FillOrigin: 0
+  m_UseSpriteMesh: 0
+  m_PixelsPerUnitMultiplier: 1
 --- !u!1 &4488132029951757095
 GameObject:
   m_ObjectHideFlags: 0
@@ -18085,6 +18283,16 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b37e818ab58946899da3e439f9592c0d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  characterDefinitions:
+  - characterId: melion
+    displayName: "\uBA5C\uB9AC\uC628"
+    defaultExpressionId: normal
+    speakerIds:
+    - melion
+    renderMode: 1
+    defaultPosition: portrait
+    supportsBlink: 1
+    supportsMouth: 1
   spriteMappings:
   - characterId: sena
     expressionId: normal
@@ -18140,10 +18348,58 @@ MonoBehaviour:
   - characterId: melion
     expressionId: smile
     sprite: {fileID: 21300000, guid: e46e81a2aa85d58428f740f0bdab2e9b, type: 3}
+  layeredExpressionMappings:
+  - characterId: melion
+    expressionId: normal
+    baseSprite: {fileID: 21300000, guid: 879b2a8330ff797429bc577f3baeb016, type: 3}
+    eyebrowSprite: {fileID: 21300000, guid: 7f777ea1855624a4e8b67b4e49f25c79, type: 3}
+    eyebrowOpenSprite: {fileID: 21300000, guid: 7f777ea1855624a4e8b67b4e49f25c79, type: 3}
+    eyebrowBlinkHalfSprite: {fileID: 21300000, guid: cef7c84a5134cca48bafd097886a847e, type: 3}
+    eyebrowBlinkClosedSprite: {fileID: 21300000, guid: 6040feed8a701a44694a542e4d3e5af3, type: 3}
+    eyeOpenSprite: {fileID: 21300000, guid: d992e612914c39d49beab64ff577cced, type: 3}
+    eyeBlinkHalfSprite: {fileID: 21300000, guid: 447e31bb6d0e3034e94d416d72a98962, type: 3}
+    eyeBlinkClosedSprite: {fileID: 21300000, guid: e1b3c4646f580ff4584a54419740e213, type: 3}
+    eyeClosedSprite: {fileID: 21300000, guid: e1b3c4646f580ff4584a54419740e213, type: 3}
+    mouthClosedSprite: {fileID: 21300000, guid: 17d5c9a379e7edc4791e8fa89b5d64f7, type: 3}
+    mouthOpenSprites: []
+  - characterId: melion
+    expressionId: embarrassed
+    baseSprite: {fileID: 21300000, guid: d15e329f652d94647ba69548ed96c639, type: 3}
+    eyebrowSprite: {fileID: 21300000, guid: a48765306e2ea7c45b8cd44b50a17371, type: 3}
+    eyebrowOpenSprite: {fileID: 21300000, guid: a48765306e2ea7c45b8cd44b50a17371, type: 3}
+    eyebrowBlinkHalfSprite: {fileID: 21300000, guid: 732748b4eec9fe44aa4fd76169fe16a3, type: 3}
+    eyebrowBlinkClosedSprite: {fileID: 21300000, guid: 2397431a0abde8445a48933c32ce2e2e, type: 3}
+    eyeOpenSprite: {fileID: 21300000, guid: d940f52a609d4e74e862bf09bf7cab89, type: 3}
+    eyeBlinkHalfSprite: {fileID: 21300000, guid: 447e31bb6d0e3034e94d416d72a98962, type: 3}
+    eyeBlinkClosedSprite: {fileID: 21300000, guid: e1b3c4646f580ff4584a54419740e213, type: 3}
+    eyeClosedSprite: {fileID: 21300000, guid: e1b3c4646f580ff4584a54419740e213, type: 3}
+    mouthClosedSprite: {fileID: 21300000, guid: 17d5c9a379e7edc4791e8fa89b5d64f7, type: 3}
+    mouthOpenSprites: []
+  - characterId: melion
+    expressionId: smile
+    baseSprite: {fileID: 21300000, guid: 879b2a8330ff797429bc577f3baeb016, type: 3}
+    eyebrowSprite: {fileID: 21300000, guid: ea1d2d2dcc1ffd24495c080e69099de7, type: 3}
+    eyebrowOpenSprite: {fileID: 21300000, guid: ea1d2d2dcc1ffd24495c080e69099de7, type: 3}
+    eyebrowBlinkHalfSprite: {fileID: 21300000, guid: ea1d2d2dcc1ffd24495c080e69099de7, type: 3}
+    eyebrowBlinkClosedSprite: {fileID: 21300000, guid: ea1d2d2dcc1ffd24495c080e69099de7, type: 3}
+    eyeOpenSprite: {fileID: 21300000, guid: 7bd23cec9de42a04a81f4f530625b125, type: 3}
+    eyeBlinkHalfSprite: {fileID: 21300000, guid: 7bd23cec9de42a04a81f4f530625b125, type: 3}
+    eyeBlinkClosedSprite: {fileID: 21300000, guid: 7bd23cec9de42a04a81f4f530625b125, type: 3}
+    eyeClosedSprite: {fileID: 21300000, guid: 7bd23cec9de42a04a81f4f530625b125, type: 3}
+    mouthClosedSprite: {fileID: 21300000, guid: 17d5c9a379e7edc4791e8fa89b5d64f7, type: 3}
+    mouthOpenSprites: []
   leftImage: {fileID: 3011143410322230584}
   centerImage: {fileID: 1215241395489043220}
   rightImage: {fileID: 4158262355081136692}
   portraitImage: {fileID: 3625304986446591013}
+  portraitBaseImage: {fileID: 5065819125521471535}
+  portraitEyebrowImage: {fileID: 273414373664353400}
+  portraitEyeImage: {fileID: 3557228800763637453}
+  portraitMouthImage: {fileID: 5207200236247194427}
+  portraitBlinkInitialDelay: 5
+  portraitBlinkIntervalMin: 3.5
+  portraitBlinkIntervalMax: 6.5
+  portraitBlinkFrameDuration: 0.06
   fadeDuration: 0.25
   logFadeDebug: 1
 --- !u!1 &5286922302863004563
@@ -18633,6 +18889,81 @@ MonoBehaviour:
   m_OnValueChanged:
     m_PersistentCalls:
       m_Calls: []
+--- !u!1 &5486243732563530769
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 7056981900747600758}
+  - component: {fileID: 6985205848767948454}
+  - component: {fileID: 5207200236247194427}
+  m_Layer: 5
+  m_Name: MelionMouthImage
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!224 &7056981900747600758
+RectTransform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5486243732563530769}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 5123328615493210782}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+  m_AnchorMin: {x: 0, y: 0}
+  m_AnchorMax: {x: 1, y: 1}
+  m_AnchoredPosition: {x: 0, y: 0}
+  m_SizeDelta: {x: 0, y: 0}
+  m_Pivot: {x: 0.5, y: 0.5}
+--- !u!222 &6985205848767948454
+CanvasRenderer:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5486243732563530769}
+  m_CullTransparentMesh: 1
+--- !u!114 &5207200236247194427
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5486243732563530769}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fe87c0e1cc204ed48ad3b37840f39efc, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_Material: {fileID: 0}
+  m_Color: {r: 1, g: 1, b: 1, a: 1}
+  m_RaycastTarget: 0
+  m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
+  m_Maskable: 1
+  m_OnCullStateChanged:
+    m_PersistentCalls:
+      m_Calls: []
+  m_Sprite: {fileID: 0}
+  m_Type: 0
+  m_PreserveAspect: 0
+  m_FillCenter: 1
+  m_FillMethod: 4
+  m_FillAmount: 1
+  m_FillClockwise: 1
+  m_FillOrigin: 0
+  m_UseSpriteMesh: 0
+  m_PixelsPerUnitMultiplier: 1
 --- !u!1 &5507082765426155265
 GameObject:
   m_ObjectHideFlags: 0
@@ -19160,6 +19491,7 @@ RectTransform:
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 1356065816360042306}
+  - {fileID: 5123328615493210782}
   - {fileID: 6233854971949482085}
   m_Father: {fileID: 6771399588559872768}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
@@ -20289,6 +20621,81 @@ MonoBehaviour:
   m_hasFontAssetChanged: 0
   m_baseMaterial: {fileID: 0}
   m_maskOffset: {x: 0, y: 0, z: 0, w: 0}
+--- !u!1 &6008332556966350057
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 6509950843977661645}
+  - component: {fileID: 8368373783421122167}
+  - component: {fileID: 3557228800763637453}
+  m_Layer: 5
+  m_Name: MelionEyeImage
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!224 &6509950843977661645
+RectTransform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6008332556966350057}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 5123328615493210782}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+  m_AnchorMin: {x: 0, y: 0}
+  m_AnchorMax: {x: 1, y: 1}
+  m_AnchoredPosition: {x: 0, y: 0}
+  m_SizeDelta: {x: 0, y: 0}
+  m_Pivot: {x: 0.5, y: 0.5}
+--- !u!222 &8368373783421122167
+CanvasRenderer:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6008332556966350057}
+  m_CullTransparentMesh: 1
+--- !u!114 &3557228800763637453
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6008332556966350057}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fe87c0e1cc204ed48ad3b37840f39efc, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_Material: {fileID: 0}
+  m_Color: {r: 1, g: 1, b: 1, a: 1}
+  m_RaycastTarget: 0
+  m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
+  m_Maskable: 1
+  m_OnCullStateChanged:
+    m_PersistentCalls:
+      m_Calls: []
+  m_Sprite: {fileID: 0}
+  m_Type: 0
+  m_PreserveAspect: 0
+  m_FillCenter: 1
+  m_FillMethod: 4
+  m_FillAmount: 1
+  m_FillClockwise: 1
+  m_FillOrigin: 0
+  m_UseSpriteMesh: 0
+  m_PixelsPerUnitMultiplier: 1
 --- !u!1 &6047724943300191914
 GameObject:
   m_ObjectHideFlags: 0
@@ -24285,7 +24692,7 @@ MonoBehaviour:
   saveLoadButton: {fileID: 310943238779110831}
   hideUIButton: {fileID: 905946360053600017}
   saveLoadWindow: {fileID: 3270875385100370035}
-  appFlowController: {fileID: 0}
+  appFlowController: {fileID: 2909991299434290213}
   windowManager: {fileID: 0}
   backlogView: {fileID: 5746052801380046462}
   dialogueCanvasGroup: {fileID: 2800437103308851553}
@@ -25340,7 +25747,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!224 &1892810650864802435
 RectTransform:
   m_ObjectHideFlags: 0
@@ -25355,10 +25762,10 @@ RectTransform:
   m_Children: []
   m_Father: {fileID: 6233854971949482085}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0.5, y: 0.5}
-  m_AnchorMax: {x: 0.5, y: 0.5}
+  m_AnchorMin: {x: 0, y: 0}
+  m_AnchorMax: {x: 1, y: 1}
   m_AnchoredPosition: {x: 0, y: 0}
-  m_SizeDelta: {x: 246, y: 262}
+  m_SizeDelta: {x: -6, y: -6}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &6097730254780991977
 CanvasRenderer:
