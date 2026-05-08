@@ -1178,7 +1178,7 @@ namespace PPP.BLUE.VN
 
             var backlogKey = new VNBacklogKey(runner.CurrentScriptId, nodeId, lineIndex);
             lastHandledLineId = null;
-            HandleSay(speaker, text, nodeId, backlogKey, allowMouthAnimation: false);
+            HandleSayInternal(speaker, text, nodeId, backlogKey, allowMouthAnimation: false);
             inputLocked = false;
             return true;
         }
@@ -1233,7 +1233,12 @@ namespace PPP.BLUE.VN
             return characterManager;
         }
 
-        private void HandleSay(string speakerId, string text, string lineId, VNBacklogKey backlogKey, bool allowMouthAnimation = true)
+        private void HandleSay(string speakerId, string text, string lineId, VNBacklogKey backlogKey)
+        {
+            HandleSayInternal(speakerId, text, lineId, backlogKey, allowMouthAnimation: true);
+        }
+
+        private void HandleSayInternal(string speakerId, string text, string lineId, VNBacklogKey backlogKey, bool allowMouthAnimation)
         {
             if (typer != null)
             {
