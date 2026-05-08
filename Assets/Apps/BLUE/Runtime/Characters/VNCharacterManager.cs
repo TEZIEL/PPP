@@ -40,6 +40,9 @@ namespace PPP.BLUE.VN
         [SerializeField, Min(0f)] private float portraitBlinkIntervalMax = 6.5f;
         [SerializeField, Min(0.01f)] private float portraitBlinkFrameDuration = 0.06f;
 
+        [Header("Layered Portrait Mouth")]
+        [SerializeField, Min(0.01f)] private float portraitMouthFrameInterval = 0.1f;
+
         [Header("Fade")]
         [SerializeField, Min(0f)] private float fadeDuration = 0.25f;
         [SerializeField] private bool logFadeDebug;
@@ -56,6 +59,12 @@ namespace PPP.BLUE.VN
         private Coroutine portraitBlinkCoroutine;
         private string portraitBlinkCharacterId;
         private string portraitBlinkExpressionId;
+        private Coroutine portraitMouthCoroutine;
+        private string portraitMouthCharacterId;
+        private string portraitMouthExpressionId;
+        private bool portraitMouthAnimationRequested;
+        private string portraitMouthRequestedCharacterId;
+        private int portraitMouthOpenSpriteIndex;
 
         private void Awake()
         {
@@ -76,6 +85,7 @@ namespace PPP.BLUE.VN
 
         private void OnDisable()
         {
+            StopAllMouthAnimations();
             StopLayeredPortraitBlink(restoreOpenFrame: true);
         }
 
@@ -141,6 +151,59 @@ namespace PPP.BLUE.VN
             return speakerCharacterLookup.TryGetValue(speakerId.Trim(), out characterId) && !string.IsNullOrWhiteSpace(characterId);
         }
 
+        public bool IsMouthAnimationSupported(string characterId)
+        {
+            if (!TryGetActiveMouthState(characterId, out VNCharacterState state))
+                return false;
+
+            if (!TryGetCharacterDefinition(state.characterId, out VNCharacterDefinition definition) || !definition.supportsMouth)
+                return false;
+
+            return TryGetLayeredExpressionMapping(state.characterId, state.expressionId, out VNLayeredExpressionMapping mapping)
+                && CanRunLayeredPortraitMouth(state.characterId, state.expressionId, mapping);
+        }
+
+        public void StartMouthAnimation(string characterId)
+        {
+            if (!IsMelionCharacterId(characterId))
+                return;
+
+            portraitMouthAnimationRequested = true;
+            portraitMouthRequestedCharacterId = MelionCharacterId;
+
+            StopMouthAnimationInternal(characterId, applyClosed: true, clearRequest: false);
+
+            if (!TryGetActiveMouthState(characterId, out VNCharacterState state))
+                return;
+
+            if (!TryGetCharacterDefinition(state.characterId, out VNCharacterDefinition definition) || !definition.supportsMouth)
+                return;
+
+            if (!TryGetLayeredExpressionMapping(state.characterId, state.expressionId, out VNLayeredExpressionMapping mapping)
+                || !CanRunLayeredPortraitMouth(state.characterId, state.expressionId, mapping)
+                || !isActiveAndEnabled)
+            {
+                ApplyLayeredPortraitMouthClosed(state.characterId, state.expressionId);
+                return;
+            }
+
+            portraitMouthCharacterId = state.characterId;
+            portraitMouthExpressionId = state.expressionId;
+            portraitMouthOpenSpriteIndex = 0;
+            portraitMouthCoroutine = StartCoroutine(RunLayeredPortraitMouth(state.characterId, state.expressionId));
+        }
+
+        public void StopMouthAnimation(string characterId, bool applyClosed = true)
+        {
+            StopMouthAnimationInternal(characterId, applyClosed, clearRequest: true);
+        }
+
+        public void StopAllMouthAnimations()
+        {
+            StopMouthAnimationInternal(null, applyClosed: true, clearRequest: true);
+        }
+
+
         public void ShowCharacter(string characterId, string expressionId, string position)
         {
             if (string.IsNullOrWhiteSpace(characterId))
@@ -171,6 +234,9 @@ namespace PPP.BLUE.VN
             }
 
             activeStates[characterId] = state;
+            if (IsMelionLayeredPortraitState(state))
+                StopMouthAnimation(characterId, applyClosed: false);
+
             ApplyStateToSlot(state, useFade: useFade);
         }
 
@@ -242,13 +308,17 @@ namespace PPP.BLUE.VN
             if (normalizedPosition != PortraitPosition)
                 FadeOutAndClearSlot(normalizedPosition);
             else
+            {
+                StopMouthAnimation(characterId, applyClosed: true);
                 StopLayeredPortraitBlink(characterId, restoreOpenFrame: true);
+            }
 
             activeStates.Remove(characterId);
         }
 
         public void ClearAll()
         {
+            StopAllMouthAnimations();
             activeStates.Clear();
             pendingShows.Clear();
             fadingOutPositions.Clear();
@@ -452,12 +522,16 @@ namespace PPP.BLUE.VN
             }
 
             VNLayeredExpressionMapping mapping = layeredExpressionLookup[BuildKey(state.characterId, state.expressionId)];
+            bool restartMouthAnimation = ShouldRestartMouthAnimationAfterLayeredApply(state.characterId);
+            StopMouthAnimationInternal(state.characterId, applyClosed: false, clearRequest: false);
             StopLayeredPortraitBlink(state.characterId, restoreOpenFrame: false);
             ApplySpriteToImage(portraitBaseImage, mapping.baseSprite);
             ApplySpriteToImage(portraitEyebrowImage, GetEyebrowOpenSprite(mapping));
             ApplySpriteToImage(portraitEyeImage, mapping.eyeOpenSprite);
             ApplySpriteToImage(portraitMouthImage, mapping.mouthClosedSprite);
             StartLayeredPortraitBlink(state, mapping);
+            if (restartMouthAnimation)
+                StartMouthAnimation(state.characterId);
 
             if (portraitImage != null)
             {
@@ -466,6 +540,211 @@ namespace PPP.BLUE.VN
             }
 
             return true;
+        }
+
+        private bool ShouldRestartMouthAnimationAfterLayeredApply(string characterId)
+        {
+            return IsMelionCharacterId(characterId)
+                && (IsMouthAnimationCurrent(characterId)
+                    || (portraitMouthAnimationRequested && IsMelionCharacterId(portraitMouthRequestedCharacterId)));
+        }
+
+        private IEnumerator RunLayeredPortraitMouth(string characterId, string expressionId)
+        {
+            float frameInterval = Mathf.Max(0.01f, portraitMouthFrameInterval);
+
+            while (IsLayeredPortraitMouthCurrent(characterId, expressionId))
+            {
+                if (!TryGetLayeredExpressionMapping(characterId, expressionId, out VNLayeredExpressionMapping mapping)
+                    || !CanRunLayeredPortraitMouth(characterId, expressionId, mapping))
+                {
+                    ApplyLayeredPortraitMouthClosed(characterId, expressionId);
+                    ClearLayeredPortraitMouthHandle(characterId, expressionId);
+                    yield break;
+                }
+
+                Sprite openSprite = GetNextMouthOpenSprite(mapping);
+                if (openSprite == null || !TryApplyMouthFrame(characterId, expressionId, openSprite))
+                    break;
+
+                yield return new WaitForSeconds(frameInterval);
+
+                if (!TryApplyMouthFrame(characterId, expressionId, mapping.mouthClosedSprite))
+                    break;
+
+                yield return new WaitForSeconds(frameInterval);
+            }
+
+            ApplyLayeredPortraitMouthClosed(characterId, expressionId);
+            ClearLayeredPortraitMouthHandle(characterId, expressionId);
+        }
+
+        private Sprite GetNextMouthOpenSprite(VNLayeredExpressionMapping mapping)
+        {
+            if (mapping?.mouthOpenSprites == null || mapping.mouthOpenSprites.Count == 0)
+                return null;
+
+            int count = mapping.mouthOpenSprites.Count;
+            for (int i = 0; i < count; i++)
+            {
+                int index = Mathf.Abs(portraitMouthOpenSpriteIndex++) % count;
+                Sprite sprite = mapping.mouthOpenSprites[index];
+                if (sprite != null)
+                    return sprite;
+            }
+
+            return null;
+        }
+
+        private bool TryApplyMouthFrame(string characterId, string expressionId, Sprite sprite)
+        {
+            if (!IsLayeredPortraitMouthCurrent(characterId, expressionId) || !IsActiveImage(portraitMouthImage))
+                return false;
+
+            ApplySpriteToImage(portraitMouthImage, sprite);
+            return true;
+        }
+
+        private void ApplyLayeredPortraitMouthClosed(string characterId, string expressionId)
+        {
+            if (string.IsNullOrWhiteSpace(characterId) || string.IsNullOrWhiteSpace(expressionId))
+                return;
+
+            if (!TryGetLayeredExpressionMapping(characterId, expressionId, out VNLayeredExpressionMapping mapping))
+                return;
+
+            if (mapping?.mouthClosedSprite == null || !IsActiveImage(portraitMouthImage))
+                return;
+
+            ApplySpriteToImage(portraitMouthImage, mapping.mouthClosedSprite);
+        }
+
+        private void StopMouthAnimationInternal(string characterId, bool applyClosed, bool clearRequest)
+        {
+            if (!string.IsNullOrWhiteSpace(characterId)
+                && !IsMelionCharacterId(characterId)
+                && !string.Equals(portraitMouthCharacterId, characterId, System.StringComparison.OrdinalIgnoreCase))
+            {
+                return;
+            }
+
+            if (!string.IsNullOrWhiteSpace(characterId)
+                && !string.IsNullOrWhiteSpace(portraitMouthCharacterId)
+                && !string.Equals(portraitMouthCharacterId, characterId, System.StringComparison.OrdinalIgnoreCase))
+            {
+                return;
+            }
+
+            string stoppedCharacterId = portraitMouthCharacterId;
+            string stoppedExpressionId = portraitMouthExpressionId;
+
+            if (portraitMouthCoroutine != null)
+            {
+                StopCoroutine(portraitMouthCoroutine);
+                portraitMouthCoroutine = null;
+            }
+
+            portraitMouthCharacterId = null;
+            portraitMouthExpressionId = null;
+            portraitMouthOpenSpriteIndex = 0;
+
+            if (clearRequest)
+            {
+                portraitMouthAnimationRequested = false;
+                portraitMouthRequestedCharacterId = null;
+            }
+
+            if (!applyClosed)
+                return;
+
+            if (!string.IsNullOrWhiteSpace(stoppedCharacterId) && !string.IsNullOrWhiteSpace(stoppedExpressionId))
+            {
+                ApplyLayeredPortraitMouthClosed(stoppedCharacterId, stoppedExpressionId);
+                return;
+            }
+
+            if (!string.IsNullOrWhiteSpace(characterId)
+                && activeStates.TryGetValue(characterId, out VNCharacterState state)
+                && state != null)
+            {
+                ApplyLayeredPortraitMouthClosed(state.characterId, state.expressionId);
+            }
+        }
+
+        private bool IsLayeredPortraitMouthCurrent(string characterId, string expressionId)
+        {
+            if (string.IsNullOrWhiteSpace(characterId) || string.IsNullOrWhiteSpace(expressionId))
+                return false;
+
+            if (!string.Equals(portraitMouthCharacterId, characterId, System.StringComparison.OrdinalIgnoreCase)
+                || !string.Equals(portraitMouthExpressionId, expressionId, System.StringComparison.OrdinalIgnoreCase))
+            {
+                return false;
+            }
+
+            if (!activeStates.TryGetValue(characterId, out VNCharacterState state) || state == null || !state.visible)
+                return false;
+
+            return string.Equals(state.expressionId, expressionId, System.StringComparison.OrdinalIgnoreCase)
+                && IsMelionLayeredPortraitState(state);
+        }
+
+        private bool IsMouthAnimationCurrent(string characterId)
+        {
+            return !string.IsNullOrWhiteSpace(characterId)
+                && !string.IsNullOrWhiteSpace(portraitMouthCharacterId)
+                && string.Equals(portraitMouthCharacterId, characterId, System.StringComparison.OrdinalIgnoreCase);
+        }
+
+        private void ClearLayeredPortraitMouthHandle(string characterId, string expressionId)
+        {
+            if (!string.Equals(portraitMouthCharacterId, characterId, System.StringComparison.OrdinalIgnoreCase)
+                || !string.Equals(portraitMouthExpressionId, expressionId, System.StringComparison.OrdinalIgnoreCase))
+            {
+                return;
+            }
+
+            portraitMouthCoroutine = null;
+            portraitMouthCharacterId = null;
+            portraitMouthExpressionId = null;
+            portraitMouthOpenSpriteIndex = 0;
+        }
+
+        private bool CanRunLayeredPortraitMouth(string characterId, string expressionId, VNLayeredExpressionMapping mapping)
+        {
+            return IsMelionCharacterId(characterId)
+                && IsActiveImage(portraitMouthImage)
+                && mapping != null
+                && !string.IsNullOrWhiteSpace(expressionId)
+                && mapping.mouthClosedSprite != null
+                && HasAnyMouthOpenSprite(mapping);
+        }
+
+        private bool HasAnyMouthOpenSprite(VNLayeredExpressionMapping mapping)
+        {
+            if (mapping?.mouthOpenSprites == null)
+                return false;
+
+            for (int i = 0; i < mapping.mouthOpenSprites.Count; i++)
+            {
+                if (mapping.mouthOpenSprites[i] != null)
+                    return true;
+            }
+
+            return false;
+        }
+
+        private bool TryGetActiveMouthState(string characterId, out VNCharacterState state)
+        {
+            state = null;
+
+            if (!IsMelionCharacterId(characterId))
+                return false;
+
+            return activeStates.TryGetValue(MelionCharacterId, out state)
+                && state != null
+                && state.visible
+                && IsMelionLayeredPortraitState(state);
         }
 
         private void StartLayeredPortraitBlink(VNCharacterState state, VNLayeredExpressionMapping mapping)
@@ -594,8 +873,13 @@ namespace PPP.BLUE.VN
         private bool IsMelionLayeredPortraitState(VNCharacterState state)
         {
             return state != null
-                && string.Equals(state.characterId, MelionCharacterId, System.StringComparison.OrdinalIgnoreCase)
+                && IsMelionCharacterId(state.characterId)
                 && IsLayeredPortraitState(state);
+        }
+
+        private bool IsMelionCharacterId(string characterId)
+        {
+            return string.Equals(characterId, MelionCharacterId, System.StringComparison.OrdinalIgnoreCase);
         }
 
         private Sprite GetEyebrowOpenSprite(VNLayeredExpressionMapping mapping)
