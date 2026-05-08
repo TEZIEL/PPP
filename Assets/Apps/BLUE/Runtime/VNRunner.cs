@@ -1551,17 +1551,20 @@ namespace PPP.BLUE.VN
             if (node == null || string.IsNullOrWhiteSpace(node.expressionId))
                 return;
 
-            if (!TryResolveSayCharacterId(speakerId, out string characterId))
+            VNCharacterManager manager = ResolveCharacterManager();
+            if (manager == null)
                 return;
 
-            VNCharacterManager manager = ResolveCharacterManager();
-            if (manager == null || !manager.IsCharacterVisible(characterId))
+            if (!TryResolveSayCharacterId(speakerId, manager, out string characterId))
+                return;
+
+            if (!manager.IsCharacterVisible(characterId))
                 return;
 
             manager.TryChangeExpression(characterId, node.expressionId);
         }
 
-        private static bool TryResolveSayCharacterId(string speakerId, out string characterId)
+        private static bool TryResolveSayCharacterId(string speakerId, VNCharacterManager manager, out string characterId)
         {
             characterId = string.Empty;
 
@@ -1574,6 +1577,9 @@ namespace PPP.BLUE.VN
             {
                 return false;
             }
+
+            if (manager != null && manager.TryResolveCharacterIdForSpeaker(key, out characterId))
+                return true;
 
             return SaySpeakerCharacterIdMap.TryGetValue(key, out characterId);
         }

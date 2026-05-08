@@ -12,6 +12,9 @@ namespace PPP.BLUE.VN
         private const string RightPosition = "right";
         private const string PortraitPosition = "portrait";
 
+        [Header("Character Definitions")]
+        [SerializeField] private List<VNCharacterDefinition> characterDefinitions = new();
+
         [Header("Sprite Mapping")]
         [SerializeField] private List<VNCharacterSpriteMapping> spriteMappings = new();
 
@@ -26,6 +29,8 @@ namespace PPP.BLUE.VN
         [SerializeField] private bool logFadeDebug;
 
         private readonly Dictionary<string, VNCharacterSpriteMapping> spriteLookup = new();
+        private readonly Dictionary<string, VNCharacterDefinition> characterDefinitionLookup = new(System.StringComparer.OrdinalIgnoreCase);
+        private readonly Dictionary<string, string> speakerCharacterLookup = new(System.StringComparer.OrdinalIgnoreCase);
         private readonly Dictionary<string, VNCharacterState> activeStates = new(System.StringComparer.OrdinalIgnoreCase);
         private readonly Dictionary<Image, Coroutine> fadeCoroutines = new();
         private readonly Dictionary<string, VNCharacterState> pendingShows = new(System.StringComparer.OrdinalIgnoreCase);
@@ -34,6 +39,7 @@ namespace PPP.BLUE.VN
         private void Awake()
         {
             RebuildLookup();
+            RebuildDefinitionLookup();
             ClearSlotImages();
         }
 
@@ -41,6 +47,7 @@ namespace PPP.BLUE.VN
         private void OnValidate()
         {
             RebuildLookup();
+            RebuildDefinitionLookup();
         }
 #endif
 
@@ -65,6 +72,32 @@ namespace PPP.BLUE.VN
 
             sprite = mapping.sprite;
             return sprite != null;
+        }
+
+        public bool TryGetCharacterDefinition(string characterId, out VNCharacterDefinition definition)
+        {
+            definition = null;
+
+            if (string.IsNullOrWhiteSpace(characterId))
+                return false;
+
+            if (characterDefinitionLookup.Count == 0)
+                RebuildDefinitionLookup();
+
+            return characterDefinitionLookup.TryGetValue(characterId.Trim(), out definition) && definition != null;
+        }
+
+        public bool TryResolveCharacterIdForSpeaker(string speakerId, out string characterId)
+        {
+            characterId = string.Empty;
+
+            if (string.IsNullOrWhiteSpace(speakerId))
+                return false;
+
+            if (speakerCharacterLookup.Count == 0)
+                RebuildDefinitionLookup();
+
+            return speakerCharacterLookup.TryGetValue(speakerId.Trim(), out characterId) && !string.IsNullOrWhiteSpace(characterId);
         }
 
         public void ShowCharacter(string characterId, string expressionId, string position)
@@ -236,6 +269,36 @@ namespace PPP.BLUE.VN
                     continue;
 
                 spriteLookup[BuildKey(mapping.characterId, mapping.expressionId)] = mapping;
+            }
+        }
+
+        private void RebuildDefinitionLookup()
+        {
+            characterDefinitionLookup.Clear();
+            speakerCharacterLookup.Clear();
+
+            if (characterDefinitions == null)
+                return;
+
+            foreach (VNCharacterDefinition definition in characterDefinitions)
+            {
+                if (definition == null || string.IsNullOrWhiteSpace(definition.characterId))
+                    continue;
+
+                string characterId = definition.characterId.Trim();
+                characterDefinitionLookup[characterId] = definition;
+                speakerCharacterLookup[characterId] = characterId;
+
+                if (definition.speakerIds == null)
+                    continue;
+
+                foreach (string speakerId in definition.speakerIds)
+                {
+                    if (string.IsNullOrWhiteSpace(speakerId))
+                        continue;
+
+                    speakerCharacterLookup[speakerId.Trim()] = characterId;
+                }
             }
         }
 
