@@ -18293,6 +18293,56 @@ MonoBehaviour:
     defaultPosition: portrait
     supportsBlink: 1
     supportsMouth: 1
+  - characterId: sena
+    displayName: "\uC138\uB098"
+    defaultExpressionId: normal
+    speakerIds:
+    - sena
+    - sena_unknown
+    renderMode: 0
+    defaultPosition: center
+    supportsBlink: 1
+    supportsMouth: 1
+  - characterId: guest_a
+    displayName: A
+    defaultExpressionId: normal
+    speakerIds:
+    - guest_a
+    - guest_a_unknown
+    renderMode: 0
+    defaultPosition: center
+    supportsBlink: 1
+    supportsMouth: 1
+  - characterId: guest_b
+    displayName: B
+    defaultExpressionId: normal
+    speakerIds:
+    - guest_b
+    - guest_b_unknown
+    renderMode: 0
+    defaultPosition: center
+    supportsBlink: 1
+    supportsMouth: 1
+  - characterId: guest_c
+    displayName: C
+    defaultExpressionId: normal
+    speakerIds:
+    - guest_c
+    - guest_c_unknown
+    renderMode: 0
+    defaultPosition: center
+    supportsBlink: 1
+    supportsMouth: 1
+  - characterId: guest_d
+    displayName: D
+    defaultExpressionId: normal
+    speakerIds:
+    - guest_d
+    - guest_d_unknown
+    renderMode: 0
+    defaultPosition: center
+    supportsBlink: 1
+    supportsMouth: 1
   spriteMappings:
   - characterId: sena
     expressionId: normal
