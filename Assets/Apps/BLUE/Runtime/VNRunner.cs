@@ -76,6 +76,7 @@ namespace PPP.BLUE.VN
         private bool uiSkipHeld;
         private bool justForceCompletedThisFrame;
         private int justForceCompletedFrame = -1;
+        private int autoTimerSuppressedFrame = -1;
         private bool holdSkipInputActive;
         private bool uiInputBlocked;
         public bool JustForceCompletedThisFrame => justForceCompletedThisFrame;
@@ -135,6 +136,9 @@ namespace PPP.BLUE.VN
             var themeManager = AppUIThemeManager.Instance;
             if (themeManager != null)
                 themeManager.OnThemeChanged -= HandleThemeChanged;
+
+            SuppressAutoTimerThisFrame("VNRunner OnDisable");
+            StopAutoTimer();
         }
 
         private void HandleThemeChanged()
@@ -2417,8 +2421,24 @@ namespace PPP.BLUE.VN
             if (logToConsole) VNLog($"[VN] AutoTimer Stop ({reason})");
         }
 
+        public void SuppressAutoTimerThisFrame(string reason)
+        {
+            autoTimerSuppressedFrame = Time.frameCount;
+            if (logToConsole) VNLog($"[VN] AutoTimer suppressed this frame ({reason})");
+        }
+
+        private bool CanStartAutoTimerCoroutine()
+        {
+            if (!isActiveAndEnabled) return false;
+            if (gameObject == null || !gameObject.activeInHierarchy) return false;
+            if (!initialized || !started) return false;
+            if (autoTimerSuppressedFrame == Time.frameCount) return false;
+            return true;
+        }
+
         private void TryStartAutoTimer()
         {
+            if (!CanStartAutoTimerCoroutine()) return;
             if (autoCo != null) return;
             if (!CanAutoAdvance()) return;
 
