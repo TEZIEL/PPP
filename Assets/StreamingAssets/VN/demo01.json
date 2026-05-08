@@ -18,27 +18,48 @@
     { "id": "lb.start", "type": "Label", "label": "start" },
     { "id": "lb.opening", "type": "Label", "label": "opening" },
 
+    { "id": "test.melion.0001", "type": "showCharacter", "characterId": "melion", "expressionId": "normal", "position": "portrait" },
+    { "id": "test.char.0001", "type": "showCharacter", "characterId": "sena", "expressionId": "normal", "position": "center" },
+
     { "id": "op.0001", "type": "Say", "speakerId": "sena_unknown", "expressionId": "normal", "text": "좋은 아침." },
+
+   
     { "id": "op.0002", "type": "Say", "speakerId": "sena_unknown", "expressionId": "smile", "text": "꽤 피곤해 보이네." },
-    { "id": "op.0003", "type": "Say", "speakerId": "melion", "expressionId": "normal", "text": "… 좋은 아침같은 소리 하네." },
+
+
+    { "id": "op.0003", "type": "Say", "speakerId": "melion", "expressionId": "embarrassed", "text": "… 좋은 아침같은 소리 하네." },
     { "id": "op.0004", "type": "Say", "speakerId": "sena_unknown", "expressionId": "normal", "text": "잠을 제대로 못 잤나봐." },
+
+
     { "id": "op.0005", "type": "Say", "speakerId": "melion", "expressionId": "normal", "text": "말했잖아." },
     { "id": "op.0006", "type": "Say", "speakerId": "melion", "expressionId": "normal", "text": "낮에 일어나는 건 힘들다고." },
     { "id": "op.0007", "type": "Say", "speakerId": "melion", "expressionId": "normal", "text": "… 근데, 왜 여깄어? 세나." },
     { "id": "op.0008", "type": "Say", "speakerId": "melion", "expressionId": "normal", "text": "사무실에 있어야 할 시간 아닌가?" },
+
     { "id": "op.0009", "type": "Say", "speakerId": "sena", "expressionId": "normal", "text": "제대로 일하는 지 궁금해서." },
+    
     { "id": "op.0010", "type": "Say", "speakerId": "sena", "expressionId": "smile", "text": "널 믿긴 하는데, 혹시 모르잖아?" },
+
     { "id": "op.0011", "type": "Say", "speakerId": "melion", "expressionId": "embarrassed", "text": "참 쓸데없는 걱정이군." },
+
     { "id": "op.0012", "type": "Say", "speakerId": "melion", "expressionId": "normal", "text": "난 받은 만큼은 확실히 해." },
+
     { "id": "op.0013", "type": "Say", "speakerId": "sena", "expressionId": "normal", "text": "그 아바타까지 포함해서?" },
+
     { "id": "op.0014", "type": "Say", "speakerId": "melion", "expressionId": "normal", "text": "자꾸 이상한 거 붙이지 마." },
     { "id": "op.0015", "type": "Say", "speakerId": "melion", "expressionId": "normal", "text": "일이니까 하는 거야." },
     { "id": "op.0016", "type": "Say", "speakerId": "melion", "expressionId": "normal", "text": "가게 관리자 코드가 여기 있으니까." },
     { "id": "op.0017", "type": "Say", "speakerId": "melion", "expressionId": "normal", "text": "왜 하필 이거야? 다른 아바타도 많은데." },
+
     { "id": "op.0018", "type": "Say", "speakerId": "sena", "expressionId": "normal", "text": "그야…" },
+
     { "id": "op.0019", "type": "Say", "speakerId": "sena", "expressionId": "smile", "text": "귀엽잖아?" },
-    { "id": "op.0020", "type": "Say", "speakerId": "melion", "expressionId": "normal", "text": "…" },
+
+    { "id": "op.0020", "type": "Say", "speakerId": "melion", "expressionId": "embarrassed", "text": "…" },
+
+
     { "id": "op.0021", "type": "Say", "speakerId": "sena", "expressionId": "normal", "text": "세상에 귀여운 걸 싫어하는 사람은 없어." },
+
     { "id": "op.0022", "type": "Say", "speakerId": "melion", "expressionId": "normal", "text": "난 싫…" },
     { "id": "op.0023", "type": "Say", "speakerId": "melion", "expressionId": "normal", "text": "아니, 됐다." },
     { "id": "op.0024", "type": "Say", "speakerId": "melion", "expressionId": "normal", "text": "더 말해봤자 의미가 없어." },
@@ -55,35 +76,51 @@
     { "id": "op.0035", "type": "Say", "speakerId": "melion", "expressionId": "normal", "text": "글만 읽을 줄 알면 누구든 할 수 있긴 하지." },
     { "id": "op.0036", "type": "Say", "speakerId": "melion", "expressionId": "normal", "text": "음료를 만드는 게 어렵지도 않고." },
     { "id": "op.0037", "type": "Say", "speakerId": "melion", "expressionId": "normal", "text": "문제는…" },
+
     { "id": "op.0038", "type": "Say", "speakerId": "melion", "expressionId": "embarrassed", "text": "그걸 왜 내가 하냐는 거야." },
-    { "id": "op.0039", "type": "Say", "speakerId": "melion", "expressionId": "normal", "text": "난 분명 네 경호원으로…" },
+    { "id": "op.0039", "type": "Say", "speakerId": "melion", "expressionId": "embarrassed", "text": "난 분명 네 경호원으로…" },
     { "id": "op.0040", "type": "Say", "speakerId": "sena", "expressionId": "normal", "text": "네 도움이 당장 필요하진 않거든." },
+
     { "id": "op.0041", "type": "Say", "speakerId": "sena", "expressionId": "smile", "text": "넌 만약을 대비한 '보험' 이라서." },
     { "id": "op.0042", "type": "Say", "speakerId": "sena", "expressionId": "normal", "text": "그렇다고 놀게 놔둘 순 없으니까." },
     { "id": "op.0043", "type": "Say", "speakerId": "sena", "expressionId": "normal", "text": "자선 사업가는 아니거든, 나도." },
+
+
     { "id": "op.0044", "type": "Say", "speakerId": "melion", "expressionId": "normal", "text": "하아… 마음대로 해." },
     { "id": "op.0045", "type": "Say", "speakerId": "melion", "expressionId": "normal", "text": "원 없이 부려먹으라고." },
     { "id": "op.0046", "type": "Say", "speakerId": "sena", "expressionId": "normal", "text": "안 그래도 그럴 생각이야." },
     { "id": "op.0047", "type": "Say", "speakerId": "sena", "expressionId": "normal", "text": "음료 하나만 만들어주겠어?" },
     { "id": "op.0048", "type": "Say", "speakerId": "melion", "expressionId": "normal", "text": "그 정도는 쉽지." },
     { "id": "op.0049", "type": "Say", "speakerId": "sena", "expressionId": "normal", "text": "근데…" },
+
+
     { "id": "op.0050", "type": "Say", "speakerId": "sena", "expressionId": "suspicious", "text": "만드는 방법, 제대로 알고 있어?" },
     { "id": "op.0051", "type": "Say", "speakerId": "melion", "expressionId": "normal", "text": "... 모를 리가 있나." },
     { "id": "op.0052", "type": "Say", "speakerId": "melion", "expressionId": "normal", "text": "재료를 채워넣기만 하면 되잖아." },
     { "id": "op.0053", "type": "Say", "speakerId": "melion", "expressionId": "normal", "text": "순서 상관없이 수량만 맞추면 끝." },
     { "id": "op.0054", "type": "Say", "speakerId": "melion", "expressionId": "normal", "text": "레시피를 켜놓으면 헷갈릴 일도 없고." },
     { "id": "op.0055", "type": "Say", "speakerId": "melion", "expressionId": "normal", "text": "틀려도 얼마든지 다시 만들 수 있고 말이지." },
-    { "id": "op.0056", "type": "Say", "speakerId": "sena", "expressionId": "normal", "text": "따뜻한 게 마시고 싶다면?" },
+    { "id": "op.0056", "type": "Say", "speakerId": "sena", "expressionId": "suspicious", "text": "따뜻한 게 마시고 싶다면?" },
+
+    
     { "id": "op.0057", "type": "Say", "speakerId": "melion", "expressionId": "embarrassed", "text": "… 이거 테스트야?" },
+
+    
     { "id": "op.0058", "type": "Say", "speakerId": "sena", "expressionId": "smile", "text": "비슷해." },
+
+    
     { "id": "op.0059", "type": "Say", "speakerId": "melion", "expressionId": "normal", "text": "아르테온을 추가하면 돼." },
     { "id": "op.0060", "type": "Say", "speakerId": "melion", "expressionId": "normal", "text": "이러면 됐어?" },
     { "id": "op.0061", "type": "Say", "speakerId": "sena", "expressionId": "normal", "text": "완벽해." },
+
+    
     { "id": "op.0062", "type": "Say", "speakerId": "sena", "expressionId": "suspicious", "text": "이 정도면 다들 이해 했을거야." },
     { "id": "op.0063", "type": "Say", "speakerId": "melion", "expressionId": "normal", "text": "(다들?)" },
+
+    
     { "id": "op.0064", "type": "Say", "speakerId": "sena", "expressionId": "normal", "text": "자, 그럼…" },
     { "id": "op.0065", "type": "Say", "speakerId": "sena", "expressionId": "normal", "text": "콜라 하나만 만들어 줘." },
-
+  
     { "id": "call.op.sena_cola", "type": "Call", "target": "Drink", "arg": "REQ_DAY01_SENA_COLA" },
     {
       "id": "branch.op.sena_cola",
@@ -98,6 +135,7 @@
     { "id": "lb.op_sena_cola_great", "type": "Label", "label": "op_sena_cola_great" },
     { "id": "op.great.0001", "type": "Say", "speakerId": "melion", "expressionId": "normal", "text": "자." },
     { "id": "op.great.0002", "type": "Say", "speakerId": "sena", "expressionId": "normal", "text": "제대로 가져왔네." },
+    
     { "id": "op.great.0003", "type": "Say", "speakerId": "sena", "expressionId": "smile", "text": "고마워." },
     { "id": "jump.op_sena_cola_great.after", "type": "Jump", "label": "after_op_sena_cola" },
 
@@ -105,23 +143,35 @@
     { "id": "op.success.0001", "type": "Say", "speakerId": "melion", "expressionId": "normal", "text": "자." },
     { "id": "op.success.0002", "type": "Say", "speakerId": "sena", "expressionId": "normal", "text": "이건… 콜라는 아니네." },
     { "id": "op.success.0003", "type": "Say", "speakerId": "sena", "expressionId": "normal", "text": "상관없어." },
+
+    
     { "id": "op.success.0004", "type": "Say", "speakerId": "sena", "expressionId": "smile", "text": "탄산이 든 게 마시고 싶었거든." },
     { "id": "jump.op_sena_cola_success.after", "type": "Jump", "label": "after_op_sena_cola" },
 
     { "id": "lb.op_sena_cola_fail", "type": "Label", "label": "op_sena_cola_fail" },
     { "id": "op.fail.0001", "type": "Say", "speakerId": "melion", "expressionId": "normal", "text": "자." },
+
+    
     { "id": "op.fail.0002", "type": "Say", "speakerId": "sena", "expressionId": "embarrassed", "text": "이런식의 화풀이는 곤란해." },
     { "id": "op.fail.0003", "type": "Say", "speakerId": "sena", "expressionId": "embarrassed", "text": "나한테는 해도 상관없지만…" },
+
+    
     { "id": "op.fail.0004", "type": "Say", "speakerId": "sena", "expressionId": "normal", "text": "다른 손님들한테는 제대로 주는 게 좋을 거야." },
     { "id": "op.fail.0005", "type": "Say", "speakerId": "sena", "expressionId": "normal", "text": "다들 나처럼 너그럽진 않을 테니까." },
     { "id": "jump.op_sena_cola_fail.after", "type": "Jump", "label": "after_op_sena_cola" },
 
     { "id": "lb.after_op_sena_cola", "type": "Label", "label": "after_op_sena_cola" },
+
+    
     { "id": "op.0066", "type": "Say", "speakerId": "sena", "expressionId": "normal", "text": "실력이 좀 늘었네." },
     { "id": "op.0067", "type": "Say", "speakerId": "melion", "expressionId": "normal", "text": "손님이 꽤 많이 오거든." },
     { "id": "op.0068", "type": "Say", "speakerId": "melion", "expressionId": "normal", "text": "딱 바쁘지 않을 정도로만." },
     { "id": "op.0069", "type": "Say", "speakerId": "sena", "expressionId": "normal", "text": "잘 꾸며놓은 보람이 있네." },
+
+    
     { "id": "op.0070", "type": "Say", "speakerId": "sena", "expressionId": "smile", "text": "BLUE에는 언제나 사람들로 가득하니까." },
+
+    
     { "id": "op.0071", "type": "Say", "speakerId": "sena", "expressionId": "normal", "text": "건질만한 정보는?" },
     { "id": "op.0072", "type": "Say", "speakerId": "melion", "expressionId": "normal", "text": "그렇게 쉽게 나올리가 없잖아." },
     { "id": "op.0073", "type": "Say", "speakerId": "melion", "expressionId": "normal", "text": "영양가 없는 소문 뿐이야." },
@@ -131,7 +181,11 @@
     { "id": "op.0077", "type": "Say", "speakerId": "sena", "expressionId": "normal", "text": "증명할 방법이 없는걸." },
     { "id": "op.0078", "type": "Say", "speakerId": "melion", "expressionId": "normal", "text": "바깥에서 초능력자를 봤다던가." },
     { "id": "op.0079", "type": "Say", "speakerId": "sena", "expressionId": "normal", "text": "네 얘기는 아니지?" },
+
+    
     { "id": "op.0080", "type": "Say", "speakerId": "melion", "expressionId": "embarrassed", "text": "하수들이나 티내고 다니지." },
+
+    
     { "id": "op.0081", "type": "Say", "speakerId": "melion", "expressionId": "normal", "text": "난 다르거든." },
     { "id": "op.0082", "type": "Say", "speakerId": "melion", "expressionId": "normal", "text": "아무튼, 그게 다야." },
     { "id": "op.0083", "type": "Say", "speakerId": "sena", "expressionId": "normal", "text": "확실히, 기대할 만한 건 없네." },
@@ -144,16 +198,29 @@
     { "id": "op.0090", "type": "Say", "speakerId": "melion", "expressionId": "normal", "text": "어차피 바깥에서 전부 모니터링 하고 있을거고." },
     { "id": "op.0091", "type": "Say", "speakerId": "melion", "expressionId": "normal", "text": "그리고, 일할 때는 혼자 있고 싶거든." },
     { "id": "op.0092", "type": "Say", "speakerId": "sena", "expressionId": "normal", "text": "그런 이유라면, 어쩔 수 없네." },
+
+    
     { "id": "op.0093", "type": "Say", "speakerId": "sena", "expressionId": "smile", "text": "괜히 방해할 생각은 없으니까, 돌아갈게." },
     { "id": "op.0094", "type": "Say", "speakerId": "melion", "expressionId": "normal", "text": "그래, 그래." },
     { "id": "op.0095", "type": "Say", "speakerId": "melion", "expressionId": "normal", "text": "가서 열심히 조사하라고, 괴뢰사 씨." },
+
+    
     { "id": "op.0096", "type": "Say", "speakerId": "sena", "expressionId": "normal", "text": "보채기는…" },
     { "id": "op.0097", "type": "Say", "speakerId": "sena", "expressionId": "normal", "text": "오늘도 잘 부탁할게." },
+    { "id": "hide.before.a_intro.sena", "type": "hideCharacter", "characterId": "sena" },
+
     { "id": "op.0098", "type": "Say", "speakerId": "melion", "expressionId": "normal", "text": "그래, 저녁에 보자고." },
 
-    { "id": "jump.opening.to_a", "type": "Jump", "label": "a_intro" },
 
+    { "id": "jump.opening.to_a", "type": "Jump", "label": "a_intro" },
     { "id": "lb.a_intro", "type": "Label", "label": "a_intro" },
+
+
+    
+    { "id": "show.a_intro.guest_a.normal", "type": "showCharacter", "characterId": "guest_a", "expressionId": "normal", "position": "center" },
+
+
+
     { "id": "a.var.reset_great", "type": "SetVar", "arg": "aGreatCount", "arg1": "0" },
 
     { "id": "a.0001", "type": "Say", "speakerId": "guest_a_unknown", "expressionId": "normal", "text": "이봐, 알바생." },
@@ -227,8 +294,12 @@
     { "id": "a.0044", "type": "Say", "speakerId": "melion", "expressionId": "normal", "text": "지금 하는 일은 부업이라서요." },
     { "id": "a.0045", "type": "Say", "speakerId": "guest_a", "expressionId": "normal", "text": "그래? 부지런한 사람이었군." },
     { "id": "a.0046", "type": "Say", "speakerId": "guest_a", "expressionId": "normal", "text": "아쉽게 됐어." },
+
+    
     { "id": "a.0047", "type": "Say", "speakerId": "melion", "expressionId": "embarrassed", "text": "(멀쩡한 돈도 아니면서…)" },
     { "id": "a.0048", "type": "Say", "speakerId": "guest_a", "expressionId": "normal", "text": "이 휴양지는 당신 작품인가?" },
+
+    
     { "id": "a.0049", "type": "Say", "speakerId": "melion", "expressionId": "normal", "text": "전 다이버가 아니라서요." },
     { "id": "a.0050", "type": "Say", "speakerId": "melion", "expressionId": "normal", "text": "저희… 사장님이 전부 만들었죠." },
     { "id": "a.0051", "type": "Say", "speakerId": "guest_a", "expressionId": "normal", "text": "실력이 대단한데." },
@@ -267,10 +338,14 @@
     { "id": "a.0084", "type": "Say", "speakerId": "guest_a", "expressionId": "normal", "text": "날 때부터 계급이 정해진 세상이잖아." },
     { "id": "a.0085", "type": "Say", "speakerId": "guest_a", "expressionId": "normal", "text": "이렇게 벌어봤자 셀레스티 앞에선 전부 벌레들인데." },
     { "id": "a.0086", "type": "Say", "speakerId": "melion", "expressionId": "normal", "text": "(틀린 말은 아니긴 한데…)" },
+
+    
     { "id": "a.0087", "type": "Say", "speakerId": "melion", "expressionId": "embarrassed", "text": "(좋게 들리진 않는군.)" },
     { "id": "a.0088", "type": "Say", "speakerId": "guest_a", "expressionId": "normal", "text": "배부른 고민이라는 것 쯤은 알아." },
     { "id": "a.0089", "type": "Say", "speakerId": "guest_a", "expressionId": "normal", "text": "BLUE에 널려있는 구직 포기자들만 봐도…" },
     { "id": "a.0090", "type": "Say", "speakerId": "guest_a", "expressionId": "normal", "text": "나 정도면 충분히 잘 사는 편이지." },
+
+    
     { "id": "a.0091", "type": "Say", "speakerId": "melion", "expressionId": "normal", "text": "남보다 조금 낫다고 해서 내 고민이 사라지는 건 아니죠." },
     { "id": "a.0092", "type": "Say", "speakerId": "melion", "expressionId": "normal", "text": "불행이란 건 상대적이니까요." },
     { "id": "a.0093", "type": "Say", "speakerId": "melion", "expressionId": "normal", "text": "이해받기는 어렵겠지만요." },
@@ -478,8 +553,10 @@
     { "id": "a.r1.0049", "type": "Say", "speakerId": "guest_a", "expressionId": "normal", "text": "그럼 가봐야겠군." },
     { "id": "a.r1.0050", "type": "Say", "speakerId": "guest_a", "expressionId": "normal", "text": "또 보지." },
     { "id": "a.r1.0051", "type": "Say", "speakerId": "guest_a", "expressionId": "normal", "text": "다음에 또 올 일이 있다면." },
+    { "id": "hide.before.b_intro.guest_a", "type": "hideCharacter", "characterId": "guest_a" },
     { "id": "a.r1.0052", "type": "Say", "speakerId": "melion", "expressionId": "normal", "text": "안녕히 가세요." },
     { "id": "jump.a_route1.end", "type": "Jump", "label": "a_end" },
+    
 
     { "id": "lb.a_route2", "type": "Label", "label": "a_route2" },
     { "id": "a.r2.0001", "type": "Say", "speakerId": "guest_a", "expressionId": "normal", "text": "오랜만에 대화다운 대화를 해보는군." },
@@ -532,74 +609,88 @@
     { "id": "a.r2.0048", "type": "Say", "speakerId": "guest_a", "expressionId": "normal", "text": "관리할 사업장이 많거든." },
     { "id": "a.r2.0049", "type": "Say", "speakerId": "guest_a", "expressionId": "normal", "text": "그래도, 한 번 생각은 해볼게." },
     { "id": "a.r2.0050", "type": "Say", "speakerId": "guest_a", "expressionId": "normal", "text": "이 바닷가, 가끔 생각날 것 같거든." },
+    { "id": "hide.before.b_intro.guest_a", "type": "hideCharacter", "characterId": "guest_a" },
     { "id": "jump.a_route2.end", "type": "Jump", "label": "a_end" },
 
     { "id": "lb.a_end", "type": "Label", "label": "a_end" },
+    
 
-  { "id": "lb.b_intro", "type": "Label", "label": "b_intro" },
-  { "id": "b.var.reset_great", "type": "SetVar", "arg": "bGreatCount", "arg1": "0" },
+    { "id": "lb.b_intro", "type": "Label", "label": "b_intro" },
 
-  { "id": "b.0001", "type": "Say", "speakerId": "guest_b_unknown", "expressionId": "normal", "text": "…" },
-  { "id": "b.0002", "type": "Say", "speakerId": "melion", "expressionId": "normal", "text": "어서오세요, 주문 하시겠어요?" },
-  { "id": "b.0003", "type": "Say", "speakerId": "guest_b_unknown", "expressionId": "normal", "text": "추천 좀 해줘." },
-  { "id": "b.0004", "type": "Say", "speakerId": "guest_b_unknown", "expressionId": "normal", "text": "뭘 마실지 못 고르겠어." },
-  { "id": "b.0005", "type": "Say", "speakerId": "melion", "expressionId": "embarrassed", "text": "(… 반말?)" },
-  { "id": "b.0006", "type": "Say", "speakerId": "melion", "expressionId": "normal", "text": "어떤 걸 좋아하시는데요?" },
-  { "id": "b.0007", "type": "Say", "speakerId": "guest_b_unknown", "expressionId": "normal", "text": "그게 말이지…" },
-  { "id": "b.0008", "type": "Say", "speakerId": "guest_b_unknown", "expressionId": "normal", "text": "과일 맛이 났으면 좋겠는데, 너무 달면 안돼." },
-  { "id": "b.0009", "type": "Say", "speakerId": "guest_b_unknown", "expressionId": "normal", "text": "아, 쓴맛나는 재료는 넣지 말아줘." },
-  { "id": "b.0010", "type": "Say", "speakerId": "guest_b_unknown", "expressionId": "normal", "text": "모르비온 같은 거 있잖아." },
-  { "id": "b.0011", "type": "Say", "speakerId": "melion", "expressionId": "normal", "text": "… 금방 준비해드릴게요." },
+    { "id": "show.b_intro.guest_b.normal", "type": "showCharacter", "characterId": "guest_b", "expressionId": "normal", "position": "center" },
 
-  { "id": "call.b.fruit_not_too_sweet", "type": "Call", "target": "Drink", "arg": "REQ_DAY01_B_FRUIT_NOT_TOO_SWEET" },
-  {
+    { "id": "b.var.reset_great", "type": "SetVar", "arg": "bGreatCount", "arg1": "0" },
+
+    { "id": "b.0001", "type": "Say", "speakerId": "guest_b_unknown", "expressionId": "normal", "text": "…" },
+    { "id": "b.0002", "type": "Say", "speakerId": "melion", "expressionId": "normal", "text": "어서오세요, 주문 하시겠어요?" },
+    { "id": "b.0003", "type": "Say", "speakerId": "guest_b_unknown", "expressionId": "normal", "text": "추천 좀 해줘." },
+    { "id": "b.0004", "type": "Say", "speakerId": "guest_b_unknown", "expressionId": "normal", "text": "뭘 마실지 못 고르겠어." },
+    
+    { "id": "b.0005", "type": "Say", "speakerId": "melion", "expressionId": "embarrassed", "text": "(… 반말?)" },
+
+    
+    { "id": "b.0006", "type": "Say", "speakerId": "melion", "expressionId": "normal", "text": "어떤 걸 좋아하시는데요?" },
+    
+    { "id": "b.0007", "type": "Say", "speakerId": "guest_b_unknown", "expressionId": "normal", "text": "그게 말이지…" },
+    { "id": "b.0008", "type": "Say", "speakerId": "guest_b_unknown", "expressionId": "normal", "text": "과일 맛이 났으면 좋겠는데, 너무 달면 안돼." },
+    { "id": "b.0009", "type": "Say", "speakerId": "guest_b_unknown", "expressionId": "normal", "text": "아, 쓴맛나는 재료는 넣지 말아줘." },
+    { "id": "b.0010", "type": "Say", "speakerId": "guest_b_unknown", "expressionId": "normal", "text": "모르비온 같은 거 있잖아." },
+    { "id": "b.0011", "type": "Say", "speakerId": "melion", "expressionId": "normal", "text": "… 금방 준비해드릴게요." },
+
+    { "id": "call.b.fruit_not_too_sweet", "type": "Call", "target": "Drink", "arg": "REQ_DAY01_B_FRUIT_NOT_TOO_SWEET" },
+     {
     "id": "branch.b.fruit_not_too_sweet",
     "type": "Branch",
     "branches": [
       { "expr": "lastDrink==1", "jumpLabel": "b_fruit_great" },
       { "expr": "else", "jumpLabel": "b_fruit_fail" }
-    ]
-  },
+      ]
+    },
 
-  { "id": "lb.b_fruit_great", "type": "Label", "label": "b_fruit_great" },
-  { "id": "b.fruit.add_great", "type": "AddVar", "arg": "bGreatCount", "arg1": "1" },
-  { "id": "b.fruit.g.0001", "type": "Say", "speakerId": "melion", "expressionId": "normal", "text": "음료 나왔습니다." },
-  { "id": "b.fruit.g.0002", "type": "Say", "speakerId": "guest_b_unknown", "expressionId": "normal", "text": "까다로운 주문이었을텐데, 고마워." },
-  { "id": "b.fruit.g.0003", "type": "Say", "speakerId": "melion", "expressionId": "normal", "text": "(이 정도는 쉽지.)" },
-  { "id": "jump.b_fruit_great.after", "type": "Jump", "label": "after_b_fruit" },
+    { "id": "lb.b_fruit_great", "type": "Label", "label": "b_fruit_great" },
+    { "id": "b.fruit.add_great", "type": "AddVar", "arg": "bGreatCount", "arg1": "1" },
+    { "id": "b.fruit.g.0001", "type": "Say", "speakerId": "melion", "expressionId": "normal", "text": "음료 나왔습니다." },
+    { "id": "b.fruit.g.0002", "type": "Say", "speakerId": "guest_b_unknown", "expressionId": "normal", "text": "까다로운 주문이었을텐데, 고마워." },
+    { "id": "b.fruit.g.0003", "type": "Say", "speakerId": "melion", "expressionId": "normal", "text": "(이 정도는 쉽지.)" },
+    { "id": "jump.b_fruit_great.after", "type": "Jump", "label": "after_b_fruit" },
 
-  { "id": "lb.b_fruit_fail", "type": "Label", "label": "b_fruit_fail" },
-  { "id": "b.fruit.f.0001", "type": "Say", "speakerId": "melion", "expressionId": "normal", "text": "음료 나왔습니다." },
-  { "id": "b.fruit.f.0002", "type": "Say", "speakerId": "guest_b_unknown", "expressionId": "normal", "text": "…" },
-  { "id": "b.fruit.f.0003", "type": "Say", "speakerId": "guest_b_unknown", "expressionId": "normal", "text": "귀찮다고 대충 만들고 그러면 안되지." },
-  { "id": "b.fruit.f.0004", "type": "Say", "speakerId": "guest_b_unknown", "expressionId": "normal", "text": "여긴 리뷰같은 거 신경 안 쓰나봐?" },
-  { "id": "jump.b_fruit_fail.after", "type": "Jump", "label": "after_b_fruit" },
+    { "id": "lb.b_fruit_fail", "type": "Label", "label": "b_fruit_fail" },
+    { "id": "b.fruit.f.0001", "type": "Say", "speakerId": "melion", "expressionId": "normal", "text": "음료 나왔습니다." },
+    { "id": "b.fruit.f.0002", "type": "Say", "speakerId": "guest_b_unknown", "expressionId": "normal", "text": "…" },
+    { "id": "b.fruit.f.0003", "type": "Say", "speakerId": "guest_b_unknown", "expressionId": "normal", "text": "귀찮다고 대충 만들고 그러면 안되지." },
+    { "id": "b.fruit.f.0004", "type": "Say", "speakerId": "guest_b_unknown", "expressionId": "normal", "text": "여긴 리뷰같은 거 신경 안 쓰나봐?" },
+    { "id": "jump.b_fruit_fail.after", "type": "Jump", "label": "after_b_fruit" },
 
-  { "id": "lb.after_b_fruit", "type": "Label", "label": "after_b_fruit" },
-  { "id": "b.0012", "type": "Say", "speakerId": "guest_b_unknown", "expressionId": "normal", "text": "이상한 걸 넣지는 않았지?" },
-  { "id": "b.0013", "type": "Say", "speakerId": "melion", "expressionId": "normal", "text": "먹는 걸로 장난치진 않아요." },
-  { "id": "b.0014", "type": "Say", "speakerId": "guest_b_unknown", "expressionId": "normal", "text": "뭐, 그렇겠지." },
-  { "id": "b.0015", "type": "Say", "speakerId": "guest_b_unknown", "expressionId": "normal", "text": "그게 정상인데 말이야." },
-  { "id": "b.0016", "type": "Say", "speakerId": "melion", "expressionId": "normal", "text": "무슨 뜻이죠?" },
-  { "id": "b.0017", "type": "Say", "speakerId": "guest_b_unknown", "expressionId": "normal", "text": "뭐겠어." },
-  { "id": "b.0018", "type": "Say", "speakerId": "guest_b_unknown", "expressionId": "normal", "text": "음료에 이상한 걸 심어놓는 놈들 말이지." },
-  { "id": "b.0019", "type": "Say", "speakerId": "guest_b_unknown", "expressionId": "normal", "text": "백도어라던가." },
-  { "id": "b.0020", "type": "Say", "speakerId": "melion", "expressionId": "normal", "text": "그런 식의 해킹은 금방 들킬텐데요." },
-  { "id": "b.0021", "type": "Say", "speakerId": "melion", "expressionId": "normal", "text": "방문 로그부터 주문 내역까지 전부 남잖아요?" },
-  { "id": "b.0022", "type": "Say", "speakerId": "melion", "expressionId": "normal", "text": "차라리 다른 수법을 쓰는게 낫죠." },
-  { "id": "b.0023", "type": "Say", "speakerId": "guest_b_unknown", "expressionId": "normal", "text": "… 휴." },
-  { "id": "b.0024", "type": "Say", "speakerId": "guest_b_unknown", "expressionId": "normal", "text": "마실 만 하네." },
-  { "id": "b.0025", "type": "Say", "speakerId": "guest_b_unknown", "expressionId": "normal", "text": "얼마 전에는 그랬지, 지금은 아냐." },
-  { "id": "b.0026", "type": "Say", "speakerId": "guest_b_unknown", "expressionId": "normal", "text": "더 교묘한 수법을 쓰기 시작했거든." },
-  { "id": "b.0027", "type": "Say", "speakerId": "guest_b_unknown", "expressionId": "normal", "text": "바이러스의 잠복기처럼 시간을 두고 해킹하는거지." },
-  { "id": "b.0028", "type": "Say", "speakerId": "guest_b_unknown", "expressionId": "normal", "text": "어디서 감염됐는지 알 수 없게 만들려고." },
-  { "id": "b.0029", "type": "Say", "speakerId": "guest_b_unknown", "expressionId": "normal", "text": "피해자가 좀 모였다 싶으면 숨을 준비를 하는 거야." },
-  { "id": "b.0030", "type": "Say", "speakerId": "melion", "expressionId": "normal", "text": "그거 참 심각하네요." },
-  { "id": "b.0031", "type": "Say", "speakerId": "guest_b_unknown", "expressionId": "embarrassed", "text": "접수된 사건만 세 자리 수가 넘어." },
-  { "id": "b.0032", "type": "Say", "speakerId": "guest_b_unknown", "expressionId": "normal", "text": "골치아프다니까." },
-  { "id": "b.0033", "type": "Say", "speakerId": "guest_b_unknown", "expressionId": "normal", "text": "BNC는 수사 협조도 잘 안해주는데." },
-  { "id": "b.0034", "type": "Say", "speakerId": "melion", "expressionId": "normal", "text": "그렇다면…" },
-  { "id": "b.0035", "type": "Say", "speakerId": "melion", "expressionId": "normal", "text": "여길 온 건 조사 때문인가요?" },
+    { "id": "lb.after_b_fruit", "type": "Label", "label": "after_b_fruit" },
+    { "id": "b.0012", "type": "Say", "speakerId": "guest_b_unknown", "expressionId": "normal", "text": "이상한 걸 넣지는 않았지?" },
+    { "id": "b.0013", "type": "Say", "speakerId": "melion", "expressionId": "normal", "text": "먹는 걸로 장난치진 않아요." },
+    { "id": "b.0014", "type": "Say", "speakerId": "guest_b_unknown", "expressionId": "normal", "text": "뭐, 그렇겠지." },
+    { "id": "b.0015", "type": "Say", "speakerId": "guest_b_unknown", "expressionId": "normal", "text": "그게 정상인데 말이야." },
+    { "id": "b.0016", "type": "Say", "speakerId": "melion", "expressionId": "normal", "text": "무슨 뜻이죠?" },
+    { "id": "b.0017", "type": "Say", "speakerId": "guest_b_unknown", "expressionId": "normal", "text": "뭐겠어." },
+    { "id": "b.0018", "type": "Say", "speakerId": "guest_b_unknown", "expressionId": "normal", "text": "음료에 이상한 걸 심어놓는 놈들 말이지." },
+    { "id": "b.0019", "type": "Say", "speakerId": "guest_b_unknown", "expressionId": "normal", "text": "백도어라던가." },
+    { "id": "b.0020", "type": "Say", "speakerId": "melion", "expressionId": "normal", "text": "그런 식의 해킹은 금방 들킬텐데요." },
+    { "id": "b.0021", "type": "Say", "speakerId": "melion", "expressionId": "normal", "text": "방문 로그부터 주문 내역까지 전부 남잖아요?" },
+    { "id": "b.0022", "type": "Say", "speakerId": "melion", "expressionId": "normal", "text": "차라리 다른 수법을 쓰는게 낫죠." },
+    { "id": "b.0023", "type": "Say", "speakerId": "guest_b_unknown", "expressionId": "normal", "text": "… 휴." },
+    { "id": "b.0024", "type": "Say", "speakerId": "guest_b_unknown", "expressionId": "normal", "text": "마실 만 하네." },
+    { "id": "b.0025", "type": "Say", "speakerId": "guest_b_unknown", "expressionId": "normal", "text": "얼마 전에는 그랬지, 지금은 아냐." },
+    { "id": "b.0026", "type": "Say", "speakerId": "guest_b_unknown", "expressionId": "normal", "text": "더 교묘한 수법을 쓰기 시작했거든." },
+    { "id": "b.0027", "type": "Say", "speakerId": "guest_b_unknown", "expressionId": "normal", "text": "바이러스의 잠복기처럼 시간을 두고 해킹하는거지." },
+    { "id": "b.0028", "type": "Say", "speakerId": "guest_b_unknown", "expressionId": "normal", "text": "어디서 감염됐는지 알 수 없게 만들려고." },
+    { "id": "b.0029", "type": "Say", "speakerId": "guest_b_unknown", "expressionId": "normal", "text": "피해자가 좀 모였다 싶으면 숨을 준비를 하는 거야." },
+    { "id": "b.0030", "type": "Say", "speakerId": "melion", "expressionId": "normal", "text": "그거 참 심각하네요." },
+    
+    { "id": "b.0031", "type": "Say", "speakerId": "guest_b_unknown", "expressionId": "embarrassed", "text": "접수된 사건만 세 자리 수가 넘어." },
+    
+
+    { "id": "b.0032", "type": "Say", "speakerId": "guest_b_unknown", "expressionId": "embarrassed", "text": "골치아프다니까." },
+    { "id": "b.0033", "type": "Say", "speakerId": "guest_b_unknown", "expressionId": "embarrassed", "text": "BNC는 수사 협조도 잘 안해주는데." },
+    { "id": "b.0034", "type": "Say", "speakerId": "melion", "expressionId": "embarrassed", "text": "그렇다면…" },
+    { "id": "b.0035", "type": "Say", "speakerId": "melion", "expressionId": "embarrassed", "text": "여길 온 건 조사 때문인가요?" },
+
+    
   { "id": "b.0036", "type": "Say", "speakerId": "guest_b_unknown", "expressionId": "normal", "text": "혹시 모르니까 말이지." },
   { "id": "b.0037", "type": "Say", "speakerId": "guest_b_unknown", "expressionId": "normal", "text": "새로 연 가게들 위주로 돌아다니고 있어." },
   { "id": "b.0038", "type": "Say", "speakerId": "guest_b", "expressionId": "normal", "text": "아, 나는 B라고 해." },
@@ -667,6 +758,8 @@
   { "id": "b.0067", "type": "Say", "speakerId": "melion", "expressionId": "normal", "text": "일부러 방치하는거네요." },
   { "id": "b.0068", "type": "Say", "speakerId": "guest_b", "expressionId": "normal", "text": "그래도 되니까." },
   { "id": "b.0069", "type": "Say", "speakerId": "guest_b", "expressionId": "normal", "text": "BLUE를 안 쓰는 사람은 아무도 없으니까." },
+
+  
   { "id": "b.0070", "type": "Say", "speakerId": "guest_b", "expressionId": "embarrassed", "text": "우리같은 사람들만 죽어나는 거야." },
   { "id": "b.0071", "type": "Say", "speakerId": "guest_b", "expressionId": "normal", "text": "직접 찾으러 다녀야 되니까." },
   { "id": "b.0072", "type": "Say", "speakerId": "melion", "expressionId": "normal", "text": "신입은 안 들어오나요?" },
@@ -674,6 +767,8 @@
   { "id": "b.0074", "type": "Say", "speakerId": "guest_b", "expressionId": "normal", "text": "포기한 지 좀 됐어." },
   { "id": "b.0075", "type": "Say", "speakerId": "guest_b", "expressionId": "normal", "text": "뽑아봤자 금방 도망가더라고." },
   { "id": "b.0076", "type": "Say", "speakerId": "melion", "expressionId": "normal", "text": "… 저런." },
+
+  
   { "id": "b.0077", "type": "Say", "speakerId": "guest_b", "expressionId": "normal", "text": "돈도 조금 주면서 요구하는건 더럽게 많거든." },
   { "id": "b.0078", "type": "Say", "speakerId": "guest_b", "expressionId": "normal", "text": "일단 다이버 수준으로 BLUE를 잘 다뤄야 해." },
   { "id": "b.0079", "type": "Say", "speakerId": "guest_b", "expressionId": "normal", "text": "여기서 대부분 나가떨어지지." },
@@ -688,8 +783,12 @@
   { "id": "b.0088", "type": "Say", "speakerId": "guest_b", "expressionId": "normal", "text": "피해자의 기억만 제거하면 되니까." },
   { "id": "b.0089", "type": "Say", "speakerId": "melion", "expressionId": "normal", "text": "악성코드를 쓰든, 다이버를 부르든 말이죠." },
   { "id": "b.0090", "type": "Say", "speakerId": "melion", "expressionId": "normal", "text": "BLUE에서는 하드웨어 대신 뇌를 쓰니까요." },
+
+  
   { "id": "b.0091", "type": "Say", "speakerId": "guest_b", "expressionId": "embarrassed", "text": "일일히 대응하는 건 우리도 포기했어." },
   { "id": "b.0092", "type": "Say", "speakerId": "melion", "expressionId": "normal", "text": "큰 사건들 위주로 조사할 수 밖에 없겠네요." },
+
+  
   { "id": "b.0093", "type": "Say", "speakerId": "guest_b", "expressionId": "normal", "text": "그렇게 될 수밖에 없지." },
   { "id": "b.0094", "type": "Say", "speakerId": "melion", "expressionId": "normal", "text": "(개판인 이유가 있었군.)" },
   { "id": "b.0095", "type": "Say", "speakerId": "melion", "expressionId": "normal", "text": "(민간인까지 끌어다 쓰는데도 이 정도라면…)" },
@@ -785,15 +884,20 @@
   { "id": "b.r1.0035", "type": "Say", "speakerId": "melion", "expressionId": "normal", "text": "그거면 충분해요." },
   { "id": "b.r1.0036", "type": "Say", "speakerId": "guest_b", "expressionId": "normal", "text": "그래…" },
   { "id": "b.r1.0037", "type": "Say", "speakerId": "guest_b", "expressionId": "normal", "text": "더 궁금한 건 없지? 이만 갈게." },
+  { "id": "hide.before.c_intro.guest_b", "type": "hideCharacter", "characterId": "guest_b" },
   { "id": "b.r1.0038", "type": "Say", "speakerId": "melion", "expressionId": "normal", "text": "안녕히 가세요." },
   { "id": "jump.b_route1.end", "type": "Jump", "label": "b_end" },
 
   { "id": "lb.b_route2", "type": "Label", "label": "b_route2" },
+
+  
   { "id": "b.r2.0001", "type": "Say", "speakerId": "guest_b", "expressionId": "smile", "text": "바닷바람이 시원해서 좋네." },
-  { "id": "b.r2.0002", "type": "Say", "speakerId": "guest_b", "expressionId": "normal", "text": "꼭 진짜 같아." },
+  { "id": "b.r2.0002", "type": "Say", "speakerId": "guest_b", "expressionId": "smile", "text": "꼭 진짜 같아." },
   { "id": "b.r2.0003", "type": "Say", "speakerId": "guest_b", "expressionId": "normal", "text": "진짜 바다, 가본 적 있어?" },
   { "id": "b.r2.0004", "type": "Say", "speakerId": "melion", "expressionId": "normal", "text": "가볼 뻔 한 적은 있는데요." },
   { "id": "b.r2.0005", "type": "Say", "speakerId": "melion", "expressionId": "normal", "text": "이런저런 일이 있어서." },
+
+  
   { "id": "b.r2.0006", "type": "Say", "speakerId": "guest_b", "expressionId": "normal", "text": "난 10년 전에 가봤어." },
   { "id": "b.r2.0007", "type": "Say", "speakerId": "guest_b", "expressionId": "normal", "text": "신혼여행이었지." },
   { "id": "b.r2.0008", "type": "Say", "speakerId": "melion", "expressionId": "normal", "text": "10년 전이라면…" },
@@ -826,24 +930,34 @@
   { "id": "b.r2.0035", "type": "Say", "speakerId": "guest_b", "expressionId": "normal", "text": "알았어, 갈게." },
   { "id": "b.r2.0036", "type": "Say", "speakerId": "guest_b", "expressionId": "normal", "text": "떠드는 건 여기까지 해야겠어." },
   { "id": "b.r2.0037", "type": "Say", "speakerId": "melion", "expressionId": "normal", "text": "무슨 일인가요?" },
+
+  
   { "id": "b.r2.0038", "type": "Say", "speakerId": "guest_b", "expressionId": "embarrassed", "text": "퍼블릭에서 악성코드를 퍼트리는 사람이 있대." },
   { "id": "b.r2.0039", "type": "Say", "speakerId": "melion", "expressionId": "normal", "text": "오늘만 사는 사람인가봐요." },
-  { "id": "b.r2.0040", "type": "Say", "speakerId": "guest_b", "expressionId": "normal", "text": "뇌가 고장났나봐." },
-  { "id": "b.r2.0041", "type": "Say", "speakerId": "guest_b", "expressionId": "normal", "text": "하루도 편한 날이 없군, 여기는." },
+  { "id": "b.r2.0040", "type": "Say", "speakerId": "guest_b", "expressionId": "embarrassed", "text": "뇌가 고장났나봐." },
+  { "id": "b.r2.0041", "type": "Say", "speakerId": "guest_b", "expressionId": "embarrassed", "text": "하루도 편한 날이 없군, 여기는." },
+
+
   { "id": "b.r2.0042", "type": "Say", "speakerId": "guest_b", "expressionId": "normal", "text": "갈게, 덕분에 즐거웠어." },
+  { "id": "hide.before.c_intro.guest_b", "type": "hideCharacter", "characterId": "guest_b" },
   { "id": "b.r2.0043", "type": "Say", "speakerId": "melion", "expressionId": "normal", "text": "안녕히 가세요." },
+
   { "id": "jump.b_route2.end", "type": "Jump", "label": "b_end" },
 
   { "id": "lb.b_end", "type": "Label", "label": "b_end" },
 
-
   { "id": "lb.c_intro", "type": "Label", "label": "c_intro" },
+
+
+  { "id": "show.c_intro.guest_c.normal", "type": "showCharacter", "characterId": "guest_c", "expressionId": "normal", "position": "center" },
   { "id": "c.var.reset_great", "type": "SetVar", "arg": "cGreatCount", "arg1": "0" },
 
   { "id": "c.0001", "type": "Say", "speakerId": "guest_c_unknown", "expressionId": "normal", "text": "…" },
   { "id": "c.0002", "type": "Say", "speakerId": "melion", "expressionId": "normal", "text": "(… 어째.)" },
+  
   { "id": "c.0003", "type": "Say", "speakerId": "melion", "expressionId": "embarrassed", "text": "(상대하기 힘든 사람들만 오는군.)" },
   { "id": "c.0004", "type": "Say", "speakerId": "guest_c_unknown", "expressionId": "normal", "text": "…" },
+  
   { "id": "c.0005", "type": "Say", "speakerId": "melion", "expressionId": "normal", "text": "아, 어서 오세요. C씨." },
   { "id": "c.0006", "type": "Say", "speakerId": "melion", "expressionId": "normal", "text": "(언제부터 와있던 거지?)" },
   { "id": "c.0007", "type": "Say", "speakerId": "guest_c", "expressionId": "normal", "text": "…" },
@@ -911,8 +1025,10 @@
   { "id": "c.0034", "type": "Say", "speakerId": "melion", "expressionId": "normal", "text": "좋아하는 건 없음." },
   { "id": "c.0035", "type": "Say", "speakerId": "melion", "expressionId": "normal", "text": "이라고 하셨죠." },
   { "id": "c.0036", "type": "Say", "speakerId": "melion", "expressionId": "normal", "text": "기억 안 나시나요?" },
+  
   { "id": "c.0037", "type": "Say", "speakerId": "guest_c", "expressionId": "sad", "text": "…" },
-  { "id": "c.0038", "type": "Say", "speakerId": "guest_c", "expressionId": "normal", "text": "그런 체질이라서." },
+  
+  { "id": "c.0038", "type": "Say", "speakerId": "guest_c", "expressionId": "sad", "text": "그런 체질이라서." },
   { "id": "c.0039", "type": "Say", "speakerId": "melion", "expressionId": "normal", "text": "(… 시술을 받았군.)" },
   { "id": "c.0040", "type": "Say", "speakerId": "melion", "expressionId": "normal", "text": "사는데 지장은 없나요?" },
   { "id": "c.0041", "type": "Say", "speakerId": "melion", "expressionId": "normal", "text": "꽤… 불편할 것 같은데요." },
@@ -947,15 +1063,19 @@
   { "id": "c.0070", "type": "Say", "speakerId": "guest_c", "expressionId": "normal", "text": "밖에선 자주 마시기 힘든 맛이니까." },
   { "id": "c.0071", "type": "Say", "speakerId": "melion", "expressionId": "normal", "text": "밖에서 파는 건 이것보다 훨씬 비싸죠." },
   { "id": "c.0072", "type": "Say", "speakerId": "guest_c", "expressionId": "normal", "text": "모르겠어." },
+  
   { "id": "c.0073", "type": "Say", "speakerId": "guest_c", "expressionId": "sad", "text": "이런 고민도 의미가 없어." },
-  { "id": "c.0074", "type": "Say", "speakerId": "guest_c", "expressionId": "normal", "text": "전부 한 순간에 사라질텐데." },
+  
+  { "id": "c.0074", "type": "Say", "speakerId": "guest_c", "expressionId": "sad", "text": "전부 한 순간에 사라질텐데." },
   { "id": "c.0075", "type": "Say", "speakerId": "melion", "expressionId": "normal", "text": "그럼 음료나 한 잔 하시겠어요?" },
   { "id": "c.0076", "type": "Say", "speakerId": "melion", "expressionId": "normal", "text": "한 순간의 즐거움이겠지만요." },
   { "id": "c.0077", "type": "Say", "speakerId": "guest_c", "expressionId": "normal", "text": "…응." },
   { "id": "c.0078", "type": "Say", "speakerId": "guest_c", "expressionId": "normal", "text": "늘 마시던 걸로." },
   { "id": "c.0079", "type": "Say", "speakerId": "melion", "expressionId": "normal", "text": "…" },
+  
   { "id": "c.0080", "type": "Say", "speakerId": "melion", "expressionId": "embarrassed", "text": "그렇게 말씀하시면 모르죠." },
   { "id": "c.0081", "type": "Say", "speakerId": "guest_c", "expressionId": "normal", "text": "다들 이렇게 주문하지 않아?" },
+  
   { "id": "c.0082", "type": "Say", "speakerId": "melion", "expressionId": "normal", "text": "여태 두 번 오셨잖아요." },
   { "id": "c.0083", "type": "Say", "speakerId": "guest_c", "expressionId": "normal", "text": "… 그런가." },
   { "id": "c.0084", "type": "Say", "speakerId": "guest_c", "expressionId": "normal", "text": "음." },
@@ -1108,17 +1228,24 @@
   { "id": "c.r1.0001", "type": "Say", "speakerId": "guest_c", "expressionId": "normal", "text": "좋아하는 게 생겼어." },
   { "id": "c.r1.0002", "type": "Say", "speakerId": "guest_c", "expressionId": "normal", "text": "…" },
   { "id": "c.r1.0003", "type": "Say", "speakerId": "guest_c", "expressionId": "normal", "text": "당신." },
-  { "id": "c.r1.0004", "type": "Say", "speakerId": "melion", "expressionId": "surprised", "text": "… 저요?" },
-  { "id": "c.r1.0005", "type": "Say", "speakerId": "melion", "expressionId": "normal", "text": "…" },
-  { "id": "c.r1.0006", "type": "Say", "speakerId": "melion", "expressionId": "normal", "text": "네?" },
+  
+  { "id": "c.r1.0004", "type": "Say", "speakerId": "melion", "expressionId": "normal", "text": "… 저요?" },
+  
+  { "id": "c.r1.0005", "type": "Say", "speakerId": "melion", "expressionId": "embarrassed", "text": "…" },
+  { "id": "c.r1.0006", "type": "Say", "speakerId": "melion", "expressionId": "embarrassed", "text": "네?" },
   { "id": "c.r1.0007", "type": "Say", "speakerId": "guest_c", "expressionId": "normal", "text": "… 그 아바타." },
   { "id": "c.r1.0008", "type": "Say", "speakerId": "guest_c", "expressionId": "normal", "text": "아까부터 귀엽다고 생각했어." },
   { "id": "c.r1.0009", "type": "Say", "speakerId": "guest_c", "expressionId": "normal", "text": "어디서 구한 거야?" },
+
   { "id": "c.r1.0010", "type": "Say", "speakerId": "melion", "expressionId": "embarrassed", "text": "받은 거에요." },
+
   { "id": "c.r1.0011", "type": "Say", "speakerId": "melion", "expressionId": "normal", "text": "아는 사람한테." },
   { "id": "c.r1.0012", "type": "Say", "speakerId": "guest_c", "expressionId": "normal", "text": "… 부럽네." },
   { "id": "c.r1.0013", "type": "Say", "speakerId": "guest_c", "expressionId": "normal", "text": "…" },
+  
   { "id": "c.r1.0014", "type": "Say", "speakerId": "melion", "expressionId": "embarrassed", "text": "(… 부담스러울 정도로 쳐다보는군…)" },
+  
+
   { "id": "c.r1.0015", "type": "Say", "speakerId": "melion", "expressionId": "normal", "text": "(그래봤자 해줄 수 있는게… 아.)" },
   { "id": "c.r1.0016", "type": "Say", "speakerId": "melion", "expressionId": "normal", "text": "이런 건 어떤가요." },
   { "id": "c.r1.0017", "type": "Say", "speakerId": "melion", "expressionId": "normal", "text": "인형을 모아보는 거에요." },
@@ -1139,6 +1266,7 @@
   { "id": "c.r1.0032", "type": "Say", "speakerId": "guest_c", "expressionId": "normal", "text": "내가 원한다고 되는 게 아냐." },
   { "id": "c.r1.0033", "type": "Say", "speakerId": "guest_c", "expressionId": "normal", "text": "그래도, 노력은 해 볼게." },
   { "id": "c.r1.0034", "type": "Say", "speakerId": "guest_c", "expressionId": "normal", "text": "… 안녕." },
+  { "id": "hide.before.d_intro.guest_c", "type": "hideCharacter", "characterId": "guest_c" },
   { "id": "c.r1.0035", "type": "Say", "speakerId": "melion", "expressionId": "normal", "text": "잘 가요." },
   { "id": "jump.c_route1.end", "type": "Jump", "label": "c_end" },
 
@@ -1176,31 +1304,48 @@
   { "id": "c.r2.0031", "type": "Say", "speakerId": "melion", "expressionId": "normal", "text": "흔한 케이스죠." },
   { "id": "c.r2.0032", "type": "Say", "speakerId": "melion", "expressionId": "normal", "text": "괜히 그만두고 싶고, 다른 걸 찾게 되고." },
   { "id": "c.r2.0033", "type": "Say", "speakerId": "guest_c", "expressionId": "normal", "text": "…" },
+
   { "id": "c.r2.0034", "type": "Say", "speakerId": "guest_c", "expressionId": "sad", "text": "좋지 않은 일이라…" },
-  { "id": "c.r2.0035", "type": "Say", "speakerId": "guest_c", "expressionId": "normal", "text": "그런 걸지도." },
+  
+
+  { "id": "c.r2.0035", "type": "Say", "speakerId": "guest_c", "expressionId": "sad", "text": "그런 걸지도." },
   { "id": "c.r2.0036", "type": "Say", "speakerId": "melion", "expressionId": "normal", "text": "좋지 않은 일이요?" },
   { "id": "c.r2.0037", "type": "Say", "speakerId": "guest_c", "expressionId": "normal", "text": "…" },
   { "id": "c.r2.0038", "type": "Say", "speakerId": "guest_c", "expressionId": "normal", "text": "아냐, 아무말도." },
   { "id": "c.r2.0039", "type": "Say", "speakerId": "guest_c", "expressionId": "normal", "text": "가볼게." },
   { "id": "c.r2.0040", "type": "Say", "speakerId": "guest_c", "expressionId": "normal", "text": "즐거웠어." },
   { "id": "c.r2.0041", "type": "Say", "speakerId": "guest_c", "expressionId": "normal", "text": "… 안녕." },
+  { "id": "hide.before.d_intro.guest_c", "type": "hideCharacter", "characterId": "guest_c" },
   { "id": "c.r2.0042", "type": "Say", "speakerId": "melion", "expressionId": "normal", "text": "안녕히… 가세요." },
+
+
   { "id": "jump.c_route2.end", "type": "Jump", "label": "c_end" },
 
   { "id": "lb.c_end", "type": "Label", "label": "c_end" },
 
   { "id": "lb.d_intro", "type": "Label", "label": "d_intro" },
+
+  { "id": "show.d_intro.guest_d.normal", "type": "showCharacter", "characterId": "guest_d", "expressionId": "normal", "position": "center" },
   { "id": "d.var.reset_great", "type": "SetVar", "arg": "dGreatCount", "arg1": "0" },
 
   { "id": "d.0001", "type": "Say", "speakerId": "guest_d_unknown", "expressionId": "normal", "text": "…!" },
   { "id": "d.0002", "type": "Say", "speakerId": "melion", "expressionId": "normal", "text": "어서오세요, 손님." },
   { "id": "d.0003", "type": "Say", "speakerId": "guest_d_unknown", "expressionId": "normal", "text": "바…" },
+  
+
   { "id": "d.0004", "type": "Say", "speakerId": "guest_d_unknown", "expressionId": "smile", "text": "반갑습니다앗-!!!" },
   { "id": "d.0005", "type": "Say", "speakerId": "melion", "expressionId": "normal", "text": "…" },
+  
+
   { "id": "d.0006", "type": "Say", "speakerId": "guest_d_unknown", "expressionId": "normal", "text": "어, 어라." },
+  
+
   { "id": "d.0007", "type": "Say", "speakerId": "guest_d_unknown", "expressionId": "embarrassed", "text": "이렇게 인사하는게 아닌가요?" },
-  { "id": "d.0008", "type": "Say", "speakerId": "guest_d_unknown", "expressionId": "normal", "text": "미안해요!" },
+  { "id": "d.0008", "type": "Say", "speakerId": "guest_d_unknown", "expressionId": "embarrassed", "text": "미안해요!" },
   { "id": "d.0009", "type": "Say", "speakerId": "melion", "expressionId": "normal", "text": "사과하실 필요 까지야." },
+
+  
+
   { "id": "d.0010", "type": "Say", "speakerId": "guest_d_unknown", "expressionId": "normal", "text": "여긴 술을 안 판다고 들었는데." },
   { "id": "d.0011", "type": "Say", "speakerId": "guest_d_unknown", "expressionId": "normal", "text": "제대로 찾아온 게 맞나요?" },
   { "id": "d.0012", "type": "Say", "speakerId": "melion", "expressionId": "normal", "text": "음료를 팔죠." },
@@ -1212,14 +1357,22 @@
   { "id": "d.0018", "type": "Say", "speakerId": "guest_d_unknown", "expressionId": "normal", "text": "마음의 준비는… 해뒀으니까!" },
   { "id": "d.0019", "type": "Say", "speakerId": "melion", "expressionId": "normal", "text": "좋아요…" },
   { "id": "d.0020", "type": "Say", "speakerId": "melion", "expressionId": "normal", "text": "주문하시면 만들어드리죠." },
+  
+
   { "id": "d.0021", "type": "Say", "speakerId": "guest_d_unknown", "expressionId": "embarrassed", "text": "주, 주문이요?" },
+  
+
   { "id": "d.0022", "type": "Say", "speakerId": "guest_d_unknown", "expressionId": "normal", "text": "잠깐 생각 좀 할게요." },
   { "id": "d.0023", "type": "Say", "speakerId": "guest_d_unknown", "expressionId": "normal", "text": "으음." },
   { "id": "d.0024", "type": "Say", "speakerId": "guest_d_unknown", "expressionId": "normal", "text": "으으음...!" },
   { "id": "d.0025", "type": "Say", "speakerId": "melion", "expressionId": "normal", "text": "(되게 신중하게 고르는군…)" },
   { "id": "d.0026", "type": "Say", "speakerId": "guest_d_unknown", "expressionId": "normal", "text": "정했다!" },
+  
+
   { "id": "d.0027", "type": "Say", "speakerId": "guest_d_unknown", "expressionId": "smile", "text": "캔에 든 음료로 주세요!" },
   { "id": "d.0028", "type": "Say", "speakerId": "melion", "expressionId": "normal", "text": "그거면 되나요?" },
+  
+
   { "id": "d.0029", "type": "Say", "speakerId": "guest_d_unknown", "expressionId": "normal", "text": "아뇨!" },
   { "id": "d.0030", "type": "Say", "speakerId": "guest_d_unknown", "expressionId": "normal", "text": "브랙시움이 들어가면 안 돼요." },
   { "id": "d.0031", "type": "Say", "speakerId": "guest_d_unknown", "expressionId": "normal", "text": "절 대 요." },
@@ -1241,8 +1394,12 @@
   { "id": "d.can.add_great", "type": "AddVar", "arg": "dGreatCount", "arg1": "1" },
   { "id": "d.can.g.0001", "type": "Say", "speakerId": "melion", "expressionId": "normal", "text": "음료 드릴게요." },
   { "id": "d.can.g.0002", "type": "Say", "speakerId": "guest_d_unknown", "expressionId": "normal", "text": "… 맛있어요." },
+  
+
   { "id": "d.can.g.0003", "type": "Say", "speakerId": "guest_d_unknown", "expressionId": "smile", "text": "달콤하고, 새콤하고… 톡 쏘는 맛까지 있네요." },
   { "id": "d.can.g.0004", "type": "Say", "speakerId": "melion", "expressionId": "normal", "text": "오렌지 맛 일거에요." },
+  
+
   { "id": "d.can.g.0005", "type": "Say", "speakerId": "guest_d_unknown", "expressionId": "normal", "text": "이름에 오렌지가 들어가지 않았는데요?" },
   { "id": "d.can.g.0006", "type": "Say", "speakerId": "melion", "expressionId": "normal", "text": "제가 이름을 정한 건 아니라서." },
   { "id": "d.can.g.0007", "type": "Say", "speakerId": "melion", "expressionId": "normal", "text": "잘 모르겠네요." },
@@ -1252,18 +1409,25 @@
   { "id": "lb.d_can_success", "type": "Label", "label": "d_can_success" },
   { "id": "d.can.s.0001", "type": "Say", "speakerId": "melion", "expressionId": "normal", "text": "음료 드릴게요." },
   { "id": "d.can.s.0002", "type": "Say", "speakerId": "guest_d_unknown", "expressionId": "normal", "text": "캔이라는 건 이렇게 생겼구나…" },
+  
+
   { "id": "d.can.s.0003", "type": "Say", "speakerId": "guest_d_unknown", "expressionId": "smile", "text": "여는 방법이 신기하네요!" },
   { "id": "jump.d_can_success.after", "type": "Jump", "label": "after_d_can" },
 
   { "id": "lb.d_can_fail", "type": "Label", "label": "d_can_fail" },
   { "id": "d.can.f.0001", "type": "Say", "speakerId": "melion", "expressionId": "normal", "text": "음료 드릴게요." },
+  
   { "id": "d.can.f.0002", "type": "Say", "speakerId": "guest_d_unknown", "expressionId": "normal", "text": "이게 캔이라는거구나." },
+  
+
   { "id": "d.can.f.0003", "type": "Say", "speakerId": "guest_d_unknown", "expressionId": "smile", "text": "특이하게 생겼네요!" },
   { "id": "d.can.f.0004", "type": "Say", "speakerId": "melion", "expressionId": "normal", "text": "어… 음." },
   { "id": "d.can.f.0005", "type": "Say", "speakerId": "melion", "expressionId": "normal", "text": "그렇긴 하죠." },
   { "id": "jump.d_can_fail.after", "type": "Jump", "label": "after_d_can" },
 
   { "id": "lb.after_d_can", "type": "Label", "label": "after_d_can" },
+  
+
   { "id": "d.0034", "type": "Say", "speakerId": "guest_d_unknown", "expressionId": "normal", "text": "어쨌거나, 덕분에 살았어요." },
   { "id": "d.0035", "type": "Say", "speakerId": "guest_d_unknown", "expressionId": "normal", "text": "괜찮다 싶은 곳은 술집이나 카페였거든요." },
   { "id": "d.0036", "type": "Say", "speakerId": "melion", "expressionId": "normal", "text": "술이랑 커피는 다들 많이 찾거든요." },
@@ -1275,17 +1439,23 @@
   { "id": "d.0042", "type": "Say", "speakerId": "guest_d_unknown", "expressionId": "normal", "text": "그나저나, 이름을 물어봐도 될까요?" },
   { "id": "d.0043", "type": "Say", "speakerId": "melion", "expressionId": "normal", "text": "멜리온이라고 해요." },
   { "id": "d.0044", "type": "Say", "speakerId": "guest_d_unknown", "expressionId": "normal", "text": "멜리온! 귀여운 이름이네요!" },
+  
   { "id": "d.0045", "type": "Say", "speakerId": "guest_d_unknown", "expressionId": "smile", "text": "그 모습이랑 잘 어울려요!" },
+  
   { "id": "d.0046", "type": "Say", "speakerId": "melion", "expressionId": "embarrassed", "text": "…" },
+  
   { "id": "d.0047", "type": "Say", "speakerId": "melion", "expressionId": "normal", "text": "감사합니다." },
   { "id": "d.0048", "type": "Say", "speakerId": "melion", "expressionId": "normal", "text": "손님은 성함이 어떻게 되시죠?" },
+  
   { "id": "d.0049", "type": "Say", "speakerId": "guest_d_unknown", "expressionId": "normal", "text": "저요?" },
   { "id": "d.0050", "type": "Say", "speakerId": "guest_d_unknown", "expressionId": "normal", "text": "전… 제 이름은…" },
   { "id": "d.0051", "type": "Say", "speakerId": "guest_d_unknown", "expressionId": "normal", "text": "…" },
   { "id": "d.0052", "type": "Say", "speakerId": "guest_d_unknown", "expressionId": "normal", "text": "기억났다! D!" },
+  
   { "id": "d.0053", "type": "Say", "speakerId": "guest_d", "expressionId": "smile", "text": "편하게 D라고 불러주세요!" },
   { "id": "d.0054", "type": "Say", "speakerId": "melion", "expressionId": "normal", "text": "그래요, D씨." },
   { "id": "d.0055", "type": "Say", "speakerId": "melion", "expressionId": "normal", "text": "술이나 커피를 안 좋아하시나요?" },
+  
   { "id": "d.0056", "type": "Say", "speakerId": "guest_d", "expressionId": "normal", "text": "… 여기선 못 마시겠더라구요." },
   { "id": "d.0057", "type": "Say", "speakerId": "guest_d", "expressionId": "normal", "text": "특히 브랙시움이 안 맞는 것 같아요." },
   { "id": "d.0058", "type": "Say", "speakerId": "melion", "expressionId": "normal", "text": "(알러지 같은 건가? 못 들은 얘긴데.)" },
@@ -1295,20 +1465,27 @@
   { "id": "d.0062", "type": "Say", "speakerId": "melion", "expressionId": "normal", "text": "D씨는 어떤 일을 하시나요?" },
   { "id": "d.0063", "type": "Say", "speakerId": "guest_d", "expressionId": "normal", "text": "그게… 지금은 쉬고 있어요." },
   { "id": "d.0064", "type": "Say", "speakerId": "guest_d", "expressionId": "normal", "text": "들어간 회사가 저랑…" },
+  
   { "id": "d.0065", "type": "Say", "speakerId": "guest_d", "expressionId": "sad", "text": "도저히 안 맞아서…" },
   { "id": "d.0066", "type": "Say", "speakerId": "melion", "expressionId": "normal", "text": "특별히 이상한 일은 아니죠." },
   { "id": "d.0067", "type": "Say", "speakerId": "melion", "expressionId": "normal", "text": "안좋은 회사였나봐요." },
+  
   { "id": "d.0068", "type": "Say", "speakerId": "guest_d", "expressionId": "normal", "text": "… 아뇨." },
   { "id": "d.0069", "type": "Say", "speakerId": "guest_d", "expressionId": "normal", "text": "BNC 계열사 쪽이었어요." },
   { "id": "d.0070", "type": "Say", "speakerId": "melion", "expressionId": "normal", "text": "…" },
   { "id": "d.0071", "type": "Say", "speakerId": "melion", "expressionId": "normal", "text": "정말인가요?" },
   { "id": "d.0072", "type": "Say", "speakerId": "melion", "expressionId": "normal", "text": "… 그렇게는 안 보이는데." },
+  
   { "id": "d.0073", "type": "Say", "speakerId": "guest_d", "expressionId": "embarrassed", "text": "저, 저도 다 듣고 있거든요?!" },
+  
   { "id": "d.0074", "type": "Say", "speakerId": "melion", "expressionId": "smile", "text": "하하, 미안해요." },
+  
   { "id": "d.0075", "type": "Say", "speakerId": "melion", "expressionId": "normal", "text": "들어가기 엄청 힘들었을텐데." },
   { "id": "d.0076", "type": "Say", "speakerId": "melion", "expressionId": "normal", "text": "다들 원하는 꿈의 직장이잖아요." },
   { "id": "d.0077", "type": "Say", "speakerId": "melion", "expressionId": "normal", "text": "엄청 큰… 결심을 하신 거네요." },
+  
   { "id": "d.0078", "type": "Say", "speakerId": "guest_d", "expressionId": "sad", "text": "그게 좀…" },
+  
   { "id": "d.0079", "type": "Say", "speakerId": "guest_d", "expressionId": "normal", "text": "사연이 있었던 것 같거든요." },
   { "id": "d.0080", "type": "Say", "speakerId": "melion", "expressionId": "normal", "text": "(같다고?)" },
   { "id": "d.0081", "type": "Say", "speakerId": "guest_d", "expressionId": "normal", "text": "버텨보려고 했는데 도저히 안 돼서…" },
@@ -1351,10 +1528,12 @@
   { "id": "d.juice.g.0001", "type": "Say", "speakerId": "guest_d", "expressionId": "normal", "text": "배드애플이라…" },
   { "id": "d.juice.g.0002", "type": "Say", "speakerId": "guest_d", "expressionId": "normal", "text": "어디서 들어본 이름인데." },
   { "id": "d.juice.g.0003", "type": "Say", "speakerId": "melion", "expressionId": "normal", "text": "(난 처음 듣는데…)" },
+  
   { "id": "d.juice.g.0004", "type": "Say", "speakerId": "guest_d", "expressionId": "smile", "text": "이거 딱 제 취향이네요! 자주 마셔야겠어요!" },
   { "id": "jump.d_juice_great.after", "type": "Jump", "label": "after_d_juice" },
 
   { "id": "lb.d_juice_success", "type": "Label", "label": "d_juice_success" },
+  
   { "id": "d.juice.s.0001", "type": "Say", "speakerId": "guest_d", "expressionId": "normal", "text": "고마워요." },
   { "id": "d.juice.s.0002", "type": "Say", "speakerId": "guest_d", "expressionId": "normal", "text": "이렇게 마시는 거 맞죠?" },
   { "id": "d.juice.s.0003", "type": "Say", "speakerId": "guest_d", "expressionId": "normal", "text": "빨대를 여기다 꽂아서요." },
@@ -1397,7 +1576,9 @@
   { "id": "d.0127", "type": "Say", "speakerId": "guest_d", "expressionId": "normal", "text": "어쩌다 그 일을 고르셨는데요?" },
   { "id": "d.0128", "type": "Say", "speakerId": "melion", "expressionId": "normal", "text": "음… 복잡한 얘기네요." },
   { "id": "d.0129", "type": "Say", "speakerId": "melion", "expressionId": "normal", "text": "많은 일이 있었다고만 해두죠." },
+  
   { "id": "d.0130", "type": "Say", "speakerId": "melion", "expressionId": "embarrassed", "text": "(학교 절반을 날려먹었다곤 할 수 없지…)" },
+  
   { "id": "d.0131", "type": "Say", "speakerId": "melion", "expressionId": "normal", "text": "확실한 건 좋아서 하는 일은 아니라는 거에요." },
   { "id": "d.0132", "type": "Say", "speakerId": "melion", "expressionId": "normal", "text": "할 수 있는게 이것 뿐이라 하는 거죠." },
   { "id": "d.0133", "type": "Say", "speakerId": "melion", "expressionId": "normal", "text": "뭐, 다들 그렇게 사는 거겠지만요." },
@@ -1415,13 +1596,19 @@
   { "id": "d.0145", "type": "Say", "speakerId": "melion", "expressionId": "normal", "text": "그래서, 앞으로 뭘 하실 건가요?" },
   { "id": "d.0146", "type": "Say", "speakerId": "melion", "expressionId": "normal", "text": "정해둔 건 없다고 했죠?" },
   { "id": "d.0147", "type": "Say", "speakerId": "guest_d", "expressionId": "normal", "text": "찾아 봐야겠죠." },
+  
   { "id": "d.0148", "type": "Say", "speakerId": "guest_d", "expressionId": "smile", "text": "당장은 좀 쉴거지만요." },
+  
   { "id": "d.0149", "type": "Say", "speakerId": "guest_d", "expressionId": "normal", "text": "쉬면서 게임이나 해보려구요." },
   { "id": "d.0150", "type": "Say", "speakerId": "guest_d", "expressionId": "normal", "text": "여기 깔려있는게 엄청 많더라구요." },
   { "id": "d.0151", "type": "Say", "speakerId": "melion", "expressionId": "normal", "text": "… 제 착각인지는 모르겠지만." },
   { "id": "d.0152", "type": "Say", "speakerId": "melion", "expressionId": "normal", "text": "꼭 남인 것처럼 말하시네요." },
+  
   { "id": "d.0153", "type": "Say", "speakerId": "guest_d", "expressionId": "surprised", "text": "… 네?" },
+  
+
   { "id": "d.0154", "type": "Say", "speakerId": "guest_d", "expressionId": "embarrassed", "text": "아, 으음." },
+  
   { "id": "d.0155", "type": "Say", "speakerId": "guest_d", "expressionId": "normal", "text": "예전에 받아놓고 까먹어서 그래요." },
   { "id": "d.0156", "type": "Say", "speakerId": "guest_d", "expressionId": "normal", "text": "… 한동안 BLUE를 끊었었거든요." },
   { "id": "d.0157", "type": "Say", "speakerId": "guest_d", "expressionId": "normal", "text": "그래서 그런 거에요." },
@@ -1480,8 +1667,10 @@
   { "id": "d.r1.0009", "type": "Say", "speakerId": "melion", "expressionId": "normal", "text": "제대로 할 거라면요." },
   { "id": "d.r1.0010", "type": "Say", "speakerId": "guest_d", "expressionId": "normal", "text": "으, 으음…" },
   { "id": "d.r1.0011", "type": "Say", "speakerId": "melion", "expressionId": "normal", "text": "그래도 사람이 좀 독특하니까…" },
+  
   { "id": "d.r1.0012", "type": "Say", "speakerId": "guest_d", "expressionId": "surprised", "text": "제가요?" },
   { "id": "d.r1.0013", "type": "Say", "speakerId": "melion", "expressionId": "normal", "text": "네." },
+  
   { "id": "d.r1.0014", "type": "Say", "speakerId": "guest_d", "expressionId": "normal", "text": "평범하게 행동하지 않았나요?" },
   { "id": "d.r1.0015", "type": "Say", "speakerId": "melion", "expressionId": "normal", "text": "전혀요." },
   { "id": "d.r1.0016", "type": "Say", "speakerId": "guest_d", "expressionId": "normal", "text": "…" },
@@ -1498,16 +1687,20 @@
   { "id": "d.r2.0006", "type": "Say", "speakerId": "melion", "expressionId": "normal", "text": "일종의 유니폼인거죠." },
   { "id": "d.r2.0007", "type": "Say", "speakerId": "guest_d", "expressionId": "normal", "text": "바로 이해가 되네요." },
   { "id": "d.r2.0008", "type": "Say", "speakerId": "guest_d", "expressionId": "normal", "text": "유니폼이라기엔 좀… 귀엽긴 한데." },
+  
   { "id": "d.r2.0009", "type": "Say", "speakerId": "melion", "expressionId": "embarrassed", "text": "전 죽을 맛이에요." },
+  
   { "id": "d.r2.0010", "type": "Say", "speakerId": "melion", "expressionId": "normal", "text": "안에 든 건 다 큰 성인 아저씨인데…" },
   { "id": "d.r2.0011", "type": "Say", "speakerId": "melion", "expressionId": "normal", "text": "부끄러워 죽겠다구요." },
   { "id": "d.r2.0012", "type": "Say", "speakerId": "guest_d", "expressionId": "normal", "text": "익숙해지면 괜찮지 않을까요?" },
   { "id": "d.r2.0013", "type": "Say", "speakerId": "melion", "expressionId": "normal", "text": "익숙해지는 것도 싫어요…" },
   { "id": "d.r2.0014", "type": "Say", "speakerId": "melion", "expressionId": "normal", "text": "그러고보니, D씨도 꽤 특이한 아바타네요." },
+  
   { "id": "d.r2.0015", "type": "Say", "speakerId": "guest_d", "expressionId": "surprised", "text": "제가요?" },
   { "id": "d.r2.0016", "type": "Say", "speakerId": "melion", "expressionId": "normal", "text": "네." },
   { "id": "d.r2.0017", "type": "Say", "speakerId": "melion", "expressionId": "normal", "text": "그 아바타는 엄청 …" },
   { "id": "d.r2.0018", "type": "Say", "speakerId": "melion", "expressionId": "normal", "text": "… 특이한 사람들이 자주 입거든요." },
+  
   { "id": "d.r2.0019", "type": "Say", "speakerId": "guest_d", "expressionId": "normal", "text": "전혀 몰랐어요." },
   { "id": "d.r2.0020", "type": "Say", "speakerId": "guest_d", "expressionId": "normal", "text": "처음부터 입고 있었거든요." },
   { "id": "d.r2.0021", "type": "Say", "speakerId": "guest_d", "expressionId": "normal", "text": "제가 여기 들어왔을때부터." },
@@ -1533,20 +1726,27 @@
   { "id": "d.common.0014", "type": "Say", "speakerId": "melion", "expressionId": "normal", "text": "여기 정도면 안전해요." },
   { "id": "d.common.0015", "type": "Say", "speakerId": "melion", "expressionId": "normal", "text": "약하지만 관리 시스템이 닿는 범위 안에 있고." },
   { "id": "d.common.0016", "type": "Say", "speakerId": "guest_d", "expressionId": "normal", "text": "…" },
+  
   { "id": "d.common.0017", "type": "Say", "speakerId": "guest_d", "expressionId": "sad", "text": "관리 시스템은 무서운데." },
   { "id": "d.common.0018", "type": "Say", "speakerId": "melion", "expressionId": "normal", "text": "네?" },
+  
   { "id": "d.common.0019", "type": "Say", "speakerId": "guest_d", "expressionId": "normal", "text": "그, 그냥 혼잣말이었어요." },
   { "id": "d.common.0020", "type": "Say", "speakerId": "guest_d", "expressionId": "normal", "text": "가볼게요." },
   { "id": "d.common.0021", "type": "Say", "speakerId": "guest_d", "expressionId": "normal", "text": "고마웠어요, 안녕." },
   { "id": "d.common.0022", "type": "Say", "speakerId": "melion", "expressionId": "normal", "text": "… 잘 가요." },
   { "id": "d.common.0023", "type": "Say", "speakerId": "melion", "expressionId": "normal", "text": "(하면 안 될 말을 했나?)" },
+  { "id": "hide.before.finale.guest_d", "type": "hideCharacter", "characterId": "guest_d" },
 
   { "id": "lb.d_end", "type": "Label", "label": "d_end" },
-  { "id": "jump.d_end.finale", "type": "Jump", "label": "finale" },
+ 
 
   { "id": "lb.finale", "type": "Label", "label": "finale" },
+
+  { "id": "show.finale.sena.normal", "type": "showCharacter", "characterId": "sena", "expressionId": "normal", "position": "center" },
   { "id": "fin.0001", "type": "Say", "speakerId": "sena", "expressionId": "normal", "text": "오늘은 여기까지인가?" },
+  
   { "id": "fin.0002", "type": "Say", "speakerId": "sena", "expressionId": "smile", "text": "수고했어." },
+  
   { "id": "fin.0003", "type": "Say", "speakerId": "sena", "expressionId": "normal", "text": "저녁이라도 먹을까?" },
   { "id": "fin.0004", "type": "Say", "speakerId": "melion", "expressionId": "normal", "text": "됐어, 넌 먹지도 않잖아." },
   { "id": "fin.0005", "type": "Say", "speakerId": "sena", "expressionId": "normal", "text": "옆에서 구경하면 되지." },
@@ -1554,7 +1754,9 @@
   { "id": "fin.0007", "type": "Say", "speakerId": "melion", "expressionId": "normal", "text": "어차피 나가봐야 해." },
   { "id": "fin.0008", "type": "Say", "speakerId": "sena", "expressionId": "normal", "text": "아, 어제 하던 일이 남았다고 했나?" },
   { "id": "fin.0009", "type": "Say", "speakerId": "sena", "expressionId": "normal", "text": "식사는 제때 챙기는게 좋은데." },
+  
   { "id": "fin.0010", "type": "Say", "speakerId": "melion", "expressionId": "embarrassed", "text": "쓸 데 없는 걱정이야." },
+  
   { "id": "fin.0011", "type": "Say", "speakerId": "melion", "expressionId": "normal", "text": "네 카드로 잘 먹고 다니거든." },
   { "id": "fin.0012", "type": "Say", "speakerId": "melion", "expressionId": "normal", "text": "그나저나." },
   { "id": "fin.0013", "type": "Say", "speakerId": "melion", "expressionId": "normal", "text": "너, 경찰이랑도 거래하고 그래?" },
@@ -1567,6 +1769,7 @@
   { "id": "fin.0020", "type": "Say", "speakerId": "melion", "expressionId": "normal", "text": "걱정은 무슨." },
   { "id": "fin.0021", "type": "Say", "speakerId": "melion", "expressionId": "normal", "text": "네가 어떻게 되면 내가 돈을 못 받잖아." },
   { "id": "fin.0022", "type": "Say", "speakerId": "melion", "expressionId": "normal", "text": "그것 뿐이야." },
+  
   { "id": "fin.0023", "type": "Say", "speakerId": "sena", "expressionId": "smile", "text": "하하, 그런 걸로 치자고." },
   { "id": "fin.0024", "type": "Say", "speakerId": "melion", "expressionId": "normal", "text": "… 간다." },
   { "id": "fin.0025", "type": "Say", "speakerId": "melion", "expressionId": "normal", "text": "일 끝나면 연락할게." },
