@@ -12,8 +12,14 @@ namespace PPP.BLUE.VN
         private const string RightPosition = "right";
         private const string PortraitPosition = "portrait";
 
+        [Header("Character Definitions")]
+        [SerializeField] private List<VNCharacterDefinition> characterDefinitions = new();
+
         [Header("Sprite Mapping")]
         [SerializeField] private List<VNCharacterSpriteMapping> spriteMappings = new();
+
+        [Header("Layered Portrait Mapping")]
+        [SerializeField] private List<VNLayeredExpressionMapping> layeredExpressionMappings = new();
 
         [Header("Optional Character Slots")]
         [SerializeField] private Image leftImage;
@@ -21,17 +27,30 @@ namespace PPP.BLUE.VN
         [SerializeField] private Image rightImage;
         [SerializeField] private Image portraitImage;
 
+        [Header("Optional Layered Portrait Slots")]
+        [SerializeField] private Image portraitBaseImage;
+        [SerializeField] private Image portraitEyebrowImage;
+        [SerializeField] private Image portraitEyeImage;
+        [SerializeField] private Image portraitMouthImage;
+
         [Header("Fade")]
         [SerializeField, Min(0f)] private float fadeDuration = 0.25f;
         [SerializeField] private bool logFadeDebug;
 
         private readonly Dictionary<string, VNCharacterSpriteMapping> spriteLookup = new();
+        private readonly Dictionary<string, VNLayeredExpressionMapping> layeredExpressionLookup = new();
+        private readonly Dictionary<string, VNCharacterDefinition> characterDefinitionLookup = new(System.StringComparer.OrdinalIgnoreCase);
+        private readonly Dictionary<string, string> speakerCharacterLookup = new(System.StringComparer.OrdinalIgnoreCase);
         private readonly Dictionary<string, VNCharacterState> activeStates = new(System.StringComparer.OrdinalIgnoreCase);
         private readonly Dictionary<Image, Coroutine> fadeCoroutines = new();
+        private readonly Dictionary<string, VNCharacterState> pendingShows = new(System.StringComparer.OrdinalIgnoreCase);
+        private readonly HashSet<string> fadingOutPositions = new(System.StringComparer.OrdinalIgnoreCase);
 
         private void Awake()
         {
             RebuildLookup();
+            RebuildLayeredExpressionLookup();
+            RebuildDefinitionLookup();
             ClearSlotImages();
         }
 
@@ -39,6 +58,8 @@ namespace PPP.BLUE.VN
         private void OnValidate()
         {
             RebuildLookup();
+            RebuildLayeredExpressionLookup();
+            RebuildDefinitionLookup();
         }
 #endif
 
@@ -65,6 +86,45 @@ namespace PPP.BLUE.VN
             return sprite != null;
         }
 
+        public bool TryGetLayeredExpressionMapping(string characterId, string expressionId, out VNLayeredExpressionMapping mapping)
+        {
+            mapping = null;
+
+            if (string.IsNullOrWhiteSpace(characterId) || string.IsNullOrWhiteSpace(expressionId))
+                return false;
+
+            if (layeredExpressionLookup.Count == 0)
+                RebuildLayeredExpressionLookup();
+
+            return layeredExpressionLookup.TryGetValue(BuildKey(characterId, expressionId), out mapping) && mapping != null;
+        }
+
+        public bool TryGetCharacterDefinition(string characterId, out VNCharacterDefinition definition)
+        {
+            definition = null;
+
+            if (string.IsNullOrWhiteSpace(characterId))
+                return false;
+
+            if (characterDefinitionLookup.Count == 0)
+                RebuildDefinitionLookup();
+
+            return characterDefinitionLookup.TryGetValue(characterId.Trim(), out definition) && definition != null;
+        }
+
+        public bool TryResolveCharacterIdForSpeaker(string speakerId, out string characterId)
+        {
+            characterId = string.Empty;
+
+            if (string.IsNullOrWhiteSpace(speakerId))
+                return false;
+
+            if (speakerCharacterLookup.Count == 0)
+                RebuildDefinitionLookup();
+
+            return speakerCharacterLookup.TryGetValue(speakerId.Trim(), out characterId) && !string.IsNullOrWhiteSpace(characterId);
+        }
+
         public void ShowCharacter(string characterId, string expressionId, string position)
         {
             if (string.IsNullOrWhiteSpace(characterId))
@@ -88,6 +148,12 @@ namespace PPP.BLUE.VN
             bool useFade = !isPortrait;
             LogFadeDebug($"ShowCharacter called: characterId={characterId}, expressionId={expressionId}, position={state.position}, isPortrait={isPortrait}, useFade={useFade}");
 
+            if (useFade && fadingOutPositions.Contains(state.position))
+            {
+                QueuePendingShow(state);
+                return;
+            }
+
             activeStates[characterId] = state;
             ApplyStateToSlot(state, useFade: useFade);
         }
@@ -105,13 +171,28 @@ namespace PPP.BLUE.VN
             if (!activeStates.TryGetValue(characterId, out VNCharacterState state) || state == null || !state.visible)
                 return false;
 
-            if (!TryGetSprite(characterId, expressionId, out Sprite sprite))
+            string normalizedPosition = NormalizePosition(state.position);
+            bool useLayeredPortrait = IsLayeredPortraitState(state);
+            Sprite sprite = null;
+            bool hasSprite = TryGetSprite(characterId, expressionId, out sprite);
+            bool hasLayeredMapping = useLayeredPortrait && CanApplyLayeredPortrait(characterId, expressionId);
+
+            if (!hasSprite && !hasLayeredMapping)
             {
-                Debug.LogWarning($"[VNCharacterManager] Missing sprite mapping for characterId='{characterId}' expressionId='{expressionId}'. Keeping current expression.");
+                Debug.LogWarning($"[VNCharacterManager] Missing sprite or layered portrait mapping for characterId='{characterId}' expressionId='{expressionId}'. Keeping current expression.");
                 return false;
             }
 
             state.expressionId = expressionId;
+
+            if (pendingShows.TryGetValue(normalizedPosition, out VNCharacterState pendingState)
+                && pendingState != null
+                && string.Equals(pendingState.characterId, characterId, System.StringComparison.OrdinalIgnoreCase))
+            {
+                pendingState.expressionId = expressionId;
+                return true;
+            }
+
             ApplyStateToSlot(state, sprite);
             return true;
         }
@@ -135,6 +216,13 @@ namespace PPP.BLUE.VN
             state.visible = false;
 
             string normalizedPosition = NormalizePosition(state.position);
+            if (pendingShows.TryGetValue(normalizedPosition, out VNCharacterState pendingState)
+                && pendingState != null
+                && string.Equals(pendingState.characterId, characterId, System.StringComparison.OrdinalIgnoreCase))
+            {
+                pendingShows.Remove(normalizedPosition);
+            }
+
             if (normalizedPosition != PortraitPosition)
                 FadeOutAndClearSlot(normalizedPosition);
 
@@ -144,6 +232,8 @@ namespace PPP.BLUE.VN
         public void ClearAll()
         {
             activeStates.Clear();
+            pendingShows.Clear();
+            fadingOutPositions.Clear();
             StopAllSlotFades();
             ClearSlotImages();
         }
@@ -212,6 +302,55 @@ namespace PPP.BLUE.VN
             }
         }
 
+        private void RebuildLayeredExpressionLookup()
+        {
+            layeredExpressionLookup.Clear();
+
+            if (layeredExpressionMappings == null)
+                return;
+
+            foreach (VNLayeredExpressionMapping mapping in layeredExpressionMappings)
+            {
+                if (mapping == null)
+                    continue;
+
+                if (string.IsNullOrWhiteSpace(mapping.characterId) || string.IsNullOrWhiteSpace(mapping.expressionId))
+                    continue;
+
+                layeredExpressionLookup[BuildKey(mapping.characterId, mapping.expressionId)] = mapping;
+            }
+        }
+
+        private void RebuildDefinitionLookup()
+        {
+            characterDefinitionLookup.Clear();
+            speakerCharacterLookup.Clear();
+
+            if (characterDefinitions == null)
+                return;
+
+            foreach (VNCharacterDefinition definition in characterDefinitions)
+            {
+                if (definition == null || string.IsNullOrWhiteSpace(definition.characterId))
+                    continue;
+
+                string characterId = definition.characterId.Trim();
+                characterDefinitionLookup[characterId] = definition;
+                speakerCharacterLookup[characterId] = characterId;
+
+                if (definition.speakerIds == null)
+                    continue;
+
+                foreach (string speakerId in definition.speakerIds)
+                {
+                    if (string.IsNullOrWhiteSpace(speakerId))
+                        continue;
+
+                    speakerCharacterLookup[speakerId.Trim()] = characterId;
+                }
+            }
+        }
+
         private void ApplyStateToSlot(VNCharacterState state)
         {
             ApplyStateToSlot(state, useFade: false);
@@ -223,6 +362,9 @@ namespace PPP.BLUE.VN
                 return;
 
             string normalizedPosition = NormalizePosition(state.position);
+            if (TryApplyLayeredPortrait(state, warnOnFallback: false))
+                return;
+
             Image slot = GetSlotImage(normalizedPosition);
             if (slot == null)
             {
@@ -231,6 +373,9 @@ namespace PPP.BLUE.VN
 
                 return;
             }
+
+            if (normalizedPosition == PortraitPosition)
+                ClearLayeredPortraitImages();
 
             Sprite sprite = GetSprite(state.characterId, state.expressionId);
             ApplySpriteToSlot(
@@ -248,6 +393,9 @@ namespace PPP.BLUE.VN
                 return;
 
             string normalizedPosition = NormalizePosition(state.position);
+            if (TryApplyLayeredPortrait(state, warnOnFallback: false))
+                return;
+
             Image slot = GetSlotImage(normalizedPosition);
             if (slot == null)
             {
@@ -257,6 +405,9 @@ namespace PPP.BLUE.VN
                 return;
             }
 
+            if (normalizedPosition == PortraitPosition)
+                ClearLayeredPortraitImages();
+
             ApplySpriteToSlot(
                 slot,
                 sprite,
@@ -264,6 +415,74 @@ namespace PPP.BLUE.VN
                 useFade: false,
                 forceAlphaOneWhenImmediate: false,
                 stopExistingFade: false);
+        }
+
+        private bool TryApplyLayeredPortrait(VNCharacterState state, bool warnOnFallback)
+        {
+            if (state == null || !IsLayeredPortraitState(state))
+                return false;
+
+            if (!CanApplyLayeredPortrait(state.characterId, state.expressionId))
+            {
+                if (warnOnFallback)
+                    Debug.LogWarning($"[VNCharacterManager] Missing layered portrait mapping or Image reference for characterId='{state.characterId}' expressionId='{state.expressionId}'. Falling back to portraitImage.");
+
+                ClearLayeredPortraitImages();
+                return false;
+            }
+
+            VNLayeredExpressionMapping mapping = layeredExpressionLookup[BuildKey(state.characterId, state.expressionId)];
+            ApplySpriteToImage(portraitBaseImage, mapping.baseSprite);
+            ApplySpriteToImage(portraitEyebrowImage, mapping.eyebrowSprite);
+            ApplySpriteToImage(portraitEyeImage, mapping.eyeOpenSprite);
+            ApplySpriteToImage(portraitMouthImage, mapping.mouthClosedSprite);
+
+            if (portraitImage != null)
+            {
+                portraitImage.sprite = null;
+                portraitImage.enabled = false;
+            }
+
+            return true;
+        }
+
+        private bool CanApplyLayeredPortrait(string characterId, string expressionId)
+        {
+            return HasLayeredPortraitImages() && TryGetLayeredExpressionMapping(characterId, expressionId, out _);
+        }
+
+        private bool IsLayeredPortraitState(VNCharacterState state)
+        {
+            if (state == null || NormalizePosition(state.position) != PortraitPosition)
+                return false;
+
+            return TryGetCharacterDefinition(state.characterId, out VNCharacterDefinition definition)
+                && definition.renderMode == VNCharacterRenderMode.LayeredPortrait;
+        }
+
+        private bool HasLayeredPortraitImages()
+        {
+            return portraitBaseImage != null
+                && portraitEyebrowImage != null
+                && portraitEyeImage != null
+                && portraitMouthImage != null;
+        }
+
+        private void ApplySpriteToImage(Image image, Sprite sprite)
+        {
+            if (image == null)
+                return;
+
+            image.sprite = sprite;
+            image.enabled = sprite != null;
+        }
+
+        private void ClearLayeredPortraitImages()
+        {
+            ApplySpriteToImage(portraitBaseImage, null);
+            ApplySpriteToImage(portraitEyebrowImage, null);
+            ApplySpriteToImage(portraitEyeImage, null);
+            ApplySpriteToImage(portraitMouthImage, null);
         }
 
         private void ApplySpriteToSlot(
@@ -307,7 +526,32 @@ namespace PPP.BLUE.VN
 
             SetAlpha(slot, 0f);
             LogFadeDebug($"Start fade in: slot={slot.name}, from alpha=0, to alpha=1, duration={fadeDuration:0.###}");
-            fadeCoroutines[slot] = StartCoroutine(FadeSlot(slot, 0f, 1f, fadeDuration, clearOnComplete: false));
+            fadeCoroutines[slot] = StartCoroutine(FadeSlot(slot, normalizedPosition, 0f, 1f, fadeDuration, clearOnComplete: false));
+        }
+
+        private void QueuePendingShow(VNCharacterState state)
+        {
+            if (state == null || !state.visible)
+                return;
+
+            string normalizedPosition = NormalizePosition(state.position);
+            if (normalizedPosition == PortraitPosition)
+            {
+                activeStates[state.characterId] = state;
+                ApplyStateToSlot(state);
+                return;
+            }
+
+            if (pendingShows.TryGetValue(normalizedPosition, out VNCharacterState previousPending)
+                && previousPending != null
+                && !string.Equals(previousPending.characterId, state.characterId, System.StringComparison.OrdinalIgnoreCase))
+            {
+                activeStates.Remove(previousPending.characterId);
+            }
+
+            pendingShows[normalizedPosition] = state;
+            activeStates[state.characterId] = state;
+            LogFadeDebug($"Queued pending show: characterId={state.characterId}, expressionId={state.expressionId}, position={normalizedPosition}");
         }
 
         private Image GetSlotImage(string position)
@@ -327,11 +571,14 @@ namespace PPP.BLUE.VN
 
         private void ClearSlot(string position)
         {
+            string normalizedPosition = NormalizePosition(position);
             Image slot = GetSlotImage(position);
             if (slot == null)
                 return;
 
             StopSlotFade(slot);
+            pendingShows.Remove(normalizedPosition);
+            fadingOutPositions.Remove(normalizedPosition);
             slot.sprite = null;
             slot.enabled = false;
             SetAlpha(slot, 1f);
@@ -339,8 +586,12 @@ namespace PPP.BLUE.VN
 
         private void FadeOutAndClearSlot(string position)
         {
-            Image slot = GetSlotImage(position);
+            string normalizedPosition = NormalizePosition(position);
+            Image slot = GetSlotImage(normalizedPosition);
             if (slot == null)
+                return;
+
+            if (fadingOutPositions.Contains(normalizedPosition))
                 return;
 
             StopSlotFade(slot);
@@ -350,15 +601,18 @@ namespace PPP.BLUE.VN
                 slot.sprite = null;
                 slot.enabled = false;
                 SetAlpha(slot, 1f);
+                fadingOutPositions.Remove(normalizedPosition);
+                ApplyPendingShow(normalizedPosition);
                 return;
             }
 
+            fadingOutPositions.Add(normalizedPosition);
             slot.gameObject.SetActive(true);
             LogFadeDebug($"Start fade out: slot={slot.name}, from alpha={slot.color.a:0.###}, to alpha=0, duration={fadeDuration:0.###}");
-            fadeCoroutines[slot] = StartCoroutine(FadeSlot(slot, slot.color.a, 0f, fadeDuration, clearOnComplete: true));
+            fadeCoroutines[slot] = StartCoroutine(FadeSlot(slot, normalizedPosition, slot.color.a, 0f, fadeDuration, clearOnComplete: true));
         }
 
-        private IEnumerator FadeSlot(Image slot, float fromAlpha, float toAlpha, float duration, bool clearOnComplete)
+        private IEnumerator FadeSlot(Image slot, string normalizedPosition, float fromAlpha, float toAlpha, float duration, bool clearOnComplete)
         {
             if (slot == null)
                 yield break;
@@ -393,7 +647,29 @@ namespace PPP.BLUE.VN
                 slot.sprite = null;
                 slot.enabled = false;
                 SetAlpha(slot, 1f);
+                fadingOutPositions.Remove(normalizedPosition);
+                ApplyPendingShow(normalizedPosition);
             }
+        }
+
+        private void ApplyPendingShow(string position)
+        {
+            string normalizedPosition = NormalizePosition(position);
+            if (!pendingShows.TryGetValue(normalizedPosition, out VNCharacterState pendingState))
+                return;
+
+            pendingShows.Remove(normalizedPosition);
+
+            if (pendingState == null || !pendingState.visible)
+                return;
+
+            if (!activeStates.TryGetValue(pendingState.characterId, out VNCharacterState activeState) || activeState == null || !activeState.visible)
+                return;
+
+            if (!string.Equals(NormalizePosition(activeState.position), normalizedPosition, System.StringComparison.OrdinalIgnoreCase))
+                return;
+
+            ApplyStateToSlot(activeState, useFade: true);
         }
 
         private void StopSlotFade(Image slot)
