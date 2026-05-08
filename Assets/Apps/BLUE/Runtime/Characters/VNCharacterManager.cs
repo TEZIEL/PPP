@@ -18,17 +18,27 @@ namespace PPP.BLUE.VN
         [Header("Sprite Mapping")]
         [SerializeField] private List<VNCharacterSpriteMapping> spriteMappings = new();
 
+        [Header("Layered Portrait Mapping")]
+        [SerializeField] private List<VNLayeredExpressionMapping> layeredExpressionMappings = new();
+
         [Header("Optional Character Slots")]
         [SerializeField] private Image leftImage;
         [SerializeField] private Image centerImage;
         [SerializeField] private Image rightImage;
         [SerializeField] private Image portraitImage;
 
+        [Header("Optional Layered Portrait Slots")]
+        [SerializeField] private Image portraitBaseImage;
+        [SerializeField] private Image portraitEyebrowImage;
+        [SerializeField] private Image portraitEyeImage;
+        [SerializeField] private Image portraitMouthImage;
+
         [Header("Fade")]
         [SerializeField, Min(0f)] private float fadeDuration = 0.25f;
         [SerializeField] private bool logFadeDebug;
 
         private readonly Dictionary<string, VNCharacterSpriteMapping> spriteLookup = new();
+        private readonly Dictionary<string, VNLayeredExpressionMapping> layeredExpressionLookup = new();
         private readonly Dictionary<string, VNCharacterDefinition> characterDefinitionLookup = new(System.StringComparer.OrdinalIgnoreCase);
         private readonly Dictionary<string, string> speakerCharacterLookup = new(System.StringComparer.OrdinalIgnoreCase);
         private readonly Dictionary<string, VNCharacterState> activeStates = new(System.StringComparer.OrdinalIgnoreCase);
@@ -39,6 +49,7 @@ namespace PPP.BLUE.VN
         private void Awake()
         {
             RebuildLookup();
+            RebuildLayeredExpressionLookup();
             RebuildDefinitionLookup();
             ClearSlotImages();
         }
@@ -47,6 +58,7 @@ namespace PPP.BLUE.VN
         private void OnValidate()
         {
             RebuildLookup();
+            RebuildLayeredExpressionLookup();
             RebuildDefinitionLookup();
         }
 #endif
@@ -72,6 +84,19 @@ namespace PPP.BLUE.VN
 
             sprite = mapping.sprite;
             return sprite != null;
+        }
+
+        public bool TryGetLayeredExpressionMapping(string characterId, string expressionId, out VNLayeredExpressionMapping mapping)
+        {
+            mapping = null;
+
+            if (string.IsNullOrWhiteSpace(characterId) || string.IsNullOrWhiteSpace(expressionId))
+                return false;
+
+            if (layeredExpressionLookup.Count == 0)
+                RebuildLayeredExpressionLookup();
+
+            return layeredExpressionLookup.TryGetValue(BuildKey(characterId, expressionId), out mapping) && mapping != null;
         }
 
         public bool TryGetCharacterDefinition(string characterId, out VNCharacterDefinition definition)
@@ -146,15 +171,20 @@ namespace PPP.BLUE.VN
             if (!activeStates.TryGetValue(characterId, out VNCharacterState state) || state == null || !state.visible)
                 return false;
 
-            if (!TryGetSprite(characterId, expressionId, out Sprite sprite))
+            string normalizedPosition = NormalizePosition(state.position);
+            bool useLayeredPortrait = IsLayeredPortraitState(state);
+            Sprite sprite = null;
+            bool hasSprite = TryGetSprite(characterId, expressionId, out sprite);
+            bool hasLayeredMapping = useLayeredPortrait && CanApplyLayeredPortrait(characterId, expressionId);
+
+            if (!hasSprite && !hasLayeredMapping)
             {
-                Debug.LogWarning($"[VNCharacterManager] Missing sprite mapping for characterId='{characterId}' expressionId='{expressionId}'. Keeping current expression.");
+                Debug.LogWarning($"[VNCharacterManager] Missing sprite or layered portrait mapping for characterId='{characterId}' expressionId='{expressionId}'. Keeping current expression.");
                 return false;
             }
 
             state.expressionId = expressionId;
 
-            string normalizedPosition = NormalizePosition(state.position);
             if (pendingShows.TryGetValue(normalizedPosition, out VNCharacterState pendingState)
                 && pendingState != null
                 && string.Equals(pendingState.characterId, characterId, System.StringComparison.OrdinalIgnoreCase))
@@ -272,6 +302,25 @@ namespace PPP.BLUE.VN
             }
         }
 
+        private void RebuildLayeredExpressionLookup()
+        {
+            layeredExpressionLookup.Clear();
+
+            if (layeredExpressionMappings == null)
+                return;
+
+            foreach (VNLayeredExpressionMapping mapping in layeredExpressionMappings)
+            {
+                if (mapping == null)
+                    continue;
+
+                if (string.IsNullOrWhiteSpace(mapping.characterId) || string.IsNullOrWhiteSpace(mapping.expressionId))
+                    continue;
+
+                layeredExpressionLookup[BuildKey(mapping.characterId, mapping.expressionId)] = mapping;
+            }
+        }
+
         private void RebuildDefinitionLookup()
         {
             characterDefinitionLookup.Clear();
@@ -313,6 +362,9 @@ namespace PPP.BLUE.VN
                 return;
 
             string normalizedPosition = NormalizePosition(state.position);
+            if (TryApplyLayeredPortrait(state, warnOnFallback: false))
+                return;
+
             Image slot = GetSlotImage(normalizedPosition);
             if (slot == null)
             {
@@ -321,6 +373,9 @@ namespace PPP.BLUE.VN
 
                 return;
             }
+
+            if (normalizedPosition == PortraitPosition)
+                ClearLayeredPortraitImages();
 
             Sprite sprite = GetSprite(state.characterId, state.expressionId);
             ApplySpriteToSlot(
@@ -338,6 +393,9 @@ namespace PPP.BLUE.VN
                 return;
 
             string normalizedPosition = NormalizePosition(state.position);
+            if (TryApplyLayeredPortrait(state, warnOnFallback: false))
+                return;
+
             Image slot = GetSlotImage(normalizedPosition);
             if (slot == null)
             {
@@ -347,6 +405,9 @@ namespace PPP.BLUE.VN
                 return;
             }
 
+            if (normalizedPosition == PortraitPosition)
+                ClearLayeredPortraitImages();
+
             ApplySpriteToSlot(
                 slot,
                 sprite,
@@ -354,6 +415,74 @@ namespace PPP.BLUE.VN
                 useFade: false,
                 forceAlphaOneWhenImmediate: false,
                 stopExistingFade: false);
+        }
+
+        private bool TryApplyLayeredPortrait(VNCharacterState state, bool warnOnFallback)
+        {
+            if (state == null || !IsLayeredPortraitState(state))
+                return false;
+
+            if (!CanApplyLayeredPortrait(state.characterId, state.expressionId))
+            {
+                if (warnOnFallback)
+                    Debug.LogWarning($"[VNCharacterManager] Missing layered portrait mapping or Image reference for characterId='{state.characterId}' expressionId='{state.expressionId}'. Falling back to portraitImage.");
+
+                ClearLayeredPortraitImages();
+                return false;
+            }
+
+            VNLayeredExpressionMapping mapping = layeredExpressionLookup[BuildKey(state.characterId, state.expressionId)];
+            ApplySpriteToImage(portraitBaseImage, mapping.baseSprite);
+            ApplySpriteToImage(portraitEyebrowImage, mapping.eyebrowSprite);
+            ApplySpriteToImage(portraitEyeImage, mapping.eyeOpenSprite);
+            ApplySpriteToImage(portraitMouthImage, mapping.mouthClosedSprite);
+
+            if (portraitImage != null)
+            {
+                portraitImage.sprite = null;
+                portraitImage.enabled = false;
+            }
+
+            return true;
+        }
+
+        private bool CanApplyLayeredPortrait(string characterId, string expressionId)
+        {
+            return HasLayeredPortraitImages() && TryGetLayeredExpressionMapping(characterId, expressionId, out _);
+        }
+
+        private bool IsLayeredPortraitState(VNCharacterState state)
+        {
+            if (state == null || NormalizePosition(state.position) != PortraitPosition)
+                return false;
+
+            return TryGetCharacterDefinition(state.characterId, out VNCharacterDefinition definition)
+                && definition.renderMode == VNCharacterRenderMode.LayeredPortrait;
+        }
+
+        private bool HasLayeredPortraitImages()
+        {
+            return portraitBaseImage != null
+                && portraitEyebrowImage != null
+                && portraitEyeImage != null
+                && portraitMouthImage != null;
+        }
+
+        private void ApplySpriteToImage(Image image, Sprite sprite)
+        {
+            if (image == null)
+                return;
+
+            image.sprite = sprite;
+            image.enabled = sprite != null;
+        }
+
+        private void ClearLayeredPortraitImages()
+        {
+            ApplySpriteToImage(portraitBaseImage, null);
+            ApplySpriteToImage(portraitEyebrowImage, null);
+            ApplySpriteToImage(portraitEyeImage, null);
+            ApplySpriteToImage(portraitMouthImage, null);
         }
 
         private void ApplySpriteToSlot(
