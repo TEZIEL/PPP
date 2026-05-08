@@ -1774,6 +1774,8 @@ namespace PPP.BLUE.VN
                 ? new VNBacklogKey(currentBacklogKey.scriptId, currentBacklogKey.nodeId, currentBacklogKey.lineIndex)
                 : new VNBacklogKey();
             st.isCurrentLineTyping = isCurrentLineTyping;
+            VNCharacterManager manager = ResolveCharacterManager();
+            st.characterStates = manager != null ? manager.CaptureState() : new List<VNCharacterState>();
             st.vnWindowStates = CollectVNWindowStates();
             st.windowStates = new List<VNWindowStateData>(st.vnWindowStates);
             Debug.Log("VN WindowStates Saved Count: " + st.vnWindowStates.Count);
@@ -2107,6 +2109,14 @@ namespace PPP.BLUE.VN
                     ? new VNBacklogKey(dto.currentLineKey.scriptId, dto.currentLineKey.nodeId, dto.currentLineKey.lineIndex)
                     : new VNBacklogKey();
                 isCurrentLineTyping = dto.isCurrentLineTyping;
+
+                VNCharacterManager manager = ResolveCharacterManager();
+                if (manager != null)
+                {
+                    manager.ClearAll();
+                    if (dto.characterStates != null)
+                        manager.RestoreState(dto.characterStates);
+                }
 
                 if (dto.isWaitingExternalCall && callStack.Count > 0)
                 {
