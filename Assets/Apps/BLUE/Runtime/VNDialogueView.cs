@@ -14,6 +14,7 @@ namespace PPP.BLUE.VN
         [SerializeField] private VNRunner runner;
         [SerializeField] private VNTextTyper typer;
         [SerializeField] private VNPolicyController policy;
+        [SerializeField] private VNCharacterManager characterManager;
 
         [SerializeField] private TMP_Text nameText;
         [SerializeField] private TMP_Text dialogueText;
@@ -87,6 +88,7 @@ namespace PPP.BLUE.VN
         private static readonly HashSet<VNDialogueView> activeDialogueViews = new();
         public const string DialogueWindowId = "VNDialogue";
         public const string HiddenDialogueWindowId = "HiddenVNDialogue";
+        private const string MelionCharacterId = "melion";
         private const string LegacyDialogueWindowId = "vn_dialogue";
         private const string LegacyHiddenDialogueWindowId = "vn_dialogue_hidden";
         public static bool IsAnyBacklogOpen
@@ -225,6 +227,8 @@ namespace PPP.BLUE.VN
             if (closePopupController == null) closePopupController = GetComponentInChildren<VNClosePopupController>(true);
             if (typer != null) typer.SetTarget(dialogueText);
             if (runner == null) runner = GetComponentInParent<VNRunner>(true);
+            if (characterManager == null) characterManager = GetComponentInParent<VNCharacterManager>(true);
+            if (characterManager == null) characterManager = FindFirstObjectByType<VNCharacterManager>(FindObjectsInactive.Include);
             if (appFlowController == null) appFlowController = GetComponentInParent<VNAppFlowController>(true);
             if (backlogView == null) backlogView = GetComponentInChildren<VNBacklogView>(true);
             EnsureBacklogBinding("Awake");
@@ -566,6 +570,7 @@ namespace PPP.BLUE.VN
             if (themeManager != null)
                 themeManager.OnThemeChanged -= HandleThemeChanged;
 
+            StopMelionMouthAnimation();
             runner?.SuppressAutoTimerThisFrame("VNDialogueView OnDisable");
             OnSkipButtonPointerUp();
             if (interactableVisualPressedStates.Count > 0)
@@ -840,6 +845,7 @@ namespace PPP.BLUE.VN
             if (runner != null && runner.JustForceCompletedThisFrame)
                 return;
 
+            StopMelionMouthAnimation();
             lineDisplayed = false;
             runner.Next();
             Debug.Log("[VN_UI] Next input detected -> runner.Next()");
@@ -1114,6 +1120,7 @@ namespace PPP.BLUE.VN
                 if (dialogueText != null)
                     dialogueText.text = currentFullText;
             }
+            StopMelionMouthAnimation();
 
             inputLocked = false;
 
@@ -1171,7 +1178,7 @@ namespace PPP.BLUE.VN
 
             var backlogKey = new VNBacklogKey(runner.CurrentScriptId, nodeId, lineIndex);
             lastHandledLineId = null;
-            HandleSay(speaker, text, nodeId, backlogKey);
+            HandleSayInternal(speaker, text, nodeId, backlogKey, allowMouthAnimation: false);
             inputLocked = false;
             return true;
         }
@@ -1189,12 +1196,56 @@ namespace PPP.BLUE.VN
             Debug.Log($"[CHECK] inputLocked={inputLocked}");
         }
 
+        private bool IsMelionSpeaker(string speakerId)
+        {
+            if (string.IsNullOrWhiteSpace(speakerId))
+                return false;
+
+            string normalized = speakerId.Trim();
+            if (string.Equals(normalized, MelionCharacterId, StringComparison.OrdinalIgnoreCase))
+                return true;
+
+            VNCharacterManager manager = ResolveCharacterManager();
+            return manager != null
+                && manager.TryResolveCharacterIdForSpeaker(normalized, out string characterId)
+                && string.Equals(characterId, MelionCharacterId, StringComparison.OrdinalIgnoreCase);
+        }
+
+        private void StartMelionMouthAnimation()
+        {
+            ResolveCharacterManager()?.StartMouthAnimation(MelionCharacterId);
+        }
+
+        private void StopMelionMouthAnimation()
+        {
+            ResolveCharacterManager()?.StopMouthAnimation(MelionCharacterId, applyClosed: true);
+        }
+
+        private VNCharacterManager ResolveCharacterManager()
+        {
+            if (characterManager != null)
+                return characterManager;
+
+            characterManager = GetComponentInParent<VNCharacterManager>(true);
+            if (characterManager == null)
+                characterManager = FindFirstObjectByType<VNCharacterManager>(FindObjectsInactive.Include);
+
+            return characterManager;
+        }
+
         private void HandleSay(string speakerId, string text, string lineId, VNBacklogKey backlogKey)
+        {
+            HandleSayInternal(speakerId, text, lineId, backlogKey, allowMouthAnimation: true);
+        }
+
+        private void HandleSayInternal(string speakerId, string text, string lineId, VNBacklogKey backlogKey, bool allowMouthAnimation)
         {
             if (typer != null)
             {
                 typer.ForceComplete(); // 기존 타이퍼 무조건 죽여
             }
+
+            StopMelionMouthAnimation();
 
             if (lastHandledLineId == lineId)
             {
@@ -1221,6 +1272,8 @@ namespace PPP.BLUE.VN
 
             runner?.MarkSaveAllowed(false, "Typing Start");
 
+            bool isMelionSpeaker = allowMouthAnimation && IsMelionSpeaker(speakerId);
+
             // ✅ 타이퍼 없으면 즉시 출력
             if (typer == null)
             {
@@ -1230,6 +1283,7 @@ namespace PPP.BLUE.VN
                 runner?.BacklogUpdateLineText(currentLineBacklogKey, currentFullText);
                 runner?.BacklogFinalizeLine(currentLineBacklogKey, currentFullText);
 
+                StopMelionMouthAnimation();
                 runner?.MarkSaveAllowed(true, "No Typer => Immediate");
                 runner?.NotifyLineTypedEnd();
                 inputLocked = false;
@@ -1245,6 +1299,7 @@ namespace PPP.BLUE.VN
                 runner?.BacklogUpdateLineText(currentLineBacklogKey, currentFullText);
                 runner?.BacklogFinalizeLine(currentLineBacklogKey, currentFullText);
 
+                StopMelionMouthAnimation();
                 runner?.NotifyLineTypedEnd();
                 inputLocked = false;
                 runner?.MarkSaveAllowed(true, "Skip Immediate");
@@ -1253,8 +1308,14 @@ namespace PPP.BLUE.VN
 
             // ✅ 타이핑 시작
             lineCompleted = false;
+            if (isMelionSpeaker)
+                StartMelionMouthAnimation();
+            else
+                StopMelionMouthAnimation();
+
             typer.StartTyping(currentFullText, onCompleted: () =>
             {
+                StopMelionMouthAnimation();
                 lineCompleted = true;
                 lineDisplayed = true;
                 runner?.BacklogFinalizeLine(currentLineBacklogKey, currentFullText);
@@ -1272,6 +1333,7 @@ namespace PPP.BLUE.VN
 
         private void ForceCompleteLine()
         {
+            StopMelionMouthAnimation();
             if (typer != null) typer.ForceComplete();
             else if (dialogueText != null) dialogueText.text = currentFullText;
 
@@ -1285,6 +1347,7 @@ namespace PPP.BLUE.VN
         {
             if (typer == null || !typer.IsTyping) return false;
 
+            StopMelionMouthAnimation();
             typer.ForceComplete();
             lineDisplayed = true;
             lineCompleted = true;
@@ -1300,6 +1363,7 @@ namespace PPP.BLUE.VN
 
         public void FinalizeCurrentLineAfterForceComplete()
         {
+            StopMelionMouthAnimation();
             lineDisplayed = true;
             lineCompleted = true;
             runner?.BacklogFinalizeLine(currentLineBacklogKey, currentFullText);
