@@ -88,6 +88,20 @@ namespace PPP.BLUE.VN
         [SerializeField] private bool syncFocusLinkedImages = true;
 
         private readonly HashSet<string> externalCallTargetSet = new(StringComparer.OrdinalIgnoreCase);
+        private static readonly Dictionary<string, string> SaySpeakerCharacterIdMap = new(StringComparer.OrdinalIgnoreCase)
+        {
+            { "sena_unknown", "sena" },
+            { "sena", "sena" },
+            { "guest_a_unknown", "guest_a" },
+            { "guest_a", "guest_a" },
+            { "guest_b_unknown", "guest_b" },
+            { "guest_b", "guest_b" },
+            { "guest_c_unknown", "guest_c" },
+            { "guest_c", "guest_c" },
+            { "guest_d_unknown", "guest_d" },
+            { "guest_d", "guest_d" },
+            { "melion", "melion" },
+        };
         [SerializeField] private FocusLinkedImage[] focusLinkedImages = Array.Empty<FocusLinkedImage>();
         private bool? lastWindowFocusedVisualState;
 
@@ -1512,6 +1526,7 @@ namespace PPP.BLUE.VN
 
             string cleanText = RemoveInlineCommands(text);
             string speakerId = node?.speakerId ?? string.Empty;
+            TryApplySayExpression(node, speakerId);
             string backlogSpeakerDisplayName = ResolveSpeakerDisplayName(speakerId);
             var backlogKey = BuildBacklogKey(node);
             backlogManager.BeginOrGetEntry(backlogKey, backlogSpeakerDisplayName);
@@ -1526,6 +1541,39 @@ namespace PPP.BLUE.VN
             foreach (var cmd in commands)
                 ExecuteInline(cmd);
         }
+
+        private void TryApplySayExpression(VNNode node, string speakerId)
+        {
+            if (node == null || string.IsNullOrWhiteSpace(node.expressionId))
+                return;
+
+            if (!TryResolveSayCharacterId(speakerId, out string characterId))
+                return;
+
+            VNCharacterManager manager = ResolveCharacterManager();
+            if (manager == null || !manager.IsCharacterVisible(characterId))
+                return;
+
+            manager.TryChangeExpression(characterId, node.expressionId);
+        }
+
+        private static bool TryResolveSayCharacterId(string speakerId, out string characterId)
+        {
+            characterId = string.Empty;
+
+            if (string.IsNullOrWhiteSpace(speakerId))
+                return false;
+
+            string key = speakerId.Trim();
+            if (string.Equals(key, "sys", StringComparison.OrdinalIgnoreCase) ||
+                string.Equals(key, "narration", StringComparison.OrdinalIgnoreCase))
+            {
+                return false;
+            }
+
+            return SaySpeakerCharacterIdMap.TryGetValue(key, out characterId);
+        }
+
 
         private IEnumerator RunInlineCommands(List<InlineCommand> cmds)
         {

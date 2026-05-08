@@ -21,7 +21,7 @@ namespace PPP.BLUE.VN
         [SerializeField] private Image portraitImage;
 
         private readonly Dictionary<string, VNCharacterSpriteMapping> spriteLookup = new();
-        private readonly Dictionary<string, VNCharacterState> activeStates = new();
+        private readonly Dictionary<string, VNCharacterState> activeStates = new(System.StringComparer.OrdinalIgnoreCase);
 
         private void Awake()
         {
@@ -84,14 +84,34 @@ namespace PPP.BLUE.VN
 
         public void ChangeExpression(string characterId, string expressionId)
         {
-            if (string.IsNullOrWhiteSpace(characterId) || string.IsNullOrWhiteSpace(expressionId))
-                return;
+            TryChangeExpression(characterId, expressionId);
+        }
 
-            if (!activeStates.TryGetValue(characterId, out VNCharacterState state))
-                return;
+        public bool TryChangeExpression(string characterId, string expressionId)
+        {
+            if (string.IsNullOrWhiteSpace(characterId) || string.IsNullOrWhiteSpace(expressionId))
+                return false;
+
+            if (!activeStates.TryGetValue(characterId, out VNCharacterState state) || state == null || !state.visible)
+                return false;
+
+            if (!TryGetSprite(characterId, expressionId, out Sprite sprite))
+            {
+                Debug.LogWarning($"[VNCharacterManager] Missing sprite mapping for characterId='{characterId}' expressionId='{expressionId}'. Keeping current expression.");
+                return false;
+            }
 
             state.expressionId = expressionId;
-            ApplyStateToSlot(state);
+            ApplyStateToSlot(state, sprite);
+            return true;
+        }
+
+        public bool IsCharacterVisible(string characterId)
+        {
+            if (string.IsNullOrWhiteSpace(characterId))
+                return false;
+
+            return activeStates.TryGetValue(characterId, out VNCharacterState state) && state != null && state.visible;
         }
 
         public void HideCharacter(string characterId)
@@ -198,6 +218,28 @@ namespace PPP.BLUE.VN
 
             slot.sprite = GetSprite(state.characterId, state.expressionId);
             slot.enabled = slot.sprite != null;
+
+            if (normalizedPosition != PortraitPosition)
+                slot.gameObject.SetActive(true);
+        }
+
+        private void ApplyStateToSlot(VNCharacterState state, Sprite sprite)
+        {
+            if (state == null || !state.visible)
+                return;
+
+            string normalizedPosition = NormalizePosition(state.position);
+            Image slot = GetSlotImage(normalizedPosition);
+            if (slot == null)
+            {
+                if (normalizedPosition == PortraitPosition)
+                    Debug.LogWarning("[VNCharacterManager] portraitImage is not assigned. Portrait sprite update skipped.");
+
+                return;
+            }
+
+            slot.sprite = sprite;
+            slot.enabled = sprite != null;
 
             if (normalizedPosition != PortraitPosition)
                 slot.gameObject.SetActive(true);
