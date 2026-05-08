@@ -34,6 +34,7 @@ namespace PPP.BLUE.VN
         [SerializeField] private WindowManager windowManager;
         private VNDialogueView dialogueView;
         [SerializeField] private VNTextTyper textTyper;
+        [SerializeField] private VNCharacterManager characterManager;
         // --- Auto suspend/resume by modal/drink ---
         private bool lastBlocked;                 // 지난 프레임에 입력/오토가 막혀있었나?
         private bool autoSuspendedByBlock;        // 막힘 때문에 Auto를 멈췄었나?
@@ -75,6 +76,7 @@ namespace PPP.BLUE.VN
         private bool uiSkipHeld;
         private bool justForceCompletedThisFrame;
         private int justForceCompletedFrame = -1;
+        private int autoTimerSuppressedFrame = -1;
         private bool holdSkipInputActive;
         private bool uiInputBlocked;
         public bool JustForceCompletedThisFrame => justForceCompletedThisFrame;
@@ -87,6 +89,20 @@ namespace PPP.BLUE.VN
         [SerializeField] private bool syncFocusLinkedImages = true;
 
         private readonly HashSet<string> externalCallTargetSet = new(StringComparer.OrdinalIgnoreCase);
+        private static readonly Dictionary<string, string> SaySpeakerCharacterIdMap = new(StringComparer.OrdinalIgnoreCase)
+        {
+            { "sena_unknown", "sena" },
+            { "sena", "sena" },
+            { "guest_a_unknown", "guest_a" },
+            { "guest_a", "guest_a" },
+            { "guest_b_unknown", "guest_b" },
+            { "guest_b", "guest_b" },
+            { "guest_c_unknown", "guest_c" },
+            { "guest_c", "guest_c" },
+            { "guest_d_unknown", "guest_d" },
+            { "guest_d", "guest_d" },
+            { "melion", "melion" },
+        };
         [SerializeField] private FocusLinkedImage[] focusLinkedImages = Array.Empty<FocusLinkedImage>();
         private bool? lastWindowFocusedVisualState;
 
@@ -120,6 +136,9 @@ namespace PPP.BLUE.VN
             var themeManager = AppUIThemeManager.Instance;
             if (themeManager != null)
                 themeManager.OnThemeChanged -= HandleThemeChanged;
+
+            SuppressAutoTimerThisFrame("VNRunner OnDisable");
+            StopAutoTimer();
         }
 
         private void HandleThemeChanged()
@@ -227,6 +246,7 @@ namespace PPP.BLUE.VN
             BindPolicy("Awake");
             if (dialogueView == null) dialogueView = GetComponentInChildren<VNDialogueView>(true);
             if (textTyper == null) textTyper = GetComponentInChildren<VNTextTyper>(true);
+            ResolveCharacterManager();
             dialogueView?.EnsureBacklogBindingFromRunner();
             skipMode = false; // 인스펙터 값과 무관하게 런타임 기본 OFF
             
@@ -511,6 +531,7 @@ namespace PPP.BLUE.VN
             StartCoroutine(CoBindPolicyNextFrame());
             if (dialogueView == null)
                 dialogueView = GetComponentInChildren<VNDialogueView>(true);
+            ResolveCharacterManager();
             dialogueView?.EnsureBacklogBindingFromRunner();
 
             RebuildExternalCallTargetSet();
@@ -1148,6 +1169,42 @@ namespace PPP.BLUE.VN
                             continue;
                         }
 
+                    case VNNodeType.ShowCharacter:
+                        {
+                            HandleShowCharacter(node);
+                            pointer++;
+                            if (pointer == previousPointer)
+                            {
+                                pointer++;
+                            }
+
+                            continue;
+                        }
+
+                    case VNNodeType.ChangeExpression:
+                        {
+                            HandleChangeExpression(node);
+                            pointer++;
+                            if (pointer == previousPointer)
+                            {
+                                pointer++;
+                            }
+
+                            continue;
+                        }
+
+                    case VNNodeType.HideCharacter:
+                        {
+                            HandleHideCharacter(node);
+                            pointer++;
+                            if (pointer == previousPointer)
+                            {
+                                pointer++;
+                            }
+
+                            continue;
+                        }
+
                     case VNNodeType.Return:
                         {
                             if (callStack.Count == 0)
@@ -1192,6 +1249,103 @@ namespace PPP.BLUE.VN
             }
         }
 
+
+
+        private void HandleShowCharacter(VNNode node)
+        {
+            if (node == null)
+                return;
+
+            VNCharacterManager manager = ResolveCharacterManager();
+            if (manager == null)
+            {
+                Debug.LogWarning("[VNRunner] showCharacter skipped: VNCharacterManager is not assigned or found in the scene.");
+                return;
+            }
+
+            manager.ShowCharacter(ResolveCharacterId(node), ResolveExpressionId(node), ResolvePosition(node));
+        }
+
+        private void HandleChangeExpression(VNNode node)
+        {
+            if (node == null)
+                return;
+
+            VNCharacterManager manager = ResolveCharacterManager();
+            if (manager == null)
+            {
+                Debug.LogWarning("[VNRunner] changeExpression skipped: VNCharacterManager is not assigned or found in the scene.");
+                return;
+            }
+
+            manager.ChangeExpression(ResolveCharacterId(node), ResolveExpressionId(node));
+        }
+
+        private void HandleHideCharacter(VNNode node)
+        {
+            if (node == null)
+                return;
+
+            VNCharacterManager manager = ResolveCharacterManager();
+            if (manager == null)
+            {
+                Debug.LogWarning("[VNRunner] hideCharacter skipped: VNCharacterManager is not assigned or found in the scene.");
+                return;
+            }
+
+            manager.HideCharacter(ResolveCharacterId(node));
+        }
+
+        private VNCharacterManager ResolveCharacterManager()
+        {
+            if (characterManager != null)
+                return characterManager;
+
+            characterManager = GetComponentInChildren<VNCharacterManager>(true);
+            if (characterManager == null)
+                characterManager = FindFirstObjectByType<VNCharacterManager>(FindObjectsInactive.Include);
+
+            return characterManager;
+        }
+
+        private static string ResolveExpressionId(VNNode node)
+        {
+            if (node == null)
+                return string.Empty;
+
+            if (!string.IsNullOrWhiteSpace(node.expressionId))
+                return node.expressionId;
+
+            return node.arg1 ?? string.Empty;
+        }
+
+        private static string ResolvePosition(VNNode node)
+        {
+            if (node == null)
+                return string.Empty;
+
+            if (!string.IsNullOrWhiteSpace(node.position))
+                return node.position;
+
+            return node.arg2 ?? string.Empty;
+        }
+
+        private static string ResolveCharacterId(VNNode node)
+        {
+            if (node == null)
+                return string.Empty;
+
+            if (!string.IsNullOrWhiteSpace(node.characterId))
+                return node.characterId;
+
+            if (!string.IsNullOrWhiteSpace(node.speakerId))
+                return node.speakerId;
+
+            if (!string.IsNullOrWhiteSpace(node.arg))
+                return node.arg;
+
+            return node.callArg ?? string.Empty;
+        }
 
 
         private void ResolveSwitchNode(VNNode node)
@@ -1376,6 +1530,7 @@ namespace PPP.BLUE.VN
 
             string cleanText = RemoveInlineCommands(text);
             string speakerId = node?.speakerId ?? string.Empty;
+            TryApplySayExpression(node, speakerId);
             string backlogSpeakerDisplayName = ResolveSpeakerDisplayName(speakerId);
             var backlogKey = BuildBacklogKey(node);
             backlogManager.BeginOrGetEntry(backlogKey, backlogSpeakerDisplayName);
@@ -1390,6 +1545,39 @@ namespace PPP.BLUE.VN
             foreach (var cmd in commands)
                 ExecuteInline(cmd);
         }
+
+        private void TryApplySayExpression(VNNode node, string speakerId)
+        {
+            if (node == null || string.IsNullOrWhiteSpace(node.expressionId))
+                return;
+
+            if (!TryResolveSayCharacterId(speakerId, out string characterId))
+                return;
+
+            VNCharacterManager manager = ResolveCharacterManager();
+            if (manager == null || !manager.IsCharacterVisible(characterId))
+                return;
+
+            manager.TryChangeExpression(characterId, node.expressionId);
+        }
+
+        private static bool TryResolveSayCharacterId(string speakerId, out string characterId)
+        {
+            characterId = string.Empty;
+
+            if (string.IsNullOrWhiteSpace(speakerId))
+                return false;
+
+            string key = speakerId.Trim();
+            if (string.Equals(key, "sys", StringComparison.OrdinalIgnoreCase) ||
+                string.Equals(key, "narration", StringComparison.OrdinalIgnoreCase))
+            {
+                return false;
+            }
+
+            return SaySpeakerCharacterIdMap.TryGetValue(key, out characterId);
+        }
+
 
         private IEnumerator RunInlineCommands(List<InlineCommand> cmds)
         {
@@ -1638,6 +1826,8 @@ namespace PPP.BLUE.VN
                 ? new VNBacklogKey(currentBacklogKey.scriptId, currentBacklogKey.nodeId, currentBacklogKey.lineIndex)
                 : new VNBacklogKey();
             st.isCurrentLineTyping = isCurrentLineTyping;
+            VNCharacterManager manager = ResolveCharacterManager();
+            st.characterStates = manager != null ? manager.CaptureState() : new List<VNCharacterState>();
             st.vnWindowStates = CollectVNWindowStates();
             st.windowStates = new List<VNWindowStateData>(st.vnWindowStates);
             Debug.Log("VN WindowStates Saved Count: " + st.vnWindowStates.Count);
@@ -1972,6 +2162,14 @@ namespace PPP.BLUE.VN
                     : new VNBacklogKey();
                 isCurrentLineTyping = dto.isCurrentLineTyping;
 
+                VNCharacterManager manager = ResolveCharacterManager();
+                if (manager != null)
+                {
+                    manager.ClearAll();
+                    if (dto.characterStates != null)
+                        manager.RestoreState(dto.characterStates);
+                }
+
                 if (dto.isWaitingExternalCall && callStack.Count > 0)
                 {
                     var frame = callStack.Peek();
@@ -2223,8 +2421,24 @@ namespace PPP.BLUE.VN
             if (logToConsole) VNLog($"[VN] AutoTimer Stop ({reason})");
         }
 
+        public void SuppressAutoTimerThisFrame(string reason)
+        {
+            autoTimerSuppressedFrame = Time.frameCount;
+            if (logToConsole) VNLog($"[VN] AutoTimer suppressed this frame ({reason})");
+        }
+
+        private bool CanStartAutoTimerCoroutine()
+        {
+            if (!isActiveAndEnabled) return false;
+            if (gameObject == null || !gameObject.activeInHierarchy) return false;
+            if (!initialized || !started) return false;
+            if (autoTimerSuppressedFrame == Time.frameCount) return false;
+            return true;
+        }
+
         private void TryStartAutoTimer()
         {
+            if (!CanStartAutoTimerCoroutine()) return;
             if (autoCo != null) return;
             if (!CanAutoAdvance()) return;
 

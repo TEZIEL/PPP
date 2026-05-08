@@ -566,6 +566,7 @@ namespace PPP.BLUE.VN
             if (themeManager != null)
                 themeManager.OnThemeChanged -= HandleThemeChanged;
 
+            runner?.SuppressAutoTimerThisFrame("VNDialogueView OnDisable");
             OnSkipButtonPointerUp();
             if (interactableVisualPressedStates.Count > 0)
             {
