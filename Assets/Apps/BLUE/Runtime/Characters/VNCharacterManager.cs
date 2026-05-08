@@ -28,6 +28,8 @@ namespace PPP.BLUE.VN
         private readonly Dictionary<string, VNCharacterSpriteMapping> spriteLookup = new();
         private readonly Dictionary<string, VNCharacterState> activeStates = new(System.StringComparer.OrdinalIgnoreCase);
         private readonly Dictionary<Image, Coroutine> fadeCoroutines = new();
+        private readonly Dictionary<string, VNCharacterState> pendingShows = new(System.StringComparer.OrdinalIgnoreCase);
+        private readonly HashSet<string> fadingOutPositions = new(System.StringComparer.OrdinalIgnoreCase);
 
         private void Awake()
         {
@@ -88,6 +90,12 @@ namespace PPP.BLUE.VN
             bool useFade = !isPortrait;
             LogFadeDebug($"ShowCharacter called: characterId={characterId}, expressionId={expressionId}, position={state.position}, isPortrait={isPortrait}, useFade={useFade}");
 
+            if (useFade && fadingOutPositions.Contains(state.position))
+            {
+                QueuePendingShow(state);
+                return;
+            }
+
             activeStates[characterId] = state;
             ApplyStateToSlot(state, useFade: useFade);
         }
@@ -112,6 +120,16 @@ namespace PPP.BLUE.VN
             }
 
             state.expressionId = expressionId;
+
+            string normalizedPosition = NormalizePosition(state.position);
+            if (pendingShows.TryGetValue(normalizedPosition, out VNCharacterState pendingState)
+                && pendingState != null
+                && string.Equals(pendingState.characterId, characterId, System.StringComparison.OrdinalIgnoreCase))
+            {
+                pendingState.expressionId = expressionId;
+                return true;
+            }
+
             ApplyStateToSlot(state, sprite);
             return true;
         }
@@ -135,6 +153,13 @@ namespace PPP.BLUE.VN
             state.visible = false;
 
             string normalizedPosition = NormalizePosition(state.position);
+            if (pendingShows.TryGetValue(normalizedPosition, out VNCharacterState pendingState)
+                && pendingState != null
+                && string.Equals(pendingState.characterId, characterId, System.StringComparison.OrdinalIgnoreCase))
+            {
+                pendingShows.Remove(normalizedPosition);
+            }
+
             if (normalizedPosition != PortraitPosition)
                 FadeOutAndClearSlot(normalizedPosition);
 
@@ -144,6 +169,8 @@ namespace PPP.BLUE.VN
         public void ClearAll()
         {
             activeStates.Clear();
+            pendingShows.Clear();
+            fadingOutPositions.Clear();
             StopAllSlotFades();
             ClearSlotImages();
         }
@@ -307,7 +334,32 @@ namespace PPP.BLUE.VN
 
             SetAlpha(slot, 0f);
             LogFadeDebug($"Start fade in: slot={slot.name}, from alpha=0, to alpha=1, duration={fadeDuration:0.###}");
-            fadeCoroutines[slot] = StartCoroutine(FadeSlot(slot, 0f, 1f, fadeDuration, clearOnComplete: false));
+            fadeCoroutines[slot] = StartCoroutine(FadeSlot(slot, normalizedPosition, 0f, 1f, fadeDuration, clearOnComplete: false));
+        }
+
+        private void QueuePendingShow(VNCharacterState state)
+        {
+            if (state == null || !state.visible)
+                return;
+
+            string normalizedPosition = NormalizePosition(state.position);
+            if (normalizedPosition == PortraitPosition)
+            {
+                activeStates[state.characterId] = state;
+                ApplyStateToSlot(state);
+                return;
+            }
+
+            if (pendingShows.TryGetValue(normalizedPosition, out VNCharacterState previousPending)
+                && previousPending != null
+                && !string.Equals(previousPending.characterId, state.characterId, System.StringComparison.OrdinalIgnoreCase))
+            {
+                activeStates.Remove(previousPending.characterId);
+            }
+
+            pendingShows[normalizedPosition] = state;
+            activeStates[state.characterId] = state;
+            LogFadeDebug($"Queued pending show: characterId={state.characterId}, expressionId={state.expressionId}, position={normalizedPosition}");
         }
 
         private Image GetSlotImage(string position)
@@ -327,11 +379,14 @@ namespace PPP.BLUE.VN
 
         private void ClearSlot(string position)
         {
+            string normalizedPosition = NormalizePosition(position);
             Image slot = GetSlotImage(position);
             if (slot == null)
                 return;
 
             StopSlotFade(slot);
+            pendingShows.Remove(normalizedPosition);
+            fadingOutPositions.Remove(normalizedPosition);
             slot.sprite = null;
             slot.enabled = false;
             SetAlpha(slot, 1f);
@@ -339,8 +394,12 @@ namespace PPP.BLUE.VN
 
         private void FadeOutAndClearSlot(string position)
         {
-            Image slot = GetSlotImage(position);
+            string normalizedPosition = NormalizePosition(position);
+            Image slot = GetSlotImage(normalizedPosition);
             if (slot == null)
+                return;
+
+            if (fadingOutPositions.Contains(normalizedPosition))
                 return;
 
             StopSlotFade(slot);
@@ -350,15 +409,18 @@ namespace PPP.BLUE.VN
                 slot.sprite = null;
                 slot.enabled = false;
                 SetAlpha(slot, 1f);
+                fadingOutPositions.Remove(normalizedPosition);
+                ApplyPendingShow(normalizedPosition);
                 return;
             }
 
+            fadingOutPositions.Add(normalizedPosition);
             slot.gameObject.SetActive(true);
             LogFadeDebug($"Start fade out: slot={slot.name}, from alpha={slot.color.a:0.###}, to alpha=0, duration={fadeDuration:0.###}");
-            fadeCoroutines[slot] = StartCoroutine(FadeSlot(slot, slot.color.a, 0f, fadeDuration, clearOnComplete: true));
+            fadeCoroutines[slot] = StartCoroutine(FadeSlot(slot, normalizedPosition, slot.color.a, 0f, fadeDuration, clearOnComplete: true));
         }
 
-        private IEnumerator FadeSlot(Image slot, float fromAlpha, float toAlpha, float duration, bool clearOnComplete)
+        private IEnumerator FadeSlot(Image slot, string normalizedPosition, float fromAlpha, float toAlpha, float duration, bool clearOnComplete)
         {
             if (slot == null)
                 yield break;
@@ -393,7 +455,29 @@ namespace PPP.BLUE.VN
                 slot.sprite = null;
                 slot.enabled = false;
                 SetAlpha(slot, 1f);
+                fadingOutPositions.Remove(normalizedPosition);
+                ApplyPendingShow(normalizedPosition);
             }
+        }
+
+        private void ApplyPendingShow(string position)
+        {
+            string normalizedPosition = NormalizePosition(position);
+            if (!pendingShows.TryGetValue(normalizedPosition, out VNCharacterState pendingState))
+                return;
+
+            pendingShows.Remove(normalizedPosition);
+
+            if (pendingState == null || !pendingState.visible)
+                return;
+
+            if (!activeStates.TryGetValue(pendingState.characterId, out VNCharacterState activeState) || activeState == null || !activeState.visible)
+                return;
+
+            if (!string.Equals(NormalizePosition(activeState.position), normalizedPosition, System.StringComparison.OrdinalIgnoreCase))
+                return;
+
+            ApplyStateToSlot(activeState, useFade: true);
         }
 
         private void StopSlotFade(Image slot)
