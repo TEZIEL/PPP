@@ -9,6 +9,7 @@ namespace PPP.BLUE.VN
         private const string LeftPosition = "left";
         private const string CenterPosition = "center";
         private const string RightPosition = "right";
+        private const string PortraitPosition = "portrait";
 
         [Header("Sprite Mapping")]
         [SerializeField] private List<VNCharacterSpriteMapping> spriteMappings = new();
@@ -17,6 +18,7 @@ namespace PPP.BLUE.VN
         [SerializeField] private Image leftImage;
         [SerializeField] private Image centerImage;
         [SerializeField] private Image rightImage;
+        [SerializeField] private Image portraitImage;
 
         private readonly Dictionary<string, VNCharacterSpriteMapping> spriteLookup = new();
         private readonly Dictionary<string, VNCharacterState> activeStates = new();
@@ -101,7 +103,11 @@ namespace PPP.BLUE.VN
                 return;
 
             state.visible = false;
-            ClearSlot(NormalizePosition(state.position));
+
+            string normalizedPosition = NormalizePosition(state.position);
+            if (normalizedPosition != PortraitPosition)
+                ClearSlot(normalizedPosition);
+
             activeStates.Remove(characterId);
         }
 
@@ -180,13 +186,21 @@ namespace PPP.BLUE.VN
             if (state == null || !state.visible)
                 return;
 
-            Image slot = GetSlotImage(state.position);
+            string normalizedPosition = NormalizePosition(state.position);
+            Image slot = GetSlotImage(normalizedPosition);
             if (slot == null)
+            {
+                if (normalizedPosition == PortraitPosition)
+                    Debug.LogWarning("[VNCharacterManager] portraitImage is not assigned. Portrait sprite update skipped.");
+
                 return;
+            }
 
             slot.sprite = GetSprite(state.characterId, state.expressionId);
             slot.enabled = slot.sprite != null;
-            slot.gameObject.SetActive(true);
+
+            if (normalizedPosition != PortraitPosition)
+                slot.gameObject.SetActive(true);
         }
 
         private Image GetSlotImage(string position)
@@ -197,6 +211,8 @@ namespace PPP.BLUE.VN
                     return leftImage;
                 case RightPosition:
                     return rightImage;
+                case PortraitPosition:
+                    return portraitImage;
                 default:
                     return centerImage;
             }
@@ -225,7 +241,7 @@ namespace PPP.BLUE.VN
                 return CenterPosition;
 
             string normalized = position.Trim().ToLowerInvariant();
-            if (normalized == LeftPosition || normalized == CenterPosition || normalized == RightPosition)
+            if (normalized == LeftPosition || normalized == CenterPosition || normalized == RightPosition || normalized == PortraitPosition)
                 return normalized;
 
             return CenterPosition;
