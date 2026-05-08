@@ -11,7 +11,12 @@ namespace PPP.BLUE.VN
         public string expressionId = "normal";
         public Sprite baseSprite;
         public Sprite eyebrowSprite;
+        public Sprite eyebrowOpenSprite;
+        public Sprite eyebrowBlinkHalfSprite;
+        public Sprite eyebrowBlinkClosedSprite;
         public Sprite eyeOpenSprite;
+        public Sprite eyeBlinkHalfSprite;
+        public Sprite eyeBlinkClosedSprite;
         public Sprite eyeClosedSprite;
         public Sprite mouthClosedSprite;
         public List<Sprite> mouthOpenSprites = new();

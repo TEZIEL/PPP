@@ -11,6 +11,10 @@ namespace PPP.BLUE.VN
         private const string CenterPosition = "center";
         private const string RightPosition = "right";
         private const string PortraitPosition = "portrait";
+        private const string MelionCharacterId = "melion";
+
+        [Header("Character Definitions")]
+        [SerializeField] private List<VNCharacterDefinition> characterDefinitions = new();
 
         [Header("Character Definitions")]
         [SerializeField] private List<VNCharacterDefinition> characterDefinitions = new();
@@ -33,6 +37,12 @@ namespace PPP.BLUE.VN
         [SerializeField] private Image portraitEyeImage;
         [SerializeField] private Image portraitMouthImage;
 
+        [Header("Layered Portrait Blink")]
+        [SerializeField, Min(0f)] private float portraitBlinkInitialDelay = 5f;
+        [SerializeField, Min(0f)] private float portraitBlinkIntervalMin = 3.5f;
+        [SerializeField, Min(0f)] private float portraitBlinkIntervalMax = 6.5f;
+        [SerializeField, Min(0.01f)] private float portraitBlinkFrameDuration = 0.06f;
+
         [Header("Fade")]
         [SerializeField, Min(0f)] private float fadeDuration = 0.25f;
         [SerializeField] private bool logFadeDebug;
@@ -45,6 +55,10 @@ namespace PPP.BLUE.VN
         private readonly Dictionary<Image, Coroutine> fadeCoroutines = new();
         private readonly Dictionary<string, VNCharacterState> pendingShows = new(System.StringComparer.OrdinalIgnoreCase);
         private readonly HashSet<string> fadingOutPositions = new(System.StringComparer.OrdinalIgnoreCase);
+
+        private Coroutine portraitBlinkCoroutine;
+        private string portraitBlinkCharacterId;
+        private string portraitBlinkExpressionId;
 
         private void Awake()
         {
@@ -62,6 +76,11 @@ namespace PPP.BLUE.VN
             RebuildDefinitionLookup();
         }
 #endif
+
+        private void OnDisable()
+        {
+            StopLayeredPortraitBlink();
+        }
 
         public Sprite GetSprite(string characterId, string expressionId)
         {
@@ -225,6 +244,8 @@ namespace PPP.BLUE.VN
 
             if (normalizedPosition != PortraitPosition)
                 FadeOutAndClearSlot(normalizedPosition);
+            else
+                StopLayeredPortraitBlink(characterId);
 
             activeStates.Remove(characterId);
         }
@@ -234,6 +255,7 @@ namespace PPP.BLUE.VN
             activeStates.Clear();
             pendingShows.Clear();
             fadingOutPositions.Clear();
+            StopLayeredPortraitBlink();
             StopAllSlotFades();
             ClearSlotImages();
         }
@@ -427,15 +449,17 @@ namespace PPP.BLUE.VN
                 if (warnOnFallback)
                     Debug.LogWarning($"[VNCharacterManager] Missing layered portrait mapping or Image reference for characterId='{state.characterId}' expressionId='{state.expressionId}'. Falling back to portraitImage.");
 
+                StopLayeredPortraitBlink(state.characterId);
                 ClearLayeredPortraitImages();
                 return false;
             }
 
             VNLayeredExpressionMapping mapping = layeredExpressionLookup[BuildKey(state.characterId, state.expressionId)];
             ApplySpriteToImage(portraitBaseImage, mapping.baseSprite);
-            ApplySpriteToImage(portraitEyebrowImage, mapping.eyebrowSprite);
+            ApplySpriteToImage(portraitEyebrowImage, GetEyebrowOpenSprite(mapping));
             ApplySpriteToImage(portraitEyeImage, mapping.eyeOpenSprite);
             ApplySpriteToImage(portraitMouthImage, mapping.mouthClosedSprite);
+            RestartLayeredPortraitBlink(state, mapping);
 
             if (portraitImage != null)
             {
@@ -444,6 +468,170 @@ namespace PPP.BLUE.VN
             }
 
             return true;
+        }
+
+        private void RestartLayeredPortraitBlink(VNCharacterState state, VNLayeredExpressionMapping mapping)
+        {
+            StopLayeredPortraitBlink();
+
+            if (!CanRunLayeredPortraitBlink(state, mapping) || !isActiveAndEnabled)
+                return;
+
+            portraitBlinkCharacterId = state.characterId;
+            portraitBlinkExpressionId = state.expressionId;
+            portraitBlinkCoroutine = StartCoroutine(RunLayeredPortraitBlink(state.characterId, state.expressionId));
+        }
+
+        private IEnumerator RunLayeredPortraitBlink(string characterId, string expressionId)
+        {
+            yield return new WaitForSeconds(Mathf.Max(0f, portraitBlinkInitialDelay));
+
+            while (IsLayeredPortraitBlinkCurrent(characterId, expressionId))
+            {
+                if (!TryGetLayeredExpressionMapping(characterId, expressionId, out VNLayeredExpressionMapping mapping)
+                    || !CanRunLayeredPortraitBlink(characterId, expressionId, mapping))
+                {
+                    ClearLayeredPortraitBlinkHandle(characterId, expressionId);
+                    yield break;
+                }
+
+                yield return PlayLayeredPortraitBlink(mapping);
+
+                float minInterval = Mathf.Min(portraitBlinkIntervalMin, portraitBlinkIntervalMax);
+                float maxInterval = Mathf.Max(portraitBlinkIntervalMin, portraitBlinkIntervalMax);
+                float nextInterval = Mathf.Approximately(minInterval, maxInterval)
+                    ? minInterval
+                    : Random.Range(minInterval, maxInterval);
+
+                yield return new WaitForSeconds(nextInterval);
+            }
+
+            ClearLayeredPortraitBlinkHandle(characterId, expressionId);
+        }
+
+        private IEnumerator PlayLayeredPortraitBlink(VNLayeredExpressionMapping mapping)
+        {
+            if (mapping == null)
+                yield break;
+
+            float frameDuration = Mathf.Max(0.01f, portraitBlinkFrameDuration);
+            Sprite eyebrowOpen = GetEyebrowOpenSprite(mapping);
+            Sprite eyebrowHalf = mapping.eyebrowBlinkHalfSprite;
+            Sprite eyebrowClosed = mapping.eyebrowBlinkClosedSprite;
+            Sprite eyeOpen = mapping.eyeOpenSprite;
+            Sprite eyeHalf = mapping.eyeBlinkHalfSprite;
+            Sprite eyeClosed = GetEyeBlinkClosedSprite(mapping);
+
+            ApplyBlinkFrame(eyebrowHalf, eyeHalf);
+            yield return new WaitForSeconds(frameDuration);
+            ApplyBlinkFrame(eyebrowClosed, eyeClosed);
+            yield return new WaitForSeconds(frameDuration);
+            ApplyBlinkFrame(eyebrowHalf, eyeHalf);
+            yield return new WaitForSeconds(frameDuration);
+            ApplyBlinkFrame(eyebrowOpen, eyeOpen);
+        }
+
+        private void ApplyBlinkFrame(Sprite eyebrowSprite, Sprite eyeSprite)
+        {
+            ApplySpriteToImage(portraitEyebrowImage, eyebrowSprite);
+            ApplySpriteToImage(portraitEyeImage, eyeSprite);
+        }
+
+        private bool CanRunLayeredPortraitBlink(VNCharacterState state, VNLayeredExpressionMapping mapping)
+        {
+            if (state == null || !IsMelionLayeredPortraitState(state))
+                return false;
+
+            if (!TryGetCharacterDefinition(state.characterId, out VNCharacterDefinition definition) || !definition.supportsBlink)
+                return false;
+
+            return CanRunLayeredPortraitBlink(state.characterId, state.expressionId, mapping);
+        }
+
+        private bool CanRunLayeredPortraitBlink(string characterId, string expressionId, VNLayeredExpressionMapping mapping)
+        {
+            return HasLayeredPortraitImages()
+                && mapping != null
+                && !string.IsNullOrWhiteSpace(characterId)
+                && !string.IsNullOrWhiteSpace(expressionId)
+                && GetEyebrowOpenSprite(mapping) != null
+                && mapping.eyebrowBlinkHalfSprite != null
+                && mapping.eyebrowBlinkClosedSprite != null
+                && mapping.eyeOpenSprite != null
+                && mapping.eyeBlinkHalfSprite != null
+                && GetEyeBlinkClosedSprite(mapping) != null;
+        }
+
+        private bool IsLayeredPortraitBlinkCurrent(string characterId, string expressionId)
+        {
+            if (string.IsNullOrWhiteSpace(characterId) || string.IsNullOrWhiteSpace(expressionId))
+                return false;
+
+            if (!string.Equals(portraitBlinkCharacterId, characterId, System.StringComparison.OrdinalIgnoreCase)
+                || !string.Equals(portraitBlinkExpressionId, expressionId, System.StringComparison.OrdinalIgnoreCase))
+            {
+                return false;
+            }
+
+            if (!activeStates.TryGetValue(characterId, out VNCharacterState state) || state == null || !state.visible)
+                return false;
+
+            return string.Equals(state.expressionId, expressionId, System.StringComparison.OrdinalIgnoreCase)
+                && IsMelionLayeredPortraitState(state);
+        }
+
+        private bool IsMelionLayeredPortraitState(VNCharacterState state)
+        {
+            return state != null
+                && string.Equals(state.characterId, MelionCharacterId, System.StringComparison.OrdinalIgnoreCase)
+                && IsLayeredPortraitState(state);
+        }
+
+        private Sprite GetEyebrowOpenSprite(VNLayeredExpressionMapping mapping)
+        {
+            if (mapping == null)
+                return null;
+
+            return mapping.eyebrowOpenSprite != null ? mapping.eyebrowOpenSprite : mapping.eyebrowSprite;
+        }
+
+        private Sprite GetEyeBlinkClosedSprite(VNLayeredExpressionMapping mapping)
+        {
+            if (mapping == null)
+                return null;
+
+            return mapping.eyeBlinkClosedSprite != null ? mapping.eyeBlinkClosedSprite : mapping.eyeClosedSprite;
+        }
+
+        private void ClearLayeredPortraitBlinkHandle(string characterId, string expressionId)
+        {
+            if (!string.Equals(portraitBlinkCharacterId, characterId, System.StringComparison.OrdinalIgnoreCase)
+                || !string.Equals(portraitBlinkExpressionId, expressionId, System.StringComparison.OrdinalIgnoreCase))
+            {
+                return;
+            }
+
+            portraitBlinkCoroutine = null;
+            portraitBlinkCharacterId = null;
+            portraitBlinkExpressionId = null;
+        }
+
+        private void StopLayeredPortraitBlink(string characterId = null)
+        {
+            if (!string.IsNullOrWhiteSpace(characterId)
+                && !string.Equals(portraitBlinkCharacterId, characterId, System.StringComparison.OrdinalIgnoreCase))
+            {
+                return;
+            }
+
+            if (portraitBlinkCoroutine != null)
+            {
+                StopCoroutine(portraitBlinkCoroutine);
+                portraitBlinkCoroutine = null;
+            }
+
+            portraitBlinkCharacterId = null;
+            portraitBlinkExpressionId = null;
         }
 
         private bool CanApplyLayeredPortrait(string characterId, string expressionId)
