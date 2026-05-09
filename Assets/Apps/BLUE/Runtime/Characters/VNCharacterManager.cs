@@ -393,6 +393,7 @@ namespace PPP.BLUE.VN
             StopLayeredPortraitBlink(restoreOpenFrame: true);
             StopAllSlotFades();
             ClearSlotImages();
+            ClearLayeredPortraitImages();
         }
 
         public List<VNCharacterState> CaptureState()
@@ -1774,13 +1775,7 @@ namespace PPP.BLUE.VN
             image.enabled = sprite != null;
         }
 
-        private void ClearLayeredPortraitImages()
-        {
-            ApplySpriteToImage(portraitBaseImage, null);
-            ApplySpriteToImage(portraitEyebrowImage, null);
-            ApplySpriteToImage(portraitEyeImage, null);
-            ApplySpriteToImage(portraitMouthImage, null);
-        }
+        
 
         private void ClearLayeredCharacterSlotImages(string position)
         {
@@ -1797,6 +1792,24 @@ namespace PPP.BLUE.VN
             ApplySpriteToImage(slot.eyeImage, null);
             ApplySpriteToImage(slot.mouthImage, null);
             SetLayeredCharacterAlpha(slot, 1f);
+        }
+
+        private void ClearImage(Image image)
+        {
+            if (image == null)
+                return;
+
+            image.sprite = null;
+            image.enabled = false;
+        }
+
+        private void ClearLayeredPortraitImages()
+        {
+            ClearImage(portraitBaseImage);
+            ClearImage(portraitEyebrowImage);
+            ClearImage(portraitEyeImage);
+            ClearImage(portraitMouthImage);
+            ClearImage(portraitImage);
         }
 
         private bool HasVisibleLayeredCharacterSlot(string position)

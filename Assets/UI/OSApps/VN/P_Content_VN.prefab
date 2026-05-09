@@ -19258,7 +19258,7 @@ MonoBehaviour:
     - {fileID: 21300000, guid: 5a2de8bcdd2747643bc392bb0b6d752f, type: 3}
     - {fileID: 21300000, guid: fadc771ffe24b344e9f3de0dbe8587ee, type: 3}
   - characterId: guest_d
-    expressionId: surprise
+    expressionId: surprised
     baseSprite: {fileID: 21300000, guid: 527dd9ae8855a0f4490e2fa44b57a03b, type: 3}
     eyebrowSprite: {fileID: 21300000, guid: 1b6874223a82de04a894348915990150, type: 3}
     eyebrowOpenSprite: {fileID: 21300000, guid: 1b6874223a82de04a894348915990150, type: 3}
@@ -19341,7 +19341,7 @@ MonoBehaviour:
   layeredCharacterBlinkMaxInterval: 7
   layeredCharacterBlinkFrameInterval: 0.06
   portraitMouthFrameInterval: 0.075
-  layeredCharacterMouthFrameInterval: 0.075
+  layeredCharacterMouthFrameInterval: 0.1
   fadeDuration: 0.25
   logFadeDebug: 1
 --- !u!1 &5286922302863004563
