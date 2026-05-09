@@ -9225,7 +9225,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   m_Material: {fileID: 0}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
-  m_RaycastTarget: 1
+  m_RaycastTarget: 0
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
   m_OnCullStateChanged:
@@ -18301,8 +18301,8 @@ MonoBehaviour:
     - sena_unknown
     renderMode: 0
     defaultPosition: center
-    supportsBlink: 1
-    supportsMouth: 1
+    supportsBlink: 0
+    supportsMouth: 0
   - characterId: guest_a
     displayName: A
     defaultExpressionId: normal
@@ -18311,8 +18311,8 @@ MonoBehaviour:
     - guest_a_unknown
     renderMode: 0
     defaultPosition: center
-    supportsBlink: 1
-    supportsMouth: 1
+    supportsBlink: 0
+    supportsMouth: 0
   - characterId: guest_b
     displayName: B
     defaultExpressionId: normal
@@ -18321,8 +18321,8 @@ MonoBehaviour:
     - guest_b_unknown
     renderMode: 0
     defaultPosition: center
-    supportsBlink: 1
-    supportsMouth: 1
+    supportsBlink: 0
+    supportsMouth: 0
   - characterId: guest_c
     displayName: C
     defaultExpressionId: normal
@@ -18331,8 +18331,8 @@ MonoBehaviour:
     - guest_c_unknown
     renderMode: 0
     defaultPosition: center
-    supportsBlink: 1
-    supportsMouth: 1
+    supportsBlink: 0
+    supportsMouth: 0
   - characterId: guest_d
     displayName: D
     defaultExpressionId: normal
@@ -18341,7 +18341,7 @@ MonoBehaviour:
     - guest_d_unknown
     renderMode: 0
     defaultPosition: center
-    supportsBlink: 1
+    supportsBlink: 0
     supportsMouth: 1
   spriteMappings:
   - characterId: sena
