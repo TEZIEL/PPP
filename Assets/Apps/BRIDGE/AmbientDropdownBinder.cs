@@ -102,17 +102,17 @@ public class AmbientDropdownBinder : MonoBehaviour
     {
         switch (type)
         {
-            case AmbientType.Ocean: return "파도";
-            case AmbientType.Storm: return "폭풍우";
-            case AmbientType.LightRain: return "잔잔한 비";
-            case AmbientType.MorningBirds: return "아침 새";
-            case AmbientType.NightCrickets: return "밤 귀뚜라미";
-            case AmbientType.Cafe: return "카페";
-            case AmbientType.Subway: return "지하철";
-            case AmbientType.CityStreet: return "번화가";
-            case AmbientType.Dreamcore: return "드림코어";
-            case AmbientType.Campfire: return "모닥불";
-            default: return "없음";
+            case AmbientType.Wave: return "Wave";
+            case AmbientType.Firework: return "Firework";
+            case AmbientType.Lightrain: return "Lightrain";
+            case AmbientType.Heavyrain: return "Heavyrain";
+            case AmbientType.Morning: return "Morning";
+            case AmbientType.Night: return "Night";
+            case AmbientType.Campfire: return "Campfire";
+            case AmbientType.Cafe: return "Cafe";
+            case AmbientType.Subway: return "Subway";
+            case AmbientType.Grocery: return "Grocery";
+            default: return "None";
         }
     }
 }

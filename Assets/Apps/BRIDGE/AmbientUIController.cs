@@ -9,33 +9,45 @@ public class AmbientUIController : MonoBehaviour
         dropdown.SetActive(!dropdown.activeSelf);
     }
 
-    public void SelectOcean()
+    public void SelectWave()
     {
-        AmbientManager.Instance.Play(AmbientType.Ocean);
+        AmbientManager.Instance.Play(AmbientType.Wave);
         dropdown.SetActive(false);
     }
 
-    public void SelectStorm()
+    public void SelectFirework()
     {
-        AmbientManager.Instance.Play(AmbientType.Storm);
+        AmbientManager.Instance.Play(AmbientType.Firework);
         dropdown.SetActive(false);
     }
 
-    public void SelectLightRain()
+    public void SelectLightrain()
     {
-        AmbientManager.Instance.Play(AmbientType.LightRain);
+        AmbientManager.Instance.Play(AmbientType.Lightrain);
         dropdown.SetActive(false);
     }
 
-    public void SelectMorningBirds()
+    public void SelectHeavyrain()
     {
-        AmbientManager.Instance.Play(AmbientType.MorningBirds);
+        AmbientManager.Instance.Play(AmbientType.Heavyrain);
         dropdown.SetActive(false);
     }
 
-    public void SelectNightCrickets()
+    public void SelectMorning()
     {
-        AmbientManager.Instance.Play(AmbientType.NightCrickets);
+        AmbientManager.Instance.Play(AmbientType.Morning);
+        dropdown.SetActive(false);
+    }
+
+    public void SelectNight()
+    {
+        AmbientManager.Instance.Play(AmbientType.Night);
+        dropdown.SetActive(false);
+    }
+
+    public void SelectCampfire()
+    {
+        AmbientManager.Instance.Play(AmbientType.Campfire);
         dropdown.SetActive(false);
     }
 
@@ -51,21 +63,9 @@ public class AmbientUIController : MonoBehaviour
         dropdown.SetActive(false);
     }
 
-    public void SelectCityStreet()
+    public void SelectGrocery()
     {
-        AmbientManager.Instance.Play(AmbientType.CityStreet);
-        dropdown.SetActive(false);
-    }
-
-    public void SelectDreamcore()
-    {
-        AmbientManager.Instance.Play(AmbientType.Dreamcore);
-        dropdown.SetActive(false);
-    }
-
-    public void SelectCampfire()
-    {
-        AmbientManager.Instance.Play(AmbientType.Campfire);
+        AmbientManager.Instance.Play(AmbientType.Grocery);
         dropdown.SetActive(false);
     }
 

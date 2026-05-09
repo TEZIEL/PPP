@@ -6,17 +6,17 @@ public enum AmbientType
 {
     None,
 
-    Ocean,          // 파도
-    Storm,          // 폭풍우
-    LightRain,      // 잔잔한 빗소리
-    MorningBirds,   // 아침 새
-    NightCrickets,  // 밤 귀뚜라미
+    Wave,          // 파도
+    Firework,          // 폭풍우
+    Lightrain,      // 잔잔한 빗소리
+    Heavyrain,   // 아침 새
+    Morning,  // 밤 귀뚜라미
 
-    Cafe,
+    Night,
+    Campfire,
+    Cafe,     // 번화가
     Subway,
-    CityStreet,     // 번화가
-    Dreamcore,
-    Campfire        // 모닥불
+    Grocery        // 모닥불
 }
 
 
@@ -33,17 +33,17 @@ public class AmbientManager : MonoBehaviour
     private bool isPlaying;
 
     [Header("Ambient Clips")]
-    [SerializeField] private AudioClip ocean;
-    [SerializeField] private AudioClip storm;
-    [SerializeField] private AudioClip lightRain;
-    [SerializeField] private AudioClip morningBirds;
-    [SerializeField] private AudioClip nightCrickets;
+    [SerializeField] private AudioClip wave;
+    [SerializeField] private AudioClip firework;
+    [SerializeField] private AudioClip lightrain;
+    [SerializeField] private AudioClip heavyrain;
+    [SerializeField] private AudioClip morning;
 
+    [SerializeField] private AudioClip night;
+    [SerializeField] private AudioClip campfire;
     [SerializeField] private AudioClip cafe;
     [SerializeField] private AudioClip subway;
-    [SerializeField] private AudioClip cityStreet;
-    [SerializeField] private AudioClip dreamcore;
-    [SerializeField] private AudioClip campfire;
+    [SerializeField] private AudioClip grocery;
 
     private Dictionary<AmbientType, AudioClip> map;
 
@@ -63,17 +63,16 @@ public class AmbientManager : MonoBehaviour
 
         map = new Dictionary<AmbientType, AudioClip>()
         {
-            { AmbientType.Ocean, ocean },
-            { AmbientType.Storm, storm },
-            { AmbientType.LightRain, lightRain },
-            { AmbientType.MorningBirds, morningBirds },
-            { AmbientType.NightCrickets, nightCrickets },
-
+            { AmbientType.Wave, wave },
+            { AmbientType.Firework, firework },
+            { AmbientType.Lightrain, lightrain },
+            { AmbientType.Heavyrain, heavyrain },
+            { AmbientType.Morning, morning },
+            { AmbientType.Night, night },
+            { AmbientType.Campfire, campfire },
             { AmbientType.Cafe, cafe },
             { AmbientType.Subway, subway },
-            { AmbientType.CityStreet, cityStreet },
-            { AmbientType.Dreamcore, dreamcore },
-            { AmbientType.Campfire, campfire }
+            { AmbientType.Grocery, grocery }
         };
     }
 

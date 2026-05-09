@@ -3,16 +3,44 @@
   "WorkspaceRootPath": "C:\\Users\\123\\PPP\\",
   "Documents": [
     {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|C:\\Users\\123\\PPP\\Assets\\Audio\\AmbientManager.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:Assets\\Audio\\AmbientManager.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|C:\\Users\\123\\PPP\\Assets\\Apps\\BRIDGE\\AmbientDropdownBinder.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:Assets\\Apps\\BRIDGE\\AmbientDropdownBinder.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|C:\\Users\\123\\PPP\\Assets\\Apps\\BRIDGE\\AmbientUIController.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:Assets\\Apps\\BRIDGE\\AmbientUIController.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|C:\\Users\\123\\PPP\\Assets\\Apps\\BLUE\\Runtime\\Data\\VNScriptLoader.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:Assets\\Apps\\BLUE\\Runtime\\Data\\VNScriptLoader.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|C:\\Users\\123\\PPP\\Assets\\Apps\\BLUE\\Runtime\\Characters\\VNCharacterManager.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:Assets\\Apps\\BLUE\\Runtime\\Characters\\VNCharacterManager.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|C:\\Users\\123\\PPP\\Assets\\Apps\\BLUE\\Runtime\\VNRunner.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:Assets\\Apps\\BLUE\\Runtime\\VNRunner.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|C:\\Users\\123\\PPP\\Assets\\Apps\\BLUE\\Runtime\\VNNode.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:Assets\\Apps\\BLUE\\Runtime\\VNNode.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|C:\\Users\\123\\PPP\\Assets\\Apps\\BLUE\\Runtime\\Data\\VNScriptDTO.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:Assets\\Apps\\BLUE\\Runtime\\Data\\VNScriptDTO.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
       "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|C:\\Users\\123\\PPP\\Assets\\Audio\\SoundManager.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
       "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:Assets\\Audio\\SoundManager.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
       "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|C:\\Users\\123\\PPP\\Assets\\Apps\\BLUE\\Runtime\\VNDialogueView.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
       "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:Assets\\Apps\\BLUE\\Runtime\\VNDialogueView.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|C:\\Users\\123\\PPP\\Assets\\Apps\\BLUE\\Runtime\\Characters\\VNCharacterManager.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:Assets\\Apps\\BLUE\\Runtime\\Characters\\VNCharacterManager.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
       "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|C:\\Users\\123\\PPP\\Assets\\Apps\\BLUE\\Runtime\\Drink\\RecipeApp\\RecipeAppController.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
@@ -25,10 +53,6 @@
     {
       "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|C:\\Users\\123\\PPP\\Assets\\Apps\\BLUE\\Runtime\\VNAppFlowController.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
       "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:Assets\\Apps\\BLUE\\Runtime\\VNAppFlowController.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|C:\\Users\\123\\PPP\\Assets\\Apps\\BLUE\\Runtime\\VNRunner.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:Assets\\Apps\\BLUE\\Runtime\\VNRunner.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
       "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|C:\\Users\\123\\PPP\\Assets\\Editor\\ThemeSpriteAutoMapperWindow.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
@@ -49,14 +73,6 @@
     {
       "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|C:\\Users\\123\\PPP\\Assets\\OS\\Options\\OptionState.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
       "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:Assets\\OS\\Options\\OptionState.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|C:\\Users\\123\\PPP\\Assets\\Audio\\AmbientManager.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:Assets\\Audio\\AmbientManager.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|C:\\Users\\123\\PPP\\Assets\\Apps\\BRIDGE\\AmbientDropdownBinder.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:Assets\\Apps\\BRIDGE\\AmbientDropdownBinder.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
       "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|C:\\Users\\123\\PPP\\Assets\\OS\\Desktop\\DesktopIconLauncher.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
@@ -125,10 +141,6 @@
     {
       "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|C:\\Users\\123\\PPP\\Assets\\Apps\\BRIDGE\\BridgeMusicControlsUI.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
       "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:Assets\\Apps\\BRIDGE\\BridgeMusicControlsUI.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|C:\\Users\\123\\PPP\\Assets\\Apps\\BRIDGE\\AmbientUIController.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:Assets\\Apps\\BRIDGE\\AmbientUIController.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
       "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|C:\\Users\\123\\PPP\\Assets\\Apps\\Theme\\BanditUIThemeApplier.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
@@ -235,14 +247,6 @@
       "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:Assets\\Apps\\BLUE\\Runtime\\Backlog\\VNBacklogManager.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
-      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|C:\\Users\\123\\PPP\\Assets\\Apps\\BLUE\\Runtime\\Data\\VNScriptDTO.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:Assets\\Apps\\BLUE\\Runtime\\Data\\VNScriptDTO.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|C:\\Users\\123\\PPP\\Assets\\Apps\\BLUE\\Runtime\\Data\\VNScriptLoader.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:Assets\\Apps\\BLUE\\Runtime\\Data\\VNScriptLoader.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
       "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|C:\\Users\\123\\PPP\\Assets\\Apps\\BLUE\\Runtime\\VNScript.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
       "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:Assets\\Apps\\BLUE\\Runtime\\VNScript.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
@@ -297,10 +301,6 @@
     {
       "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|C:\\Users\\123\\PPP\\Assets\\Data\\Dialogue\\VNNodeList.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
       "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:Assets\\Data\\Dialogue\\VNNodeList.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|C:\\Users\\123\\PPP\\Assets\\Apps\\BLUE\\Runtime\\VNNode.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:Assets\\Apps\\BLUE\\Runtime\\VNNode.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
       "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|C:\\Users\\123\\PPP\\Assets\\Apps\\BLUE\\Runtime\\Drink\\UI\\DrinkIngredientButton.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
@@ -450,48 +450,75 @@
       "DocumentGroups": [
         {
           "DockedWidth": 200,
-          "SelectedChildIndex": 4,
+          "SelectedChildIndex": 0,
           "Children": [
             {
               "$type": "Document",
-              "DocumentIndex": 2,
-              "Title": "VNCharacterManager.cs",
-              "DocumentMoniker": "C:\\Users\\123\\PPP\\Assets\\Apps\\BLUE\\Runtime\\Characters\\VNCharacterManager.cs",
-              "RelativeDocumentMoniker": "Assets\\Apps\\BLUE\\Runtime\\Characters\\VNCharacterManager.cs",
-              "ToolTip": "C:\\Users\\123\\PPP\\Assets\\Apps\\BLUE\\Runtime\\Characters\\VNCharacterManager.cs",
-              "RelativeToolTip": "Assets\\Apps\\BLUE\\Runtime\\Characters\\VNCharacterManager.cs",
-              "ViewState": "AgIAAAAAAAAAAAAAAAAAABIAAAAAAAAAAAAAAA==",
+              "DocumentIndex": 0,
+              "Title": "AmbientManager.cs",
+              "DocumentMoniker": "C:\\Users\\123\\PPP\\Assets\\Audio\\AmbientManager.cs",
+              "RelativeDocumentMoniker": "Assets\\Audio\\AmbientManager.cs",
+              "ToolTip": "C:\\Users\\123\\PPP\\Assets\\Audio\\AmbientManager.cs",
+              "RelativeToolTip": "Assets\\Audio\\AmbientManager.cs",
+              "ViewState": "AgIAADMAAAAAAAAAAAD4v0oAAAAqAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-05-08T12:43:20.016Z",
+              "WhenOpened": "2026-03-29T03:38:18.969Z",
               "EditorCaption": ""
             },
             {
               "$type": "Document",
               "DocumentIndex": 3,
-              "Title": "RecipeAppController.cs",
-              "DocumentMoniker": "C:\\Users\\123\\PPP\\Assets\\Apps\\BLUE\\Runtime\\Drink\\RecipeApp\\RecipeAppController.cs",
-              "RelativeDocumentMoniker": "Assets\\Apps\\BLUE\\Runtime\\Drink\\RecipeApp\\RecipeAppController.cs",
-              "ToolTip": "C:\\Users\\123\\PPP\\Assets\\Apps\\BLUE\\Runtime\\Drink\\RecipeApp\\RecipeAppController.cs",
-              "RelativeToolTip": "Assets\\Apps\\BLUE\\Runtime\\Drink\\RecipeApp\\RecipeAppController.cs",
-              "ViewState": "AgIAALkAAAAAAAAAAAAewMYAAAALAAAAAAAAAA==",
+              "Title": "VNScriptLoader.cs",
+              "DocumentMoniker": "C:\\Users\\123\\PPP\\Assets\\Apps\\BLUE\\Runtime\\Data\\VNScriptLoader.cs",
+              "RelativeDocumentMoniker": "Assets\\Apps\\BLUE\\Runtime\\Data\\VNScriptLoader.cs",
+              "ToolTip": "C:\\Users\\123\\PPP\\Assets\\Apps\\BLUE\\Runtime\\Data\\VNScriptLoader.cs",
+              "RelativeToolTip": "Assets\\Apps\\BLUE\\Runtime\\Data\\VNScriptLoader.cs",
+              "ViewState": "AgIAAEAAAAAAAAAAAAD4v1QAAAArAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-03-26T03:11:57.235Z"
+              "WhenOpened": "2026-02-24T01:24:27.803Z",
+              "EditorCaption": ""
             },
             {
               "$type": "Document",
-              "DocumentIndex": 4,
-              "Title": "VNSaveLoadWindow.cs",
-              "DocumentMoniker": "C:\\Users\\123\\PPP\\Assets\\Apps\\BLUE\\Runtime\\UI\\VNSaveLoadWindow.cs",
-              "RelativeDocumentMoniker": "Assets\\Apps\\BLUE\\Runtime\\UI\\VNSaveLoadWindow.cs",
-              "ToolTip": "C:\\Users\\123\\PPP\\Assets\\Apps\\BLUE\\Runtime\\UI\\VNSaveLoadWindow.cs",
-              "RelativeToolTip": "Assets\\Apps\\BLUE\\Runtime\\UI\\VNSaveLoadWindow.cs",
-              "ViewState": "AgIAADoDAAAAAAAAAAAuwEkDAAAJAAAAAAAAAA==",
+              "DocumentIndex": 2,
+              "Title": "AmbientUIController.cs",
+              "DocumentMoniker": "C:\\Users\\123\\PPP\\Assets\\Apps\\BRIDGE\\AmbientUIController.cs",
+              "RelativeDocumentMoniker": "Assets\\Apps\\BRIDGE\\AmbientUIController.cs",
+              "ToolTip": "C:\\Users\\123\\PPP\\Assets\\Apps\\BRIDGE\\AmbientUIController.cs",
+              "RelativeToolTip": "Assets\\Apps\\BRIDGE\\AmbientUIController.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAsAAAAaAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-03-26T06:58:50.645Z"
+              "WhenOpened": "2026-03-29T04:04:29.654Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 5,
+              "Title": "VNRunner.cs",
+              "DocumentMoniker": "C:\\Users\\123\\PPP\\Assets\\Apps\\BLUE\\Runtime\\VNRunner.cs",
+              "RelativeDocumentMoniker": "Assets\\Apps\\BLUE\\Runtime\\VNRunner.cs",
+              "ToolTip": "C:\\Users\\123\\PPP\\Assets\\Apps\\BLUE\\Runtime\\VNRunner.cs",
+              "RelativeToolTip": "Assets\\Apps\\BLUE\\Runtime\\VNRunner.cs",
+              "ViewState": "AgIAACQFAAAAAAAAAAAIwC4FAABCAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-03-26T11:38:08.919Z"
             },
             {
               "$type": "Document",
               "DocumentIndex": 1,
+              "Title": "AmbientDropdownBinder.cs",
+              "DocumentMoniker": "C:\\Users\\123\\PPP\\Assets\\Apps\\BRIDGE\\AmbientDropdownBinder.cs",
+              "RelativeDocumentMoniker": "Assets\\Apps\\BRIDGE\\AmbientDropdownBinder.cs",
+              "ToolTip": "C:\\Users\\123\\PPP\\Assets\\Apps\\BRIDGE\\AmbientDropdownBinder.cs",
+              "RelativeToolTip": "Assets\\Apps\\BRIDGE\\AmbientDropdownBinder.cs",
+              "ViewState": "AgIAAFoAAAAAAAAAAAD4v3IAAAAhAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-03-29T04:24:14.632Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 9,
               "Title": "VNDialogueView.cs",
               "DocumentMoniker": "C:\\Users\\123\\PPP\\Assets\\Apps\\BLUE\\Runtime\\VNDialogueView.cs",
               "RelativeDocumentMoniker": "Assets\\Apps\\BLUE\\Runtime\\VNDialogueView.cs",
@@ -499,12 +526,11 @@
               "RelativeToolTip": "Assets\\Apps\\BLUE\\Runtime\\VNDialogueView.cs",
               "ViewState": "AgIAAB4CAAAAAAAAAAD4vywCAAAmAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-03-08T06:56:57.219Z",
-              "EditorCaption": ""
+              "WhenOpened": "2026-03-08T06:56:57.219Z"
             },
             {
               "$type": "Document",
-              "DocumentIndex": 0,
+              "DocumentIndex": 8,
               "Title": "SoundManager.cs",
               "DocumentMoniker": "C:\\Users\\123\\PPP\\Assets\\Audio\\SoundManager.cs",
               "RelativeDocumentMoniker": "Assets\\Audio\\SoundManager.cs",
@@ -512,12 +538,48 @@
               "RelativeToolTip": "Assets\\Audio\\SoundManager.cs",
               "ViewState": "AgIAAFUAAAAAAAAAAAAIwHEAAAABAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-03-28T12:26:07.436Z",
+              "WhenOpened": "2026-03-28T12:26:07.436Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 4,
+              "Title": "VNCharacterManager.cs",
+              "DocumentMoniker": "C:\\Users\\123\\PPP\\Assets\\Apps\\BLUE\\Runtime\\Characters\\VNCharacterManager.cs",
+              "RelativeDocumentMoniker": "Assets\\Apps\\BLUE\\Runtime\\Characters\\VNCharacterManager.cs",
+              "ToolTip": "C:\\Users\\123\\PPP\\Assets\\Apps\\BLUE\\Runtime\\Characters\\VNCharacterManager.cs",
+              "RelativeToolTip": "Assets\\Apps\\BLUE\\Runtime\\Characters\\VNCharacterManager.cs",
+              "ViewState": "AgIAAI0IAAAAAAAAAAAIwKkIAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-05-08T12:43:20.016Z",
               "EditorCaption": ""
             },
             {
               "$type": "Document",
-              "DocumentIndex": 10,
+              "DocumentIndex": 6,
+              "Title": "VNNode.cs",
+              "DocumentMoniker": "C:\\Users\\123\\PPP\\Assets\\Apps\\BLUE\\Runtime\\VNNode.cs",
+              "RelativeDocumentMoniker": "Assets\\Apps\\BLUE\\Runtime\\VNNode.cs",
+              "ToolTip": "C:\\Users\\123\\PPP\\Assets\\Apps\\BLUE\\Runtime\\VNNode.cs",
+              "RelativeToolTip": "Assets\\Apps\\BLUE\\Runtime\\VNNode.cs",
+              "ViewState": "AgIAAAMAAAAAAAAAAAAAABUAAAAgAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-02-23T06:34:47.714Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 7,
+              "Title": "VNScriptDTO.cs",
+              "DocumentMoniker": "C:\\Users\\123\\PPP\\Assets\\Apps\\BLUE\\Runtime\\Data\\VNScriptDTO.cs",
+              "RelativeDocumentMoniker": "Assets\\Apps\\BLUE\\Runtime\\Data\\VNScriptDTO.cs",
+              "ToolTip": "C:\\Users\\123\\PPP\\Assets\\Apps\\BLUE\\Runtime\\Data\\VNScriptDTO.cs",
+              "RelativeToolTip": "Assets\\Apps\\BLUE\\Runtime\\Data\\VNScriptDTO.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAA0AAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-02-24T01:02:00.964Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 16,
               "Title": "OptionsModal.cs",
               "DocumentMoniker": "C:\\Users\\123\\PPP\\Assets\\OS\\Options\\OptionsModal.cs",
               "RelativeDocumentMoniker": "Assets\\OS\\Options\\OptionsModal.cs",
@@ -529,7 +591,31 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 5,
+              "DocumentIndex": 11,
+              "Title": "VNSaveLoadWindow.cs",
+              "DocumentMoniker": "C:\\Users\\123\\PPP\\Assets\\Apps\\BLUE\\Runtime\\UI\\VNSaveLoadWindow.cs",
+              "RelativeDocumentMoniker": "Assets\\Apps\\BLUE\\Runtime\\UI\\VNSaveLoadWindow.cs",
+              "ToolTip": "C:\\Users\\123\\PPP\\Assets\\Apps\\BLUE\\Runtime\\UI\\VNSaveLoadWindow.cs",
+              "RelativeToolTip": "Assets\\Apps\\BLUE\\Runtime\\UI\\VNSaveLoadWindow.cs",
+              "ViewState": "AgIAADoDAAAAAAAAAAAuwEkDAAAJAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-03-26T06:58:50.645Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 10,
+              "Title": "RecipeAppController.cs",
+              "DocumentMoniker": "C:\\Users\\123\\PPP\\Assets\\Apps\\BLUE\\Runtime\\Drink\\RecipeApp\\RecipeAppController.cs",
+              "RelativeDocumentMoniker": "Assets\\Apps\\BLUE\\Runtime\\Drink\\RecipeApp\\RecipeAppController.cs",
+              "ToolTip": "C:\\Users\\123\\PPP\\Assets\\Apps\\BLUE\\Runtime\\Drink\\RecipeApp\\RecipeAppController.cs",
+              "RelativeToolTip": "Assets\\Apps\\BLUE\\Runtime\\Drink\\RecipeApp\\RecipeAppController.cs",
+              "ViewState": "AgIAALkAAAAAAAAAAAAewMYAAAALAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-03-26T03:11:57.235Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 12,
               "Title": "VNAppFlowController.cs",
               "DocumentMoniker": "C:\\Users\\123\\PPP\\Assets\\Apps\\BLUE\\Runtime\\VNAppFlowController.cs",
               "RelativeDocumentMoniker": "Assets\\Apps\\BLUE\\Runtime\\VNAppFlowController.cs",
@@ -541,19 +627,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 6,
-              "Title": "VNRunner.cs",
-              "DocumentMoniker": "C:\\Users\\123\\PPP\\Assets\\Apps\\BLUE\\Runtime\\VNRunner.cs",
-              "RelativeDocumentMoniker": "Assets\\Apps\\BLUE\\Runtime\\VNRunner.cs",
-              "ToolTip": "C:\\Users\\123\\PPP\\Assets\\Apps\\BLUE\\Runtime\\VNRunner.cs",
-              "RelativeToolTip": "Assets\\Apps\\BLUE\\Runtime\\VNRunner.cs",
-              "ViewState": "AgIAACwGAAAAAAAAAAD4v0UGAAAJAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-03-26T11:38:08.919Z"
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 15,
+              "DocumentIndex": 19,
               "Title": "DesktopContextMenuView.cs",
               "DocumentMoniker": "C:\\Users\\123\\PPP\\Assets\\OS\\Desktop\\DesktopContextMenuView.cs",
               "RelativeDocumentMoniker": "Assets\\OS\\Desktop\\DesktopContextMenuView.cs",
@@ -565,7 +639,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 11,
+              "DocumentIndex": 17,
               "Title": "OptionState.cs",
               "DocumentMoniker": "C:\\Users\\123\\PPP\\Assets\\OS\\Options\\OptionState.cs",
               "RelativeDocumentMoniker": "Assets\\OS\\Options\\OptionState.cs",
@@ -577,7 +651,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 8,
+              "DocumentIndex": 14,
               "Title": "OptionManager.cs",
               "DocumentMoniker": "C:\\Users\\123\\PPP\\Assets\\OS\\Options\\OptionManager.cs",
               "RelativeDocumentMoniker": "Assets\\OS\\Options\\OptionManager.cs",
@@ -589,7 +663,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 9,
+              "DocumentIndex": 15,
               "Title": "BGMManager.cs",
               "DocumentMoniker": "C:\\Users\\123\\PPP\\Assets\\Audio\\BGMManager.cs",
               "RelativeDocumentMoniker": "Assets\\Audio\\BGMManager.cs",
@@ -601,7 +675,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 7,
+              "DocumentIndex": 13,
               "Title": "ThemeSpriteAutoMapperWindow.cs",
               "DocumentMoniker": "C:\\Users\\123\\PPP\\Assets\\Editor\\ThemeSpriteAutoMapperWindow.cs",
               "RelativeDocumentMoniker": "Assets\\Editor\\ThemeSpriteAutoMapperWindow.cs",
@@ -613,31 +687,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 13,
-              "Title": "AmbientDropdownBinder.cs",
-              "DocumentMoniker": "C:\\Users\\123\\PPP\\Assets\\Apps\\BRIDGE\\AmbientDropdownBinder.cs",
-              "RelativeDocumentMoniker": "Assets\\Apps\\BRIDGE\\AmbientDropdownBinder.cs",
-              "ToolTip": "C:\\Users\\123\\PPP\\Assets\\Apps\\BRIDGE\\AmbientDropdownBinder.cs",
-              "RelativeToolTip": "Assets\\Apps\\BRIDGE\\AmbientDropdownBinder.cs",
-              "ViewState": "AgIAAC0AAAAAAAAAAAAAAAwAAAAAAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-03-29T04:24:14.632Z"
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 12,
-              "Title": "AmbientManager.cs",
-              "DocumentMoniker": "C:\\Users\\123\\PPP\\Assets\\Audio\\AmbientManager.cs",
-              "RelativeDocumentMoniker": "Assets\\Audio\\AmbientManager.cs",
-              "ToolTip": "C:\\Users\\123\\PPP\\Assets\\Audio\\AmbientManager.cs",
-              "RelativeToolTip": "Assets\\Audio\\AmbientManager.cs",
-              "ViewState": "AgIAAGEAAAAAAAAAAAAIwHMAAAAAAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-03-29T03:38:18.969Z"
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 14,
+              "DocumentIndex": 18,
               "Title": "DesktopIconLauncher.cs",
               "DocumentMoniker": "C:\\Users\\123\\PPP\\Assets\\OS\\Desktop\\DesktopIconLauncher.cs",
               "RelativeDocumentMoniker": "Assets\\OS\\Desktop\\DesktopIconLauncher.cs",
@@ -649,7 +699,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 16,
+              "DocumentIndex": 20,
               "Title": "ThemeData.cs",
               "DocumentMoniker": "C:\\Users\\123\\PPP\\Assets\\OS\\Theme\\ThemeData.cs",
               "RelativeDocumentMoniker": "Assets\\OS\\Theme\\ThemeData.cs",
@@ -661,7 +711,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 17,
+              "DocumentIndex": 21,
               "Title": "ThemeManager.cs",
               "DocumentMoniker": "C:\\Users\\123\\PPP\\Assets\\OS\\Theme\\ThemeManager.cs",
               "RelativeDocumentMoniker": "Assets\\OS\\Theme\\ThemeManager.cs",
@@ -673,7 +723,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 18,
+              "DocumentIndex": 22,
               "Title": "AppDefinition.cs",
               "DocumentMoniker": "C:\\Users\\123\\PPP\\Assets\\Apps\\AppDefinition.cs",
               "RelativeDocumentMoniker": "Assets\\Apps\\AppDefinition.cs",
@@ -685,7 +735,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 19,
+              "DocumentIndex": 23,
               "Title": "IngredientButton.cs",
               "DocumentMoniker": "C:\\Users\\123\\PPP\\Assets\\Apps\\BLUE\\Runtime\\Drink\\UI\\IngredientButton.cs",
               "RelativeDocumentMoniker": "Assets\\Apps\\BLUE\\Runtime\\Drink\\UI\\IngredientButton.cs",
@@ -697,7 +747,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 20,
+              "DocumentIndex": 24,
               "Title": "DrinkDatabase.cs",
               "DocumentMoniker": "C:\\Users\\123\\PPP\\Assets\\Apps\\BLUE\\Runtime\\Drink\\Data\\DrinkDatabase.cs",
               "RelativeDocumentMoniker": "Assets\\Apps\\BLUE\\Runtime\\Drink\\Data\\DrinkDatabase.cs",
@@ -709,7 +759,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 21,
+              "DocumentIndex": 25,
               "Title": "VNUIThemeApplier.cs",
               "DocumentMoniker": "C:\\Users\\123\\PPP\\Assets\\Apps\\Theme\\VNUIThemeApplier.cs",
               "RelativeDocumentMoniker": "Assets\\Apps\\Theme\\VNUIThemeApplier.cs",
@@ -721,7 +771,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 22,
+              "DocumentIndex": 26,
               "Title": "AppUIThemeData.cs",
               "DocumentMoniker": "C:\\Users\\123\\PPP\\Assets\\Apps\\Theme\\AppUIThemeData.cs",
               "RelativeDocumentMoniker": "Assets\\Apps\\Theme\\AppUIThemeData.cs",
@@ -733,7 +783,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 23,
+              "DocumentIndex": 27,
               "Title": "IngredientFilterButtonUI.cs",
               "DocumentMoniker": "C:\\Users\\123\\PPP\\Assets\\Apps\\BLUE\\Runtime\\Drink\\RecipeApp\\IngredientFilterButtonUI.cs",
               "RelativeDocumentMoniker": "Assets\\Apps\\BLUE\\Runtime\\Drink\\RecipeApp\\IngredientFilterButtonUI.cs",
@@ -745,7 +795,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 24,
+              "DocumentIndex": 28,
               "Title": "DrinkPanelUI.cs",
               "DocumentMoniker": "C:\\Users\\123\\PPP\\Assets\\Apps\\BLUE\\Runtime\\Drink\\UI\\DrinkPanelUI.cs",
               "RelativeDocumentMoniker": "Assets\\Apps\\BLUE\\Runtime\\Drink\\UI\\DrinkPanelUI.cs",
@@ -757,7 +807,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 27,
+              "DocumentIndex": 31,
               "Title": "BGMTrackItemUI.cs",
               "DocumentMoniker": "C:\\Users\\123\\PPP\\Assets\\Apps\\BRIDGE\\BGMTrackItemUI.cs",
               "RelativeDocumentMoniker": "Assets\\Apps\\BRIDGE\\BGMTrackItemUI.cs",
@@ -769,7 +819,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 25,
+              "DocumentIndex": 29,
               "Title": "UIDragMoveClamped.cs",
               "DocumentMoniker": "C:\\Users\\123\\PPP\\Assets\\Apps\\BLUE\\Runtime\\Drink\\UI\\UIDragMoveClamped.cs",
               "RelativeDocumentMoniker": "Assets\\Apps\\BLUE\\Runtime\\Drink\\UI\\UIDragMoveClamped.cs",
@@ -781,7 +831,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 26,
+              "DocumentIndex": 30,
               "Title": "BridgeUIThemeApplier.cs",
               "DocumentMoniker": "C:\\Users\\123\\PPP\\Assets\\Apps\\Theme\\BridgeUIThemeApplier.cs",
               "RelativeDocumentMoniker": "Assets\\Apps\\Theme\\BridgeUIThemeApplier.cs",
@@ -793,7 +843,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 28,
+              "DocumentIndex": 32,
               "Title": "UIButtonSpriteToggle.cs",
               "DocumentMoniker": "C:\\Users\\123\\PPP\\Assets\\Apps\\BRIDGE\\UIButtonSpriteToggle.cs",
               "RelativeDocumentMoniker": "Assets\\Apps\\BRIDGE\\UIButtonSpriteToggle.cs",
@@ -805,7 +855,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 29,
+              "DocumentIndex": 33,
               "Title": "DropdownSample.cs",
               "DocumentMoniker": "C:\\Users\\123\\PPP\\Assets\\TextMesh Pro\\Examples \u0026 Extras\\Scripts\\DropdownSample.cs",
               "RelativeDocumentMoniker": "Assets\\TextMesh Pro\\Examples \u0026 Extras\\Scripts\\DropdownSample.cs",
@@ -817,19 +867,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 31,
-              "Title": "AmbientUIController.cs",
-              "DocumentMoniker": "C:\\Users\\123\\PPP\\Assets\\Apps\\BRIDGE\\AmbientUIController.cs",
-              "RelativeDocumentMoniker": "Assets\\Apps\\BRIDGE\\AmbientUIController.cs",
-              "ToolTip": "C:\\Users\\123\\PPP\\Assets\\Apps\\BRIDGE\\AmbientUIController.cs",
-              "RelativeToolTip": "Assets\\Apps\\BRIDGE\\AmbientUIController.cs",
-              "ViewState": "AgIAAAAAAAAAAAAAAAAAADcAAAA0AAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-03-29T04:04:29.654Z"
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 30,
+              "DocumentIndex": 34,
               "Title": "BridgeMusicControlsUI.cs",
               "DocumentMoniker": "C:\\Users\\123\\PPP\\Assets\\Apps\\BRIDGE\\BridgeMusicControlsUI.cs",
               "RelativeDocumentMoniker": "Assets\\Apps\\BRIDGE\\BridgeMusicControlsUI.cs",
@@ -841,7 +879,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 32,
+              "DocumentIndex": 35,
               "Title": "BanditUIThemeApplier.cs",
               "DocumentMoniker": "C:\\Users\\123\\PPP\\Assets\\Apps\\Theme\\BanditUIThemeApplier.cs",
               "RelativeDocumentMoniker": "Assets\\Apps\\Theme\\BanditUIThemeApplier.cs",
@@ -853,7 +891,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 33,
+              "DocumentIndex": 36,
               "Title": "FidgetShortsController.cs",
               "DocumentMoniker": "C:\\Users\\123\\PPP\\Assets\\Apps\\BANDIT\\FidgetShortsController.cs",
               "RelativeDocumentMoniker": "Assets\\Apps\\BANDIT\\FidgetShortsController.cs",
@@ -865,7 +903,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 34,
+              "DocumentIndex": 37,
               "Title": "BlueprintUIThemeApplier.cs",
               "DocumentMoniker": "C:\\Users\\123\\PPP\\Assets\\Apps\\Theme\\BlueprintUIThemeApplier.cs",
               "RelativeDocumentMoniker": "Assets\\Apps\\Theme\\BlueprintUIThemeApplier.cs",
@@ -877,7 +915,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 35,
+              "DocumentIndex": 38,
               "Title": "BlueprintListItemThemeApplier.cs",
               "DocumentMoniker": "C:\\Users\\123\\PPP\\Assets\\Apps\\BLUE\\Runtime\\Drink\\RecipeApp\\BlueprintListItemThemeApplier.cs",
               "RelativeDocumentMoniker": "Assets\\Apps\\BLUE\\Runtime\\Drink\\RecipeApp\\BlueprintListItemThemeApplier.cs",
@@ -889,7 +927,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 38,
+              "DocumentIndex": 41,
               "Title": "WindowManager.cs",
               "DocumentMoniker": "C:\\Users\\123\\PPP\\Assets\\OS\\WindowSystem\\WindowManager.cs",
               "RelativeDocumentMoniker": "Assets\\OS\\WindowSystem\\WindowManager.cs",
@@ -901,7 +939,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 36,
+              "DocumentIndex": 39,
               "Title": "WindowController.cs",
               "DocumentMoniker": "C:\\Users\\123\\PPP\\Assets\\OS\\WindowSystem\\WindowController.cs",
               "RelativeDocumentMoniker": "Assets\\OS\\WindowSystem\\WindowController.cs",
@@ -913,7 +951,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 40,
+              "DocumentIndex": 43,
               "Title": "OSSaveData.cs",
               "DocumentMoniker": "C:\\Users\\123\\PPP\\Assets\\OS\\OSSave\\OSSaveData.cs",
               "RelativeDocumentMoniker": "Assets\\OS\\OSSave\\OSSaveData.cs",
@@ -925,7 +963,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 41,
+              "DocumentIndex": 44,
               "Title": "OSSaveSystem.cs",
               "DocumentMoniker": "C:\\Users\\123\\PPP\\Assets\\OS\\OSSave\\OSSaveSystem.cs",
               "RelativeDocumentMoniker": "Assets\\OS\\OSSave\\OSSaveSystem.cs",
@@ -937,7 +975,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 37,
+              "DocumentIndex": 40,
               "Title": "UISkin.cs",
               "DocumentMoniker": "C:\\Users\\123\\PPP\\Assets\\OS\\Skin\\UISkin.cs",
               "RelativeDocumentMoniker": "Assets\\OS\\Skin\\UISkin.cs",
@@ -949,7 +987,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 39,
+              "DocumentIndex": 42,
               "Title": "OSState.cs",
               "DocumentMoniker": "C:\\Users\\123\\PPP\\Assets\\Core\\OSState\\OSState.cs",
               "RelativeDocumentMoniker": "Assets\\Core\\OSState\\OSState.cs",
@@ -961,7 +999,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 43,
+              "DocumentIndex": 46,
               "Title": "BridgeMusicListView.cs",
               "DocumentMoniker": "C:\\Users\\123\\PPP\\Assets\\Apps\\BRIDGE\\BridgeMusicListView.cs",
               "RelativeDocumentMoniker": "Assets\\Apps\\BRIDGE\\BridgeMusicListView.cs",
@@ -973,7 +1011,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 42,
+              "DocumentIndex": 45,
               "Title": "BridgeMusicProgressUI.cs",
               "DocumentMoniker": "C:\\Users\\123\\PPP\\Assets\\Apps\\BRIDGE\\BridgeMusicProgressUI.cs",
               "RelativeDocumentMoniker": "Assets\\Apps\\BRIDGE\\BridgeMusicProgressUI.cs",
@@ -985,7 +1023,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 44,
+              "DocumentIndex": 47,
               "Title": "FidgetSwipeInput.cs",
               "DocumentMoniker": "C:\\Users\\123\\PPP\\Assets\\Apps\\BANDIT\\FidgetSwipeInput.cs",
               "RelativeDocumentMoniker": "Assets\\Apps\\BANDIT\\FidgetSwipeInput.cs",
@@ -997,7 +1035,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 45,
+              "DocumentIndex": 48,
               "Title": "PlaybackMode enum.cs",
               "DocumentMoniker": "C:\\Users\\123\\PPP\\Assets\\Audio\\PlaybackMode enum.cs",
               "RelativeDocumentMoniker": "Assets\\Audio\\PlaybackMode enum.cs",
@@ -1009,7 +1047,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 46,
+              "DocumentIndex": 49,
               "Title": "BGMTrackData.cs",
               "DocumentMoniker": "C:\\Users\\123\\PPP\\Assets\\Audio\\BGMTrackData.cs",
               "RelativeDocumentMoniker": "Assets\\Audio\\BGMTrackData.cs",
@@ -1021,7 +1059,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 49,
+              "DocumentIndex": 52,
               "Title": "ScrollSFX.cs",
               "DocumentMoniker": "C:\\Users\\123\\PPP\\Assets\\Apps\\BLUE\\Runtime\\Drink\\RecipeApp\\ScrollSFX.cs",
               "RelativeDocumentMoniker": "Assets\\Apps\\BLUE\\Runtime\\Drink\\RecipeApp\\ScrollSFX.cs",
@@ -1033,7 +1071,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 47,
+              "DocumentIndex": 50,
               "Title": "DrinkManager.cs",
               "DocumentMoniker": "C:\\Users\\123\\PPP\\Assets\\Apps\\BLUE\\Runtime\\Drink\\Core\\DrinkManager.cs",
               "RelativeDocumentMoniker": "Assets\\Apps\\BLUE\\Runtime\\Drink\\Core\\DrinkManager.cs",
@@ -1045,7 +1083,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 51,
+              "DocumentIndex": 54,
               "Title": "VNClosePopupController.cs",
               "DocumentMoniker": "C:\\Users\\123\\PPP\\Assets\\Apps\\BLUE\\Runtime\\UI\\VNClosePopupController.cs",
               "RelativeDocumentMoniker": "Assets\\Apps\\BLUE\\Runtime\\UI\\VNClosePopupController.cs",
@@ -1057,7 +1095,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 48,
+              "DocumentIndex": 51,
               "Title": "MusicPlayerUI.cs",
               "DocumentMoniker": "C:\\Users\\123\\PPP\\Assets\\Apps\\BRIDGE\\MusicPlayerUI.cs",
               "RelativeDocumentMoniker": "Assets\\Apps\\BRIDGE\\MusicPlayerUI.cs",
@@ -1069,7 +1107,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 50,
+              "DocumentIndex": 53,
               "Title": "VNBacklogView.cs",
               "DocumentMoniker": "C:\\Users\\123\\PPP\\Assets\\Apps\\BLUE\\Runtime\\Backlog\\VNBacklogView.cs",
               "RelativeDocumentMoniker": "Assets\\Apps\\BLUE\\Runtime\\Backlog\\VNBacklogView.cs",
@@ -1081,7 +1119,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 52,
+              "DocumentIndex": 55,
               "Title": "VNBridgeInterfaces.cs",
               "DocumentMoniker": "C:\\Users\\123\\PPP\\Assets\\Apps\\BLUE\\Bridge\\VNBridgeInterfaces.cs",
               "RelativeDocumentMoniker": "Assets\\Apps\\BLUE\\Bridge\\VNBridgeInterfaces.cs",
@@ -1093,7 +1131,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 53,
+              "DocumentIndex": 56,
               "Title": "GlobalClickSFX.cs",
               "DocumentMoniker": "C:\\Users\\123\\PPP\\Assets\\Audio\\GlobalClickSFX.cs",
               "RelativeDocumentMoniker": "Assets\\Audio\\GlobalClickSFX.cs",
@@ -1105,7 +1143,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 54,
+              "DocumentIndex": 57,
               "Title": "VNBacklogModels.cs",
               "DocumentMoniker": "C:\\Users\\123\\PPP\\Assets\\Apps\\BLUE\\Runtime\\Backlog\\VNBacklogModels.cs",
               "RelativeDocumentMoniker": "Assets\\Apps\\BLUE\\Runtime\\Backlog\\VNBacklogModels.cs",
@@ -1117,7 +1155,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 56,
+              "DocumentIndex": 59,
               "Title": "VNBacklogItemView.cs",
               "DocumentMoniker": "C:\\Users\\123\\PPP\\Assets\\Apps\\BLUE\\Runtime\\Backlog\\VNBacklogItemView.cs",
               "RelativeDocumentMoniker": "Assets\\Apps\\BLUE\\Runtime\\Backlog\\VNBacklogItemView.cs",
@@ -1129,7 +1167,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 55,
+              "DocumentIndex": 58,
               "Title": "VNTextTyper.cs",
               "DocumentMoniker": "C:\\Users\\123\\PPP\\Assets\\Apps\\BLUE\\Runtime\\VNTextTyper.cs",
               "RelativeDocumentMoniker": "Assets\\Apps\\BLUE\\Runtime\\VNTextTyper.cs",
@@ -1141,7 +1179,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 57,
+              "DocumentIndex": 60,
               "Title": "VNBacklogManager.cs",
               "DocumentMoniker": "C:\\Users\\123\\PPP\\Assets\\Apps\\BLUE\\Runtime\\Backlog\\VNBacklogManager.cs",
               "RelativeDocumentMoniker": "Assets\\Apps\\BLUE\\Runtime\\Backlog\\VNBacklogManager.cs",
@@ -1153,7 +1191,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 61,
+              "DocumentIndex": 62,
               "Title": "VNScriptImporter.cs",
               "DocumentMoniker": "C:\\Users\\123\\PPP\\Assets\\Apps\\BLUE\\Editor\\VNScriptImporter.cs",
               "RelativeDocumentMoniker": "Assets\\Apps\\BLUE\\Editor\\VNScriptImporter.cs",
@@ -1165,19 +1203,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 59,
-              "Title": "VNScriptLoader.cs",
-              "DocumentMoniker": "C:\\Users\\123\\PPP\\Assets\\Apps\\BLUE\\Runtime\\Data\\VNScriptLoader.cs",
-              "RelativeDocumentMoniker": "Assets\\Apps\\BLUE\\Runtime\\Data\\VNScriptLoader.cs",
-              "ToolTip": "C:\\Users\\123\\PPP\\Assets\\Apps\\BLUE\\Runtime\\Data\\VNScriptLoader.cs",
-              "RelativeToolTip": "Assets\\Apps\\BLUE\\Runtime\\Data\\VNScriptLoader.cs",
-              "ViewState": "AgIAAAcAAAAAAAAAAAD4v5kAAAA0AAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-02-24T01:24:27.803Z"
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 63,
+              "DocumentIndex": 64,
               "Title": "VNFileSaveSystem.cs",
               "DocumentMoniker": "C:\\Users\\123\\PPP\\Assets\\Apps\\BLUE\\Runtime\\Save\\VNFileSaveSystem.cs",
               "RelativeDocumentMoniker": "Assets\\Apps\\BLUE\\Runtime\\Save\\VNFileSaveSystem.cs",
@@ -1189,19 +1215,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 58,
-              "Title": "VNScriptDTO.cs",
-              "DocumentMoniker": "C:\\Users\\123\\PPP\\Assets\\Apps\\BLUE\\Runtime\\Data\\VNScriptDTO.cs",
-              "RelativeDocumentMoniker": "Assets\\Apps\\BLUE\\Runtime\\Data\\VNScriptDTO.cs",
-              "ToolTip": "C:\\Users\\123\\PPP\\Assets\\Apps\\BLUE\\Runtime\\Data\\VNScriptDTO.cs",
-              "RelativeToolTip": "Assets\\Apps\\BLUE\\Runtime\\Data\\VNScriptDTO.cs",
-              "ViewState": "AgIAAAAAAAAAAAAAAAAAABgAAAAAAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-02-24T01:02:00.964Z"
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 60,
+              "DocumentIndex": 61,
               "Title": "VNScript.cs",
               "DocumentMoniker": "C:\\Users\\123\\PPP\\Assets\\Apps\\BLUE\\Runtime\\VNScript.cs",
               "RelativeDocumentMoniker": "Assets\\Apps\\BLUE\\Runtime\\VNScript.cs",
@@ -1213,7 +1227,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 62,
+              "DocumentIndex": 63,
               "Title": "VNState.cs",
               "DocumentMoniker": "C:\\Users\\123\\PPP\\Assets\\Apps\\BLUE\\Runtime\\Save\\VNState.cs",
               "RelativeDocumentMoniker": "Assets\\Apps\\BLUE\\Runtime\\Save\\VNState.cs",
@@ -1225,7 +1239,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 64,
+              "DocumentIndex": 65,
               "Title": "VNSaveManager.cs",
               "DocumentMoniker": "C:\\Users\\123\\PPP\\Assets\\Apps\\BLUE\\Runtime\\Save\\VNSaveManager.cs",
               "RelativeDocumentMoniker": "Assets\\Apps\\BLUE\\Runtime\\Save\\VNSaveManager.cs",
@@ -1237,7 +1251,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 65,
+              "DocumentIndex": 66,
               "Title": "DrinkPanel.cs",
               "DocumentMoniker": "C:\\Users\\123\\PPP\\Assets\\Apps\\BLUE\\Runtime\\Drink\\DrinkPanel.cs",
               "RelativeDocumentMoniker": "Assets\\Apps\\BLUE\\Runtime\\Drink\\DrinkPanel.cs",
@@ -1249,7 +1263,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 66,
+              "DocumentIndex": 67,
               "Title": "DrinkRequestEvaluator.cs",
               "DocumentMoniker": "C:\\Users\\123\\PPP\\Assets\\Apps\\BLUE\\Runtime\\Drink\\Systems\\DrinkRequestEvaluator.cs",
               "RelativeDocumentMoniker": "Assets\\Apps\\BLUE\\Runtime\\Drink\\Systems\\DrinkRequestEvaluator.cs",
@@ -1261,7 +1275,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 68,
+              "DocumentIndex": 69,
               "Title": "DrinkRequest.cs",
               "DocumentMoniker": "C:\\Users\\123\\PPP\\Assets\\Apps\\BLUE\\Runtime\\Drink\\Data\\DrinkRequest.cs",
               "RelativeDocumentMoniker": "Assets\\Apps\\BLUE\\Runtime\\Drink\\Data\\DrinkRequest.cs",
@@ -1273,7 +1287,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 67,
+              "DocumentIndex": 68,
               "Title": "DrinkDatabaseLoader.cs",
               "DocumentMoniker": "C:\\Users\\123\\PPP\\Assets\\Apps\\BLUE\\Runtime\\Drink\\Core\\DrinkDatabaseLoader.cs",
               "RelativeDocumentMoniker": "Assets\\Apps\\BLUE\\Runtime\\Drink\\Core\\DrinkDatabaseLoader.cs",
@@ -1285,7 +1299,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 69,
+              "DocumentIndex": 70,
               "Title": "VNCSVImporter.cs",
               "DocumentMoniker": "C:\\Users\\123\\PPP\\Assets\\Data\\Dialogue\\VNCSVImporter.cs",
               "RelativeDocumentMoniker": "Assets\\Data\\Dialogue\\VNCSVImporter.cs",
@@ -1297,7 +1311,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 70,
+              "DocumentIndex": 71,
               "Title": "AppDataPaths.cs",
               "DocumentMoniker": "C:\\Users\\123\\PPP\\Assets\\Apps\\BLUE\\Runtime\\Data\\AppDataPaths.cs",
               "RelativeDocumentMoniker": "Assets\\Apps\\BLUE\\Runtime\\Data\\AppDataPaths.cs",
@@ -1309,7 +1323,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 71,
+              "DocumentIndex": 72,
               "Title": "VNDebugHotkeys.cs",
               "DocumentMoniker": "C:\\Users\\123\\PPP\\Assets\\Apps\\BLUE\\Runtime\\Debug\\VNDebugHotkeys.cs",
               "RelativeDocumentMoniker": "Assets\\Apps\\BLUE\\Runtime\\Debug\\VNDebugHotkeys.cs",
@@ -1321,7 +1335,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 72,
+              "DocumentIndex": 73,
               "Title": "VNNodeType.cs",
               "DocumentMoniker": "C:\\Users\\123\\PPP\\Assets\\Apps\\BLUE\\Runtime\\VNNodeType.cs",
               "RelativeDocumentMoniker": "Assets\\Apps\\BLUE\\Runtime\\VNNodeType.cs",
@@ -1333,7 +1347,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 73,
+              "DocumentIndex": 74,
               "Title": "VNNodeList.cs",
               "DocumentMoniker": "C:\\Users\\123\\PPP\\Assets\\Data\\Dialogue\\VNNodeList.cs",
               "RelativeDocumentMoniker": "Assets\\Data\\Dialogue\\VNNodeList.cs",
@@ -1342,18 +1356,6 @@
               "ViewState": "AgIAAAAAAAAAAAAAAAAAAAYAAAAAAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
               "WhenOpened": "2026-03-04T07:41:08.329Z"
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 74,
-              "Title": "VNNode.cs",
-              "DocumentMoniker": "C:\\Users\\123\\PPP\\Assets\\Apps\\BLUE\\Runtime\\VNNode.cs",
-              "RelativeDocumentMoniker": "Assets\\Apps\\BLUE\\Runtime\\VNNode.cs",
-              "ToolTip": "C:\\Users\\123\\PPP\\Assets\\Apps\\BLUE\\Runtime\\VNNode.cs",
-              "RelativeToolTip": "Assets\\Apps\\BLUE\\Runtime\\VNNode.cs",
-              "ViewState": "AgIAAAAAAAAAAAAAAAAAABsAAAAAAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-02-23T06:34:47.714Z"
             },
             {
               "$type": "Document",

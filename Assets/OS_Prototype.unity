@@ -1254,16 +1254,16 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   sourceA: {fileID: 1873852102}
   sourceB: {fileID: 355191853}
-  ocean: {fileID: 8300000, guid: 8389a5c64c557834ca38591efeec5598, type: 3}
-  storm: {fileID: 8300000, guid: cb5aca938813d044290be537f4e2a6ac, type: 3}
-  lightRain: {fileID: 8300000, guid: 1cf6b39686dfd8149b61595465dd35af, type: 3}
-  morningBirds: {fileID: 8300000, guid: 866eb9cd70cc4cc48bdcf881ef499878, type: 3}
-  nightCrickets: {fileID: 8300000, guid: f86e6086eaf56684fb89ed201abcad5e, type: 3}
-  cafe: {fileID: 8300000, guid: 887afbcbcd581fd409868bebcd7226a6, type: 3}
-  subway: {fileID: 8300000, guid: 0b1a01e091f86664c8abebd7de140fb5, type: 3}
-  cityStreet: {fileID: 8300000, guid: 1530ad9c914524f4a9b03de582eba67b, type: 3}
-  dreamcore: {fileID: 8300000, guid: c27f0b4a69e9a1746958def1d4f3a6b8, type: 3}
-  campfire: {fileID: 8300000, guid: b5ed74af17e6f38469cd640c97b6316a, type: 3}
+  wave: {fileID: 8300000, guid: 4d7db794895b4994dbf3037216a0c849, type: 3}
+  firework: {fileID: 8300000, guid: 16783bc42e493154f98a05ea9eb4bada, type: 3}
+  lightrain: {fileID: 8300000, guid: b2586d9e1160b9f48acf513dfec72f36, type: 3}
+  heavyrain: {fileID: 8300000, guid: 0a5a744a28d37a142a071b8d17a1435c, type: 3}
+  morning: {fileID: 8300000, guid: 7f739ba8ed35e6740bf0f8233b66deb4, type: 3}
+  night: {fileID: 8300000, guid: 214444673a130a24d9b2856205d7e8db, type: 3}
+  campfire: {fileID: 8300000, guid: 025d756ef25b77c41aa0d8aa2b9e3368, type: 3}
+  cafe: {fileID: 8300000, guid: b18020df1a0e5ba47b14737b61eba539, type: 3}
+  subway: {fileID: 8300000, guid: 380f373f21803fd4a905d47c5f02f3d6, type: 3}
+  grocery: {fileID: 8300000, guid: e4ce4aecfdbf85744abeb323e13db122, type: 3}
 --- !u!224 &93838007
 RectTransform:
   m_ObjectHideFlags: 0
@@ -14455,6 +14455,7 @@ MonoBehaviour:
   policy: {fileID: 0}
   windowManager: {fileID: 0}
   textTyper: {fileID: 0}
+  characterManager: {fileID: 0}
   autoPlayDelaySeconds: 0.35
   skipMode: 0
   holdSkipStepInterval: 0.06
