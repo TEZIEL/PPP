@@ -28,6 +28,9 @@ namespace PPP.BLUE.VN
         [SerializeField] private Image rightImage;
         [SerializeField] private Image portraitImage;
 
+        [Header("Optional Layered Character Slots")]
+        [SerializeField] private List<VNLayeredCharacterSlot> layeredCharacterSlots = new();
+
         [Header("Optional Layered Portrait Slots")]
         [SerializeField] private Image portraitBaseImage;
         [SerializeField] private Image portraitEyebrowImage;
@@ -40,6 +43,15 @@ namespace PPP.BLUE.VN
         [SerializeField, Min(0f)] private float portraitBlinkIntervalMax = 6.5f;
         [SerializeField, Min(0.01f)] private float portraitBlinkFrameDuration = 0.06f;
 
+        [Header("Layered Character Blink")]
+        [SerializeField, Min(0f)] private float layeredCharacterBlinkInitialDelay = 5f;
+        [SerializeField, Min(0f)] private float layeredCharacterBlinkMinInterval = 4f;
+        [SerializeField, Min(0f)] private float layeredCharacterBlinkMaxInterval = 7f;
+        [SerializeField, Min(0.01f)] private float layeredCharacterBlinkFrameInterval = 0.06f;
+
+        [Header("Layered Portrait Mouth")]
+        [SerializeField, Min(0.01f)] private float portraitMouthFrameInterval = 0.1f;
+
         [Header("Fade")]
         [SerializeField, Min(0f)] private float fadeDuration = 0.25f;
         [SerializeField] private bool logFadeDebug;
@@ -50,12 +62,32 @@ namespace PPP.BLUE.VN
         private readonly Dictionary<string, string> speakerCharacterLookup = new(System.StringComparer.OrdinalIgnoreCase);
         private readonly Dictionary<string, VNCharacterState> activeStates = new(System.StringComparer.OrdinalIgnoreCase);
         private readonly Dictionary<Image, Coroutine> fadeCoroutines = new();
+        private readonly Dictionary<string, Coroutine> layeredCharacterFadeCoroutines = new(System.StringComparer.OrdinalIgnoreCase);
+        private readonly Dictionary<string, Coroutine> layeredCharacterBlinkCoroutines = new(System.StringComparer.OrdinalIgnoreCase);
+        private readonly Dictionary<string, string> layeredCharacterBlinkCharacterIds = new(System.StringComparer.OrdinalIgnoreCase);
+        private readonly Dictionary<string, string> layeredCharacterBlinkExpressionIds = new(System.StringComparer.OrdinalIgnoreCase);
         private readonly Dictionary<string, VNCharacterState> pendingShows = new(System.StringComparer.OrdinalIgnoreCase);
         private readonly HashSet<string> fadingOutPositions = new(System.StringComparer.OrdinalIgnoreCase);
 
         private Coroutine portraitBlinkCoroutine;
         private string portraitBlinkCharacterId;
         private string portraitBlinkExpressionId;
+        private Coroutine portraitMouthCoroutine;
+        private string portraitMouthCharacterId;
+        private string portraitMouthExpressionId;
+        private bool portraitMouthAnimationRequested;
+        private string portraitMouthRequestedCharacterId;
+        private int portraitMouthOpenSpriteIndex;
+
+        [System.Serializable]
+        public sealed class VNLayeredCharacterSlot
+        {
+            public string position = CenterPosition;
+            public Image baseImage;
+            public Image eyebrowImage;
+            public Image eyeImage;
+            public Image mouthImage;
+        }
 
         private void Awake()
         {
@@ -76,6 +108,8 @@ namespace PPP.BLUE.VN
 
         private void OnDisable()
         {
+            StopAllMouthAnimations();
+            StopAllLayeredCharacterBlinks(restoreOpenFrame: true);
             StopLayeredPortraitBlink(restoreOpenFrame: true);
         }
 
@@ -141,6 +175,59 @@ namespace PPP.BLUE.VN
             return speakerCharacterLookup.TryGetValue(speakerId.Trim(), out characterId) && !string.IsNullOrWhiteSpace(characterId);
         }
 
+        public bool IsMouthAnimationSupported(string characterId)
+        {
+            if (!TryGetActiveMouthState(characterId, out VNCharacterState state))
+                return false;
+
+            if (!TryGetCharacterDefinition(state.characterId, out VNCharacterDefinition definition) || !definition.supportsMouth)
+                return false;
+
+            return TryGetLayeredExpressionMapping(state.characterId, state.expressionId, out VNLayeredExpressionMapping mapping)
+                && CanRunLayeredPortraitMouth(state.characterId, state.expressionId, mapping);
+        }
+
+        public void StartMouthAnimation(string characterId)
+        {
+            if (!IsMelionCharacterId(characterId))
+                return;
+
+            portraitMouthAnimationRequested = true;
+            portraitMouthRequestedCharacterId = MelionCharacterId;
+
+            StopMouthAnimationInternal(characterId, applyClosed: true, clearRequest: false);
+
+            if (!TryGetActiveMouthState(characterId, out VNCharacterState state))
+                return;
+
+            if (!TryGetCharacterDefinition(state.characterId, out VNCharacterDefinition definition) || !definition.supportsMouth)
+                return;
+
+            if (!TryGetLayeredExpressionMapping(state.characterId, state.expressionId, out VNLayeredExpressionMapping mapping)
+                || !CanRunLayeredPortraitMouth(state.characterId, state.expressionId, mapping)
+                || !isActiveAndEnabled)
+            {
+                ApplyLayeredPortraitMouthClosed(state.characterId, state.expressionId);
+                return;
+            }
+
+            portraitMouthCharacterId = state.characterId;
+            portraitMouthExpressionId = state.expressionId;
+            portraitMouthOpenSpriteIndex = 0;
+            portraitMouthCoroutine = StartCoroutine(RunLayeredPortraitMouth(state.characterId, state.expressionId));
+        }
+
+        public void StopMouthAnimation(string characterId, bool applyClosed = true)
+        {
+            StopMouthAnimationInternal(characterId, applyClosed, clearRequest: true);
+        }
+
+        public void StopAllMouthAnimations()
+        {
+            StopMouthAnimationInternal(null, applyClosed: true, clearRequest: true);
+        }
+
+
         public void ShowCharacter(string characterId, string expressionId, string position)
         {
             if (string.IsNullOrWhiteSpace(characterId))
@@ -170,7 +257,13 @@ namespace PPP.BLUE.VN
                 return;
             }
 
+            if (state.position != PortraitPosition)
+                StopLayeredCharacterBlink(state.position, restoreOpenFrame: true);
+
             activeStates[characterId] = state;
+            if (IsMelionLayeredPortraitState(state))
+                StopMouthAnimation(characterId, applyClosed: false);
+
             ApplyStateToSlot(state, useFade: useFade);
         }
 
@@ -189,13 +282,15 @@ namespace PPP.BLUE.VN
 
             string normalizedPosition = NormalizePosition(state.position);
             bool useLayeredPortrait = IsLayeredPortraitState(state);
+            bool useLayeredCharacter = IsLayeredCharacterState(state);
             Sprite sprite = null;
             bool hasSprite = TryGetSprite(characterId, expressionId, out sprite);
-            bool hasLayeredMapping = useLayeredPortrait && CanApplyLayeredPortrait(characterId, expressionId);
+            bool hasLayeredMapping = (useLayeredPortrait && CanApplyLayeredPortrait(characterId, expressionId))
+                || (useLayeredCharacter && CanApplyLayeredCharacter(normalizedPosition, characterId, expressionId));
 
             if (!hasSprite && !hasLayeredMapping)
             {
-                Debug.LogWarning($"[VNCharacterManager] Missing sprite or layered portrait mapping for characterId='{characterId}' expressionId='{expressionId}'. Keeping current expression.");
+                Debug.LogWarning($"[VNCharacterManager] Missing sprite or layered mapping for characterId='{characterId}' expressionId='{expressionId}'. Keeping current expression.");
                 return false;
             }
 
@@ -240,15 +335,23 @@ namespace PPP.BLUE.VN
             }
 
             if (normalizedPosition != PortraitPosition)
+            {
+                StopLayeredCharacterBlink(normalizedPosition, restoreOpenFrame: true);
                 FadeOutAndClearSlot(normalizedPosition);
+            }
             else
+            {
+                StopMouthAnimation(characterId, applyClosed: true);
                 StopLayeredPortraitBlink(characterId, restoreOpenFrame: true);
+            }
 
             activeStates.Remove(characterId);
         }
 
         public void ClearAll()
         {
+            StopAllMouthAnimations();
+            StopAllLayeredCharacterBlinks(restoreOpenFrame: true);
             activeStates.Clear();
             pendingShows.Clear();
             fadingOutPositions.Clear();
@@ -384,6 +487,16 @@ namespace PPP.BLUE.VN
             if (TryApplyLayeredPortrait(state, warnOnFallback: false))
                 return;
 
+            if (TryApplyLayeredCharacter(
+                state,
+                useFade,
+                forceAlphaOneWhenImmediate: true,
+                stopExistingFade: true,
+                warnOnFallback: false))
+            {
+                return;
+            }
+
             Image slot = GetSlotImage(normalizedPosition);
             if (slot == null)
             {
@@ -395,6 +508,11 @@ namespace PPP.BLUE.VN
 
             if (normalizedPosition == PortraitPosition)
                 ClearLayeredPortraitImages();
+            else
+            {
+                StopLayeredCharacterBlink(normalizedPosition, restoreOpenFrame: false);
+                ClearLayeredCharacterSlotImages(normalizedPosition);
+            }
 
             Sprite sprite = GetSprite(state.characterId, state.expressionId);
             ApplySpriteToSlot(
@@ -415,6 +533,16 @@ namespace PPP.BLUE.VN
             if (TryApplyLayeredPortrait(state, warnOnFallback: false))
                 return;
 
+            if (TryApplyLayeredCharacter(
+                state,
+                useFade: false,
+                forceAlphaOneWhenImmediate: false,
+                stopExistingFade: false,
+                warnOnFallback: false))
+            {
+                return;
+            }
+
             Image slot = GetSlotImage(normalizedPosition);
             if (slot == null)
             {
@@ -426,6 +554,11 @@ namespace PPP.BLUE.VN
 
             if (normalizedPosition == PortraitPosition)
                 ClearLayeredPortraitImages();
+            else
+            {
+                StopLayeredCharacterBlink(normalizedPosition, restoreOpenFrame: false);
+                ClearLayeredCharacterSlotImages(normalizedPosition);
+            }
 
             ApplySpriteToSlot(
                 slot,
@@ -452,12 +585,16 @@ namespace PPP.BLUE.VN
             }
 
             VNLayeredExpressionMapping mapping = layeredExpressionLookup[BuildKey(state.characterId, state.expressionId)];
+            bool restartMouthAnimation = ShouldRestartMouthAnimationAfterLayeredApply(state.characterId);
+            StopMouthAnimationInternal(state.characterId, applyClosed: false, clearRequest: false);
             StopLayeredPortraitBlink(state.characterId, restoreOpenFrame: false);
             ApplySpriteToImage(portraitBaseImage, mapping.baseSprite);
             ApplySpriteToImage(portraitEyebrowImage, GetEyebrowOpenSprite(mapping));
             ApplySpriteToImage(portraitEyeImage, mapping.eyeOpenSprite);
             ApplySpriteToImage(portraitMouthImage, mapping.mouthClosedSprite);
             StartLayeredPortraitBlink(state, mapping);
+            if (restartMouthAnimation)
+                StartMouthAnimation(state.characterId);
 
             if (portraitImage != null)
             {
@@ -466,6 +603,517 @@ namespace PPP.BLUE.VN
             }
 
             return true;
+        }
+
+        private bool TryApplyLayeredCharacter(
+            VNCharacterState state,
+            bool useFade,
+            bool forceAlphaOneWhenImmediate,
+            bool stopExistingFade,
+            bool warnOnFallback)
+        {
+            if (state == null || !IsLayeredCharacterState(state))
+                return false;
+
+            string normalizedPosition = NormalizePosition(state.position);
+            if (!TryGetLayeredCharacterSlot(normalizedPosition, out VNLayeredCharacterSlot layeredSlot)
+                || !HasLayeredCharacterImages(layeredSlot)
+                || !TryGetLayeredExpressionMapping(state.characterId, state.expressionId, out VNLayeredExpressionMapping mapping))
+            {
+                if (warnOnFallback)
+                    Debug.LogWarning($"[VNCharacterManager] Missing layered character slot or mapping for characterId='{state.characterId}' expressionId='{state.expressionId}' position='{normalizedPosition}'. Falling back to full sprite slot.");
+
+                StopLayeredCharacterBlink(normalizedPosition, restoreOpenFrame: false);
+                ClearLayeredCharacterSlotImages(normalizedPosition);
+                return false;
+            }
+
+            Image fullSpriteSlot = GetSlotImage(normalizedPosition);
+            if (fullSpriteSlot != null)
+            {
+                StopSlotFade(fullSpriteSlot);
+                fullSpriteSlot.sprite = null;
+                fullSpriteSlot.enabled = false;
+                SetAlpha(fullSpriteSlot, 1f);
+            }
+
+            StopLayeredCharacterBlink(normalizedPosition, restoreOpenFrame: false);
+            ApplyLayeredCharacterSprites(layeredSlot, mapping);
+            ApplyLayeredCharacterVisibility(
+                layeredSlot,
+                normalizedPosition,
+                useFade,
+                forceAlphaOneWhenImmediate,
+                stopExistingFade);
+            StartLayeredCharacterBlink(state, layeredSlot, mapping);
+            return true;
+        }
+
+        private void ApplyLayeredCharacterSprites(VNLayeredCharacterSlot slot, VNLayeredExpressionMapping mapping)
+        {
+            ApplySpriteToImage(slot.baseImage, mapping?.baseSprite);
+            ApplySpriteToImage(slot.eyebrowImage, GetEyebrowOpenSprite(mapping));
+            ApplySpriteToImage(slot.eyeImage, mapping?.eyeOpenSprite);
+            ApplySpriteToImage(slot.mouthImage, mapping?.mouthClosedSprite);
+        }
+
+        private void ApplyLayeredCharacterVisibility(
+            VNLayeredCharacterSlot slot,
+            string normalizedPosition,
+            bool useFade,
+            bool forceAlphaOneWhenImmediate,
+            bool stopExistingFade)
+        {
+            if (slot == null)
+                return;
+
+            if (stopExistingFade)
+                StopLayeredCharacterFade(normalizedPosition);
+
+            SetLayeredCharacterActive(slot, true);
+
+            if (!useFade || fadeDuration <= 0f)
+            {
+                if (forceAlphaOneWhenImmediate)
+                    SetLayeredCharacterAlpha(slot, 1f);
+
+                return;
+            }
+
+            SetLayeredCharacterAlpha(slot, 0f);
+            LogFadeDebug($"Start layered character fade in: position={normalizedPosition}, from alpha=0, to alpha=1, duration={fadeDuration:0.###}");
+            layeredCharacterFadeCoroutines[normalizedPosition] = StartCoroutine(FadeLayeredCharacterSlot(slot, normalizedPosition, 0f, 1f, fadeDuration, clearOnComplete: false));
+        }
+
+
+        private void StartLayeredCharacterBlink(VNCharacterState state, VNLayeredCharacterSlot slot, VNLayeredExpressionMapping mapping)
+        {
+            if (!CanRunLayeredCharacterBlink(state, slot, mapping) || !isActiveAndEnabled)
+            {
+                RestoreLayeredCharacterBlinkOpenFrame(state, slot, mapping);
+                return;
+            }
+
+            string normalizedPosition = NormalizePosition(state.position);
+            StopLayeredCharacterBlink(normalizedPosition, restoreOpenFrame: false);
+            RestoreLayeredCharacterBlinkOpenFrame(state, slot, mapping);
+
+            layeredCharacterBlinkCharacterIds[normalizedPosition] = state.characterId;
+            layeredCharacterBlinkExpressionIds[normalizedPosition] = state.expressionId;
+            layeredCharacterBlinkCoroutines[normalizedPosition] = StartCoroutine(RunLayeredCharacterBlink(normalizedPosition, state.characterId, state.expressionId));
+        }
+
+        private IEnumerator RunLayeredCharacterBlink(string normalizedPosition, string characterId, string expressionId)
+        {
+            yield return new WaitForSeconds(Mathf.Max(0f, layeredCharacterBlinkInitialDelay));
+
+            while (IsLayeredCharacterBlinkCurrent(normalizedPosition, characterId, expressionId))
+            {
+                if (!TryGetLayeredCharacterSlot(normalizedPosition, out VNLayeredCharacterSlot slot)
+                    || !TryGetLayeredExpressionMapping(characterId, expressionId, out VNLayeredExpressionMapping mapping)
+                    || !CanRunLayeredCharacterBlink(normalizedPosition, characterId, expressionId, slot, mapping))
+                {
+                    RestoreLayeredCharacterBlinkOpenFrame(normalizedPosition, characterId, expressionId);
+                    ClearLayeredCharacterBlinkHandle(normalizedPosition, characterId, expressionId);
+                    yield break;
+                }
+
+                yield return PlayLayeredCharacterBlink(normalizedPosition, characterId, expressionId, mapping);
+
+                if (!IsLayeredCharacterBlinkCurrent(normalizedPosition, characterId, expressionId))
+                    break;
+
+                float minInterval = Mathf.Min(layeredCharacterBlinkMinInterval, layeredCharacterBlinkMaxInterval);
+                float maxInterval = Mathf.Max(layeredCharacterBlinkMinInterval, layeredCharacterBlinkMaxInterval);
+                float nextInterval = Mathf.Approximately(minInterval, maxInterval)
+                    ? minInterval
+                    : Random.Range(minInterval, maxInterval);
+
+                yield return new WaitForSeconds(nextInterval);
+            }
+
+            RestoreLayeredCharacterBlinkOpenFrame(normalizedPosition, characterId, expressionId);
+            ClearLayeredCharacterBlinkHandle(normalizedPosition, characterId, expressionId);
+        }
+
+        private IEnumerator PlayLayeredCharacterBlink(string normalizedPosition, string characterId, string expressionId, VNLayeredExpressionMapping mapping)
+        {
+            if (mapping == null)
+                yield break;
+
+            float frameInterval = Mathf.Max(0.01f, layeredCharacterBlinkFrameInterval);
+            Sprite eyebrowOpen = GetEyebrowOpenSprite(mapping);
+            Sprite eyebrowHalf = mapping.eyebrowBlinkHalfSprite;
+            Sprite eyebrowClosed = mapping.eyebrowBlinkClosedSprite;
+            Sprite eyeOpen = mapping.eyeOpenSprite;
+            Sprite eyeHalf = mapping.eyeBlinkHalfSprite;
+            Sprite eyeClosed = GetEyeBlinkClosedSprite(mapping);
+
+            if (!TryApplyLayeredCharacterBlinkFrame(normalizedPosition, characterId, expressionId, eyebrowHalf, eyeHalf))
+                yield break;
+
+            yield return new WaitForSeconds(frameInterval);
+            if (!TryApplyLayeredCharacterBlinkFrame(normalizedPosition, characterId, expressionId, eyebrowClosed, eyeClosed))
+                yield break;
+
+            yield return new WaitForSeconds(frameInterval);
+            if (!TryApplyLayeredCharacterBlinkFrame(normalizedPosition, characterId, expressionId, eyebrowHalf, eyeHalf))
+                yield break;
+
+            yield return new WaitForSeconds(frameInterval);
+            TryApplyLayeredCharacterBlinkFrame(normalizedPosition, characterId, expressionId, eyebrowOpen, eyeOpen);
+        }
+
+        private bool TryApplyLayeredCharacterBlinkFrame(string normalizedPosition, string characterId, string expressionId, Sprite eyebrowSprite, Sprite eyeSprite)
+        {
+            if (!IsLayeredCharacterBlinkCurrent(normalizedPosition, characterId, expressionId)
+                || !TryGetLayeredCharacterSlot(normalizedPosition, out VNLayeredCharacterSlot slot)
+                || !HasActiveLayeredCharacterBlinkImages(slot))
+            {
+                return false;
+            }
+
+            ApplySpriteToImage(slot.eyebrowImage, eyebrowSprite);
+            ApplySpriteToImage(slot.eyeImage, eyeSprite);
+            return true;
+        }
+
+        private bool CanRunLayeredCharacterBlink(VNCharacterState state, VNLayeredCharacterSlot slot, VNLayeredExpressionMapping mapping)
+        {
+            if (state == null || !IsLayeredCharacterState(state))
+                return false;
+
+            if (!TryGetCharacterDefinition(state.characterId, out VNCharacterDefinition definition) || !definition.supportsBlink)
+                return false;
+
+            return CanRunLayeredCharacterBlink(NormalizePosition(state.position), state.characterId, state.expressionId, slot, mapping);
+        }
+
+        private bool CanRunLayeredCharacterBlink(string normalizedPosition, string characterId, string expressionId, VNLayeredCharacterSlot slot, VNLayeredExpressionMapping mapping)
+        {
+            return NormalizePosition(normalizedPosition) != PortraitPosition
+                && HasActiveLayeredCharacterBlinkImages(slot)
+                && mapping != null
+                && !string.IsNullOrWhiteSpace(characterId)
+                && !string.IsNullOrWhiteSpace(expressionId)
+                && GetEyebrowOpenSprite(mapping) != null
+                && mapping.eyebrowBlinkHalfSprite != null
+                && mapping.eyebrowBlinkClosedSprite != null
+                && mapping.eyeOpenSprite != null
+                && mapping.eyeBlinkHalfSprite != null
+                && GetEyeBlinkClosedSprite(mapping) != null;
+        }
+
+        private bool IsLayeredCharacterBlinkCurrent(string normalizedPosition, string characterId, string expressionId)
+        {
+            normalizedPosition = NormalizePosition(normalizedPosition);
+            if (normalizedPosition == PortraitPosition
+                || string.IsNullOrWhiteSpace(characterId)
+                || string.IsNullOrWhiteSpace(expressionId))
+            {
+                return false;
+            }
+
+            if (!layeredCharacterBlinkCharacterIds.TryGetValue(normalizedPosition, out string currentCharacterId)
+                || !layeredCharacterBlinkExpressionIds.TryGetValue(normalizedPosition, out string currentExpressionId)
+                || !string.Equals(currentCharacterId, characterId, System.StringComparison.OrdinalIgnoreCase)
+                || !string.Equals(currentExpressionId, expressionId, System.StringComparison.OrdinalIgnoreCase))
+            {
+                return false;
+            }
+
+            if (!activeStates.TryGetValue(characterId, out VNCharacterState state) || state == null || !state.visible)
+                return false;
+
+            return string.Equals(NormalizePosition(state.position), normalizedPosition, System.StringComparison.OrdinalIgnoreCase)
+                && string.Equals(state.expressionId, expressionId, System.StringComparison.OrdinalIgnoreCase)
+                && IsLayeredCharacterState(state);
+        }
+
+        private void RestoreLayeredCharacterBlinkOpenFrame(VNCharacterState state, VNLayeredCharacterSlot slot, VNLayeredExpressionMapping mapping)
+        {
+            if (state == null || slot == null || mapping == null || !IsLayeredCharacterState(state))
+                return;
+
+            ApplySpriteToImage(slot.eyebrowImage, GetEyebrowOpenSprite(mapping));
+            ApplySpriteToImage(slot.eyeImage, mapping.eyeOpenSprite);
+        }
+
+        private void RestoreLayeredCharacterBlinkOpenFrame(string normalizedPosition, string characterId, string expressionId)
+        {
+            normalizedPosition = NormalizePosition(normalizedPosition);
+            if (normalizedPosition == PortraitPosition
+                || string.IsNullOrWhiteSpace(characterId)
+                || string.IsNullOrWhiteSpace(expressionId))
+            {
+                return;
+            }
+
+            if (!TryGetLayeredCharacterSlot(normalizedPosition, out VNLayeredCharacterSlot slot))
+                return;
+
+            if (!TryGetLayeredExpressionMapping(characterId, expressionId, out VNLayeredExpressionMapping mapping))
+                return;
+
+            ApplySpriteToImage(slot.eyebrowImage, GetEyebrowOpenSprite(mapping));
+            ApplySpriteToImage(slot.eyeImage, mapping.eyeOpenSprite);
+        }
+
+        private bool HasActiveLayeredCharacterBlinkImages(VNLayeredCharacterSlot slot)
+        {
+            return slot != null && IsActiveImage(slot.eyebrowImage) && IsActiveImage(slot.eyeImage);
+        }
+
+        private void ClearLayeredCharacterBlinkHandle(string normalizedPosition, string characterId, string expressionId)
+        {
+            normalizedPosition = NormalizePosition(normalizedPosition);
+            if (!layeredCharacterBlinkCharacterIds.TryGetValue(normalizedPosition, out string currentCharacterId)
+                || !layeredCharacterBlinkExpressionIds.TryGetValue(normalizedPosition, out string currentExpressionId)
+                || !string.Equals(currentCharacterId, characterId, System.StringComparison.OrdinalIgnoreCase)
+                || !string.Equals(currentExpressionId, expressionId, System.StringComparison.OrdinalIgnoreCase))
+            {
+                return;
+            }
+
+            layeredCharacterBlinkCoroutines.Remove(normalizedPosition);
+            layeredCharacterBlinkCharacterIds.Remove(normalizedPosition);
+            layeredCharacterBlinkExpressionIds.Remove(normalizedPosition);
+        }
+
+        private void StopLayeredCharacterBlink(string position, bool restoreOpenFrame)
+        {
+            string normalizedPosition = NormalizePosition(position);
+            if (normalizedPosition == PortraitPosition)
+                return;
+
+            layeredCharacterBlinkCharacterIds.TryGetValue(normalizedPosition, out string stoppedCharacterId);
+            layeredCharacterBlinkExpressionIds.TryGetValue(normalizedPosition, out string stoppedExpressionId);
+
+            if (layeredCharacterBlinkCoroutines.TryGetValue(normalizedPosition, out Coroutine coroutine) && coroutine != null)
+                StopCoroutine(coroutine);
+
+            layeredCharacterBlinkCoroutines.Remove(normalizedPosition);
+            layeredCharacterBlinkCharacterIds.Remove(normalizedPosition);
+            layeredCharacterBlinkExpressionIds.Remove(normalizedPosition);
+
+            if (restoreOpenFrame)
+                RestoreLayeredCharacterBlinkOpenFrame(normalizedPosition, stoppedCharacterId, stoppedExpressionId);
+        }
+
+        private void StopAllLayeredCharacterBlinks(bool restoreOpenFrame)
+        {
+            var positions = new List<string>(layeredCharacterBlinkCoroutines.Keys);
+            for (int i = 0; i < positions.Count; i++)
+                StopLayeredCharacterBlink(positions[i], restoreOpenFrame);
+
+            layeredCharacterBlinkCoroutines.Clear();
+            layeredCharacterBlinkCharacterIds.Clear();
+            layeredCharacterBlinkExpressionIds.Clear();
+        }
+
+        private bool ShouldRestartMouthAnimationAfterLayeredApply(string characterId)
+        {
+            return IsMelionCharacterId(characterId)
+                && (IsMouthAnimationCurrent(characterId)
+                    || (portraitMouthAnimationRequested && IsMelionCharacterId(portraitMouthRequestedCharacterId)));
+        }
+
+        private IEnumerator RunLayeredPortraitMouth(string characterId, string expressionId)
+        {
+            float frameInterval = Mathf.Max(0.01f, portraitMouthFrameInterval);
+
+            while (IsLayeredPortraitMouthCurrent(characterId, expressionId))
+            {
+                if (!TryGetLayeredExpressionMapping(characterId, expressionId, out VNLayeredExpressionMapping mapping)
+                    || !CanRunLayeredPortraitMouth(characterId, expressionId, mapping))
+                {
+                    ApplyLayeredPortraitMouthClosed(characterId, expressionId);
+                    ClearLayeredPortraitMouthHandle(characterId, expressionId);
+                    yield break;
+                }
+
+                Sprite openSprite = GetNextMouthOpenSprite(mapping);
+                if (openSprite == null || !TryApplyMouthFrame(characterId, expressionId, openSprite))
+                    break;
+
+                yield return new WaitForSeconds(frameInterval);
+
+                if (!TryApplyMouthFrame(characterId, expressionId, mapping.mouthClosedSprite))
+                    break;
+
+                yield return new WaitForSeconds(frameInterval);
+            }
+
+            ApplyLayeredPortraitMouthClosed(characterId, expressionId);
+            ClearLayeredPortraitMouthHandle(characterId, expressionId);
+        }
+
+        private Sprite GetNextMouthOpenSprite(VNLayeredExpressionMapping mapping)
+        {
+            if (mapping?.mouthOpenSprites == null || mapping.mouthOpenSprites.Count == 0)
+                return null;
+
+            int count = mapping.mouthOpenSprites.Count;
+            for (int i = 0; i < count; i++)
+            {
+                int index = Mathf.Abs(portraitMouthOpenSpriteIndex++) % count;
+                Sprite sprite = mapping.mouthOpenSprites[index];
+                if (sprite != null)
+                    return sprite;
+            }
+
+            return null;
+        }
+
+        private bool TryApplyMouthFrame(string characterId, string expressionId, Sprite sprite)
+        {
+            if (!IsLayeredPortraitMouthCurrent(characterId, expressionId) || !IsActiveImage(portraitMouthImage))
+                return false;
+
+            ApplySpriteToImage(portraitMouthImage, sprite);
+            return true;
+        }
+
+        private void ApplyLayeredPortraitMouthClosed(string characterId, string expressionId)
+        {
+            if (string.IsNullOrWhiteSpace(characterId) || string.IsNullOrWhiteSpace(expressionId))
+                return;
+
+            if (!TryGetLayeredExpressionMapping(characterId, expressionId, out VNLayeredExpressionMapping mapping))
+                return;
+
+            if (mapping?.mouthClosedSprite == null || !IsActiveImage(portraitMouthImage))
+                return;
+
+            ApplySpriteToImage(portraitMouthImage, mapping.mouthClosedSprite);
+        }
+
+        private void StopMouthAnimationInternal(string characterId, bool applyClosed, bool clearRequest)
+        {
+            if (!string.IsNullOrWhiteSpace(characterId)
+                && !IsMelionCharacterId(characterId)
+                && !string.Equals(portraitMouthCharacterId, characterId, System.StringComparison.OrdinalIgnoreCase))
+            {
+                return;
+            }
+
+            if (!string.IsNullOrWhiteSpace(characterId)
+                && !string.IsNullOrWhiteSpace(portraitMouthCharacterId)
+                && !string.Equals(portraitMouthCharacterId, characterId, System.StringComparison.OrdinalIgnoreCase))
+            {
+                return;
+            }
+
+            string stoppedCharacterId = portraitMouthCharacterId;
+            string stoppedExpressionId = portraitMouthExpressionId;
+
+            if (portraitMouthCoroutine != null)
+            {
+                StopCoroutine(portraitMouthCoroutine);
+                portraitMouthCoroutine = null;
+            }
+
+            portraitMouthCharacterId = null;
+            portraitMouthExpressionId = null;
+            portraitMouthOpenSpriteIndex = 0;
+
+            if (clearRequest)
+            {
+                portraitMouthAnimationRequested = false;
+                portraitMouthRequestedCharacterId = null;
+            }
+
+            if (!applyClosed)
+                return;
+
+            if (!string.IsNullOrWhiteSpace(stoppedCharacterId) && !string.IsNullOrWhiteSpace(stoppedExpressionId))
+            {
+                ApplyLayeredPortraitMouthClosed(stoppedCharacterId, stoppedExpressionId);
+                return;
+            }
+
+            if (!string.IsNullOrWhiteSpace(characterId)
+                && activeStates.TryGetValue(characterId, out VNCharacterState state)
+                && state != null)
+            {
+                ApplyLayeredPortraitMouthClosed(state.characterId, state.expressionId);
+            }
+        }
+
+        private bool IsLayeredPortraitMouthCurrent(string characterId, string expressionId)
+        {
+            if (string.IsNullOrWhiteSpace(characterId) || string.IsNullOrWhiteSpace(expressionId))
+                return false;
+
+            if (!string.Equals(portraitMouthCharacterId, characterId, System.StringComparison.OrdinalIgnoreCase)
+                || !string.Equals(portraitMouthExpressionId, expressionId, System.StringComparison.OrdinalIgnoreCase))
+            {
+                return false;
+            }
+
+            if (!activeStates.TryGetValue(characterId, out VNCharacterState state) || state == null || !state.visible)
+                return false;
+
+            return string.Equals(state.expressionId, expressionId, System.StringComparison.OrdinalIgnoreCase)
+                && IsMelionLayeredPortraitState(state);
+        }
+
+        private bool IsMouthAnimationCurrent(string characterId)
+        {
+            return !string.IsNullOrWhiteSpace(characterId)
+                && !string.IsNullOrWhiteSpace(portraitMouthCharacterId)
+                && string.Equals(portraitMouthCharacterId, characterId, System.StringComparison.OrdinalIgnoreCase);
+        }
+
+        private void ClearLayeredPortraitMouthHandle(string characterId, string expressionId)
+        {
+            if (!string.Equals(portraitMouthCharacterId, characterId, System.StringComparison.OrdinalIgnoreCase)
+                || !string.Equals(portraitMouthExpressionId, expressionId, System.StringComparison.OrdinalIgnoreCase))
+            {
+                return;
+            }
+
+            portraitMouthCoroutine = null;
+            portraitMouthCharacterId = null;
+            portraitMouthExpressionId = null;
+            portraitMouthOpenSpriteIndex = 0;
+        }
+
+        private bool CanRunLayeredPortraitMouth(string characterId, string expressionId, VNLayeredExpressionMapping mapping)
+        {
+            return IsMelionCharacterId(characterId)
+                && IsActiveImage(portraitMouthImage)
+                && mapping != null
+                && !string.IsNullOrWhiteSpace(expressionId)
+                && mapping.mouthClosedSprite != null
+                && HasAnyMouthOpenSprite(mapping);
+        }
+
+        private bool HasAnyMouthOpenSprite(VNLayeredExpressionMapping mapping)
+        {
+            if (mapping?.mouthOpenSprites == null)
+                return false;
+
+            for (int i = 0; i < mapping.mouthOpenSprites.Count; i++)
+            {
+                if (mapping.mouthOpenSprites[i] != null)
+                    return true;
+            }
+
+            return false;
+        }
+
+        private bool TryGetActiveMouthState(string characterId, out VNCharacterState state)
+        {
+            state = null;
+
+            if (!IsMelionCharacterId(characterId))
+                return false;
+
+            return activeStates.TryGetValue(MelionCharacterId, out state)
+                && state != null
+                && state.visible
+                && IsMelionLayeredPortraitState(state);
         }
 
         private void StartLayeredPortraitBlink(VNCharacterState state, VNLayeredExpressionMapping mapping)
@@ -594,8 +1242,13 @@ namespace PPP.BLUE.VN
         private bool IsMelionLayeredPortraitState(VNCharacterState state)
         {
             return state != null
-                && string.Equals(state.characterId, MelionCharacterId, System.StringComparison.OrdinalIgnoreCase)
+                && IsMelionCharacterId(state.characterId)
                 && IsLayeredPortraitState(state);
+        }
+
+        private bool IsMelionCharacterId(string characterId)
+        {
+            return string.Equals(characterId, MelionCharacterId, System.StringComparison.OrdinalIgnoreCase);
         }
 
         private Sprite GetEyebrowOpenSprite(VNLayeredExpressionMapping mapping)
@@ -681,6 +1334,13 @@ namespace PPP.BLUE.VN
             return HasLayeredPortraitImages() && TryGetLayeredExpressionMapping(characterId, expressionId, out _);
         }
 
+        private bool CanApplyLayeredCharacter(string position, string characterId, string expressionId)
+        {
+            return TryGetLayeredCharacterSlot(position, out VNLayeredCharacterSlot slot)
+                && HasLayeredCharacterImages(slot)
+                && TryGetLayeredExpressionMapping(characterId, expressionId, out _);
+        }
+
         private bool IsLayeredPortraitState(VNCharacterState state)
         {
             if (state == null || NormalizePosition(state.position) != PortraitPosition)
@@ -690,12 +1350,53 @@ namespace PPP.BLUE.VN
                 && definition.renderMode == VNCharacterRenderMode.LayeredPortrait;
         }
 
+        private bool IsLayeredCharacterState(VNCharacterState state)
+        {
+            if (state == null || NormalizePosition(state.position) == PortraitPosition)
+                return false;
+
+            return TryGetCharacterDefinition(state.characterId, out VNCharacterDefinition definition)
+                && definition.renderMode == VNCharacterRenderMode.LayeredCharacter;
+        }
+
         private bool HasLayeredPortraitImages()
         {
             return portraitBaseImage != null
                 && portraitEyebrowImage != null
                 && portraitEyeImage != null
                 && portraitMouthImage != null;
+        }
+
+        private bool TryGetLayeredCharacterSlot(string position, out VNLayeredCharacterSlot slot)
+        {
+            slot = null;
+            string normalizedPosition = NormalizePosition(position);
+            if (normalizedPosition == PortraitPosition || layeredCharacterSlots == null)
+                return false;
+
+            for (int i = 0; i < layeredCharacterSlots.Count; i++)
+            {
+                VNLayeredCharacterSlot candidate = layeredCharacterSlots[i];
+                if (candidate == null)
+                    continue;
+
+                if (NormalizePosition(candidate.position) != normalizedPosition)
+                    continue;
+
+                slot = candidate;
+                return true;
+            }
+
+            return false;
+        }
+
+        private bool HasLayeredCharacterImages(VNLayeredCharacterSlot slot)
+        {
+            return slot != null
+                && slot.baseImage != null
+                && slot.eyebrowImage != null
+                && slot.eyeImage != null
+                && slot.mouthImage != null;
         }
 
         private void ApplySpriteToImage(Image image, Sprite sprite)
@@ -713,6 +1414,64 @@ namespace PPP.BLUE.VN
             ApplySpriteToImage(portraitEyebrowImage, null);
             ApplySpriteToImage(portraitEyeImage, null);
             ApplySpriteToImage(portraitMouthImage, null);
+        }
+
+        private void ClearLayeredCharacterSlotImages(string position)
+        {
+            string normalizedPosition = NormalizePosition(position);
+            StopLayeredCharacterBlink(normalizedPosition, restoreOpenFrame: false);
+            StopLayeredCharacterFade(normalizedPosition);
+
+            if (!TryGetLayeredCharacterSlot(normalizedPosition, out VNLayeredCharacterSlot slot))
+                return;
+
+            ApplySpriteToImage(slot.baseImage, null);
+            ApplySpriteToImage(slot.eyebrowImage, null);
+            ApplySpriteToImage(slot.eyeImage, null);
+            ApplySpriteToImage(slot.mouthImage, null);
+            SetLayeredCharacterAlpha(slot, 1f);
+        }
+
+        private bool HasVisibleLayeredCharacterSlot(string position)
+        {
+            return TryGetLayeredCharacterSlot(position, out VNLayeredCharacterSlot slot)
+                && (HasVisibleSprite(slot.baseImage)
+                    || HasVisibleSprite(slot.eyebrowImage)
+                    || HasVisibleSprite(slot.eyeImage)
+                    || HasVisibleSprite(slot.mouthImage));
+        }
+
+        private bool HasVisibleSprite(Image image)
+        {
+            return image != null && image.enabled && image.sprite != null;
+        }
+
+        private void SetLayeredCharacterActive(VNLayeredCharacterSlot slot, bool active)
+        {
+            if (slot == null)
+                return;
+
+            SetImageObjectActive(slot.baseImage, active);
+            SetImageObjectActive(slot.eyebrowImage, active);
+            SetImageObjectActive(slot.eyeImage, active);
+            SetImageObjectActive(slot.mouthImage, active);
+        }
+
+        private void SetImageObjectActive(Image image, bool active)
+        {
+            if (image != null && image.gameObject != null)
+                image.gameObject.SetActive(active);
+        }
+
+        private void SetLayeredCharacterAlpha(VNLayeredCharacterSlot slot, float alpha)
+        {
+            if (slot == null)
+                return;
+
+            SetAlpha(slot.baseImage, alpha);
+            SetAlpha(slot.eyebrowImage, alpha);
+            SetAlpha(slot.eyeImage, alpha);
+            SetAlpha(slot.mouthImage, alpha);
         }
 
         private void ApplySpriteToSlot(
@@ -803,25 +1562,60 @@ namespace PPP.BLUE.VN
         {
             string normalizedPosition = NormalizePosition(position);
             Image slot = GetSlotImage(position);
-            if (slot == null)
-                return;
-
-            StopSlotFade(slot);
             pendingShows.Remove(normalizedPosition);
             fadingOutPositions.Remove(normalizedPosition);
-            slot.sprite = null;
-            slot.enabled = false;
-            SetAlpha(slot, 1f);
+
+            if (slot != null)
+            {
+                StopSlotFade(slot);
+                slot.sprite = null;
+                slot.enabled = false;
+                SetAlpha(slot, 1f);
+            }
+
+            if (normalizedPosition != PortraitPosition)
+                ClearLayeredCharacterSlotImages(normalizedPosition);
         }
 
         private void FadeOutAndClearSlot(string position)
         {
             string normalizedPosition = NormalizePosition(position);
             Image slot = GetSlotImage(normalizedPosition);
-            if (slot == null)
-                return;
 
             if (fadingOutPositions.Contains(normalizedPosition))
+                return;
+
+            if (HasVisibleLayeredCharacterSlot(normalizedPosition)
+                && TryGetLayeredCharacterSlot(normalizedPosition, out VNLayeredCharacterSlot layeredSlot))
+            {
+                StopLayeredCharacterBlink(normalizedPosition, restoreOpenFrame: true);
+                if (slot != null)
+                {
+                    StopSlotFade(slot);
+                    slot.sprite = null;
+                    slot.enabled = false;
+                    SetAlpha(slot, 1f);
+                }
+
+                StopLayeredCharacterFade(normalizedPosition);
+
+                if (fadeDuration <= 0f)
+                {
+                    ClearLayeredCharacterSlotImages(normalizedPosition);
+                    fadingOutPositions.Remove(normalizedPosition);
+                    ApplyPendingShow(normalizedPosition);
+                    return;
+                }
+
+                fadingOutPositions.Add(normalizedPosition);
+                SetLayeredCharacterActive(layeredSlot, true);
+                float fromAlpha = GetLayeredCharacterAlpha(layeredSlot);
+                LogFadeDebug($"Start layered character fade out: position={normalizedPosition}, from alpha={fromAlpha:0.###}, to alpha=0, duration={fadeDuration:0.###}");
+                layeredCharacterFadeCoroutines[normalizedPosition] = StartCoroutine(FadeLayeredCharacterSlot(layeredSlot, normalizedPosition, fromAlpha, 0f, fadeDuration, clearOnComplete: true));
+                return;
+            }
+
+            if (slot == null)
                 return;
 
             StopSlotFade(slot);
@@ -840,6 +1634,43 @@ namespace PPP.BLUE.VN
             slot.gameObject.SetActive(true);
             LogFadeDebug($"Start fade out: slot={slot.name}, from alpha={slot.color.a:0.###}, to alpha=0, duration={fadeDuration:0.###}");
             fadeCoroutines[slot] = StartCoroutine(FadeSlot(slot, normalizedPosition, slot.color.a, 0f, fadeDuration, clearOnComplete: true));
+        }
+
+        private IEnumerator FadeLayeredCharacterSlot(VNLayeredCharacterSlot slot, string normalizedPosition, float fromAlpha, float toAlpha, float duration, bool clearOnComplete)
+        {
+            if (slot == null)
+                yield break;
+
+            if (duration <= 0f)
+            {
+                SetLayeredCharacterAlpha(slot, toAlpha);
+            }
+            else
+            {
+                float elapsed = 0f;
+                while (elapsed < duration)
+                {
+                    if (slot == null)
+                        yield break;
+
+                    elapsed += Time.deltaTime;
+                    float t = Mathf.Clamp01(elapsed / duration);
+                    SetLayeredCharacterAlpha(slot, Mathf.Lerp(fromAlpha, toAlpha, t));
+                    yield return null;
+                }
+
+                SetLayeredCharacterAlpha(slot, toAlpha);
+            }
+
+            layeredCharacterFadeCoroutines.Remove(normalizedPosition);
+            LogFadeDebug($"Layered character fade complete: position={normalizedPosition}, final alpha={toAlpha:0.###}");
+
+            if (clearOnComplete)
+            {
+                ClearLayeredCharacterSlotImages(normalizedPosition);
+                fadingOutPositions.Remove(normalizedPosition);
+                ApplyPendingShow(normalizedPosition);
+            }
         }
 
         private IEnumerator FadeSlot(Image slot, string normalizedPosition, float fromAlpha, float toAlpha, float duration, bool clearOnComplete)
@@ -914,6 +1745,16 @@ namespace PPP.BLUE.VN
             fadeCoroutines.Remove(slot);
         }
 
+        private void StopLayeredCharacterFade(string position)
+        {
+            string normalizedPosition = NormalizePosition(position);
+            if (!layeredCharacterFadeCoroutines.TryGetValue(normalizedPosition, out Coroutine coroutine) || coroutine == null)
+                return;
+
+            StopCoroutine(coroutine);
+            layeredCharacterFadeCoroutines.Remove(normalizedPosition);
+        }
+
         private void StopAllSlotFades()
         {
             foreach (Coroutine coroutine in fadeCoroutines.Values)
@@ -923,6 +1764,14 @@ namespace PPP.BLUE.VN
             }
 
             fadeCoroutines.Clear();
+
+            foreach (Coroutine coroutine in layeredCharacterFadeCoroutines.Values)
+            {
+                if (coroutine != null)
+                    StopCoroutine(coroutine);
+            }
+
+            layeredCharacterFadeCoroutines.Clear();
         }
 
         private void LogFadeDebug(string message)
@@ -941,6 +1790,23 @@ namespace PPP.BLUE.VN
             Color color = slot.color;
             color.a = alpha;
             slot.color = color;
+        }
+
+        private static float GetLayeredCharacterAlpha(VNLayeredCharacterSlot slot)
+        {
+            if (slot == null)
+                return 1f;
+
+            if (slot.baseImage != null)
+                return slot.baseImage.color.a;
+            if (slot.eyebrowImage != null)
+                return slot.eyebrowImage.color.a;
+            if (slot.eyeImage != null)
+                return slot.eyeImage.color.a;
+            if (slot.mouthImage != null)
+                return slot.mouthImage.color.a;
+
+            return 1f;
         }
 
         private void ClearSlotImages()
