@@ -81,6 +81,10 @@ namespace PPP.BLUE.VN
         private readonly Dictionary<Button, bool> interactableVisualPressedStates = new();
         private float controlActionLockedUntil;
         private Coroutine waitAndRefreshRoutine;
+        private Coroutine mouthAnimationRetryRoutine;
+        private string currentMouthRetryLineId;
+        private string currentMouthRetrySpeakerId;
+        private string currentMouthRetryCharacterId;
         private bool isRefreshingCurrentLine;
         private bool warnedRefreshBlocked;
         private bool warnedNoNode;
@@ -89,6 +93,7 @@ namespace PPP.BLUE.VN
         public const string DialogueWindowId = "VNDialogue";
         public const string HiddenDialogueWindowId = "HiddenVNDialogue";
         private const string MelionCharacterId = "melion";
+        private const int MouthAnimationRetryFrameCount = 3;
         private const string LegacyDialogueWindowId = "vn_dialogue";
         private const string LegacyHiddenDialogueWindowId = "vn_dialogue_hidden";
         public static bool IsAnyBacklogOpen
@@ -1214,18 +1219,37 @@ namespace PPP.BLUE.VN
         private bool TryResolveMouthAnimationCharacterId(string speakerId, out string characterId)
         {
             characterId = string.Empty;
-            if (string.IsNullOrWhiteSpace(speakerId))
+            VNCharacterManager manager = ResolveCharacterManager();
+            if (!TryResolveMouthAnimationCharacterId(speakerId, manager, out characterId))
                 return false;
 
-            VNCharacterManager manager = ResolveCharacterManager();
-            if (manager == null)
+            return manager != null && manager.IsMouthAnimationSupported(characterId);
+        }
+
+        private bool TryResolveMouthAnimationCharacterId(string speakerId, VNCharacterManager manager, out string characterId)
+        {
+            characterId = string.Empty;
+            if (string.IsNullOrWhiteSpace(speakerId) || manager == null)
                 return false;
 
             string normalized = speakerId.Trim();
             if (!manager.TryResolveCharacterIdForSpeaker(normalized, out characterId))
                 characterId = normalized;
 
-            return manager.IsMouthAnimationSupported(characterId);
+            return !string.IsNullOrWhiteSpace(characterId);
+        }
+
+        private bool TryResolvePendingLayeredCharacterMouthId(string speakerId, out string characterId)
+        {
+            characterId = string.Empty;
+            VNCharacterManager manager = ResolveCharacterManager();
+            if (!TryResolveMouthAnimationCharacterId(speakerId, manager, out characterId))
+                return false;
+
+            return manager.TryGetCharacterDefinition(characterId, out VNCharacterDefinition definition)
+                && definition != null
+                && definition.renderMode == VNCharacterRenderMode.LayeredCharacter
+                && definition.supportsMouth;
         }
 
         private void StartMouthAnimationForCharacter(string characterId)
@@ -1233,9 +1257,87 @@ namespace PPP.BLUE.VN
             ResolveCharacterManager()?.StartMouthAnimation(characterId);
         }
 
+        private void StopMouthAnimationRetry()
+        {
+            if (mouthAnimationRetryRoutine != null)
+            {
+                StopCoroutine(mouthAnimationRetryRoutine);
+                mouthAnimationRetryRoutine = null;
+            }
+
+            currentMouthRetryLineId = null;
+            currentMouthRetrySpeakerId = null;
+            currentMouthRetryCharacterId = null;
+        }
+
         private void StopAllMouthAnimationsForDialogue()
         {
+            StopMouthAnimationRetry();
             ResolveCharacterManager()?.StopAllMouthAnimations();
+        }
+
+        private void ScheduleMouthAnimationRetry(string characterId, string speakerId, string lineId)
+        {
+            StopMouthAnimationRetry();
+
+            if (string.IsNullOrWhiteSpace(characterId) || string.IsNullOrWhiteSpace(lineId))
+                return;
+
+            currentMouthRetryLineId = lineId;
+            currentMouthRetrySpeakerId = speakerId;
+            currentMouthRetryCharacterId = characterId;
+            mouthAnimationRetryRoutine = StartCoroutine(CoRetryMouthAnimationStart(characterId, speakerId, lineId));
+        }
+
+        private IEnumerator CoRetryMouthAnimationStart(string characterId, string speakerId, string lineId)
+        {
+            for (int i = 0; i < MouthAnimationRetryFrameCount; i++)
+            {
+                yield return null;
+
+                if (!CanRetryMouthAnimationStart(characterId, speakerId, lineId))
+                    break;
+
+                VNCharacterManager manager = ResolveCharacterManager();
+                if (manager != null && manager.IsMouthAnimationSupported(characterId))
+                {
+                    manager.StartMouthAnimation(characterId);
+                    break;
+                }
+            }
+
+            if (string.Equals(currentMouthRetryLineId, lineId, StringComparison.Ordinal)
+                && string.Equals(currentMouthRetrySpeakerId, speakerId, StringComparison.Ordinal)
+                && string.Equals(currentMouthRetryCharacterId, characterId, StringComparison.OrdinalIgnoreCase))
+            {
+                currentMouthRetryLineId = null;
+                currentMouthRetrySpeakerId = null;
+                currentMouthRetryCharacterId = null;
+            }
+
+            mouthAnimationRetryRoutine = null;
+        }
+
+        private bool CanRetryMouthAnimationStart(string characterId, string speakerId, string lineId)
+        {
+            if (!isActiveAndEnabled || runner == null || runner.SuppressMouthAnimationForCurrentSay)
+                return false;
+
+            if (typer == null || !typer.IsTyping || lineCompleted)
+                return false;
+
+            if (!string.Equals(lastHandledLineId, lineId, StringComparison.Ordinal))
+                return false;
+
+            if (!string.Equals(currentMouthRetryLineId, lineId, StringComparison.Ordinal)
+                || !string.Equals(currentMouthRetrySpeakerId, speakerId, StringComparison.Ordinal)
+                || !string.Equals(currentMouthRetryCharacterId, characterId, StringComparison.OrdinalIgnoreCase))
+            {
+                return false;
+            }
+
+            return TryResolveMouthAnimationCharacterId(speakerId, ResolveCharacterManager(), out string resolvedCharacterId)
+                && string.Equals(resolvedCharacterId, characterId, StringComparison.OrdinalIgnoreCase);
         }
 
         private VNCharacterManager ResolveCharacterManager()
@@ -1291,9 +1393,17 @@ namespace PPP.BLUE.VN
 
             bool suppressMouthAnimationForRestore = runner != null && runner.SuppressMouthAnimationForCurrentSay;
             string mouthCharacterId = string.Empty;
-            bool shouldStartMouthAnimation = allowMouthAnimation
-                && !suppressMouthAnimationForRestore
+            bool canStartOrRetryMouthAnimation = allowMouthAnimation && !suppressMouthAnimationForRestore;
+            bool shouldStartMouthAnimation = canStartOrRetryMouthAnimation
                 && TryResolveMouthAnimationCharacterId(speakerId, out mouthCharacterId);
+            bool shouldRetryMouthAnimation = false;
+            if (!shouldStartMouthAnimation
+                && canStartOrRetryMouthAnimation
+                && TryResolvePendingLayeredCharacterMouthId(speakerId, out string pendingMouthCharacterId))
+            {
+                mouthCharacterId = pendingMouthCharacterId;
+                shouldRetryMouthAnimation = true;
+            }
 
             // ✅ 타이퍼 없으면 즉시 출력
             if (typer == null)
@@ -1330,9 +1440,15 @@ namespace PPP.BLUE.VN
             // ✅ 타이핑 시작
             lineCompleted = false;
             if (shouldStartMouthAnimation)
+            {
                 StartMouthAnimationForCharacter(mouthCharacterId);
+            }
             else
+            {
                 StopAllMouthAnimationsForDialogue();
+                if (shouldRetryMouthAnimation)
+                    ScheduleMouthAnimationRetry(mouthCharacterId, speakerId, lineId);
+            }
 
             typer.StartTyping(currentFullText, onCompleted: () =>
             {
