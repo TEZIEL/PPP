@@ -570,7 +570,7 @@ namespace PPP.BLUE.VN
             if (themeManager != null)
                 themeManager.OnThemeChanged -= HandleThemeChanged;
 
-            StopMelionMouthAnimation();
+            StopAllMouthAnimationsForDialogue();
             runner?.SuppressAutoTimerThisFrame("VNDialogueView OnDisable");
             OnSkipButtonPointerUp();
             if (interactableVisualPressedStates.Count > 0)
@@ -845,7 +845,7 @@ namespace PPP.BLUE.VN
             if (runner != null && runner.JustForceCompletedThisFrame)
                 return;
 
-            StopMelionMouthAnimation();
+            StopAllMouthAnimationsForDialogue();
             lineDisplayed = false;
             runner.Next();
             Debug.Log("[VN_UI] Next input detected -> runner.Next()");
@@ -1120,7 +1120,7 @@ namespace PPP.BLUE.VN
                 if (dialogueText != null)
                     dialogueText.text = currentFullText;
             }
-            StopMelionMouthAnimation();
+            StopAllMouthAnimationsForDialogue();
 
             inputLocked = false;
 
@@ -1211,14 +1211,31 @@ namespace PPP.BLUE.VN
                 && string.Equals(characterId, MelionCharacterId, StringComparison.OrdinalIgnoreCase);
         }
 
-        private void StartMelionMouthAnimation()
+        private bool TryResolveMouthAnimationCharacterId(string speakerId, out string characterId)
         {
-            ResolveCharacterManager()?.StartMouthAnimation(MelionCharacterId);
+            characterId = string.Empty;
+            if (string.IsNullOrWhiteSpace(speakerId))
+                return false;
+
+            VNCharacterManager manager = ResolveCharacterManager();
+            if (manager == null)
+                return false;
+
+            string normalized = speakerId.Trim();
+            if (!manager.TryResolveCharacterIdForSpeaker(normalized, out characterId))
+                characterId = normalized;
+
+            return manager.IsMouthAnimationSupported(characterId);
         }
 
-        private void StopMelionMouthAnimation()
+        private void StartMouthAnimationForCharacter(string characterId)
         {
-            ResolveCharacterManager()?.StopMouthAnimation(MelionCharacterId, applyClosed: true);
+            ResolveCharacterManager()?.StartMouthAnimation(characterId);
+        }
+
+        private void StopAllMouthAnimationsForDialogue()
+        {
+            ResolveCharacterManager()?.StopAllMouthAnimations();
         }
 
         private VNCharacterManager ResolveCharacterManager()
@@ -1245,7 +1262,7 @@ namespace PPP.BLUE.VN
                 typer.ForceComplete(); // 기존 타이퍼 무조건 죽여
             }
 
-            StopMelionMouthAnimation();
+            StopAllMouthAnimationsForDialogue();
 
             if (lastHandledLineId == lineId)
             {
@@ -1273,7 +1290,10 @@ namespace PPP.BLUE.VN
             runner?.MarkSaveAllowed(false, "Typing Start");
 
             bool suppressMouthAnimationForRestore = runner != null && runner.SuppressMouthAnimationForCurrentSay;
-            bool isMelionSpeaker = allowMouthAnimation && !suppressMouthAnimationForRestore && IsMelionSpeaker(speakerId);
+            string mouthCharacterId = string.Empty;
+            bool shouldStartMouthAnimation = allowMouthAnimation
+                && !suppressMouthAnimationForRestore
+                && TryResolveMouthAnimationCharacterId(speakerId, out mouthCharacterId);
 
             // ✅ 타이퍼 없으면 즉시 출력
             if (typer == null)
@@ -1284,7 +1304,7 @@ namespace PPP.BLUE.VN
                 runner?.BacklogUpdateLineText(currentLineBacklogKey, currentFullText);
                 runner?.BacklogFinalizeLine(currentLineBacklogKey, currentFullText);
 
-                StopMelionMouthAnimation();
+                StopAllMouthAnimationsForDialogue();
                 runner?.MarkSaveAllowed(true, "No Typer => Immediate");
                 runner?.NotifyLineTypedEnd();
                 inputLocked = false;
@@ -1300,7 +1320,7 @@ namespace PPP.BLUE.VN
                 runner?.BacklogUpdateLineText(currentLineBacklogKey, currentFullText);
                 runner?.BacklogFinalizeLine(currentLineBacklogKey, currentFullText);
 
-                StopMelionMouthAnimation();
+                StopAllMouthAnimationsForDialogue();
                 runner?.NotifyLineTypedEnd();
                 inputLocked = false;
                 runner?.MarkSaveAllowed(true, "Skip Immediate");
@@ -1309,14 +1329,14 @@ namespace PPP.BLUE.VN
 
             // ✅ 타이핑 시작
             lineCompleted = false;
-            if (isMelionSpeaker)
-                StartMelionMouthAnimation();
+            if (shouldStartMouthAnimation)
+                StartMouthAnimationForCharacter(mouthCharacterId);
             else
-                StopMelionMouthAnimation();
+                StopAllMouthAnimationsForDialogue();
 
             typer.StartTyping(currentFullText, onCompleted: () =>
             {
-                StopMelionMouthAnimation();
+                StopAllMouthAnimationsForDialogue();
                 lineCompleted = true;
                 lineDisplayed = true;
                 runner?.BacklogFinalizeLine(currentLineBacklogKey, currentFullText);
@@ -1334,7 +1354,7 @@ namespace PPP.BLUE.VN
 
         private void ForceCompleteLine()
         {
-            StopMelionMouthAnimation();
+            StopAllMouthAnimationsForDialogue();
             if (typer != null) typer.ForceComplete();
             else if (dialogueText != null) dialogueText.text = currentFullText;
 
@@ -1348,7 +1368,7 @@ namespace PPP.BLUE.VN
         {
             if (typer == null || !typer.IsTyping) return false;
 
-            StopMelionMouthAnimation();
+            StopAllMouthAnimationsForDialogue();
             typer.ForceComplete();
             lineDisplayed = true;
             lineCompleted = true;
@@ -1364,7 +1384,7 @@ namespace PPP.BLUE.VN
 
         public void FinalizeCurrentLineAfterForceComplete()
         {
-            StopMelionMouthAnimation();
+            StopAllMouthAnimationsForDialogue();
             lineDisplayed = true;
             lineCompleted = true;
             runner?.BacklogFinalizeLine(currentLineBacklogKey, currentFullText);
