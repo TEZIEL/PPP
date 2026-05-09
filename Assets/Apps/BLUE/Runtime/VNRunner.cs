@@ -340,7 +340,9 @@ namespace PPP.BLUE.VN
         private bool isExternalCallWaiting;
         private bool isRestoringFromLoad = false;
         private bool restoreStateInProgress;
+        private bool suppressMouthAnimationThisEmit;
         public bool IsDispatchingRestoredCall => dispatchingRestoredCall;
+        public bool SuppressMouthAnimationForCurrentSay => isRestoringFromLoad || restoreStateInProgress || suppressMouthAnimationThisEmit;
         private VNSettings settings = VNSettings.Default();
         private VNBacklogKey currentBacklogKey = new();
         private bool isCurrentLineTyping;
@@ -477,39 +479,52 @@ namespace PPP.BLUE.VN
             Next();
         }
 
-        private void EmitCurrent()
+        private void EmitCurrent(bool suppressMouthAnimationForReplay = false)
         {
-            if (script == null || script.nodes == null) return;
-            int replayIndex = waitPointer;
-            if (replayIndex < 0 || replayIndex >= script.nodes.Count)
-                replayIndex = lastShownPointer;
-            if (replayIndex < 0 || replayIndex >= script.nodes.Count)
-                replayIndex = pointer;
+            bool previousSuppressMouthAnimation = suppressMouthAnimationThisEmit;
+            suppressMouthAnimationThisEmit = previousSuppressMouthAnimation
+                || suppressMouthAnimationForReplay
+                || isRestoringFromLoad
+                || restoreStateInProgress;
 
-            if (replayIndex < 0 || replayIndex >= script.nodes.Count)
+            try
             {
-                Debug.LogWarning($"[VNRunner] EmitCurrent out of range pointer={pointer} waitPointer={waitPointer} lastShown={lastShownPointer}");
-                return;
-            }
+                if (script == null || script.nodes == null) return;
+                int replayIndex = waitPointer;
+                if (replayIndex < 0 || replayIndex >= script.nodes.Count)
+                    replayIndex = lastShownPointer;
+                if (replayIndex < 0 || replayIndex >= script.nodes.Count)
+                    replayIndex = pointer;
 
-            var node = script.nodes[replayIndex];
-            if (node == null)
+                if (replayIndex < 0 || replayIndex >= script.nodes.Count)
+                {
+                    Debug.LogWarning($"[VNRunner] EmitCurrent out of range pointer={pointer} waitPointer={waitPointer} lastShown={lastShownPointer}");
+                    return;
+                }
+
+                var node = script.nodes[replayIndex];
+                if (node == null)
+                {
+                    Debug.LogWarning($"[VN] EmitCurrent skipped null node at index={replayIndex}");
+                    return;
+                }
+
+                if (node.type != VNNodeType.Say)
+                {
+                    Debug.Log($"[VN] EmitCurrent non-say node type={node.type} index={replayIndex}; no immediate replay.");
+                    return;
+                }
+
+                lastShownPointer = replayIndex;
+                waitPointer = replayIndex;
+                isWaiting = true;
+                EmitSay(node);
+                MarkSaveAllowed(false, "Load EmitCurrent");
+            }
+            finally
             {
-                Debug.LogWarning($"[VN] EmitCurrent skipped null node at index={replayIndex}");
-                return;
+                suppressMouthAnimationThisEmit = previousSuppressMouthAnimation;
             }
-
-            if (node.type != VNNodeType.Say)
-            {
-                Debug.Log($"[VN] EmitCurrent non-say node type={node.type} index={replayIndex}; no immediate replay.");
-                return;
-            }
-
-            lastShownPointer = replayIndex;
-            waitPointer = replayIndex;
-            isWaiting = true;
-            EmitSay(node);
-            MarkSaveAllowed(false, "Load EmitCurrent");
         }
 
         public event Action<string, string> OnCall; // callTarget, callArg
@@ -2174,6 +2189,7 @@ namespace PPP.BLUE.VN
                     manager.ClearAll();
                     if (dto.characterStates != null)
                         manager.RestoreState(dto.characterStates);
+                    manager.StopAllMouthAnimations();
                 }
 
                 if (dto.isWaitingExternalCall && callStack.Count > 0)
@@ -2205,7 +2221,8 @@ namespace PPP.BLUE.VN
                 }
 
                 started = true;
-                EmitCurrent();
+                EmitCurrent(suppressMouthAnimationForReplay: true);
+                manager?.StopAllMouthAnimations();
                 var savedWindowStates = dto.vnWindowStates;
                 if (savedWindowStates == null || savedWindowStates.Count == 0)
                     savedWindowStates = dto.windowStates;

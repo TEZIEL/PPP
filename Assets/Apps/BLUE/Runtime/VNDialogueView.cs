@@ -14,6 +14,7 @@ namespace PPP.BLUE.VN
         [SerializeField] private VNRunner runner;
         [SerializeField] private VNTextTyper typer;
         [SerializeField] private VNPolicyController policy;
+        [SerializeField] private VNCharacterManager characterManager;
 
         [SerializeField] private TMP_Text nameText;
         [SerializeField] private TMP_Text dialogueText;
@@ -80,6 +81,10 @@ namespace PPP.BLUE.VN
         private readonly Dictionary<Button, bool> interactableVisualPressedStates = new();
         private float controlActionLockedUntil;
         private Coroutine waitAndRefreshRoutine;
+        private Coroutine mouthAnimationRetryRoutine;
+        private string currentMouthRetryLineId;
+        private string currentMouthRetrySpeakerId;
+        private string currentMouthRetryCharacterId;
         private bool isRefreshingCurrentLine;
         private bool warnedRefreshBlocked;
         private bool warnedNoNode;
@@ -87,6 +92,8 @@ namespace PPP.BLUE.VN
         private static readonly HashSet<VNDialogueView> activeDialogueViews = new();
         public const string DialogueWindowId = "VNDialogue";
         public const string HiddenDialogueWindowId = "HiddenVNDialogue";
+        private const string MelionCharacterId = "melion";
+        private const int MouthAnimationRetryFrameCount = 3;
         private const string LegacyDialogueWindowId = "vn_dialogue";
         private const string LegacyHiddenDialogueWindowId = "vn_dialogue_hidden";
         public static bool IsAnyBacklogOpen
@@ -225,6 +232,8 @@ namespace PPP.BLUE.VN
             if (closePopupController == null) closePopupController = GetComponentInChildren<VNClosePopupController>(true);
             if (typer != null) typer.SetTarget(dialogueText);
             if (runner == null) runner = GetComponentInParent<VNRunner>(true);
+            if (characterManager == null) characterManager = GetComponentInParent<VNCharacterManager>(true);
+            if (characterManager == null) characterManager = FindFirstObjectByType<VNCharacterManager>(FindObjectsInactive.Include);
             if (appFlowController == null) appFlowController = GetComponentInParent<VNAppFlowController>(true);
             if (backlogView == null) backlogView = GetComponentInChildren<VNBacklogView>(true);
             EnsureBacklogBinding("Awake");
@@ -566,6 +575,7 @@ namespace PPP.BLUE.VN
             if (themeManager != null)
                 themeManager.OnThemeChanged -= HandleThemeChanged;
 
+            StopAllMouthAnimationsForDialogue();
             runner?.SuppressAutoTimerThisFrame("VNDialogueView OnDisable");
             OnSkipButtonPointerUp();
             if (interactableVisualPressedStates.Count > 0)
@@ -840,6 +850,7 @@ namespace PPP.BLUE.VN
             if (runner != null && runner.JustForceCompletedThisFrame)
                 return;
 
+            StopAllMouthAnimationsForDialogue();
             lineDisplayed = false;
             runner.Next();
             Debug.Log("[VN_UI] Next input detected -> runner.Next()");
@@ -1114,6 +1125,7 @@ namespace PPP.BLUE.VN
                 if (dialogueText != null)
                     dialogueText.text = currentFullText;
             }
+            StopAllMouthAnimationsForDialogue();
 
             inputLocked = false;
 
@@ -1171,7 +1183,7 @@ namespace PPP.BLUE.VN
 
             var backlogKey = new VNBacklogKey(runner.CurrentScriptId, nodeId, lineIndex);
             lastHandledLineId = null;
-            HandleSay(speaker, text, nodeId, backlogKey);
+            HandleSayInternal(speaker, text, nodeId, backlogKey, allowMouthAnimation: false);
             inputLocked = false;
             return true;
         }
@@ -1189,12 +1201,170 @@ namespace PPP.BLUE.VN
             Debug.Log($"[CHECK] inputLocked={inputLocked}");
         }
 
+        private bool IsMelionSpeaker(string speakerId)
+        {
+            if (string.IsNullOrWhiteSpace(speakerId))
+                return false;
+
+            string normalized = speakerId.Trim();
+            if (string.Equals(normalized, MelionCharacterId, StringComparison.OrdinalIgnoreCase))
+                return true;
+
+            VNCharacterManager manager = ResolveCharacterManager();
+            return manager != null
+                && manager.TryResolveCharacterIdForSpeaker(normalized, out string characterId)
+                && string.Equals(characterId, MelionCharacterId, StringComparison.OrdinalIgnoreCase);
+        }
+
+        private bool TryResolveMouthAnimationCharacterId(string speakerId, out string characterId)
+        {
+            characterId = string.Empty;
+            VNCharacterManager manager = ResolveCharacterManager();
+            if (!TryResolveMouthAnimationCharacterId(speakerId, manager, out characterId))
+                return false;
+
+            return manager != null && manager.IsMouthAnimationSupported(characterId);
+        }
+
+        private bool TryResolveMouthAnimationCharacterId(string speakerId, VNCharacterManager manager, out string characterId)
+        {
+            characterId = string.Empty;
+            if (string.IsNullOrWhiteSpace(speakerId) || manager == null)
+                return false;
+
+            string normalized = speakerId.Trim();
+            if (!manager.TryResolveCharacterIdForSpeaker(normalized, out characterId))
+                characterId = normalized;
+
+            return !string.IsNullOrWhiteSpace(characterId);
+        }
+
+        private bool TryResolvePendingLayeredCharacterMouthId(string speakerId, out string characterId)
+        {
+            characterId = string.Empty;
+            VNCharacterManager manager = ResolveCharacterManager();
+            if (!TryResolveMouthAnimationCharacterId(speakerId, manager, out characterId))
+                return false;
+
+            return manager.TryGetCharacterDefinition(characterId, out VNCharacterDefinition definition)
+                && definition != null
+                && definition.renderMode == VNCharacterRenderMode.LayeredCharacter
+                && definition.supportsMouth;
+        }
+
+        private void StartMouthAnimationForCharacter(string characterId)
+        {
+            ResolveCharacterManager()?.StartMouthAnimation(characterId);
+        }
+
+        private void StopMouthAnimationRetry()
+        {
+            if (mouthAnimationRetryRoutine != null)
+            {
+                StopCoroutine(mouthAnimationRetryRoutine);
+                mouthAnimationRetryRoutine = null;
+            }
+
+            currentMouthRetryLineId = null;
+            currentMouthRetrySpeakerId = null;
+            currentMouthRetryCharacterId = null;
+        }
+
+        private void StopAllMouthAnimationsForDialogue()
+        {
+            StopMouthAnimationRetry();
+            ResolveCharacterManager()?.StopAllMouthAnimations();
+        }
+
+        private void ScheduleMouthAnimationRetry(string characterId, string speakerId, string lineId)
+        {
+            StopMouthAnimationRetry();
+
+            if (string.IsNullOrWhiteSpace(characterId) || string.IsNullOrWhiteSpace(lineId))
+                return;
+
+            currentMouthRetryLineId = lineId;
+            currentMouthRetrySpeakerId = speakerId;
+            currentMouthRetryCharacterId = characterId;
+            mouthAnimationRetryRoutine = StartCoroutine(CoRetryMouthAnimationStart(characterId, speakerId, lineId));
+        }
+
+        private IEnumerator CoRetryMouthAnimationStart(string characterId, string speakerId, string lineId)
+        {
+            for (int i = 0; i < MouthAnimationRetryFrameCount; i++)
+            {
+                yield return null;
+
+                if (!CanRetryMouthAnimationStart(characterId, speakerId, lineId))
+                    break;
+
+                VNCharacterManager manager = ResolveCharacterManager();
+                if (manager != null && manager.IsMouthAnimationSupported(characterId))
+                {
+                    manager.StartMouthAnimation(characterId);
+                    break;
+                }
+            }
+
+            if (string.Equals(currentMouthRetryLineId, lineId, StringComparison.Ordinal)
+                && string.Equals(currentMouthRetrySpeakerId, speakerId, StringComparison.Ordinal)
+                && string.Equals(currentMouthRetryCharacterId, characterId, StringComparison.OrdinalIgnoreCase))
+            {
+                currentMouthRetryLineId = null;
+                currentMouthRetrySpeakerId = null;
+                currentMouthRetryCharacterId = null;
+            }
+
+            mouthAnimationRetryRoutine = null;
+        }
+
+        private bool CanRetryMouthAnimationStart(string characterId, string speakerId, string lineId)
+        {
+            if (!isActiveAndEnabled || runner == null || runner.SuppressMouthAnimationForCurrentSay)
+                return false;
+
+            if (typer == null || !typer.IsTyping || lineCompleted)
+                return false;
+
+            if (!string.Equals(lastHandledLineId, lineId, StringComparison.Ordinal))
+                return false;
+
+            if (!string.Equals(currentMouthRetryLineId, lineId, StringComparison.Ordinal)
+                || !string.Equals(currentMouthRetrySpeakerId, speakerId, StringComparison.Ordinal)
+                || !string.Equals(currentMouthRetryCharacterId, characterId, StringComparison.OrdinalIgnoreCase))
+            {
+                return false;
+            }
+
+            return TryResolveMouthAnimationCharacterId(speakerId, ResolveCharacterManager(), out string resolvedCharacterId)
+                && string.Equals(resolvedCharacterId, characterId, StringComparison.OrdinalIgnoreCase);
+        }
+
+        private VNCharacterManager ResolveCharacterManager()
+        {
+            if (characterManager != null)
+                return characterManager;
+
+            characterManager = GetComponentInParent<VNCharacterManager>(true);
+            if (characterManager == null)
+                characterManager = FindFirstObjectByType<VNCharacterManager>(FindObjectsInactive.Include);
+
+            return characterManager;
+        }
+
         private void HandleSay(string speakerId, string text, string lineId, VNBacklogKey backlogKey)
+        {
+            HandleSayInternal(speakerId, text, lineId, backlogKey, allowMouthAnimation: true);
+        }
+
+        private void HandleSayInternal(string speakerId, string text, string lineId, VNBacklogKey backlogKey, bool allowMouthAnimation)
         {
             if (typer != null)
             {
                 typer.ForceComplete(); // 기존 타이퍼 무조건 죽여
             }
+
+            StopAllMouthAnimationsForDialogue();
 
             if (lastHandledLineId == lineId)
             {
@@ -1221,6 +1391,20 @@ namespace PPP.BLUE.VN
 
             runner?.MarkSaveAllowed(false, "Typing Start");
 
+            bool suppressMouthAnimationForRestore = runner != null && runner.SuppressMouthAnimationForCurrentSay;
+            string mouthCharacterId = string.Empty;
+            bool canStartOrRetryMouthAnimation = allowMouthAnimation && !suppressMouthAnimationForRestore;
+            bool shouldStartMouthAnimation = canStartOrRetryMouthAnimation
+                && TryResolveMouthAnimationCharacterId(speakerId, out mouthCharacterId);
+            bool shouldRetryMouthAnimation = false;
+            if (!shouldStartMouthAnimation
+                && canStartOrRetryMouthAnimation
+                && TryResolvePendingLayeredCharacterMouthId(speakerId, out string pendingMouthCharacterId))
+            {
+                mouthCharacterId = pendingMouthCharacterId;
+                shouldRetryMouthAnimation = true;
+            }
+
             // ✅ 타이퍼 없으면 즉시 출력
             if (typer == null)
             {
@@ -1230,6 +1414,7 @@ namespace PPP.BLUE.VN
                 runner?.BacklogUpdateLineText(currentLineBacklogKey, currentFullText);
                 runner?.BacklogFinalizeLine(currentLineBacklogKey, currentFullText);
 
+                StopAllMouthAnimationsForDialogue();
                 runner?.MarkSaveAllowed(true, "No Typer => Immediate");
                 runner?.NotifyLineTypedEnd();
                 inputLocked = false;
@@ -1245,6 +1430,7 @@ namespace PPP.BLUE.VN
                 runner?.BacklogUpdateLineText(currentLineBacklogKey, currentFullText);
                 runner?.BacklogFinalizeLine(currentLineBacklogKey, currentFullText);
 
+                StopAllMouthAnimationsForDialogue();
                 runner?.NotifyLineTypedEnd();
                 inputLocked = false;
                 runner?.MarkSaveAllowed(true, "Skip Immediate");
@@ -1253,8 +1439,20 @@ namespace PPP.BLUE.VN
 
             // ✅ 타이핑 시작
             lineCompleted = false;
+            if (shouldStartMouthAnimation)
+            {
+                StartMouthAnimationForCharacter(mouthCharacterId);
+            }
+            else
+            {
+                StopAllMouthAnimationsForDialogue();
+                if (shouldRetryMouthAnimation)
+                    ScheduleMouthAnimationRetry(mouthCharacterId, speakerId, lineId);
+            }
+
             typer.StartTyping(currentFullText, onCompleted: () =>
             {
+                StopAllMouthAnimationsForDialogue();
                 lineCompleted = true;
                 lineDisplayed = true;
                 runner?.BacklogFinalizeLine(currentLineBacklogKey, currentFullText);
@@ -1272,6 +1470,7 @@ namespace PPP.BLUE.VN
 
         private void ForceCompleteLine()
         {
+            StopAllMouthAnimationsForDialogue();
             if (typer != null) typer.ForceComplete();
             else if (dialogueText != null) dialogueText.text = currentFullText;
 
@@ -1285,6 +1484,7 @@ namespace PPP.BLUE.VN
         {
             if (typer == null || !typer.IsTyping) return false;
 
+            StopAllMouthAnimationsForDialogue();
             typer.ForceComplete();
             lineDisplayed = true;
             lineCompleted = true;
@@ -1300,6 +1500,7 @@ namespace PPP.BLUE.VN
 
         public void FinalizeCurrentLineAfterForceComplete()
         {
+            StopAllMouthAnimationsForDialogue();
             lineDisplayed = true;
             lineCompleted = true;
             runner?.BacklogFinalizeLine(currentLineBacklogKey, currentFullText);
