@@ -18756,7 +18756,7 @@ MonoBehaviour:
     renderMode: 2
     defaultPosition: center
     supportsBlink: 1
-    supportsMouth: 1
+    supportsMouth: 0
   - characterId: guest_a
     displayName: A
     defaultExpressionId: normal
@@ -18927,7 +18927,7 @@ MonoBehaviour:
     eyebrowSprite: {fileID: 21300000, guid: b0ef6ec9212c39f43a69fb17f7f50323, type: 3}
     eyebrowOpenSprite: {fileID: 21300000, guid: b0ef6ec9212c39f43a69fb17f7f50323, type: 3}
     eyebrowBlinkHalfSprite: {fileID: 21300000, guid: b0ef6ec9212c39f43a69fb17f7f50323, type: 3}
-    eyebrowBlinkClosedSprite: {fileID: 21300000, guid: bb77086b971fe1d43880fde95f4c8598, type: 3}
+    eyebrowBlinkClosedSprite: {fileID: 21300000, guid: b0ef6ec9212c39f43a69fb17f7f50323, type: 3}
     eyeOpenSprite: {fileID: 21300000, guid: 9683045528d500f4991a19f84bcebe07, type: 3}
     eyeBlinkHalfSprite: {fileID: 21300000, guid: 9683045528d500f4991a19f84bcebe07, type: 3}
     eyeBlinkClosedSprite: {fileID: 21300000, guid: 9683045528d500f4991a19f84bcebe07, type: 3}
@@ -18988,6 +18988,10 @@ MonoBehaviour:
   portraitBlinkIntervalMin: 3.5
   portraitBlinkIntervalMax: 6.5
   portraitBlinkFrameDuration: 0.06
+  layeredCharacterBlinkInitialDelay: 5
+  layeredCharacterBlinkMinInterval: 4
+  layeredCharacterBlinkMaxInterval: 7
+  layeredCharacterBlinkFrameInterval: 0.06
   portraitMouthFrameInterval: 0.075
   fadeDuration: 0.25
   logFadeDebug: 1
