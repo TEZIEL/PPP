@@ -18756,7 +18756,7 @@ MonoBehaviour:
     renderMode: 2
     defaultPosition: center
     supportsBlink: 1
-    supportsMouth: 0
+    supportsMouth: 1
   - characterId: guest_a
     displayName: A
     defaultExpressionId: normal
@@ -18917,10 +18917,10 @@ MonoBehaviour:
     eyeClosedSprite: {fileID: 21300000, guid: 516ad750e6b1b9a4ea0fa75b8e7cedce, type: 3}
     mouthClosedSprite: {fileID: 21300000, guid: dd367dd2652549a47a3557bf981ed330, type: 3}
     mouthOpenSprites:
-    - {fileID: 21300000, guid: affb0dd2cae63e548a63d4896f949c8f, type: 3}
-    - {fileID: 0}
-    - {fileID: 0}
-    - {fileID: 0}
+    - {fileID: 21300000, guid: 703fd4e00ee89a540bb707958ecf0f1c, type: 3}
+    - {fileID: 21300000, guid: 155403496e0f42f4b834248775d8740e, type: 3}
+    - {fileID: 21300000, guid: a396812899ba14944b6613b75cae525f, type: 3}
+    - {fileID: 21300000, guid: b06b3f911c237eb4dab12b872d97c328, type: 3}
   - characterId: sena
     expressionId: smile
     baseSprite: {fileID: 21300000, guid: 9bd99b871d503054fb8031ccf9b9abda, type: 3}
@@ -18933,7 +18933,11 @@ MonoBehaviour:
     eyeBlinkClosedSprite: {fileID: 21300000, guid: 9683045528d500f4991a19f84bcebe07, type: 3}
     eyeClosedSprite: {fileID: 21300000, guid: 9683045528d500f4991a19f84bcebe07, type: 3}
     mouthClosedSprite: {fileID: 21300000, guid: 0c4df6d1496ee3a4a8f7868184dad8a0, type: 3}
-    mouthOpenSprites: []
+    mouthOpenSprites:
+    - {fileID: 21300000, guid: 703fd4e00ee89a540bb707958ecf0f1c, type: 3}
+    - {fileID: 21300000, guid: 155403496e0f42f4b834248775d8740e, type: 3}
+    - {fileID: 21300000, guid: a396812899ba14944b6613b75cae525f, type: 3}
+    - {fileID: 21300000, guid: b06b3f911c237eb4dab12b872d97c328, type: 3}
   - characterId: sena
     expressionId: embarrassed
     baseSprite: {fileID: 21300000, guid: 9bd99b871d503054fb8031ccf9b9abda, type: 3}
@@ -18946,7 +18950,11 @@ MonoBehaviour:
     eyeBlinkClosedSprite: {fileID: 21300000, guid: 20be570646d2f354e88f3d94fa32b608, type: 3}
     eyeClosedSprite: {fileID: 21300000, guid: 20be570646d2f354e88f3d94fa32b608, type: 3}
     mouthClosedSprite: {fileID: 21300000, guid: 0c4df6d1496ee3a4a8f7868184dad8a0, type: 3}
-    mouthOpenSprites: []
+    mouthOpenSprites:
+    - {fileID: 21300000, guid: 703fd4e00ee89a540bb707958ecf0f1c, type: 3}
+    - {fileID: 21300000, guid: 155403496e0f42f4b834248775d8740e, type: 3}
+    - {fileID: 21300000, guid: a396812899ba14944b6613b75cae525f, type: 3}
+    - {fileID: 21300000, guid: b06b3f911c237eb4dab12b872d97c328, type: 3}
   - characterId: sena
     expressionId: suspicious
     baseSprite: {fileID: 21300000, guid: 9bd99b871d503054fb8031ccf9b9abda, type: 3}
@@ -18959,7 +18967,11 @@ MonoBehaviour:
     eyeBlinkClosedSprite: {fileID: 21300000, guid: 516ad750e6b1b9a4ea0fa75b8e7cedce, type: 3}
     eyeClosedSprite: {fileID: 21300000, guid: 516ad750e6b1b9a4ea0fa75b8e7cedce, type: 3}
     mouthClosedSprite: {fileID: 21300000, guid: affb0dd2cae63e548a63d4896f949c8f, type: 3}
-    mouthOpenSprites: []
+    mouthOpenSprites:
+    - {fileID: 21300000, guid: 703fd4e00ee89a540bb707958ecf0f1c, type: 3}
+    - {fileID: 21300000, guid: 155403496e0f42f4b834248775d8740e, type: 3}
+    - {fileID: 21300000, guid: a396812899ba14944b6613b75cae525f, type: 3}
+    - {fileID: 21300000, guid: b06b3f911c237eb4dab12b872d97c328, type: 3}
   leftImage: {fileID: 3011143410322230584}
   centerImage: {fileID: 1215241395489043220}
   rightImage: {fileID: 4158262355081136692}
@@ -18993,6 +19005,7 @@ MonoBehaviour:
   layeredCharacterBlinkMaxInterval: 7
   layeredCharacterBlinkFrameInterval: 0.06
   portraitMouthFrameInterval: 0.075
+  layeredCharacterMouthFrameInterval: 0.075
   fadeDuration: 0.25
   logFadeDebug: 1
 --- !u!1 &5286922302863004563
