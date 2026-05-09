@@ -19046,17 +19046,13 @@ MonoBehaviour:
     eyebrowSprite: {fileID: 21300000, guid: 1f6b3780aa936f041b5a94546c360754, type: 3}
     eyebrowOpenSprite: {fileID: 21300000, guid: 1f6b3780aa936f041b5a94546c360754, type: 3}
     eyebrowBlinkHalfSprite: {fileID: 21300000, guid: 1f6b3780aa936f041b5a94546c360754, type: 3}
-    eyebrowBlinkClosedSprite: {fileID: 21300000, guid: 08e8f4054df90aa4ea9dc6eae65a0000, type: 3}
+    eyebrowBlinkClosedSprite: {fileID: 21300000, guid: 1f6b3780aa936f041b5a94546c360754, type: 3}
     eyeOpenSprite: {fileID: 21300000, guid: 757862dec25bb8d41ae052857ed15856, type: 3}
-    eyeBlinkHalfSprite: {fileID: 21300000, guid: 93b76e0eb560a99449f86e64f3f9cf76, type: 3}
-    eyeBlinkClosedSprite: {fileID: 21300000, guid: 4f24f787bcc852246a02237eb82bbfb2, type: 3}
-    eyeClosedSprite: {fileID: 21300000, guid: 4f24f787bcc852246a02237eb82bbfb2, type: 3}
+    eyeBlinkHalfSprite: {fileID: 21300000, guid: 757862dec25bb8d41ae052857ed15856, type: 3}
+    eyeBlinkClosedSprite: {fileID: 21300000, guid: 757862dec25bb8d41ae052857ed15856, type: 3}
+    eyeClosedSprite: {fileID: 21300000, guid: 757862dec25bb8d41ae052857ed15856, type: 3}
     mouthClosedSprite: {fileID: 21300000, guid: 8502f105bf3cec449946c3972241b49b, type: 3}
-    mouthOpenSprites:
-    - {fileID: 21300000, guid: 99743010d7669a940a07040eb2ecb8ef, type: 3}
-    - {fileID: 21300000, guid: 17d13e703c75b3448b17777afdd3c662, type: 3}
-    - {fileID: 21300000, guid: 8c201cbeadc4d43488c12c237d020f32, type: 3}
-    - {fileID: 21300000, guid: 1b76c1a6a8e000245932727a34e62b5a, type: 3}
+    mouthOpenSprites: []
   - characterId: guest_b
     expressionId: embarrassed1
     baseSprite: {fileID: 21300000, guid: fb609e2759b618547a4bc91533436810, type: 3}
