@@ -4,5 +4,6 @@ namespace PPP.BLUE.VN
     {
         FullSprite,
         LayeredPortrait,
+        LayeredCharacter,
     }
 }
