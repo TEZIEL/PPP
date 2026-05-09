@@ -30,6 +30,7 @@ namespace PPP.BLUE.VN
         [SerializeField] private VNRunner runner;
         private VNState state;
         private Coroutine autoCo;
+        private Coroutine waitForCharacterFadeCo;
         [SerializeField] private VNPolicyController policy;
         [SerializeField] private WindowManager windowManager;
         private VNDialogueView dialogueView;
@@ -139,6 +140,12 @@ namespace PPP.BLUE.VN
 
             SuppressAutoTimerThisFrame("VNRunner OnDisable");
             StopAutoTimer();
+
+            if (waitForCharacterFadeCo != null)
+            {
+                StopCoroutine(waitForCharacterFadeCo);
+                waitForCharacterFadeCo = null;
+            }
         }
 
         private void HandleThemeChanged()
@@ -1186,11 +1193,18 @@ namespace PPP.BLUE.VN
 
                     case VNNodeType.ShowCharacter:
                         {
-                            HandleShowCharacter(node);
+                            bool waitForFade = HandleShowCharacter(node);
+
                             pointer++;
                             if (pointer == previousPointer)
                             {
                                 pointer++;
+                            }
+
+                            if (waitForFade)
+                            {
+                                StartWaitForCharacterFade(ResolvePosition(node));
+                                return;
                             }
 
                             continue;
@@ -1266,19 +1280,68 @@ namespace PPP.BLUE.VN
 
 
 
-        private void HandleShowCharacter(VNNode node)
+        private bool HandleShowCharacter(VNNode node)
         {
             if (node == null)
-                return;
+                return false;
 
             VNCharacterManager manager = ResolveCharacterManager();
             if (manager == null)
             {
                 Debug.LogWarning("[VNRunner] showCharacter skipped: VNCharacterManager is not assigned or found in the scene.");
-                return;
+                return false;
             }
 
-            manager.ShowCharacter(ResolveCharacterId(node), ResolveExpressionId(node), ResolvePosition(node));
+            string characterId = ResolveCharacterId(node);
+            string expressionId = ResolveExpressionId(node);
+            string position = ResolvePosition(node);
+
+            manager.ShowCharacter(characterId, expressionId, position);
+
+            if (!node.waitForFade)
+                return false;
+
+            if (string.Equals(position?.Trim(), "portrait", StringComparison.OrdinalIgnoreCase))
+                return false;
+
+            return true;
+        }
+
+        private void StartWaitForCharacterFade(string position)
+        {
+            if (waitForCharacterFadeCo != null)
+            {
+                StopCoroutine(waitForCharacterFadeCo);
+                waitForCharacterFadeCo = null;
+            }
+
+            waitForCharacterFadeCo = StartCoroutine(CoWaitForCharacterFadeThenAdvance(position));
+        }
+
+        private IEnumerator CoWaitForCharacterFadeThenAdvance(string position)
+        {
+            VNCharacterManager manager = ResolveCharacterManager();
+            if (manager != null)
+                yield return manager.WaitForShowFade(position);
+
+            // 현재 AdvanceCore/NextInternal 호출이 완전히 끝난 다음 프레임에 재진입하기 위한 안전 대기
+            yield return null;
+
+            waitForCharacterFadeCo = null;
+
+            if (!isActiveAndEnabled)
+                yield break;
+
+            if (gameObject == null || !gameObject.activeInHierarchy)
+                yield break;
+
+            if (!started)
+                yield break;
+
+            if (script == null || script.nodes == null)
+                yield break;
+
+            AdvanceCore();
         }
 
         private void HandleChangeExpression(VNNode node)

@@ -82,6 +82,7 @@ namespace PPP.BLUE.VN
                         bgm = nodeDto.bgm ?? string.Empty,
                         sfx = nodeDto.sfx ?? string.Empty,
                         command = nodeDto.command ?? string.Empty,
+                        waitForFade = nodeDto.waitForFade,
                         label = FirstNonEmpty(
                             nodeDto.label,
                             FirstNonEmpty(

@@ -44,6 +44,7 @@ namespace PPP.BLUE.VN
         public string bgm;
         public string sfx;
         public string command;
+        public bool waitForFade;
         public VNBranchRuleDTO[] branches;
         public VNChoiceOptionDTO[] choices;
     }

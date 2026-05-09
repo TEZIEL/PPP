@@ -440,6 +440,62 @@ namespace PPP.BLUE.VN
             }
         }
 
+        public bool IsCharacterTransitioning(string position)
+        {
+            string normalizedPosition = NormalizePosition(position);
+
+            if (normalizedPosition == PortraitPosition)
+                return false;
+
+            if (fadingOutPositions.Contains(normalizedPosition))
+                return true;
+
+            if (pendingShows.ContainsKey(normalizedPosition))
+                return true;
+
+            if (layeredCharacterFadeCoroutines.TryGetValue(normalizedPosition, out Coroutine layeredCoroutine)
+                && layeredCoroutine != null)
+            {
+                return true;
+            }
+
+            Image slot = GetSlotImage(normalizedPosition);
+            if (slot != null
+                && fadeCoroutines.TryGetValue(slot, out Coroutine spriteCoroutine)
+                && spriteCoroutine != null)
+            {
+                return true;
+            }
+
+            return false;
+        }
+
+        public IEnumerator WaitForShowFade(string position)
+        {
+            string normalizedPosition = NormalizePosition(position);
+
+            if (normalizedPosition == PortraitPosition)
+                yield break;
+
+            int guardFrameCount = 0;
+            const int maxGuardFrames = 600;
+
+            while (isActiveAndEnabled
+                && gameObject != null
+                && gameObject.activeInHierarchy
+                && IsCharacterTransitioning(normalizedPosition))
+            {
+                guardFrameCount++;
+                if (guardFrameCount > maxGuardFrames)
+                {
+                    Debug.LogWarning($"[VNCharacterManager] WaitForShowFade timeout. position={normalizedPosition}");
+                    yield break;
+                }
+
+                yield return null;
+            }
+        }
+
         private void RebuildLookup()
         {
             spriteLookup.Clear();

@@ -19,6 +19,7 @@ namespace PPP.BLUE.VN
         public string bgm;
         public string sfx;
         public string command;
+        public bool waitForFade;
 
         // Label / Jump
         public string label;

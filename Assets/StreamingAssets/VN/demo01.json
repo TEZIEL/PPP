@@ -19,7 +19,7 @@
     { "id": "lb.opening", "type": "Label", "label": "opening" },
 
     { "id": "test.melion.0001", "type": "showCharacter", "characterId": "melion", "expressionId": "normal", "position": "portrait" },
-    { "id": "test.char.0001", "type": "showCharacter", "characterId": "sena", "expressionId": "normal", "position": "center" },
+    { "id": "test.char.0001", "type": "showCharacter", "characterId": "sena", "expressionId": "normal", "position": "center", "waitForFade": true },
 
     { "id": "op.0001", "type": "Say", "speakerId": "sena_unknown", "expressionId": "normal", "text": "좋은 아침." },
 
@@ -217,7 +217,7 @@
 
 
     
-    { "id": "show.a_intro.guest_a.normal", "type": "showCharacter", "characterId": "guest_a", "expressionId": "normal", "position": "center" },
+    { "id": "show.a_intro.guest_a.normal", "type": "showCharacter", "characterId": "guest_a", "expressionId": "normal", "position": "center", "waitForFade": true },
 
 
 
@@ -617,7 +617,7 @@
 
     { "id": "lb.b_intro", "type": "Label", "label": "b_intro" },
 
-    { "id": "show.b_intro.guest_b.normal", "type": "showCharacter", "characterId": "guest_b", "expressionId": "normal", "position": "center" },
+    { "id": "show.b_intro.guest_b.normal", "type": "showCharacter", "characterId": "guest_b", "expressionId": "normal", "position": "center", "waitForFade": true },
 
     { "id": "b.var.reset_great", "type": "SetVar", "arg": "bGreatCount", "arg1": "0" },
 
@@ -949,7 +949,7 @@
   { "id": "lb.c_intro", "type": "Label", "label": "c_intro" },
 
 
-  { "id": "show.c_intro.guest_c.normal", "type": "showCharacter", "characterId": "guest_c", "expressionId": "normal", "position": "center" },
+  { "id": "show.c_intro.guest_c.normal", "type": "showCharacter", "characterId": "guest_c", "expressionId": "normal", "position": "center", "waitForFade": true },
   { "id": "c.var.reset_great", "type": "SetVar", "arg": "cGreatCount", "arg1": "0" },
 
   { "id": "c.0001", "type": "Say", "speakerId": "guest_c_unknown", "expressionId": "normal", "text": "…" },
@@ -1325,7 +1325,7 @@
 
   { "id": "lb.d_intro", "type": "Label", "label": "d_intro" },
 
-  { "id": "show.d_intro.guest_d.normal", "type": "showCharacter", "characterId": "guest_d", "expressionId": "normal", "position": "center" },
+  { "id": "show.d_intro.guest_d.normal", "type": "showCharacter", "characterId": "guest_d", "expressionId": "normal", "position": "center", "waitForFade": true },
   { "id": "d.var.reset_great", "type": "SetVar", "arg": "dGreatCount", "arg1": "0" },
 
   { "id": "d.0001", "type": "Say", "speakerId": "guest_d_unknown", "expressionId": "normal", "text": "…!" },
@@ -1742,7 +1742,7 @@
 
   { "id": "lb.finale", "type": "Label", "label": "finale" },
 
-  { "id": "show.finale.sena.normal", "type": "showCharacter", "characterId": "sena", "expressionId": "normal", "position": "center" },
+  { "id": "show.finale.sena.normal", "type": "showCharacter", "characterId": "sena", "expressionId": "normal", "position": "center", "waitForFade": true },
   { "id": "fin.0001", "type": "Say", "speakerId": "sena", "expressionId": "normal", "text": "오늘은 여기까지인가?" },
   
   { "id": "fin.0002", "type": "Say", "speakerId": "sena", "expressionId": "smile", "text": "수고했어." },
