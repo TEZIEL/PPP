@@ -1,4 +1,4 @@
-﻿using UnityEngine;
+using UnityEngine;
 using System.Collections.Generic;
 using System.Collections;
 
@@ -55,6 +55,7 @@ public class AmbientManager : MonoBehaviour
 
         currentSource = sourceA;
         nextSource = sourceB;
+        OptionManager.EnsureSavedAudioSettingsApplied(currentSource != null ? currentSource.outputAudioMixerGroup?.audioMixer : null);
 
 
         currentSource.volume = 1f; // 🔥 반드시 추가
@@ -84,6 +85,8 @@ public class AmbientManager : MonoBehaviour
     // =========================
     public void Play(AmbientType type)
     {
+        OptionManager.EnsureSavedAudioSettingsApplied(currentSource != null ? currentSource.outputAudioMixerGroup?.audioMixer : null);
+
         if (type == AmbientType.None)
         {
             Stop();

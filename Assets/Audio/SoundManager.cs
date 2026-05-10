@@ -1,4 +1,4 @@
-﻿using UnityEngine;
+using UnityEngine;
 using System.Collections.Generic;
 
 public enum OSSoundEvent
@@ -65,6 +65,7 @@ public class SoundManager : MonoBehaviour
     private void Awake()
     {
         Instance = this;
+        OptionManager.EnsureSavedAudioSettingsApplied(osSource != null ? osSource.outputAudioMixerGroup?.audioMixer : null);
 
         osMap = new Dictionary<OSSoundEvent, AudioClip>()
         {
@@ -93,11 +94,18 @@ public class SoundManager : MonoBehaviour
 
     public void PlayOSWithPitch(OSSoundEvent e, float pitch)
     {
+        OptionManager.EnsureSavedAudioSettingsApplied(osSource != null ? osSource.outputAudioMixerGroup?.audioMixer : null);
+
         if (osMap.TryGetValue(e, out var clip))
         {
             var temp = gameObject.AddComponent<AudioSource>();
             temp.clip = clip;
             temp.pitch = pitch;
+            if (osSource != null)
+            {
+                temp.outputAudioMixerGroup = osSource.outputAudioMixerGroup;
+                temp.volume = osSource.volume;
+            }
             temp.Play();
 
             Destroy(temp, clip.length);
@@ -106,6 +114,8 @@ public class SoundManager : MonoBehaviour
 
     public void PlayOS(OSSoundEvent e)
     {
+        OptionManager.EnsureSavedAudioSettingsApplied(osSource != null ? osSource.outputAudioMixerGroup?.audioMixer : null);
+
         if (osMap.TryGetValue(e, out var clip))
         {
             osSource.PlayOneShot(clip);

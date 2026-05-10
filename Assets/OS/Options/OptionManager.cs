@@ -1,9 +1,10 @@
-﻿using System;
+using System;
 using TMPro;
 using UnityEngine;
 using UnityEngine.Audio;
 using UnityEngine.UI;
 
+[DefaultExecutionOrder(-10000)]
 public class OptionManager : MonoBehaviour
 {
     private const float MinVolume = 0.0001f;
@@ -55,8 +56,16 @@ public class OptionManager : MonoBehaviour
 
     public static OptionManager Instance { get; private set; }
 
+    private static bool hasAppliedStartupAudioSettings;
+
     private OptionState applied = new OptionState();
     private OptionState preview = new OptionState();
+
+    [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.BeforeSceneLoad)]
+    private static void ResetStartupAudioSettingsAppliedFlag()
+    {
+        hasAppliedStartupAudioSettings = false;
+    }
 
     private void Awake()
     {
@@ -69,7 +78,7 @@ public class OptionManager : MonoBehaviour
         Instance = this;
 
         Load();
-        ApplyToMixer(applied);
+        ApplyAllVolumeSettings();
         ResolveThemeManagers();
         InitializeThemeDropdown();
         ResolveBackgroundManager();
@@ -78,6 +87,13 @@ public class OptionManager : MonoBehaviour
         backgroundManager?.Apply();
         LoadGlobalCustomization();
         UpdateUI(); // 🔥 초기 UI
+    }
+
+    private void Start()
+    {
+        // AudioSource/BGM/SFX managers can finish their Awake initialization after this component.
+        // Re-apply saved runtime volume once at Start so restored PlayerPrefs do not remain UI-only.
+        ApplyAllVolumeSettings();
     }
 
     // 🔥 MUTE TOGGLE
@@ -181,9 +197,37 @@ public class OptionManager : MonoBehaviour
 
     // 🔥 MIXER
 
+    public void ReapplyAudioSettings()
+    {
+        ApplyAllVolumeSettings();
+    }
+
+    public static void EnsureSavedAudioSettingsApplied(AudioMixer targetMixer)
+    {
+        if (hasAppliedStartupAudioSettings)
+            return;
+
+        ApplySavedAudioSettingsToMixer(targetMixer);
+    }
+
+    public static void ApplySavedAudioSettingsToMixer(AudioMixer targetMixer)
+    {
+        ApplyStateToMixer(targetMixer, LoadSavedAudioState());
+    }
+
+    private void ApplyAllVolumeSettings()
+    {
+        ApplyToMixer(applied);
+    }
+
     private void ApplyToMixer(OptionState state)
     {
-        if (mixer == null)
+        ApplyStateToMixer(mixer, state);
+    }
+
+    private static void ApplyStateToMixer(AudioMixer targetMixer, OptionState state)
+    {
+        if (targetMixer == null || state == null)
             return;
 
         float master = state.masterMuted ? MinVolume : state.master;
@@ -191,10 +235,11 @@ public class OptionManager : MonoBehaviour
         float sfx = state.sfxMuted ? MinVolume : state.sfx;
         float ambient = state.ambientMuted ? MinVolume : state.ambient;
 
-        mixer.SetFloat("MasterVolume", LinearToDb(master));
-        mixer.SetFloat("BGMVolume", LinearToDb(bgm));
-        mixer.SetFloat("SFXVolume", LinearToDb(sfx));
-        mixer.SetFloat("AmbientVolume", LinearToDb(ambient));
+        targetMixer.SetFloat("MasterVolume", LinearToDb(master));
+        targetMixer.SetFloat("BGMVolume", LinearToDb(bgm));
+        targetMixer.SetFloat("SFXVolume", LinearToDb(sfx));
+        targetMixer.SetFloat("AmbientVolume", LinearToDb(ambient));
+        hasAppliedStartupAudioSettings = true;
     }
 
     private static float ClampVolume(float value)
@@ -227,18 +272,25 @@ public class OptionManager : MonoBehaviour
 
     private void Load()
     {
-        applied.master = PlayerPrefs.GetFloat(MasterKey, 1f);
-        applied.bgm = PlayerPrefs.GetFloat(BgmKey, 1f);
-        applied.sfx = PlayerPrefs.GetFloat(SfxKey, 1f);
-        applied.ambient = PlayerPrefs.GetFloat(AmbientKey, 1f);
-
-        applied.masterMuted = PlayerPrefs.GetInt(MasterMuteKey, 0) == 1;
-        applied.bgmMuted = PlayerPrefs.GetInt(BgmMuteKey, 0) == 1;
-        applied.sfxMuted = PlayerPrefs.GetInt(SfxMuteKey, 0) == 1;
-        applied.ambientMuted = PlayerPrefs.GetInt(AmbientMuteKey, 0) == 1;
+        applied = LoadSavedAudioState();
         applied.themeOptionIndex = PlayerPrefs.GetInt(ThemeSelectionKey, ResolveCurrentThemeOptionIndex());
 
         preview = applied.Clone();
+    }
+
+    private static OptionState LoadSavedAudioState()
+    {
+        return new OptionState
+        {
+            master = PlayerPrefs.GetFloat(MasterKey, 1f),
+            bgm = PlayerPrefs.GetFloat(BgmKey, 1f),
+            sfx = PlayerPrefs.GetFloat(SfxKey, 1f),
+            ambient = PlayerPrefs.GetFloat(AmbientKey, 1f),
+            masterMuted = PlayerPrefs.GetInt(MasterMuteKey, 0) == 1,
+            bgmMuted = PlayerPrefs.GetInt(BgmMuteKey, 0) == 1,
+            sfxMuted = PlayerPrefs.GetInt(SfxMuteKey, 0) == 1,
+            ambientMuted = PlayerPrefs.GetInt(AmbientMuteKey, 0) == 1
+        };
     }
 
 
@@ -247,15 +299,23 @@ public class OptionManager : MonoBehaviour
 
     private void UpdateUI()
     {
-        masterSlider.value = 1f - preview.master;
-        bgmSlider.value = 1f - preview.bgm;
-        sfxSlider.value = 1f - preview.sfx;
-        ambientSlider.value = 1f - preview.ambient;
+        SetSliderValueWithoutNotify(masterSlider, 1f - preview.master);
+        SetSliderValueWithoutNotify(bgmSlider, 1f - preview.bgm);
+        SetSliderValueWithoutNotify(sfxSlider, 1f - preview.sfx);
+        SetSliderValueWithoutNotify(ambientSlider, 1f - preview.ambient);
 
         masterMuteImage.sprite = preview.masterMuted ? muteOnSprite : muteOffSprite;
         bgmMuteImage.sprite = preview.bgmMuted ? muteOnSprite : muteOffSprite;
         sfxMuteImage.sprite = preview.sfxMuted ? muteOnSprite : muteOffSprite;
         ambientMuteImage.sprite = preview.ambientMuted ? muteOnSprite : muteOffSprite;
+    }
+
+    private static void SetSliderValueWithoutNotify(Slider slider, float value)
+    {
+        if (slider == null)
+            return;
+
+        slider.SetValueWithoutNotify(value);
     }
 
     public void OnOpen()
