@@ -1,4 +1,4 @@
-﻿using UnityEngine;
+using UnityEngine;
 using System.Collections.Generic;
 
 public enum OSSoundEvent
@@ -98,6 +98,11 @@ public class SoundManager : MonoBehaviour
             var temp = gameObject.AddComponent<AudioSource>();
             temp.clip = clip;
             temp.pitch = pitch;
+            if (osSource != null)
+            {
+                temp.outputAudioMixerGroup = osSource.outputAudioMixerGroup;
+                temp.volume = osSource.volume;
+            }
             temp.Play();
 
             Destroy(temp, clip.length);
