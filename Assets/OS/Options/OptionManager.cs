@@ -428,17 +428,7 @@ public class OptionManager : MonoBehaviour
         slider.SetValueWithoutNotify(value);
     }
 
-    private static void SetSliderValueWithoutNotify(Slider slider, float value)
-    {
-        if (slider == null)
-        {
-            TraceAudioOptions($"SetSliderValueWithoutNotify skipped null slider value={value}");
-            return;
-        }
-
-        TraceAudioOptions($"SetSliderValueWithoutNotify slider={slider.name} value={value} before={slider.value}");
-        slider.SetValueWithoutNotify(value);
-    }
+   
 
     
 
