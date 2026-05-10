@@ -55,9 +55,12 @@ public class AmbientManager : MonoBehaviour
 
         currentSource = sourceA;
         nextSource = sourceB;
+        TraceAmbientSource("Awake before EnsureSavedAudioSettingsApplied", currentSource);
         OptionManager.EnsureSavedAudioSettingsApplied(currentSource != null ? currentSource.outputAudioMixerGroup?.audioMixer : null);
+        TraceAmbientSource("Awake after EnsureSavedAudioSettingsApplied", currentSource);
 
 
+        OptionManager.TraceAudioOptions("AmbientManager.Awake assigning currentSource.volume=1 nextSource.volume=0");
         currentSource.volume = 1f; // 🔥 반드시 추가
         nextSource.volume = 0f;
 
@@ -85,7 +88,9 @@ public class AmbientManager : MonoBehaviour
     // =========================
     public void Play(AmbientType type)
     {
+        TraceAmbientSource($"Play {type} before EnsureSavedAudioSettingsApplied", currentSource);
         OptionManager.EnsureSavedAudioSettingsApplied(currentSource != null ? currentSource.outputAudioMixerGroup?.audioMixer : null);
+        TraceAmbientSource($"Play {type} after EnsureSavedAudioSettingsApplied", currentSource);
 
         if (type == AmbientType.None)
         {
@@ -119,6 +124,7 @@ public class AmbientManager : MonoBehaviour
         nextSource.clip = newClip;
         nextSource.loop = true;
         nextSource.volume = 0f;
+        TraceAmbientSource($"CrossFade before nextSource.Play clip={(newClip != null ? newClip.name : "NULL")}", nextSource);
         nextSource.Play();
 
         float duration = 0.7f;
@@ -144,6 +150,7 @@ public class AmbientManager : MonoBehaviour
         nextSource = temp;
 
         currentSource.volume = 1f;
+        TraceAmbientSource("CrossFade complete currentSource.volume=1", currentSource);
 
         isTransitioning = false; // 🔥 끝
     }
@@ -157,6 +164,7 @@ public class AmbientManager : MonoBehaviour
         currentSource.Stop();
         nextSource.Stop();
 
+        OptionManager.TraceAudioOptions("AmbientManager.Stop assigning currentSource.volume=1 nextSource.volume=0");
         currentSource.volume = 1f;
         nextSource.volume = 0f;
 
@@ -184,6 +192,25 @@ public class AmbientManager : MonoBehaviour
         currentSource.Stop();
 
         current = AmbientType.None;
+    }
+
+    private void TraceAmbientSource(string context, AudioSource source)
+    {
+        if (source == null)
+        {
+            OptionManager.TraceAudioOptions($"AmbientManager.{context} source=NULL");
+            return;
+        }
+
+        var group = source.outputAudioMixerGroup;
+        var mixer = group != null ? group.audioMixer : null;
+        var clip = source.clip;
+
+        OptionManager.TraceAudioOptions(
+            $"AmbientManager.{context} source={source.name} " +
+            $"volume={source.volume} mute={source.mute} playOnAwake={source.playOnAwake} isPlaying={source.isPlaying} " +
+            $"group={(group != null ? group.name : "NULL")} mixer={(mixer != null ? mixer.name : "NULL")} " +
+            $"clip={(clip != null ? clip.name : "NULL")}");
     }
 
 }
