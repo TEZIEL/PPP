@@ -113,6 +113,9 @@ public class BGMManager : MonoBehaviour
         }
 
         Instance = this;
+        TraceMusicSource("Awake before EnsureSavedAudioSettingsApplied");
+        OptionManager.EnsureSavedAudioSettingsApplied(musicSource != null ? musicSource.outputAudioMixerGroup?.audioMixer : null);
+        TraceMusicSource("Awake after EnsureSavedAudioSettingsApplied");
         if (transform.parent != null)
             transform.SetParent(null, true);
 
@@ -348,9 +351,13 @@ public class BGMManager : MonoBehaviour
 
     private void PlayTrack(BGMTrackData track, bool appendHistory)
     {
+        TraceMusicSource("PlayTrack before EnsureSavedAudioSettingsApplied", track);
+        OptionManager.EnsureSavedAudioSettingsApplied(musicSource != null ? musicSource.outputAudioMixerGroup?.audioMixer : null);
+        TraceMusicSource("PlayTrack before musicSource.Play", track);
         currentTrack = track;
         musicSource.clip = track.clip;
         musicSource.Play();
+        TraceMusicSource("PlayTrack after musicSource.Play", track);
         isPaused = false;
 
         if (appendHistory)
@@ -362,9 +369,13 @@ public class BGMManager : MonoBehaviour
 
     private void PlayTrackWithoutHistoryAppend(BGMTrackData track)
     {
+        TraceMusicSource("PlayTrackWithoutHistoryAppend before EnsureSavedAudioSettingsApplied", track);
+        OptionManager.EnsureSavedAudioSettingsApplied(musicSource != null ? musicSource.outputAudioMixerGroup?.audioMixer : null);
+        TraceMusicSource("PlayTrackWithoutHistoryAppend before musicSource.Play", track);
         currentTrack = track;
         musicSource.clip = track.clip;
         musicSource.Play();
+        TraceMusicSource("PlayTrackWithoutHistoryAppend after musicSource.Play", track);
         isPaused = false;
 
         OnTrackChanged?.Invoke(track);
@@ -378,10 +389,32 @@ public class BGMManager : MonoBehaviour
         if (currentTrack == null || currentTrack.clip == null || musicSource == null)
             return;
 
+        OptionManager.EnsureSavedAudioSettingsApplied(musicSource.outputAudioMixerGroup?.audioMixer);
+        TraceMusicSource("ReplayCurrent before musicSource.Play", currentTrack);
         musicSource.clip = currentTrack.clip;
         musicSource.Play();
+        TraceMusicSource("ReplayCurrent after musicSource.Play", currentTrack);
         isPaused = false;
         OnPlayStateChanged?.Invoke(true);
+    }
+
+    private void TraceMusicSource(string context, BGMTrackData track = null)
+    {
+        if (musicSource == null)
+        {
+            OptionManager.TraceAudioOptions($"BGMManager.{context} musicSource=NULL track={(track != null ? track.name : "NULL")}");
+            return;
+        }
+
+        var group = musicSource.outputAudioMixerGroup;
+        var mixer = group != null ? group.audioMixer : null;
+        var clip = musicSource.clip;
+
+        OptionManager.TraceAudioOptions(
+            $"BGMManager.{context} source={musicSource.name} " +
+            $"volume={musicSource.volume} mute={musicSource.mute} playOnAwake={musicSource.playOnAwake} isPlaying={musicSource.isPlaying} " +
+            $"group={(group != null ? group.name : "NULL")} mixer={(mixer != null ? mixer.name : "NULL")} " +
+            $"clip={(clip != null ? clip.name : "NULL")} requestedTrack={(track != null ? track.name : "NULL")}");
     }
 
     private void AppendHistory(BGMTrackData track)

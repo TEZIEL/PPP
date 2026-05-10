@@ -1,11 +1,14 @@
-﻿using System;
+using System;
 using TMPro;
 using UnityEngine;
 using UnityEngine.Audio;
 using UnityEngine.UI;
 
+[DefaultExecutionOrder(-10000)]
 public class OptionManager : MonoBehaviour
 {
+    public const string AudioOptionsTracePrefix = "[AudioOptionsTrace]";
+
     private const float MinVolume = 0.0001f;
 
     private const string MasterKey = "Options.Master";
@@ -55,8 +58,17 @@ public class OptionManager : MonoBehaviour
 
     public static OptionManager Instance { get; private set; }
 
+    private static bool hasAppliedStartupAudioSettings;
+
     private OptionState applied = new OptionState();
     private OptionState preview = new OptionState();
+
+    [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.BeforeSceneLoad)]
+    private static void ResetStartupAudioSettingsAppliedFlag()
+    {
+        hasAppliedStartupAudioSettings = false;
+        TraceAudioOptions("ResetStartupAudioSettingsAppliedFlag before scene load");
+    }
 
     private void Awake()
     {
@@ -68,8 +80,9 @@ public class OptionManager : MonoBehaviour
 
         Instance = this;
 
+        TraceAudioOptions($"OptionManager.Awake begin mixer={DescribeMixer(mixer)}");
         Load();
-        ApplyToMixer(applied);
+        ApplyAllVolumeSettings();
         ResolveThemeManagers();
         InitializeThemeDropdown();
         ResolveBackgroundManager();
@@ -78,6 +91,15 @@ public class OptionManager : MonoBehaviour
         backgroundManager?.Apply();
         LoadGlobalCustomization();
         UpdateUI(); // 🔥 초기 UI
+        TraceAudioOptions("OptionManager.Awake end");
+    }
+
+    private void Start()
+    {
+        // AudioSource/BGM/SFX managers can finish their Awake initialization after this component.
+        // Re-apply saved runtime volume once at Start so restored PlayerPrefs do not remain UI-only.
+        TraceAudioOptions($"OptionManager.Start reapply mixer={DescribeMixer(mixer)}");
+        ApplyAllVolumeSettings();
     }
 
     // 🔥 MUTE TOGGLE
@@ -85,6 +107,7 @@ public class OptionManager : MonoBehaviour
     public void ToggleMasterMute()
     {
         preview.masterMuted = !preview.masterMuted;
+        TraceAudioOptions($"ToggleMasterMute preview={DescribeState(preview)}");
         ApplyToMixer(preview);
         UpdateUI();
     }
@@ -92,6 +115,7 @@ public class OptionManager : MonoBehaviour
     public void ToggleBgmMute()
     {
         preview.bgmMuted = !preview.bgmMuted;
+        TraceAudioOptions($"ToggleBgmMute preview={DescribeState(preview)}");
         ApplyToMixer(preview);
         UpdateUI();
     }
@@ -99,6 +123,7 @@ public class OptionManager : MonoBehaviour
     public void ToggleSfxMute()
     {
         preview.sfxMuted = !preview.sfxMuted;
+        TraceAudioOptions($"ToggleSfxMute preview={DescribeState(preview)}");
         ApplyToMixer(preview);
         UpdateUI();
     }
@@ -106,6 +131,7 @@ public class OptionManager : MonoBehaviour
     public void ToggleAmbientMute()
     {
         preview.ambientMuted = !preview.ambientMuted;
+        TraceAudioOptions($"ToggleAmbientMute preview={DescribeState(preview)}");
         ApplyToMixer(preview);
         UpdateUI();
     }
@@ -114,44 +140,52 @@ public class OptionManager : MonoBehaviour
 
     public void SetPreviewMaster(float v)
     {
+        float sliderValue = v;
         v = 1f - v;
 
         preview.master = ClampVolume(v);
         preview.masterMuted = false;
 
+        TraceAudioOptions($"SetPreviewMaster slider={sliderValue} preview={DescribeState(preview)}");
         ApplyToMixer(preview);
         UpdateUI();
     }
 
     public void SetPreviewBgm(float v)
     {
+        float sliderValue = v;
         v = 1f - v;
 
         preview.bgm = ClampVolume(v);
         preview.bgmMuted = false;
 
+        TraceAudioOptions($"SetPreviewBgm slider={sliderValue} preview={DescribeState(preview)}");
         ApplyToMixer(preview);
         UpdateUI();
     }
 
     public void SetPreviewSfx(float v)
     {
+        float sliderValue = v;
         v = 1f - v;
 
         preview.sfx = ClampVolume(v);
         preview.sfxMuted = false;
 
+        TraceAudioOptions($"SetPreviewSfx slider={sliderValue} preview={DescribeState(preview)}");
         ApplyToMixer(preview);
         UpdateUI();
     }
 
     public void SetPreviewAmbient(float v)
     {
+        float sliderValue = v;
         v = 1f - v;
 
         preview.ambient = ClampVolume(v);
         preview.ambientMuted = false;
 
+        TraceAudioOptions($"SetPreviewAmbient slider={sliderValue} preview={DescribeState(preview)}");
         ApplyToMixer(preview);
         UpdateUI();
     }
@@ -161,6 +195,7 @@ public class OptionManager : MonoBehaviour
     public void Apply()
     {
         applied = preview.Clone();
+        TraceAudioOptions($"Apply clicked applied={DescribeState(applied)}");
         ApplyThemeSelection(applied.themeOptionIndex);
         backgroundManager?.Apply();
         Save();
@@ -171,6 +206,7 @@ public class OptionManager : MonoBehaviour
 
     public void Cancel()
     {
+        TraceAudioOptions($"Cancel clicked applied={DescribeState(applied)} previewBefore={DescribeState(preview)}");
         ApplyThemeSelection(applied.themeOptionIndex);
         backgroundManager?.Cancel();
         ApplyToMixer(applied);
@@ -181,20 +217,68 @@ public class OptionManager : MonoBehaviour
 
     // 🔥 MIXER
 
+    public void ReapplyAudioSettings()
+    {
+        TraceAudioOptions("ReapplyAudioSettings called");
+        ApplyAllVolumeSettings();
+    }
+
+    public static void EnsureSavedAudioSettingsApplied(AudioMixer targetMixer)
+    {
+        TraceAudioOptions($"EnsureSavedAudioSettingsApplied target={DescribeMixer(targetMixer)} alreadyApplied={hasAppliedStartupAudioSettings}");
+        if (hasAppliedStartupAudioSettings)
+            return;
+
+        ApplySavedAudioSettingsToMixer(targetMixer);
+    }
+
+    public static void ApplySavedAudioSettingsToMixer(AudioMixer targetMixer)
+    {
+        OptionState savedState = LoadSavedAudioState();
+        TraceAudioOptions($"ApplySavedAudioSettingsToMixer target={DescribeMixer(targetMixer)} saved={DescribeState(savedState)}");
+        ApplyStateToMixer(targetMixer, savedState, "ApplySavedAudioSettingsToMixer");
+    }
+
+    private void ApplyAllVolumeSettings()
+    {
+        TraceAudioOptions($"ApplyAllVolumeSettings applied={DescribeState(applied)} mixer={DescribeMixer(mixer)}");
+        ApplyToMixer(applied);
+    }
+
     private void ApplyToMixer(OptionState state)
     {
-        if (mixer == null)
+        TraceAudioOptions($"ApplyToMixer mixer={DescribeMixer(mixer)} state={DescribeState(state)}");
+        ApplyStateToMixer(mixer, state, "ApplyToMixer");
+    }
+
+    private static void ApplyStateToMixer(AudioMixer targetMixer, OptionState state, string context)
+    {
+        if (targetMixer == null || state == null)
+        {
+            TraceAudioOptions($"{context} skipped target={DescribeMixer(targetMixer)} stateNull={state == null}");
             return;
+        }
 
         float master = state.masterMuted ? MinVolume : state.master;
         float bgm = state.bgmMuted ? MinVolume : state.bgm;
         float sfx = state.sfxMuted ? MinVolume : state.sfx;
         float ambient = state.ambientMuted ? MinVolume : state.ambient;
 
-        mixer.SetFloat("MasterVolume", LinearToDb(master));
-        mixer.SetFloat("BGMVolume", LinearToDb(bgm));
-        mixer.SetFloat("SFXVolume", LinearToDb(sfx));
-        mixer.SetFloat("AmbientVolume", LinearToDb(ambient));
+        float masterDb = LinearToDb(master);
+        float bgmDb = LinearToDb(bgm);
+        float sfxDb = LinearToDb(sfx);
+        float ambientDb = LinearToDb(ambient);
+
+        bool masterOk = targetMixer.SetFloat("MasterVolume", masterDb);
+        bool bgmOk = targetMixer.SetFloat("BGMVolume", bgmDb);
+        bool sfxOk = targetMixer.SetFloat("SFXVolume", sfxDb);
+        bool ambientOk = targetMixer.SetFloat("AmbientVolume", ambientDb);
+
+        TraceAudioOptions($"{context} SetFloat MasterVolume={masterDb} ok={masterOk} mixer={DescribeMixer(targetMixer)}");
+        TraceAudioOptions($"{context} SetFloat BGMVolume={bgmDb} ok={bgmOk} mixer={DescribeMixer(targetMixer)}");
+        TraceAudioOptions($"{context} SetFloat SFXVolume={sfxDb} ok={sfxOk} mixer={DescribeMixer(targetMixer)}");
+        TraceAudioOptions($"{context} SetFloat AmbientVolume={ambientDb} ok={ambientOk} mixer={DescribeMixer(targetMixer)}");
+        hasAppliedStartupAudioSettings = true;
     }
 
     private static float ClampVolume(float value)
@@ -211,6 +295,7 @@ public class OptionManager : MonoBehaviour
 
     private void Save()
     {
+        TraceAudioOptions($"Save PlayerPrefs state={DescribeState(applied)}");
         PlayerPrefs.SetFloat(MasterKey, applied.master);
         PlayerPrefs.SetFloat(BgmKey, applied.bgm);
         PlayerPrefs.SetFloat(SfxKey, applied.sfx);
@@ -227,18 +312,38 @@ public class OptionManager : MonoBehaviour
 
     private void Load()
     {
-        applied.master = PlayerPrefs.GetFloat(MasterKey, 1f);
-        applied.bgm = PlayerPrefs.GetFloat(BgmKey, 1f);
-        applied.sfx = PlayerPrefs.GetFloat(SfxKey, 1f);
-        applied.ambient = PlayerPrefs.GetFloat(AmbientKey, 1f);
-
-        applied.masterMuted = PlayerPrefs.GetInt(MasterMuteKey, 0) == 1;
-        applied.bgmMuted = PlayerPrefs.GetInt(BgmMuteKey, 0) == 1;
-        applied.sfxMuted = PlayerPrefs.GetInt(SfxMuteKey, 0) == 1;
-        applied.ambientMuted = PlayerPrefs.GetInt(AmbientMuteKey, 0) == 1;
+        applied = LoadSavedAudioState();
         applied.themeOptionIndex = PlayerPrefs.GetInt(ThemeSelectionKey, ResolveCurrentThemeOptionIndex());
 
         preview = applied.Clone();
+        TraceAudioOptions($"Load applied={DescribeState(applied)} preview={DescribeState(preview)}");
+    }
+
+    private static OptionState LoadSavedAudioState()
+    {
+        OptionState state = new OptionState
+        {
+            master = PlayerPrefs.GetFloat(MasterKey, 1f),
+            bgm = PlayerPrefs.GetFloat(BgmKey, 1f),
+            sfx = PlayerPrefs.GetFloat(SfxKey, 1f),
+            ambient = PlayerPrefs.GetFloat(AmbientKey, 1f),
+            masterMuted = PlayerPrefs.GetInt(MasterMuteKey, 0) == 1,
+            bgmMuted = PlayerPrefs.GetInt(BgmMuteKey, 0) == 1,
+            sfxMuted = PlayerPrefs.GetInt(SfxMuteKey, 0) == 1,
+            ambientMuted = PlayerPrefs.GetInt(AmbientMuteKey, 0) == 1
+        };
+
+        TraceAudioOptions(
+            $"PlayerPrefs {MasterKey}={PlayerPrefs.GetFloat(MasterKey, -999f)} " +
+            $"{BgmKey}={PlayerPrefs.GetFloat(BgmKey, -999f)} " +
+            $"{SfxKey}={PlayerPrefs.GetFloat(SfxKey, -999f)} " +
+            $"{AmbientKey}={PlayerPrefs.GetFloat(AmbientKey, -999f)} " +
+            $"muteMaster={PlayerPrefs.GetInt(MasterMuteKey, -999)} " +
+            $"muteBgm={PlayerPrefs.GetInt(BgmMuteKey, -999)} " +
+            $"muteSfx={PlayerPrefs.GetInt(SfxMuteKey, -999)} " +
+            $"muteAmbient={PlayerPrefs.GetInt(AmbientMuteKey, -999)}");
+
+        return state;
     }
 
 
@@ -247,24 +352,67 @@ public class OptionManager : MonoBehaviour
 
     private void UpdateUI()
     {
-        masterSlider.value = 1f - preview.master;
-        bgmSlider.value = 1f - preview.bgm;
-        sfxSlider.value = 1f - preview.sfx;
-        ambientSlider.value = 1f - preview.ambient;
+        TraceAudioOptions($"UpdateUI begin applied={DescribeState(applied)} preview={DescribeState(preview)}");
+        SetSliderValueWithoutNotify(masterSlider, 1f - preview.master);
+        SetSliderValueWithoutNotify(bgmSlider, 1f - preview.bgm);
+        SetSliderValueWithoutNotify(sfxSlider, 1f - preview.sfx);
+        SetSliderValueWithoutNotify(ambientSlider, 1f - preview.ambient);
 
         masterMuteImage.sprite = preview.masterMuted ? muteOnSprite : muteOffSprite;
         bgmMuteImage.sprite = preview.bgmMuted ? muteOnSprite : muteOffSprite;
         sfxMuteImage.sprite = preview.sfxMuted ? muteOnSprite : muteOffSprite;
         ambientMuteImage.sprite = preview.ambientMuted ? muteOnSprite : muteOffSprite;
+        TraceAudioOptions(
+            $"UpdateUI end sliders master={DescribeSlider(masterSlider)} " +
+            $"bgm={DescribeSlider(bgmSlider)} sfx={DescribeSlider(sfxSlider)} ambient={DescribeSlider(ambientSlider)}");
+    }
+
+    private static void SetSliderValueWithoutNotify(Slider slider, float value)
+    {
+        if (slider == null)
+        {
+            TraceAudioOptions($"SetSliderValueWithoutNotify skipped null slider value={value}");
+            return;
+        }
+
+        TraceAudioOptions($"SetSliderValueWithoutNotify slider={slider.name} value={value} before={slider.value}");
+        slider.SetValueWithoutNotify(value);
     }
 
     public void OnOpen()
     {
+        TraceAudioOptions($"OnOpen begin applied={DescribeState(applied)} previewBefore={DescribeState(preview)} mixer={DescribeMixer(mixer)}");
         preview = applied.Clone();
         SyncThemeDropdownToState(preview.themeOptionIndex);
         backgroundManager?.OnOpen();
         SyncBackgroundDropdownsToPending();
         UpdateUI();
+        TraceAudioOptions($"OnOpen end preview={DescribeState(preview)}");
+    }
+
+    public static void TraceAudioOptions(string message)
+    {
+        Debug.Log($"{AudioOptionsTracePrefix} {message}");
+    }
+
+    private static string DescribeState(OptionState state)
+    {
+        if (state == null)
+            return "NULL";
+
+        return $"master={state.master} bgm={state.bgm} sfx={state.sfx} ambient={state.ambient} " +
+               $"muteMaster={state.masterMuted} muteBgm={state.bgmMuted} muteSfx={state.sfxMuted} muteAmbient={state.ambientMuted} " +
+               $"theme={state.themeOptionIndex}";
+    }
+
+    private static string DescribeMixer(AudioMixer targetMixer)
+    {
+        return targetMixer != null ? targetMixer.name : "NULL";
+    }
+
+    private static string DescribeSlider(Slider slider)
+    {
+        return slider != null ? $"{slider.name}:{slider.value}" : "NULL";
     }
 
     public void ApplyThemeVisuals(ThemeData theme)
