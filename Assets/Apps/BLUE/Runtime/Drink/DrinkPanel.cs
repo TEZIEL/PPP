@@ -245,6 +245,15 @@ namespace PPP.BLUE.VN
                 ApplyWindowStates(cachedWindowStates);
         }
 
+        public void ResetLayoutForNewGame()
+        {
+            ResetSingleWindowToDefault(ingredientPanelRoot);
+            ResetSingleWindowToDefault(drinkGridRoot);
+
+            cachedWindowStates.Clear();
+            CollectWindowStates(cachedWindowStates);
+        }
+
         public void ApplyWindowStates(System.Collections.Generic.IReadOnlyList<VNWindowStateData> states)
         {
             if (states == null || states.Count == 0)
@@ -252,6 +261,16 @@ namespace PPP.BLUE.VN
 
             ApplySingleWindowState(ingredientPanelRoot, IngredientWindowId, states);
             ApplySingleWindowState(drinkGridRoot, GridWindowId, states);
+        }
+
+        private static void ResetSingleWindowToDefault(RectTransform target)
+        {
+            if (target == null)
+                return;
+
+            var drag = target.GetComponent<UIDragMoveClamped>();
+            if (drag != null)
+                drag.ResetToInitialLayoutState();
         }
 
         private static void CollectSingleWindowState(RectTransform target, string windowId, System.Collections.Generic.List<VNWindowStateData> states)
