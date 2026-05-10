@@ -246,6 +246,7 @@ public class BGMManager : MonoBehaviour
             OnShuffleChanged?.Invoke(false);
         }
 
+        SoundManager.Instance?.PlayOS(OSSoundEvent.Open);
         PlayTrack(track, true);
     }
 
