@@ -670,7 +670,11 @@ namespace PPP.BLUE.VN
         {
             if (!HasScript) return;
             if (windowManager != null && windowManager.IsBlockingModalOpen)
+            {
+                ForceAutoOff("Blocked by OS modal");
+                SetUiSkipHeld(false, "Blocked by OS modal");
                 return;
+            }
             bool manualInputBlockedByBacklog = VNDialogueView.IsAnyBacklogOpen;
             if (manualInputBlockedByBacklog && UnityEngine.EventSystems.EventSystem.current != null)
                 UnityEngine.EventSystems.EventSystem.current.SetSelectedGameObject(null);
@@ -2472,6 +2476,7 @@ namespace PPP.BLUE.VN
             if (!started) return false;
             if (policy == null) return false;
             if (uiInputBlocked) return false;
+            if (windowManager != null && windowManager.IsBlockingModalOpen) return false;
 
             return VNInputGate.CanAutoAdvanceInBackground(policy) && SaveAllowed;
         }
