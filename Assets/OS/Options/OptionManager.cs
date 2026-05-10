@@ -102,12 +102,7 @@ public class OptionManager : MonoBehaviour
         ApplyAllVolumeSettings();
     }
 
-    private void Start()
-    {
-        // AudioSource/BGM/SFX managers can finish their Awake initialization after this component.
-        // Re-apply saved runtime volume once at Start so restored PlayerPrefs do not remain UI-only.
-        ApplyAllVolumeSettings();
-    }
+    
 
     // 🔥 MUTE TOGGLE
 
@@ -353,20 +348,7 @@ public class OptionManager : MonoBehaviour
         return state;
     }
 
-    private static OptionState LoadSavedAudioState()
-    {
-        return new OptionState
-        {
-            master = PlayerPrefs.GetFloat(MasterKey, 1f),
-            bgm = PlayerPrefs.GetFloat(BgmKey, 1f),
-            sfx = PlayerPrefs.GetFloat(SfxKey, 1f),
-            ambient = PlayerPrefs.GetFloat(AmbientKey, 1f),
-            masterMuted = PlayerPrefs.GetInt(MasterMuteKey, 0) == 1,
-            bgmMuted = PlayerPrefs.GetInt(BgmMuteKey, 0) == 1,
-            sfxMuted = PlayerPrefs.GetInt(SfxMuteKey, 0) == 1,
-            ambientMuted = PlayerPrefs.GetInt(AmbientMuteKey, 0) == 1
-        };
-    }
+  
 
 
 
@@ -401,13 +383,7 @@ public class OptionManager : MonoBehaviour
         slider.SetValueWithoutNotify(value);
     }
 
-    private static void SetSliderValueWithoutNotify(Slider slider, float value)
-    {
-        if (slider == null)
-            return;
-
-        slider.SetValueWithoutNotify(value);
-    }
+    
 
     public void OnOpen()
     {
