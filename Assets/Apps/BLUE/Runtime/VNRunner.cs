@@ -630,6 +630,8 @@ namespace PPP.BLUE.VN
             currentBacklogKey = new VNBacklogKey();
             SaveAllowed = false;
 
+            ResetVNUIForNewGame();
+
             drinkManager?.RestoreState(new DrinkManager.DrinkRuntimeState
             {
                 currentRequestId = string.Empty,
@@ -1957,6 +1959,27 @@ namespace PPP.BLUE.VN
                 return Mathf.Max(0, safe - labelIndex);
 
             return safe;
+        }
+
+        public void ResetVNUIForNewGame()
+        {
+            if (drinkPanel == null)
+                drinkPanel = GetComponentInChildren<DrinkPanel>(true);
+
+            drinkPanel?.ResetLayoutForNewGame();
+            ResetSingleVNWindowToDefault(vnDialogueWindow);
+            ResetSingleVNWindowToDefault(melionFaceWindow);
+            ResetSingleVNWindowToDefault(hiddenVNDialogueWindow);
+        }
+
+        private void ResetSingleVNWindowToDefault(GameObject go)
+        {
+            if (go == null)
+                return;
+
+            var drag = go.GetComponent<UIDragMoveClamped>();
+            if (drag != null)
+                drag.ResetToInitialLayoutState();
         }
 
         private List<VNWindowStateData> CollectVNWindowStates()

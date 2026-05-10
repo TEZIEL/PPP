@@ -25,6 +25,10 @@ namespace PPP.BLUE.VN
         private Vector2 startAnchoredPosition;
         private VNRunner runner;
         private bool isPinned;
+        private bool initialLayoutCaptured;
+        private Vector2 initialAnchoredPosition;
+        private int initialLayoutSiblingIndex = -1;
+        private bool initialPinnedState;
 
         public bool IsPinned => isPinned;
         public event Action<UIDragMoveClamped, bool> PinnedStateChanged;
@@ -34,6 +38,7 @@ namespace PPP.BLUE.VN
         {
             rect = GetComponent<RectTransform>();
             dragParent = rect != null ? rect.parent as RectTransform : null;
+            CaptureInitialLayoutIfNeeded();
             runner = GetComponentInParent<VNRunner>(true);
 
             if (pinToggleButton != null)
@@ -176,6 +181,29 @@ namespace PPP.BLUE.VN
             SetPinned(pinned);
         }
 
+        public void ResetToInitialLayoutState()
+        {
+            if (rect == null)
+            {
+                rect = GetComponent<RectTransform>();
+                dragParent = rect != null ? rect.parent as RectTransform : null;
+            }
+
+            CaptureInitialLayoutIfNeeded();
+
+            if (rect == null)
+                return;
+
+            SetSavedAnchoredPosition(initialAnchoredPosition);
+            SetPinnedState(initialPinnedState);
+
+            if (rect.parent != null && initialLayoutSiblingIndex >= 0)
+            {
+                int clampedIndex = Mathf.Clamp(initialLayoutSiblingIndex, 0, rect.parent.childCount - 1);
+                rect.SetSiblingIndex(clampedIndex);
+            }
+        }
+
         public void OnBeginDrag(PointerEventData eventData)
         {
             if (isPinned)
@@ -233,6 +261,17 @@ namespace PPP.BLUE.VN
                 return;
 
             BringToFront();
+        }
+
+        private void CaptureInitialLayoutIfNeeded()
+        {
+            if (initialLayoutCaptured || rect == null)
+                return;
+
+            initialAnchoredPosition = rect.anchoredPosition;
+            initialLayoutSiblingIndex = rect.GetSiblingIndex();
+            initialPinnedState = isPinned;
+            initialLayoutCaptured = true;
         }
 
         private void NotifyPinnedStateChanged()
