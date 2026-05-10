@@ -14,6 +14,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   trackId: Track 06
   displayName: Track 06
-  clip: {fileID: 8300000, guid: d7d3b4d166101d7438919c6d9a648c3c, type: 3}
+  clip: {fileID: 8300000, guid: 7bf51e0244348c840afb6c80a74c928e, type: 3}
   artwork: {fileID: 0}
   favoriteByDefault: 0
