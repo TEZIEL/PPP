@@ -3211,7 +3211,7 @@ AudioSource:
   m_PlayOnAwake: 0
   m_Volume: 1
   m_Pitch: 1
-  Loop: 1
+  Loop: 0
   Mute: 0
   Spatialize: 0
   SpatializePostEffects: 0
@@ -6224,24 +6224,26 @@ MonoBehaviour:
   osSource: {fileID: 1110518185}
   vnSource: {fileID: 1973248188}
   vnTypingSource: {fileID: 321822522}
-  click: {fileID: 8300000, guid: 814321d884700bc4dab55c092a586160, type: 3}
-  open: {fileID: 8300000, guid: 7514e7b210d7b86448044386f826f0b8, type: 3}
-  close: {fileID: 8300000, guid: 40a7f7ef55359714280d8da0b4d4ce14, type: 3}
-  minimize: {fileID: 8300000, guid: 0479363fc6a225b40ab93a594c26cec9, type: 3}
-  pin: {fileID: 8300000, guid: 4753e108f9446ff4cb1b4accfd246684, type: 3}
-  restore: {fileID: 8300000, guid: 4cada4fe348879f459629966ddd78799, type: 3}
-  scroll: {fileID: 8300000, guid: d7b7beff320e9f9479514732e289f52e, type: 3}
-  save: {fileID: 8300000, guid: f0764c15f619b95448b22b39e57bfe38, type: 3}
-  load: {fileID: 8300000, guid: 8a85b8679c4e17c4abae423cb5f792f0, type: 3}
-  delete: {fileID: 8300000, guid: 06b74127e25309f408e30ca6e109880d, type: 3}
+  click: {fileID: 8300000, guid: a94e85f3dd238a1438a6da6ac5e640c4, type: 3}
+  open: {fileID: 8300000, guid: 168d04d087730174fb9ab2c81ff5b146, type: 3}
+  close: {fileID: 8300000, guid: 54d7dd81b3ce37f4c81ab5608bdc25a3, type: 3}
+  minimize: {fileID: 8300000, guid: cf9cd4efd03be67408350794af940221, type: 3}
+  pin: {fileID: 8300000, guid: 73430841533bbd14d9e359a914a91a39, type: 3}
+  restore: {fileID: 8300000, guid: 2d426fb8bc7f0934c98adbe6a334531b, type: 3}
+  scroll: {fileID: 8300000, guid: bc82e26e8bd3a1a4c94354d3d6a4a0c2, type: 3}
+  vnTypingClip: {fileID: 8300000, guid: 920e4da6013c4d84bb241e2f9fec3fb8, type: 3}
+  save: {fileID: 8300000, guid: 1375ffb57ffa2a74e9aab6289fbef165, type: 3}
+  load: {fileID: 8300000, guid: 18993d7068b11b2439ae1adbc427f815, type: 3}
+  delete: {fileID: 8300000, guid: 0b6ec054b8b56114da5fe16511ca79c3, type: 3}
   fadeOut: {fileID: 0}
-  ingredient1: {fileID: 8300000, guid: 694e846b662e58d44979273cd71d6cff, type: 3}
-  ingredient2: {fileID: 8300000, guid: e0af1634b068d504bb2518691c4d05d2, type: 3}
-  retry: {fileID: 8300000, guid: ab16739cedf359841a027777889fcd01, type: 3}
-  craftFail: {fileID: 8300000, guid: 2c98ce536b73d0e479a5cc06b4d2a0d7, type: 3}
-  craftFailProvide: {fileID: 8300000, guid: ee7ed71de5675914bbb5791c6914cb2a, type: 3}
-  craftSuccess: {fileID: 8300000, guid: 592a8ef10cffdda47b02551f193324f2, type: 3}
-  provideComplete: {fileID: 8300000, guid: c898d67c93a439141a824b9e5959339c, type: 3}
+  ingredient1: {fileID: 8300000, guid: 2f56c09c5a536f8419f71883f4014f1e, type: 3}
+  ingredient2: {fileID: 8300000, guid: dbd4173b34a8ae145b3c11defbc6ffad, type: 3}
+  retry: {fileID: 8300000, guid: 7b6a306ca0ecd2e438e0fb9c5d695acd, type: 3}
+  craftFail: {fileID: 8300000, guid: b841d3e9f8100fd4a9048ef6bd0f4e60, type: 3}
+  craftFailProvide: {fileID: 8300000, guid: 692b34663dc84064998354210711f3fe, type: 3}
+  craftSuccess: {fileID: 8300000, guid: b8371d8462328564ca95e51065bfb3fc, type: 3}
+  provideComplete: {fileID: 8300000, guid: 05cb9f1aae844f644967c30911fd15b9, type: 3}
+  musicPlay: {fileID: 8300000, guid: 5e649f9b98d7b0c499c1e3399ea1fe7a, type: 3}
 --- !u!224 &565802578
 RectTransform:
   m_ObjectHideFlags: 0
