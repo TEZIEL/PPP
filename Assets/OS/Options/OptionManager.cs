@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using TMPro;
 using UnityEngine;
 using UnityEngine.Audio;
@@ -69,7 +69,7 @@ public class OptionManager : MonoBehaviour
         Instance = this;
 
         Load();
-        ApplyToMixer(applied);
+        ApplyAllVolumeSettings();
         ResolveThemeManagers();
         InitializeThemeDropdown();
         ResolveBackgroundManager();
@@ -78,6 +78,13 @@ public class OptionManager : MonoBehaviour
         backgroundManager?.Apply();
         LoadGlobalCustomization();
         UpdateUI(); // 🔥 초기 UI
+    }
+
+    private void Start()
+    {
+        // AudioSource/BGM/SFX managers can finish their Awake initialization after this component.
+        // Re-apply saved runtime volume once at Start so restored PlayerPrefs do not remain UI-only.
+        ApplyAllVolumeSettings();
     }
 
     // 🔥 MUTE TOGGLE
@@ -181,6 +188,16 @@ public class OptionManager : MonoBehaviour
 
     // 🔥 MIXER
 
+    public void ReapplyAudioSettings()
+    {
+        ApplyAllVolumeSettings();
+    }
+
+    private void ApplyAllVolumeSettings()
+    {
+        ApplyToMixer(applied);
+    }
+
     private void ApplyToMixer(OptionState state)
     {
         if (mixer == null)
@@ -247,15 +264,23 @@ public class OptionManager : MonoBehaviour
 
     private void UpdateUI()
     {
-        masterSlider.value = 1f - preview.master;
-        bgmSlider.value = 1f - preview.bgm;
-        sfxSlider.value = 1f - preview.sfx;
-        ambientSlider.value = 1f - preview.ambient;
+        SetSliderValueWithoutNotify(masterSlider, 1f - preview.master);
+        SetSliderValueWithoutNotify(bgmSlider, 1f - preview.bgm);
+        SetSliderValueWithoutNotify(sfxSlider, 1f - preview.sfx);
+        SetSliderValueWithoutNotify(ambientSlider, 1f - preview.ambient);
 
         masterMuteImage.sprite = preview.masterMuted ? muteOnSprite : muteOffSprite;
         bgmMuteImage.sprite = preview.bgmMuted ? muteOnSprite : muteOffSprite;
         sfxMuteImage.sprite = preview.sfxMuted ? muteOnSprite : muteOffSprite;
         ambientMuteImage.sprite = preview.ambientMuted ? muteOnSprite : muteOffSprite;
+    }
+
+    private static void SetSliderValueWithoutNotify(Slider slider, float value)
+    {
+        if (slider == null)
+            return;
+
+        slider.SetValueWithoutNotify(value);
     }
 
     public void OnOpen()
