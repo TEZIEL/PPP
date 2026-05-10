@@ -12,6 +12,11 @@ namespace PPP.BLUE.VN
         [SerializeField] private bool enableTypingSfx = true;
         [SerializeField, Min(0f)] private float typingSfxInterval = 0.5f;
 
+        [Header("Typing SFX")]
+        [SerializeField] private bool enableTypingSfx = true;
+        [SerializeField, Min(0.01f), Tooltip("Minimum seconds between VN typing SFX plays. Higher values reduce rapid chatter.")]
+        private float typingSfxInterval = 0.075f;
+
         public bool IsTyping { get; private set; }
 
         private Coroutine co;

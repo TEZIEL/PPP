@@ -146,6 +146,7 @@ public class SoundManager : MonoBehaviour
             ? vnTypingSource.outputAudioMixerGroup.audioMixer
             : null);
 
+        vnTypingSource.Stop();
         vnTypingSource.pitch = pitch;
         vnTypingSource.PlayOneShot(vnTypingClip, volumeScale);
     }
