@@ -324,6 +324,7 @@ public class WindowManager : MonoBehaviour, IVNHostOS
         InjectAllWindows();
         InjectAllIcons();
         LoadOS();
+        AudioSourceRuntimeDumper.DumpAudioSourcesNextFrame(this, "WindowManager.Start after LoadOS nextFrame");
         ApplyThemeToOpenWindows(themeManager != null ? themeManager : ThemeManager.Instance);
     }
 
@@ -461,6 +462,8 @@ public class WindowManager : MonoBehaviour, IVNHostOS
         StartCoroutine(CoPostApplyLayoutSanityNextFrame());
 
         Debug.Log($"[OS] LoadOS applied. subBlocks={subBlockJsonByKey.Count}");
+        AudioSourceRuntimeDumper.DumpAllPlayingAudioSources("WindowManager.LoadOS after");
+        AudioSourceRuntimeDumper.DumpAudioSourcesNextFrame(this, "WindowManager.LoadOS nextFrame");
     }
 
     public void MarkRecipeDrinkServed(string drinkId)
