@@ -10,6 +10,7 @@ public enum OSSoundEvent
     Pin,
     Restore,
     Scroll,
+    MusicPlay,
 
     // 🔥 추가
     Save,
@@ -59,6 +60,8 @@ public class SoundManager : MonoBehaviour
     public AudioClip craftSuccess;
     public AudioClip provideComplete;
 
+    [Header("Music App Clips")]
+    public AudioClip musicPlay;
 
     private Dictionary<OSSoundEvent, AudioClip> osMap;
 
@@ -91,7 +94,8 @@ public class SoundManager : MonoBehaviour
             { OSSoundEvent.CraftFail, craftFail },
             { OSSoundEvent.CraftFailProvide, craftFailProvide },
             { OSSoundEvent.CraftSuccess, craftSuccess },
-            { OSSoundEvent.ProvideComplete, provideComplete }
+            { OSSoundEvent.ProvideComplete, provideComplete },
+            { OSSoundEvent.MusicPlay, musicPlay }
 
         };
     }
