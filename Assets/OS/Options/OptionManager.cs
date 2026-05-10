@@ -102,6 +102,8 @@ public class OptionManager : MonoBehaviour
         ApplyAllVolumeSettings();
     }
 
+    
+
     // 🔥 MUTE TOGGLE
 
     public void ToggleMasterMute()
@@ -381,6 +383,8 @@ public class OptionManager : MonoBehaviour
         return state;
     }
 
+  
+
 
 
     // 🔥 UI
@@ -423,6 +427,20 @@ public class OptionManager : MonoBehaviour
         TraceAudioOptions($"SetSliderValueWithoutNotify slider={slider.name} value={value} before={slider.value}");
         slider.SetValueWithoutNotify(value);
     }
+
+    private static void SetSliderValueWithoutNotify(Slider slider, float value)
+    {
+        if (slider == null)
+        {
+            TraceAudioOptions($"SetSliderValueWithoutNotify skipped null slider value={value}");
+            return;
+        }
+
+        TraceAudioOptions($"SetSliderValueWithoutNotify slider={slider.name} value={value} before={slider.value}");
+        slider.SetValueWithoutNotify(value);
+    }
+
+    
 
     public void OnOpen()
     {
