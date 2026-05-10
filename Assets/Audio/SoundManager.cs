@@ -1,4 +1,4 @@
-﻿using UnityEngine;
+using UnityEngine;
 using System.Collections.Generic;
 
 public enum OSSoundEvent
@@ -65,6 +65,11 @@ public class SoundManager : MonoBehaviour
     private void Awake()
     {
         Instance = this;
+        TraceAudioSource("Awake before EnsureSavedAudioSettingsApplied", osSource);
+        TraceAudioSource("Awake vnSource", vnSource);
+        TraceAudioSource("Awake vnTypingSource", vnTypingSource);
+        OptionManager.EnsureSavedAudioSettingsApplied(osSource != null ? osSource.outputAudioMixerGroup?.audioMixer : null);
+        TraceAudioSource("Awake after EnsureSavedAudioSettingsApplied", osSource);
 
         osMap = new Dictionary<OSSoundEvent, AudioClip>()
         {
@@ -93,11 +98,21 @@ public class SoundManager : MonoBehaviour
 
     public void PlayOSWithPitch(OSSoundEvent e, float pitch)
     {
+        TraceAudioSource($"PlayOSWithPitch {e} before EnsureSavedAudioSettingsApplied", osSource);
+        OptionManager.EnsureSavedAudioSettingsApplied(osSource != null ? osSource.outputAudioMixerGroup?.audioMixer : null);
+        TraceAudioSource($"PlayOSWithPitch {e} after EnsureSavedAudioSettingsApplied", osSource);
+
         if (osMap.TryGetValue(e, out var clip))
         {
             var temp = gameObject.AddComponent<AudioSource>();
             temp.clip = clip;
             temp.pitch = pitch;
+            if (osSource != null)
+            {
+                temp.outputAudioMixerGroup = osSource.outputAudioMixerGroup;
+                temp.volume = osSource.volume;
+            }
+            TraceAudioSource($"PlayOSWithPitch {e} temp before Play clip={(clip != null ? clip.name : "NULL")} pitch={pitch}", temp);
             temp.Play();
 
             Destroy(temp, clip.length);
@@ -106,9 +121,32 @@ public class SoundManager : MonoBehaviour
 
     public void PlayOS(OSSoundEvent e)
     {
+        TraceAudioSource($"PlayOS {e} before EnsureSavedAudioSettingsApplied", osSource);
+        OptionManager.EnsureSavedAudioSettingsApplied(osSource != null ? osSource.outputAudioMixerGroup?.audioMixer : null);
+        TraceAudioSource($"PlayOS {e} before PlayOneShot", osSource);
+
         if (osMap.TryGetValue(e, out var clip))
         {
             osSource.PlayOneShot(clip);
         }
+    }
+
+    private void TraceAudioSource(string context, AudioSource source)
+    {
+        if (source == null)
+        {
+            OptionManager.TraceAudioOptions($"SoundManager.{context} source=NULL");
+            return;
+        }
+
+        var group = source.outputAudioMixerGroup;
+        var mixer = group != null ? group.audioMixer : null;
+        var clip = source.clip;
+
+        OptionManager.TraceAudioOptions(
+            $"SoundManager.{context} source={source.name} " +
+            $"volume={source.volume} mute={source.mute} playOnAwake={source.playOnAwake} isPlaying={source.isPlaying} " +
+            $"group={(group != null ? group.name : "NULL")} mixer={(mixer != null ? mixer.name : "NULL")} " +
+            $"clip={(clip != null ? clip.name : "NULL")}");
     }
 }
