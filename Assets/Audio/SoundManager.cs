@@ -65,6 +65,7 @@ public class SoundManager : MonoBehaviour
     private void Awake()
     {
         Instance = this;
+        OptionManager.EnsureSavedAudioSettingsApplied(osSource != null ? osSource.outputAudioMixerGroup?.audioMixer : null);
 
         osMap = new Dictionary<OSSoundEvent, AudioClip>()
         {
@@ -93,6 +94,8 @@ public class SoundManager : MonoBehaviour
 
     public void PlayOSWithPitch(OSSoundEvent e, float pitch)
     {
+        OptionManager.EnsureSavedAudioSettingsApplied(osSource != null ? osSource.outputAudioMixerGroup?.audioMixer : null);
+
         if (osMap.TryGetValue(e, out var clip))
         {
             var temp = gameObject.AddComponent<AudioSource>();
@@ -111,6 +114,8 @@ public class SoundManager : MonoBehaviour
 
     public void PlayOS(OSSoundEvent e)
     {
+        OptionManager.EnsureSavedAudioSettingsApplied(osSource != null ? osSource.outputAudioMixerGroup?.audioMixer : null);
+
         if (osMap.TryGetValue(e, out var clip))
         {
             osSource.PlayOneShot(clip);

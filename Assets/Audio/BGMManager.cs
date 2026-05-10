@@ -113,6 +113,7 @@ public class BGMManager : MonoBehaviour
         }
 
         Instance = this;
+        OptionManager.EnsureSavedAudioSettingsApplied(musicSource != null ? musicSource.outputAudioMixerGroup?.audioMixer : null);
         if (transform.parent != null)
             transform.SetParent(null, true);
 
@@ -348,6 +349,7 @@ public class BGMManager : MonoBehaviour
 
     private void PlayTrack(BGMTrackData track, bool appendHistory)
     {
+        OptionManager.EnsureSavedAudioSettingsApplied(musicSource != null ? musicSource.outputAudioMixerGroup?.audioMixer : null);
         currentTrack = track;
         musicSource.clip = track.clip;
         musicSource.Play();
@@ -362,6 +364,7 @@ public class BGMManager : MonoBehaviour
 
     private void PlayTrackWithoutHistoryAppend(BGMTrackData track)
     {
+        OptionManager.EnsureSavedAudioSettingsApplied(musicSource != null ? musicSource.outputAudioMixerGroup?.audioMixer : null);
         currentTrack = track;
         musicSource.clip = track.clip;
         musicSource.Play();
@@ -378,6 +381,7 @@ public class BGMManager : MonoBehaviour
         if (currentTrack == null || currentTrack.clip == null || musicSource == null)
             return;
 
+        OptionManager.EnsureSavedAudioSettingsApplied(musicSource.outputAudioMixerGroup?.audioMixer);
         musicSource.clip = currentTrack.clip;
         musicSource.Play();
         isPaused = false;
