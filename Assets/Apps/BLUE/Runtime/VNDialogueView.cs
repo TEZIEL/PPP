@@ -1216,6 +1216,20 @@ namespace PPP.BLUE.VN
                 && string.Equals(characterId, MelionCharacterId, StringComparison.OrdinalIgnoreCase);
         }
 
+        private static bool ShouldAnimateMouthForText(string text)
+        {
+            if (string.IsNullOrWhiteSpace(text))
+                return false;
+
+            foreach (char c in text)
+            {
+                if (char.IsLetterOrDigit(c))
+                    return true;
+            }
+
+            return false;
+        }
+
         private bool TryResolveMouthAnimationCharacterId(string speakerId, out string characterId)
         {
             characterId = string.Empty;
@@ -1393,7 +1407,9 @@ namespace PPP.BLUE.VN
 
             bool suppressMouthAnimationForRestore = runner != null && runner.SuppressMouthAnimationForCurrentSay;
             string mouthCharacterId = string.Empty;
-            bool canStartOrRetryMouthAnimation = allowMouthAnimation && !suppressMouthAnimationForRestore;
+            bool canStartOrRetryMouthAnimation = allowMouthAnimation
+                && !suppressMouthAnimationForRestore
+                && ShouldAnimateMouthForText(currentFullText);
             bool shouldStartMouthAnimation = canStartOrRetryMouthAnimation
                 && TryResolveMouthAnimationCharacterId(speakerId, out mouthCharacterId);
             bool shouldRetryMouthAnimation = false;
