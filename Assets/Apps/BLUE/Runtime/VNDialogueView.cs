@@ -1450,6 +1450,9 @@ namespace PPP.BLUE.VN
                     ScheduleMouthAnimationRetry(mouthCharacterId, speakerId, lineId);
             }
 
+            bool suppressTypingSfxForLine = suppressMouthAnimationForRestore
+                || !allowMouthAnimation
+                || (runner != null && runner.IsSkipMode);
             typer.StartTyping(currentFullText, onCompleted: () =>
             {
                 StopAllMouthAnimationsForDialogue();
@@ -1465,7 +1468,7 @@ namespace PPP.BLUE.VN
             }, onUpdated: partial =>
             {
                 runner?.BacklogUpdateLineText(currentLineBacklogKey, partial);
-            });
+            }, suppressTypingSfx: suppressTypingSfxForLine);
         }
 
         private void ForceCompleteLine()

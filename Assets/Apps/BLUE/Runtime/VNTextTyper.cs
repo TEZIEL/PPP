@@ -9,6 +9,8 @@ namespace PPP.BLUE.VN
     {
         [SerializeField] private TMP_Text target;
         [SerializeField] private float charsPerSecond = 40f;
+        [SerializeField] private bool enableTypingSfx = true;
+        [SerializeField, Min(0f)] private float typingSfxInterval = 0.045f;
 
         public bool IsTyping { get; private set; }
 
@@ -17,10 +19,12 @@ namespace PPP.BLUE.VN
         private Action onCompletedCache;
         private Action<string> onUpdatedCache;
         private int typingToken = 0;
+        private bool suppressTypingSfx;
+        private float lastTypingSfxTime = -999f;
 
         public void SetTarget(TMP_Text t) => target = t;
 
-        public void StartTyping(string fullText, Action onCompleted, Action<string> onUpdated = null)
+        public void StartTyping(string fullText, Action onCompleted, Action<string> onUpdated = null, bool suppressTypingSfx = false)
         {
             StopAllCoroutines();
 
@@ -34,6 +38,8 @@ namespace PPP.BLUE.VN
             fullTextCache = fullText ?? "";
             onCompletedCache = onCompleted;
             onUpdatedCache = onUpdated;
+            this.suppressTypingSfx = suppressTypingSfx;
+            lastTypingSfxTime = -999f;
             target.maxVisibleCharacters = int.MaxValue;
 
             typingToken++;
@@ -172,8 +178,10 @@ namespace PPP.BLUE.VN
                 {
                     accumulator -= emit;
 
+                    int previous = index;
                     int next = Mathf.Min(index + emit, fullText.Length);
                     target.text = fullText.Substring(0, next);
+                    TryPlayTypingSfxForRange(fullText, previous, next);
                     onUpdatedCache?.Invoke(target.text);
                     index = next;
                 }
@@ -192,6 +200,55 @@ namespace PPP.BLUE.VN
             onCompletedCache = null;
             onUpdatedCache = null;
             cb?.Invoke();
+        }
+
+        private void TryPlayTypingSfxForRange(string fullText, int fromInclusive, int toExclusive)
+        {
+            if (!enableTypingSfx || suppressTypingSfx)
+                return;
+
+            if (SoundManager.Instance == null)
+                return;
+
+            if (Time.unscaledTime - lastTypingSfxTime < typingSfxInterval)
+                return;
+
+            if (!ContainsSoundableCharacter(fullText, fromInclusive, toExclusive))
+                return;
+
+            SoundManager.Instance.PlayVNTyping();
+            lastTypingSfxTime = Time.unscaledTime;
+        }
+
+        private static bool ContainsSoundableCharacter(string text, int fromInclusive, int toExclusive)
+        {
+            if (string.IsNullOrEmpty(text))
+                return false;
+
+            int start = Mathf.Clamp(fromInclusive, 0, text.Length);
+            int end = Mathf.Clamp(toExclusive, start, text.Length);
+
+            for (int i = start; i < end; i++)
+            {
+                if (IsSoundableTypingCharacter(text[i]))
+                    return true;
+            }
+
+            return false;
+        }
+
+        private static bool IsSoundableTypingCharacter(char c)
+        {
+            if (char.IsWhiteSpace(c))
+                return false;
+
+            if (char.IsPunctuation(c))
+                return false;
+
+            if (char.IsSymbol(c))
+                return false;
+
+            return true;
         }
     }
 }
