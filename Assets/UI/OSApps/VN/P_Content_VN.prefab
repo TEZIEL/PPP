@@ -6071,6 +6071,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   target: {fileID: 8338431015460203540}
   charsPerSecond: 40
+  enableTypingSfx: 1
+  typingSfxInterval: 0.075
 --- !u!225 &2800437103308851553
 CanvasGroup:
   m_ObjectHideFlags: 0

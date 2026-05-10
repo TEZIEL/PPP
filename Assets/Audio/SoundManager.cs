@@ -44,6 +44,8 @@ public class SoundManager : MonoBehaviour
     public AudioClip restore;
     public AudioClip scroll;
 
+    [Header("VN Clips")]
+    public AudioClip vnTypingClip;
 
     [Header("Game Clips")]
     public AudioClip save;
@@ -129,6 +131,20 @@ public class SoundManager : MonoBehaviour
         {
             osSource.PlayOneShot(clip);
         }
+    }
+
+    public void PlayVNTyping(float pitch = 1f, float volumeScale = 1f)
+    {
+        if (vnTypingSource == null || vnTypingClip == null)
+            return;
+
+        OptionManager.EnsureSavedAudioSettingsApplied(vnTypingSource.outputAudioMixerGroup != null
+            ? vnTypingSource.outputAudioMixerGroup.audioMixer
+            : null);
+
+        vnTypingSource.Stop();
+        vnTypingSource.pitch = pitch;
+        vnTypingSource.PlayOneShot(vnTypingClip, volumeScale);
     }
 
     private void TraceAudioSource(string context, AudioSource source)
