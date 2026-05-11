@@ -96,6 +96,8 @@ namespace PPP.BLUE.VN
         private const int MouthAnimationRetryFrameCount = 3;
         private const string LegacyDialogueWindowId = "vn_dialogue";
         private const string LegacyHiddenDialogueWindowId = "vn_dialogue_hidden";
+        // VN dialogue UI hide is intentionally disabled until this control is repurposed.
+        private const bool DialogueUIHideDisabled = true;
         public static bool IsAnyBacklogOpen
         {
             get
@@ -244,6 +246,7 @@ namespace PPP.BLUE.VN
             ResolveDialogueUIRefs();
             ResolveMinimizedUIRefs();
             SetMinimizedUIVisible(false);
+            EnsureDialogueUIVisibleImmediate();
             AutoBindSaveLoadButton();
             AutoBindHideUIButton();
             SetupSkipHoldBinding();
@@ -763,13 +766,18 @@ namespace PPP.BLUE.VN
             }
 
             HandleControlButtonState();
-            if (isUIHidden && !isUIAnimating && Input.GetKeyDown(KeyCode.V))
+            if (DialogueUIHideDisabled)
+                EnsureDialogueUIVisibleImmediate();
+            else
             {
-                ShowUI();
-                return;
+                if (isUIHidden && !isUIAnimating && Input.GetKeyDown(KeyCode.V))
+                {
+                    ShowUI();
+                    return;
+                }
+                if (isUIHidden || isUIAnimating)
+                    return;
             }
-            if (isUIHidden || isUIAnimating)
-                return;
 
             bool manualInputBlockedByBacklog = IsAnyBacklogOpen || IsBacklogOpen;
             if (manualInputBlockedByBacklog)
@@ -870,6 +878,13 @@ namespace PPP.BLUE.VN
 
             if (Input.GetKeyDown(KeyCode.V))
             {
+                if (DialogueUIHideDisabled)
+                {
+                    EnsureDialogueUIVisibleImmediate();
+                    Debug.Log("[VN_UI] Hide UI hotkey ignored: dialogue UI hide is disabled.");
+                    return true;
+                }
+
                 if (isUIHidden)
                     ShowUI();
                 else
@@ -905,7 +920,7 @@ namespace PPP.BLUE.VN
             bool backlogOpen = IsBacklogOpen;
             bool skipAutoInteractable = !isDrinkMode && !controlsBlockedByUI && !backlogOpen;
             bool exitInteractable = !isDrinkMode && !controlsBlockedByUI && !backlogOpen;
-            bool hideUIInteractable = !isDrinkMode && !controlsBlockedByUI;
+            bool hideUIInteractable = !DialogueUIHideDisabled && !isDrinkMode && !controlsBlockedByUI;
             bool typingInProgress = (typer != null && typer.IsTyping) || !lineCompleted || inputLocked;
             bool saveAllowedByRunner = runner == null || runner.SaveAllowed;
             bool saveLoadInteractable = !isDrinkMode && !typingInProgress && saveAllowedByRunner && !controlsBlockedByUI;
@@ -1753,6 +1768,14 @@ namespace PPP.BLUE.VN
 
         public void HideUI()
         {
+            if (DialogueUIHideDisabled)
+            {
+                // Disabled by design: V key / hide button must not hide the VN dialogue UI.
+                EnsureDialogueUIVisibleImmediate();
+                Debug.Log("[VN_UI] HideUI ignored: dialogue UI hide is disabled.");
+                return;
+            }
+
             SoundManager.Instance.PlayOS(OSSoundEvent.Minimize);
 
             if (isUIAnimating || isUIHidden)
@@ -1767,6 +1790,12 @@ namespace PPP.BLUE.VN
 
         public void ShowUI()
         {
+            if (DialogueUIHideDisabled)
+            {
+                EnsureDialogueUIVisibleImmediate();
+                return;
+            }
+
             SoundManager.Instance.PlayOS(OSSoundEvent.Restore);
 
             if (isUIAnimating || !isUIHidden)
@@ -1775,6 +1804,27 @@ namespace PPP.BLUE.VN
             ResolveDialogueUIRefs();
             ResolveMinimizedUIRefs();
             StartCoroutine(ShowUICoroutine());
+        }
+
+
+        private void EnsureDialogueUIVisibleImmediate()
+        {
+            ResolveDialogueUIRefs();
+            ResolveMinimizedUIRefs();
+
+            if (dialogueRoot != null)
+            {
+                dialogueRoot.gameObject.SetActive(true);
+                dialogueRoot.localScale = Vector3.one;
+            }
+
+            if (dialogueCanvasGroup != null)
+                dialogueCanvasGroup.alpha = 1f;
+
+            SetMinimizedUIVisible(false);
+            isUIDisappearing = false;
+            isUIHidden = false;
+            isUIAnimating = false;
         }
 
         private IEnumerator HideUICoroutine()
