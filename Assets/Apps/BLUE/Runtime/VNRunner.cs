@@ -320,6 +320,7 @@ namespace PPP.BLUE.VN
 
 
         public event Action<string, string, string, VNBacklogKey> OnSay; // speakerId, text, lineId, backlogKey
+        // Raised when a VN JSON End node or terminal script boundary stops execution.
         public event Action OnEnd;
 
         public bool HasScript => script != null;
@@ -598,6 +599,7 @@ namespace PPP.BLUE.VN
 
         public void StartNewGameFromBeginning()
         {
+            enabled = true;
             started = false;
             pointer = 0;
             waitPointer = -1;
@@ -1835,7 +1837,7 @@ namespace PPP.BLUE.VN
 
             OnEnd?.Invoke();
             started = false;
-            enabled = false; // 1단계에서는 그냥 멈춤
+            enabled = false;
         }
 
 

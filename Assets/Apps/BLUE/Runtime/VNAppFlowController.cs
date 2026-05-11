@@ -22,6 +22,7 @@ namespace PPP.BLUE.VN
         [SerializeField] private VNOSBridge bridge;
         [SerializeField] private VNPolicyController policy;
         [SerializeField] private WindowManager windowManager;
+        [SerializeField] private VNBackgroundManager backgroundManager;
 
         [Header("Title UI")]
         [SerializeField] private GameObject titleRoot;
@@ -29,6 +30,7 @@ namespace PPP.BLUE.VN
         [SerializeField] private Button continueButton;
         [SerializeField] private Button exitButton;
         [SerializeField] private GameObject inGameRoot;
+        [SerializeField] private GameObject titleDarkOverlay;
 
         [Header("Transition")]
         [SerializeField, Min(0f)] private float titleTransitionFadeOut = 0.35f;
@@ -47,6 +49,8 @@ namespace PPP.BLUE.VN
             if (bridge == null) bridge = GetComponentInParent<VNOSBridge>(true);
             if (policy == null) policy = GetComponentInParent<VNPolicyController>(true);
             if (windowManager == null) windowManager = FindFirstObjectByType<WindowManager>(FindObjectsInactive.Include);
+            if (backgroundManager == null) backgroundManager = GetComponentInParent<VNBackgroundManager>(true);
+            if (backgroundManager == null) backgroundManager = GetComponentInChildren<VNBackgroundManager>(true);
 
             BindButtons();
             SetState(VNAppState.Title);
@@ -59,6 +63,12 @@ namespace PPP.BLUE.VN
             {
                 bridge.OnCloseRequested -= HandleCloseRequested;
                 bridge.OnCloseRequested += HandleCloseRequested;
+            }
+
+            if (runner != null)
+            {
+                runner.OnEnd -= HandleRunnerEndReached;
+                runner.OnEnd += HandleRunnerEndReached;
             }
 
             SetState(VNAppState.Title);
@@ -74,6 +84,8 @@ namespace PPP.BLUE.VN
         {
             if (bridge != null)
                 bridge.OnCloseRequested -= HandleCloseRequested;
+            if (runner != null)
+                runner.OnEnd -= HandleRunnerEndReached;
             if (saveLoadWindow != null)
                 saveLoadWindow.OnLoadCompleted -= HandleContinueLoadCompleted;
         }
@@ -227,6 +239,12 @@ namespace PPP.BLUE.VN
 
         private IEnumerator CoReturnToTitle(string source)
         {
+            if (transitionLocked)
+            {
+                Debug.Log($"[RETURN_TITLE] ignored source={source} reason=TransitionLocked");
+                yield break;
+            }
+
             Debug.Log($"[RETURN_TITLE] requested source={source}");
             transitionLocked = true;
             SetState(VNAppState.Transition);
@@ -346,6 +364,21 @@ namespace PPP.BLUE.VN
             Debug.Log($"[TITLE_NEWGAME] done state={State} locked={transitionLocked}");
         }
 
+        private void HandleRunnerEndReached()
+        {
+            if (State != VNAppState.InGame)
+                return;
+
+            if (transitionLocked)
+            {
+                Debug.Log("[SCRIPT_END] Return to title ignored: transition already locked.");
+                return;
+            }
+
+            Debug.Log("[SCRIPT_END] End reached -> return to title with fade.");
+            StartCoroutine(CoReturnToTitle("ScriptEnd"));
+        }
+
         private void HandleContinueLoadCompleted(bool ok)
         {
             Debug.Log("[TITLE] Continue slot load selected");
@@ -407,6 +440,7 @@ namespace PPP.BLUE.VN
             if (next == VNAppState.Transition)
             {
                 LogRoots("SetState Transition (roots unchanged)");
+                backgroundManager?.ApplyCurrentBackground();
                 if (dialogueView != null)
                     dialogueView.SetExternalInputBlocked(true);
                 return;
@@ -421,11 +455,20 @@ namespace PPP.BLUE.VN
             if (inGameRoot != null)
                 inGameRoot.SetActive(inGame);
             LogRoots("After root switch");
+            ApplyBackgroundPresentation(title);
             if (dialogueView != null)
                 dialogueView.SetExternalInputBlocked(next != VNAppState.InGame);
 
             if (continueButton != null && title)
                 RefreshContinueButton();
+        }
+
+        private void ApplyBackgroundPresentation(bool title)
+        {
+            backgroundManager?.ApplyCurrentBackground();
+
+            if (titleDarkOverlay != null)
+                titleDarkOverlay.SetActive(title);
         }
 
         private void RefreshContinueButton()
