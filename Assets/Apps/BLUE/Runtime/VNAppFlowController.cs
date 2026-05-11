@@ -61,6 +61,12 @@ namespace PPP.BLUE.VN
                 bridge.OnCloseRequested += HandleCloseRequested;
             }
 
+            if (runner != null)
+            {
+                runner.OnEnd -= HandleRunnerEndReached;
+                runner.OnEnd += HandleRunnerEndReached;
+            }
+
             SetState(VNAppState.Title);
             RefreshContinueButton();
             if (saveLoadWindow != null)
@@ -74,6 +80,8 @@ namespace PPP.BLUE.VN
         {
             if (bridge != null)
                 bridge.OnCloseRequested -= HandleCloseRequested;
+            if (runner != null)
+                runner.OnEnd -= HandleRunnerEndReached;
             if (saveLoadWindow != null)
                 saveLoadWindow.OnLoadCompleted -= HandleContinueLoadCompleted;
         }
@@ -227,6 +235,12 @@ namespace PPP.BLUE.VN
 
         private IEnumerator CoReturnToTitle(string source)
         {
+            if (transitionLocked)
+            {
+                Debug.Log($"[RETURN_TITLE] ignored source={source} reason=TransitionLocked");
+                yield break;
+            }
+
             Debug.Log($"[RETURN_TITLE] requested source={source}");
             transitionLocked = true;
             SetState(VNAppState.Transition);
@@ -344,6 +358,21 @@ namespace PPP.BLUE.VN
             Debug.Log($"[TITLE_NEWGAME] saveLoad open={saveLoadWindow?.IsWindowVisible} busy={saveLoadWindow?.IsBusy} mode={saveLoadWindow?.CurrentOpenMode}");
             Debug.Log($"[TITLE_NEWGAME] runner saveAllowed={runner?.SaveAllowed}");
             Debug.Log($"[TITLE_NEWGAME] done state={State} locked={transitionLocked}");
+        }
+
+        private void HandleRunnerEndReached()
+        {
+            if (State != VNAppState.InGame)
+                return;
+
+            if (transitionLocked)
+            {
+                Debug.Log("[SCRIPT_END] Return to title ignored: transition already locked.");
+                return;
+            }
+
+            Debug.Log("[SCRIPT_END] End reached -> return to title with fade.");
+            StartCoroutine(CoReturnToTitle("ScriptEnd"));
         }
 
         private void HandleContinueLoadCompleted(bool ok)
