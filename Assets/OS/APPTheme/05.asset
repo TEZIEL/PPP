@@ -260,3 +260,4 @@ MonoBehaviour:
     otherWindow52RootSprite: {fileID: 21300000, guid: 58d51b2abbd4fc34f9e7bcafc493345c, type: 3}
     otherWindow53RootSprite: {fileID: 21300000, guid: 58d51b2abbd4fc34f9e7bcafc493345c, type: 3}
     otherWindow54RootSprite: {fileID: 21300000, guid: 58d51b2abbd4fc34f9e7bcafc493345c, type: 3}
+    otherWindow55RootSprite: {fileID: 21300000, guid: 394525bd1d9c7a042bb56e2dc9b4ac90, type: 3}

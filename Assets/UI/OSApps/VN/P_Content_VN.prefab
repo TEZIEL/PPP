@@ -14265,6 +14265,7 @@ MonoBehaviour:
   otherWindow52Root: {fileID: 1237232740125056560}
   otherWindow53Root: {fileID: 423766596865982306}
   otherWindow54Root: {fileID: 6972488071256659549}
+  otherWindow55Root: {fileID: 7689156417759144450}
   dialogueRoot: {fileID: 1497659788485596965}
   dialogueButtonContainer: {fileID: 7505213891715684770}
   dialogueButtons:

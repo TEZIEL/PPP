@@ -308,7 +308,7 @@ public sealed class ResolutionDebugPanel : MonoBehaviour
             {
                 windowManager.OnDesktopResized();
                 windowManager.RefreshClampAllWindows();
-                windowManager.LogIconBoundsDiagnostics("After Resolution Clamp Refresh");
+                
             }
             else
             {

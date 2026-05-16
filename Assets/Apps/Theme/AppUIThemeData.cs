@@ -358,6 +358,7 @@ public class AppUIThemeData : ScriptableObject
         public Sprite otherWindow52RootSprite;
         public Sprite otherWindow53RootSprite;
         public Sprite otherWindow54RootSprite;
+        public Sprite otherWindow55RootSprite;
     }
 
 

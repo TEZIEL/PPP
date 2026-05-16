@@ -80,6 +80,7 @@ public sealed class VNUIThemeApplier : AppUIThemeApplierBase
     [SerializeField] private Image otherWindow52Root;
     [SerializeField] private Image otherWindow53Root;
     [SerializeField] private Image otherWindow54Root;
+    [SerializeField] private Image otherWindow55Root;
 
     [Header("Dialogue")]
     [SerializeField] private Image dialogueRoot;
@@ -194,6 +195,7 @@ public sealed class VNUIThemeApplier : AppUIThemeApplierBase
         ApplyImageSprite(otherWindow52Root, t.otherWindow52RootSprite);
         ApplyImageSprite(otherWindow53Root, t.otherWindow53RootSprite);
         ApplyImageSprite(otherWindow54Root, t.otherWindow54RootSprite);
+        ApplyImageSprite(otherWindow55Root, t.otherWindow55RootSprite);
 
         ApplyImageSprite(dialogueRoot, t.dialogueRootSprite);
         ApplyImageSprite(dialogueButtonContainer, t.dialogueButtonContainerSprite);
