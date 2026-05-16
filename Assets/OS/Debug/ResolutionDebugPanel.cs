@@ -64,6 +64,7 @@ public sealed class ResolutionDebugPanel : MonoBehaviour
             mainCanvasRoot = mainCanvas.transform as RectTransform;
     }
 
+    // Button Methods: Windowed
     public void Set1280x720Windowed() => RequestResolution(1280, 720, FullScreenMode.Windowed, "1280x720 Windowed");
 
     public void Set1600x900Windowed() => RequestResolution(1600, 900, FullScreenMode.Windowed, "1600x900 Windowed");
@@ -72,9 +73,21 @@ public sealed class ResolutionDebugPanel : MonoBehaviour
 
     public void Set2560x1440Windowed() => RequestResolution(2560, 1440, FullScreenMode.Windowed, "2560x1440 Windowed");
 
-    public void SetFullscreen1920x1080() => RequestResolution(1920, 1080, FullScreenMode.FullScreenWindow, "Fullscreen 1920x1080");
+    // Button Methods: Exclusive Fullscreen
+    // [EXCLUSIVE_TEST] Exclusive fullscreen is intentionally exposed only for build diagnostics.
+    // It can flicker, destabilize Alt+Tab, or be substituted by the OS/GPU driver on some Windows setups.
+    public void Set1280x720ExclusiveFullscreen() => RequestResolution(1280, 720, FullScreenMode.ExclusiveFullScreen, "1280x720 Exclusive Fullscreen");
 
-    public void SetFullscreenNativeOrBorderless()
+    public void Set1600x900ExclusiveFullscreen() => RequestResolution(1600, 900, FullScreenMode.ExclusiveFullScreen, "1600x900 Exclusive Fullscreen");
+
+    public void Set1920x1080ExclusiveFullscreen() => RequestResolution(1920, 1080, FullScreenMode.ExclusiveFullScreen, "1920x1080 Exclusive Fullscreen");
+
+    public void Set2560x1440ExclusiveFullscreen() => RequestResolution(2560, 1440, FullScreenMode.ExclusiveFullScreen, "2560x1440 Exclusive Fullscreen");
+
+    // Button Methods: Auxiliary
+    // Auxiliary deployment-candidate check: use native monitor size with borderless fullscreen.
+    // This is not part of the core per-resolution exclusive fullscreen comparison matrix.
+    public void SetBorderlessFullscreenNative()
     {
         int width = Display.main.systemWidth;
         int height = Display.main.systemHeight;
@@ -92,8 +105,10 @@ public sealed class ResolutionDebugPanel : MonoBehaviour
             height = Screen.height;
         }
 
-        RequestResolution(width, height, FullScreenMode.FullScreenWindow, "Fullscreen Native/Borderless");
+        RequestResolution(width, height, FullScreenMode.FullScreenWindow, "Borderless Fullscreen Native");
     }
+
+    public void SetBackTo1920x1080Windowed() => RequestResolution(1920, 1080, FullScreenMode.Windowed, "Back to 1920x1080 Windowed");
 
     public void LogCurrentResolutionDiagnostics()
     {
@@ -120,7 +135,12 @@ public sealed class ResolutionDebugPanel : MonoBehaviour
         ValidateCanvasScalers();
 
         Screen.SetResolution(width, height, mode);
-        Debug.Log($"[ResolutionDebugPanel] Requested {label}: {width}x{height}, mode={mode}");
+        string exclusiveMarker = mode == FullScreenMode.ExclusiveFullScreen ? " [EXCLUSIVE_TEST]" : string.Empty;
+        Debug.Log($"[ResolutionDebugPanel]{exclusiveMarker} Requested {label}: {width}x{height}, mode={mode}");
+        if (mode == FullScreenMode.ExclusiveFullScreen)
+        {
+            Debug.LogWarning("[ResolutionDebugPanel][EXCLUSIVE_TEST] Exclusive fullscreen can flicker, affect Alt+Tab stability, or apply a different actual mode depending on the monitor/GPU/Windows environment. Verify the After Apply Screen values.");
+        }
 
         yield return null;
         yield return null;
@@ -226,7 +246,8 @@ public sealed class ResolutionDebugPanel : MonoBehaviour
     {
         Resolution current = Screen.currentResolution;
         var sb = new StringBuilder(512);
-        sb.Append("[ResolutionDebugPanel] ").Append(phase)
+        string exclusiveMarker = requestedMode == FullScreenMode.ExclusiveFullScreen ? "[EXCLUSIVE_TEST] " : string.Empty;
+        sb.Append("[ResolutionDebugPanel] ").Append(exclusiveMarker).Append(phase)
             .Append("\n  requested=").Append(requestedWidth).Append('x').Append(requestedHeight).Append(' ').Append(requestedMode)
             .Append("\n  actual Screen.width/height=").Append(Screen.width).Append('x').Append(Screen.height)
             .Append("\n  Screen.currentResolution=").Append(current.width).Append('x').Append(current.height).Append('@').Append(current.refreshRateRatio).Append("Hz")
