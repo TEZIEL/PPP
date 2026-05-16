@@ -1,4 +1,4 @@
-﻿using System.Collections.Generic;
+using System.Collections.Generic;
 using UnityEngine;
 
 public class DesktopGridManager : MonoBehaviour
@@ -16,6 +16,7 @@ public class DesktopGridManager : MonoBehaviour
 
     [SerializeField] private DesktopLayoutMode layoutMode = DesktopLayoutMode.Free;
     public DesktopLayoutMode LayoutMode => layoutMode;
+    public RectTransform IconsRoot => iconsRoot;
 
 
     [Header("Option Icon Initial Position")]
