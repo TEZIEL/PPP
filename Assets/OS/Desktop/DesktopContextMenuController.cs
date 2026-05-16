@@ -1,4 +1,4 @@
-﻿using UnityEngine;
+using UnityEngine;
 using UnityEngine.EventSystems;
 
 public class DesktopContextMenuController : MonoBehaviour, IPointerClickHandler
@@ -16,6 +16,8 @@ public class DesktopContextMenuController : MonoBehaviour, IPointerClickHandler
 
     [Header("Behavior")]
     [SerializeField] private float edgePadding = 8f;
+
+    public RectTransform CanvasRect => canvasRect;
 
     private void Awake()
     {

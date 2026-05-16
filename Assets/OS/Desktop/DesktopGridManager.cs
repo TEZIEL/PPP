@@ -1,4 +1,4 @@
-﻿using System.Collections.Generic;
+using System.Collections.Generic;
 using UnityEngine;
 
 public class DesktopGridManager : MonoBehaviour
@@ -16,6 +16,7 @@ public class DesktopGridManager : MonoBehaviour
 
     [SerializeField] private DesktopLayoutMode layoutMode = DesktopLayoutMode.Free;
     public DesktopLayoutMode LayoutMode => layoutMode;
+    public RectTransform IconsRoot => iconsRoot;
 
 
     [Header("Option Icon Initial Position")]
@@ -42,10 +43,10 @@ public class DesktopGridManager : MonoBehaviour
         Debug.Log($"[Desktop] LayoutMode = {layoutMode}");
     }
 
-    public void SnapAllIfGridMode()
+    public void SnapAllIfGridMode(bool saveAfterResolve = true)
     {
         if (LayoutMode != DesktopLayoutMode.Grid) return;
-        ResolveAllGridOverlaps(); // ✅ “전체 스냅”도 겹침 방지 루트로 통일
+        ResolveAllGridOverlaps(saveAfterResolve); // ✅ “전체 스냅”도 겹침 방지 루트로 통일
     }
 
     public List<Vector2> GetSlots()
@@ -123,7 +124,7 @@ public class DesktopGridManager : MonoBehaviour
     }
 
     // ✅ 저장 로드/해상도 변경 등으로 "이미 겹쳐있는 상태"를 정리
-    public void ResolveAllGridOverlaps()
+    public void ResolveAllGridOverlaps(bool saveAfterResolve = true)
     {
         if (LayoutMode != DesktopLayoutMode.Grid) return;
         if (iconsRoot == null) return;
@@ -162,7 +163,8 @@ public class DesktopGridManager : MonoBehaviour
             r.anchoredPosition = DesktopBounds.ClampAnchoredPosition(slots[chosen], r, allowed);
         }
 
-        windowManager?.SaveOS();
+        if (saveAfterResolve)
+            windowManager?.SaveOS();
     }
 
     private int FindNearestFreeSlotIndex(int desired, bool[] used)

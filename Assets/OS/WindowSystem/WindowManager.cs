@@ -19,6 +19,10 @@ public class WindowManager : MonoBehaviour, IVNHostOS
     [SerializeField] private RectTransform iconsRoot; // DesktopIconBG 같은 부모
     [SerializeField] private DesktopGridManager desktopGridManager;
 
+    public RectTransform WindowsRoot => windowsRoot;
+    public RectTransform CanvasRect => canvasRect;
+    public RectTransform IconsRoot => iconsRoot;
+
     [System.Serializable]
     public struct WindowDefault
     {
@@ -32,6 +36,8 @@ public class WindowManager : MonoBehaviour, IVNHostOS
     private readonly Dictionary<string, WindowDefault> windowDefaults = new();
     private readonly Dictionary<string, VNWindowState> _lastStates = new();
     private readonly Dictionary<string, WindowController> openWindows = new();
+    private readonly Dictionary<string, Vector2> resizeIconNormalized = new();
+    private bool hasResizeIconLayoutCapture;
 
     [SerializeField] private float autoSaveDebounce = 0.35f;
 
@@ -48,6 +54,9 @@ public class WindowManager : MonoBehaviour, IVNHostOS
 
     [SerializeField] private bool logWindowState = false; // 필요할 때만 Inspector에서 켜기
     [SerializeField] private bool logWindowLifecycle = true;
+    [Header("Icon Diagnostics")]
+    [SerializeField] private bool logIconRestoreDiagnostics = true;
+    [SerializeField] private bool warnIfIconAnchorNotCenter = true;
 
     private bool isAnimating;
     public bool IsAnimating => isAnimating;
@@ -554,7 +563,7 @@ public class WindowManager : MonoBehaviour, IVNHostOS
             customization.backgroundHighlightIndex);
     }
 
-    private void PostApplyLayoutSanity()
+    private void PostApplyLayoutSanity(bool saveGridLayout = true)
     {
         // 1) 아이콘: allowed rect 기준 clamp + (Grid면 슬롯 스냅)
         if (iconsRoot != null)
@@ -569,7 +578,7 @@ public class WindowManager : MonoBehaviour, IVNHostOS
             }
 
             // Grid 모드면 “현재 모드” 기준으로 한번 더 정렬(선택)
-            desktopGridManager?.SnapAllIfGridMode();
+            desktopGridManager?.SnapAllIfGridMode(saveGridLayout);
         }
 
         // 2) 창: canvas 기준 clamp(네 WindowController에 clamp가 있으면 여기선 생략 가능)
@@ -578,7 +587,85 @@ public class WindowManager : MonoBehaviour, IVNHostOS
 
     public void OnDesktopResized()
     {
-        PostApplyLayoutSanity();
+        if (hasResizeIconLayoutCapture)
+            RestoreIconLayoutAfterResize();
+
+        PostApplyLayoutSanity(saveGridLayout: false);
+    }
+
+    public void CaptureIconLayoutForResize()
+    {
+        resizeIconNormalized.Clear();
+        hasResizeIconLayoutCapture = false;
+
+        if (iconsRoot == null)
+        {
+            Debug.LogWarning("[OS ICON RESIZE CAPTURE] iconsRoot=<null>");
+            return;
+        }
+
+        Canvas.ForceUpdateCanvases();
+        Rect allowed = DesktopBounds.GetAllowedRect(iconsRoot);
+        Debug.Log($"[OS ICON RESIZE CAPTURE] iconsRoot={iconsRoot.name} path={GetHierarchyPath(iconsRoot)} iconsRoot.rect={iconsRoot.rect} allowed={allowed}");
+
+        var icons = iconsRoot.GetComponentsInChildren<DesktopIconDraggable>(true);
+        foreach (var ic in icons)
+        {
+            if (ic == null) continue;
+
+            RectTransform iconRect = ic.GetRect();
+            if (iconRect == null) continue;
+
+            Vector2 pos = iconRect.anchoredPosition;
+            float nx = Mathf.InverseLerp(allowed.xMin, allowed.xMax, pos.x);
+            float ny = Mathf.InverseLerp(allowed.yMin, allowed.yMax, pos.y);
+            Vector2 normalized = new Vector2(nx, ny);
+
+            resizeIconNormalized[ic.GetId()] = normalized;
+            Debug.Log($"[OS ICON RESIZE CAPTURE] id={ic.GetId()} currentAnchoredPosition={pos} capturedNormalized={normalized}");
+        }
+
+        hasResizeIconLayoutCapture = resizeIconNormalized.Count > 0;
+    }
+
+    public void RestoreIconLayoutAfterResize()
+    {
+        if (iconsRoot == null)
+        {
+            Debug.LogWarning("[OS ICON RESIZE RESTORE] iconsRoot=<null>");
+            return;
+        }
+
+        if (!hasResizeIconLayoutCapture || resizeIconNormalized.Count == 0)
+        {
+            Debug.Log("[OS ICON RESIZE RESTORE] skipped; no captured runtime icon layout.");
+            return;
+        }
+
+        Canvas.ForceUpdateCanvases();
+        Rect allowed = DesktopBounds.GetAllowedRect(iconsRoot);
+        Debug.Log($"[OS ICON RESIZE RESTORE] iconsRoot={iconsRoot.name} path={GetHierarchyPath(iconsRoot)} iconsRoot.rect={iconsRoot.rect} allowed={allowed}");
+
+        var icons = iconsRoot.GetComponentsInChildren<DesktopIconDraggable>(true);
+        foreach (var ic in icons)
+        {
+            if (ic == null) continue;
+            if (!resizeIconNormalized.TryGetValue(ic.GetId(), out Vector2 normalized)) continue;
+
+            RectTransform iconRect = ic.GetRect();
+            if (iconRect == null) continue;
+
+            float x = Mathf.Lerp(allowed.xMin, allowed.xMax, normalized.x);
+            float y = Mathf.Lerp(allowed.yMin, allowed.yMax, normalized.y);
+            Vector2 restored = new Vector2(x, y);
+            Vector2 finalPosition = DesktopBounds.ClampAnchoredPosition(restored, iconRect, allowed);
+            iconRect.anchoredPosition = finalPosition;
+
+            Debug.Log($"[OS ICON RESIZE RESTORE] id={ic.GetId()} capturedNormalized={normalized} restoredAnchoredPosition={restored} finalAnchoredPosition={finalPosition}");
+        }
+
+        resizeIconNormalized.Clear();
+        hasResizeIconLayoutCapture = false;
     }
 
     private void CollectIcons(OSSaveData data)
@@ -627,6 +714,7 @@ public class WindowManager : MonoBehaviour, IVNHostOS
     {
         if (iconsRoot == null || data.icons == null) return;
 
+        Canvas.ForceUpdateCanvases();
         Rect allowed = DesktopBounds.GetAllowedRect(iconsRoot);
 
         var icons = iconsRoot.GetComponentsInChildren<DesktopIconDraggable>(true);
@@ -635,11 +723,14 @@ public class WindowManager : MonoBehaviour, IVNHostOS
             var saved = data.icons.Find(x => x.id == ic.GetId());
             if (saved == null) continue;
 
+            RectTransform iconRect = ic.GetRect();
+            if (iconRect == null) continue;
+
             Vector2 target;
 
             if (saved.layoutMode == DesktopLayoutMode.Grid && desktopGridManager != null)
             {
-                target = desktopGridManager.GetSlotPos(saved.slotIndex, ic.GetRect().anchoredPosition);
+                target = desktopGridManager.GetSlotPos(saved.slotIndex, iconRect.anchoredPosition);
             }
             else
             {
@@ -648,11 +739,85 @@ public class WindowManager : MonoBehaviour, IVNHostOS
                 target = new Vector2(x, y);
             }
 
-            ic.GetRect().anchoredPosition =
-                DesktopBounds.ClampAnchoredPosition(target, ic.GetRect(), allowed);
+            Vector2 finalPosition = DesktopBounds.ClampAnchoredPosition(target, iconRect, allowed);
+            iconRect.anchoredPosition = finalPosition;
+
+            LogIconRestoreDiagnostics(ic, saved, allowed, target, finalPosition, iconRect);
         }
     }
 
+    public void LogIconBoundsDiagnostics(string phase)
+    {
+        if (iconsRoot == null)
+        {
+            Debug.LogWarning($"[OS ICON BOUNDS] {phase} iconsRoot=<null>");
+            return;
+        }
+
+        Canvas.ForceUpdateCanvases();
+        Rect allowed = DesktopBounds.GetAllowedRect(iconsRoot);
+        Debug.Log($"[OS ICON BOUNDS] {phase} iconsRoot={iconsRoot.name} path={GetHierarchyPath(iconsRoot)} iconsRoot.rect={iconsRoot.rect} allowed={allowed}");
+
+        var icons = iconsRoot.GetComponentsInChildren<DesktopIconDraggable>(true);
+        foreach (var ic in icons)
+        {
+            if (ic == null) continue;
+            RectTransform iconRect = ic.GetRect();
+            if (iconRect == null) continue;
+
+            Debug.Log(
+                $"[OS ICON BOUNDS] {phase} id={ic.GetId()} anchoredPosition={iconRect.anchoredPosition} " +
+                $"anchorMin={iconRect.anchorMin} anchorMax={iconRect.anchorMax} pivot={iconRect.pivot} rect={iconRect.rect}");
+        }
+    }
+
+    private void LogIconRestoreDiagnostics(DesktopIconDraggable icon, OSIconData saved, Rect allowed, Vector2 calculatedAnchoredPosition, Vector2 finalAnchoredPosition, RectTransform iconRect)
+    {
+        if (icon == null || saved == null || iconRect == null)
+            return;
+
+        if (warnIfIconAnchorNotCenter &&
+            (!Approximately(iconRect.anchorMin, new Vector2(0.5f, 0.5f)) ||
+             !Approximately(iconRect.anchorMax, new Vector2(0.5f, 0.5f)) ||
+             !Approximately(iconRect.pivot, new Vector2(0.5f, 0.5f))))
+        {
+            Debug.LogWarning(
+                $"[OS ICON RESTORE] id={icon.GetId()} icon RectTransform should keep Center/Center anchor and Center pivot. " +
+                $"anchorMin={iconRect.anchorMin} anchorMax={iconRect.anchorMax} pivot={iconRect.pivot}", iconRect);
+        }
+
+        if (!logIconRestoreDiagnostics)
+            return;
+
+        Debug.Log(
+            $"[OS ICON RESTORE] id={icon.GetId()} savedNormalized={saved.normalized} layoutMode={saved.layoutMode} slotIndex={saved.slotIndex} " +
+            $"iconsRoot.name={(iconsRoot != null ? iconsRoot.name : "<null>")} iconsRoot.rect={(iconsRoot != null ? iconsRoot.rect.ToString() : "<null>")} " +
+            $"allowed={allowed} calculatedAnchoredPosition={calculatedAnchoredPosition} " +
+            $"anchorMin={iconRect.anchorMin} anchorMax={iconRect.anchorMax} pivot={iconRect.pivot} " +
+            $"finalAnchoredPosition={finalAnchoredPosition}", iconRect);
+    }
+
+
+    private static bool Approximately(Vector2 a, Vector2 b)
+    {
+        return Mathf.Approximately(a.x, b.x) && Mathf.Approximately(a.y, b.y);
+    }
+
+    private static string GetHierarchyPath(Transform transform)
+    {
+        if (transform == null)
+            return "<null>";
+
+        string path = transform.name;
+        Transform current = transform.parent;
+        while (current != null)
+        {
+            path = current.name + "/" + path;
+            current = current.parent;
+        }
+
+        return path;
+    }
 
 
     private void CollectWindows(OSSaveData data)
@@ -975,6 +1140,20 @@ public class WindowManager : MonoBehaviour, IVNHostOS
         {
             if (pair.Value == null) continue;
             tm.ApplyThemeToWindow(pair.Value);
+        }
+    }
+
+    public void RefreshClampAllWindows()
+    {
+        Canvas.ForceUpdateCanvases();
+
+        foreach (var pair in openWindows)
+        {
+            WindowController window = pair.Value;
+            if (window == null) continue;
+
+            window.ForceClampNow(0f);
+            Debug.Log($"[OS] RefreshClampAllWindows appId={pair.Key}");
         }
     }
 
