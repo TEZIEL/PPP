@@ -978,6 +978,20 @@ public class WindowManager : MonoBehaviour, IVNHostOS
         }
     }
 
+    public void RefreshClampAllWindows()
+    {
+        Canvas.ForceUpdateCanvases();
+
+        foreach (var pair in openWindows)
+        {
+            WindowController window = pair.Value;
+            if (window == null) continue;
+
+            window.ForceClampNow(0f);
+            Debug.Log($"[OS] RefreshClampAllWindows appId={pair.Key}");
+        }
+    }
+
 
     private void FocusNextTopWindow(string excludedAppId = null)
     {
