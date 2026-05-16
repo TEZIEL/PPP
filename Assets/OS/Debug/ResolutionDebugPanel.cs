@@ -306,7 +306,9 @@ public sealed class ResolutionDebugPanel : MonoBehaviour
 
             if (windowManager != null)
             {
+                windowManager.OnDesktopResized();
                 windowManager.RefreshClampAllWindows();
+                windowManager.LogIconBoundsDiagnostics("After Resolution Clamp Refresh");
             }
             else
             {
@@ -402,6 +404,7 @@ public sealed class ResolutionDebugPanel : MonoBehaviour
 
         ValidateRequiredViewportChildren(viewport);
         ValidateWindowManagerViewportWiring(viewport);
+        ValidateDesktopGridManagerViewportWiring(viewport);
         ValidateContextMenuViewportWiring(viewport);
     }
 
@@ -447,6 +450,22 @@ public sealed class ResolutionDebugPanel : MonoBehaviour
 
         WarnIfNotChildOfViewport(windowManager.WindowsRoot, viewport, "WindowManager.windowsRoot");
         WarnIfNotChildOfViewport(windowManager.IconsRoot, viewport, "WindowManager.iconsRoot");
+    }
+
+    private void ValidateDesktopGridManagerViewportWiring(RectTransform viewport)
+    {
+        DesktopGridManager[] gridManagers = FindObjectsOfType<DesktopGridManager>(true);
+        foreach (DesktopGridManager gridManager in gridManagers)
+        {
+            if (gridManager == null)
+                continue;
+
+            WarnIfNotChildOfViewport(gridManager.IconsRoot, viewport, "DesktopGridManager.iconsRoot");
+            if (windowManager != null && windowManager.IconsRoot != null && gridManager.IconsRoot != windowManager.IconsRoot)
+            {
+                Debug.LogWarning($"[ResolutionDebugPanel] DesktopGridManager.iconsRoot should match WindowManager.iconsRoot so normalized icon restore and grid slots share DesktopIconBG. grid={GetHierarchyPath(gridManager.IconsRoot)}, windowManager={GetHierarchyPath(windowManager.IconsRoot)}");
+            }
+        }
     }
 
     private void ValidateContextMenuViewportWiring(RectTransform viewport)
