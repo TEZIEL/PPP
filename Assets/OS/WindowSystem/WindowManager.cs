@@ -19,6 +19,10 @@ public class WindowManager : MonoBehaviour, IVNHostOS
     [SerializeField] private RectTransform iconsRoot; // DesktopIconBG 같은 부모
     [SerializeField] private DesktopGridManager desktopGridManager;
 
+    public RectTransform WindowsRoot => windowsRoot;
+    public RectTransform CanvasRect => canvasRect;
+    public RectTransform IconsRoot => iconsRoot;
+
     [System.Serializable]
     public struct WindowDefault
     {
@@ -975,6 +979,20 @@ public class WindowManager : MonoBehaviour, IVNHostOS
         {
             if (pair.Value == null) continue;
             tm.ApplyThemeToWindow(pair.Value);
+        }
+    }
+
+    public void RefreshClampAllWindows()
+    {
+        Canvas.ForceUpdateCanvases();
+
+        foreach (var pair in openWindows)
+        {
+            WindowController window = pair.Value;
+            if (window == null) continue;
+
+            window.ForceClampNow(0f);
+            Debug.Log($"[OS] RefreshClampAllWindows appId={pair.Key}");
         }
     }
 
