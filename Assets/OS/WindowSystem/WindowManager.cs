@@ -19,6 +19,10 @@ public class WindowManager : MonoBehaviour, IVNHostOS
     [SerializeField] private RectTransform iconsRoot; // DesktopIconBG 같은 부모
     [SerializeField] private DesktopGridManager desktopGridManager;
 
+    public RectTransform WindowsRoot => windowsRoot;
+    public RectTransform CanvasRect => canvasRect;
+    public RectTransform IconsRoot => iconsRoot;
+
     [System.Serializable]
     public struct WindowDefault
     {

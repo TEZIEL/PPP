@@ -14,6 +14,25 @@ public sealed class ResolutionDebugPanel : MonoBehaviour
     private static readonly Vector2 ExpectedReferenceResolution = new Vector2(1920f, 1080f);
     private const float ExpectedMatchWidthOrHeight = 0.5f;
 
+    [System.Serializable]
+    public struct ResolutionOption
+    {
+        public int width;
+        public int height;
+        public string label;
+        public string aspectType;
+        public bool isLetterboxed;
+
+        public ResolutionOption(int width, int height, string label, string aspectType, bool isLetterboxed)
+        {
+            this.width = width;
+            this.height = height;
+            this.label = label;
+            this.aspectType = aspectType;
+            this.isLetterboxed = isLetterboxed;
+        }
+    }
+
     [Header("Canvas Diagnostics")]
     [SerializeField] private Canvas mainCanvas;
     [SerializeField] private CanvasScaler mainCanvasScaler;
@@ -22,6 +41,23 @@ public sealed class ResolutionDebugPanel : MonoBehaviour
     [Header("Fixed Aspect Viewport")]
     [Tooltip("Optional 16:9 viewport controller. If assigned, resolution diagnostics refresh and log it after screen changes.")]
     [SerializeField] private FixedAspectViewport fixedAspectViewport;
+    [SerializeField] private bool validateFixedAspectSceneWiring = true;
+    [SerializeField] private RectTransform[] requiredViewportChildren;
+    [SerializeField]
+    private string[] requiredViewportChildNames =
+    {
+        "BackgroundBG",
+        "DesktopIconBG",
+        "TaskbarBG",
+        "WindowRoot",
+        "OptionsModal",
+        "VNRoot",
+        "VN UI",
+        "VNCanvas",
+        "Music",
+        "Recipe",
+        "Fidget"
+    };
 
     [Header("Layout Refresh")]
     [Tooltip("Optional layout roots to rebuild after Screen.SetResolution. If empty, the main canvas root is used.")]
@@ -68,29 +104,29 @@ public sealed class ResolutionDebugPanel : MonoBehaviour
             mainCanvasRoot = mainCanvas.transform as RectTransform;
     }
 
-    // Button Methods: Windowed
-    public void Set1280x720Windowed() => RequestResolution(1280, 720, FullScreenMode.Windowed, "1280x720 Windowed");
+    // Button Methods: Windowed 16:9 (no letterbox expected)
+    public void Set1280x720Windowed() => RequestWindowed(new ResolutionOption(1280, 720, "1280x720 Windowed", "16:9", false));
 
-    public void Set1600x900Windowed() => RequestResolution(1600, 900, FullScreenMode.Windowed, "1600x900 Windowed");
+    public void Set1600x900Windowed() => RequestWindowed(new ResolutionOption(1600, 900, "1600x900 Windowed", "16:9", false));
 
-    public void Set1920x1080Windowed() => RequestResolution(1920, 1080, FullScreenMode.Windowed, "1920x1080 Windowed");
+    public void Set1920x1080Windowed() => RequestWindowed(new ResolutionOption(1920, 1080, "1920x1080 Windowed", "16:9", false));
 
-    public void Set2560x1440Windowed() => RequestResolution(2560, 1440, FullScreenMode.Windowed, "2560x1440 Windowed");
+    public void Set2560x1440Windowed() => RequestWindowed(new ResolutionOption(2560, 1440, "2560x1440 Windowed", "16:9", false));
 
-    // Button Methods: Exclusive Fullscreen
-    // [EXCLUSIVE_TEST] Exclusive fullscreen is intentionally exposed only for build diagnostics.
-    // It can flicker, destabilize Alt+Tab, or be substituted by the OS/GPU driver on some Windows setups.
-    public void Set1280x720ExclusiveFullscreen() => RequestResolution(1280, 720, FullScreenMode.ExclusiveFullScreen, "1280x720 Exclusive Fullscreen");
+    // Button Methods: Windowed 16:10 (letterboxed inside FixedAspectViewport)
+    public void Set1280x800Windowed() => RequestWindowed(new ResolutionOption(1280, 800, "1280x800 Windowed", "16:10 Letterboxed", true));
 
-    public void Set1600x900ExclusiveFullscreen() => RequestResolution(1600, 900, FullScreenMode.ExclusiveFullScreen, "1600x900 Exclusive Fullscreen");
+    public void Set1600x1000Windowed() => RequestWindowed(new ResolutionOption(1600, 1000, "1600x1000 Windowed", "16:10 Letterboxed", true));
 
-    public void Set1920x1080ExclusiveFullscreen() => RequestResolution(1920, 1080, FullScreenMode.ExclusiveFullScreen, "1920x1080 Exclusive Fullscreen");
+    public void Set1680x1050Windowed() => RequestWindowed(new ResolutionOption(1680, 1050, "1680x1050 Windowed", "16:10 Letterboxed", true));
 
-    public void Set2560x1440ExclusiveFullscreen() => RequestResolution(2560, 1440, FullScreenMode.ExclusiveFullScreen, "2560x1440 Exclusive Fullscreen");
+    public void Set1920x1200Windowed() => RequestWindowed(new ResolutionOption(1920, 1200, "1920x1200 Windowed", "16:10 Letterboxed", true));
 
-    // Button Methods: Auxiliary
-    // Auxiliary deployment-candidate check: use native monitor size with borderless fullscreen.
-    // This is not part of the core per-resolution exclusive fullscreen comparison matrix.
+    public void Set2560x1600Windowed() => RequestWindowed(new ResolutionOption(2560, 1600, "2560x1600 Windowed", "16:10 Letterboxed", true));
+
+    public void Set2880x1800Windowed() => RequestWindowed(new ResolutionOption(2880, 1800, "2880x1800 Windowed", "16:10 Letterboxed", true));
+
+    // Official fullscreen policy: borderless native monitor size. FixedAspectViewport keeps the internal game stage 16:9.
     public void SetBorderlessFullscreenNative()
     {
         int width = Display.main.systemWidth;
@@ -109,18 +145,19 @@ public sealed class ResolutionDebugPanel : MonoBehaviour
             height = Screen.height;
         }
 
-        RequestResolution(width, height, FullScreenMode.FullScreenWindow, "Borderless Fullscreen Native");
+        RequestResolution(width, height, FullScreenMode.FullScreenWindow, "Borderless Fullscreen Native", "Native Borderless", IsLetterboxedAspect(width, height));
     }
 
-    public void SetBackTo1920x1080Windowed() => RequestResolution(1920, 1080, FullScreenMode.Windowed, "Back to 1920x1080 Windowed");
+    public void SetBackTo1920x1080Windowed() => RequestWindowed(new ResolutionOption(1920, 1080, "Back to 1920x1080 Windowed", "16:9", false));
 
     public void LogCurrentResolutionDiagnostics()
     {
         ResolveReferences();
         RefreshFixedAspectViewport("Manual Diagnostics");
-        Debug.Log(BuildResolutionLog("Manual Diagnostics", Screen.width, Screen.height, Screen.fullScreenMode));
+        Debug.Log(BuildResolutionLog("Manual Diagnostics", Screen.width, Screen.height, Screen.fullScreenMode, "Current", IsLetterboxedAspect(Screen.width, Screen.height)));
         LogAllTrackedRoots("Manual Diagnostics");
         ValidateCanvasScalers();
+        ValidateFixedAspectSceneWiring();
     }
 
     public void LogSupportedResolutions()
@@ -144,36 +181,37 @@ public sealed class ResolutionDebugPanel : MonoBehaviour
         Debug.Log(sb.ToString());
     }
 
-    private void RequestResolution(int width, int height, FullScreenMode mode, string label)
+    private void RequestWindowed(ResolutionOption option)
+    {
+        RequestResolution(option.width, option.height, FullScreenMode.Windowed, option.label, option.aspectType, option.isLetterboxed);
+    }
+
+    private void RequestResolution(int width, int height, FullScreenMode mode, string label, string aspectType, bool isLetterboxed)
     {
         ResolveReferences();
 
         if (applyResolutionRoutine != null)
             StopCoroutine(applyResolutionRoutine);
 
-        applyResolutionRoutine = StartCoroutine(CoApplyResolution(width, height, mode, label));
+        applyResolutionRoutine = StartCoroutine(CoApplyResolution(width, height, mode, label, aspectType, isLetterboxed));
     }
 
-    private IEnumerator CoApplyResolution(int width, int height, FullScreenMode mode, string label)
+    private IEnumerator CoApplyResolution(int width, int height, FullScreenMode mode, string label, string aspectType, bool isLetterboxed)
     {
         RefreshFixedAspectViewport($"Before Request: {label}");
-        Debug.Log(BuildResolutionLog($"Before Request: {label}", width, height, mode));
+        Debug.Log(BuildResolutionLog($"Before Request: {label}", width, height, mode, aspectType, isLetterboxed));
         LogAllTrackedRoots($"Before Request: {label}");
         ValidateCanvasScalers();
+        ValidateFixedAspectSceneWiring();
 
         Screen.SetResolution(width, height, mode);
-        string exclusiveMarker = mode == FullScreenMode.ExclusiveFullScreen ? " [EXCLUSIVE_TEST]" : string.Empty;
-        Debug.Log($"[ResolutionDebugPanel]{exclusiveMarker} Requested {label}: {width}x{height}, mode={mode}");
-        if (mode == FullScreenMode.ExclusiveFullScreen)
-        {
-            Debug.LogWarning("[ResolutionDebugPanel][EXCLUSIVE_TEST] Exclusive fullscreen can flicker, affect Alt+Tab stability, or apply a different actual mode depending on the monitor/GPU/Windows environment. Verify the After Apply Screen values.");
-        }
+        Debug.Log($"[ResolutionDebugPanel] Requested {label}: {width}x{height}, mode={mode}, aspectType={aspectType}, isLetterboxed={isLetterboxed}");
 
         yield return null;
         yield return null;
 
+        RefreshFixedAspectViewport($"After Resolution Wait: {label}");
         Canvas.ForceUpdateCanvases();
-        RefreshFixedAspectViewport($"After Canvas Update: {label}");
         ForceRebuildConfiguredLayouts();
         Canvas.ForceUpdateCanvases();
 
@@ -183,9 +221,10 @@ public sealed class ResolutionDebugPanel : MonoBehaviour
 
         Canvas.ForceUpdateCanvases();
         RefreshFixedAspectViewport($"After Apply: {label}");
-        Debug.Log(BuildResolutionLog($"After Apply: {label}", width, height, mode));
+        Debug.Log(BuildResolutionLog($"After Apply: {label}", width, height, mode, aspectType, isLetterboxed));
         LogAllTrackedRoots($"After Apply: {label}");
         ValidateCanvasScalers();
+        ValidateFixedAspectSceneWiring();
 
         applyResolutionRoutine = null;
     }
@@ -289,13 +328,13 @@ public sealed class ResolutionDebugPanel : MonoBehaviour
         }
     }
 
-    private string BuildResolutionLog(string phase, int requestedWidth, int requestedHeight, FullScreenMode requestedMode)
+    private string BuildResolutionLog(string phase, int requestedWidth, int requestedHeight, FullScreenMode requestedMode, string aspectType, bool isLetterboxed)
     {
         Resolution current = Screen.currentResolution;
         var sb = new StringBuilder(512);
-        string exclusiveMarker = requestedMode == FullScreenMode.ExclusiveFullScreen ? "[EXCLUSIVE_TEST] " : string.Empty;
-        sb.Append("[ResolutionDebugPanel] ").Append(exclusiveMarker).Append(phase)
+        sb.Append("[ResolutionDebugPanel] ").Append(phase)
             .Append("\n  requested=").Append(requestedWidth).Append('x').Append(requestedHeight).Append(' ').Append(requestedMode)
+            .Append(", aspectType=").Append(aspectType).Append(", isLetterboxed=").Append(isLetterboxed)
             .Append("\n  actual Screen.width/height=").Append(Screen.width).Append('x').Append(Screen.height)
             .Append("\n  Screen.currentResolution=").Append(current.width).Append('x').Append(current.height).Append('@').Append(current.refreshRateRatio).Append("Hz")
             .Append("\n  Screen.fullScreenMode=").Append(Screen.fullScreenMode)
@@ -333,6 +372,119 @@ public sealed class ResolutionDebugPanel : MonoBehaviour
             .Append(", referenceResolution=").Append(scaler.referenceResolution)
             .Append(", matchWidthOrHeight=").Append(scaler.matchWidthOrHeight)
             .Append(", scaler.scaleFactor=").Append(scaler.scaleFactor);
+    }
+
+
+    private void ValidateFixedAspectSceneWiring()
+    {
+        if (!validateFixedAspectSceneWiring)
+            return;
+
+        if (fixedAspectViewport == null)
+        {
+            Debug.LogWarning("[ResolutionDebugPanel] FixedAspectViewport is not assigned/found. 16:10 letterboxing cannot be verified.");
+            return;
+        }
+
+        RectTransform viewport = fixedAspectViewport.GameViewport;
+        RectTransform parent = fixedAspectViewport.ParentRect;
+
+        if (mainCanvasRoot != null && parent != mainCanvasRoot)
+        {
+            Debug.LogWarning($"[ResolutionDebugPanel] FixedAspectViewport parent should be the main Canvas rect. parent={GetHierarchyPath(parent)}, expected={GetHierarchyPath(mainCanvasRoot)}");
+        }
+
+        if (viewport == null)
+        {
+            Debug.LogWarning("[ResolutionDebugPanel] FixedAspectViewport.GameViewport is null.");
+            return;
+        }
+
+        ValidateRequiredViewportChildren(viewport);
+        ValidateWindowManagerViewportWiring(viewport);
+        ValidateContextMenuViewportWiring(viewport);
+    }
+
+    private void ValidateRequiredViewportChildren(RectTransform viewport)
+    {
+        if (requiredViewportChildren != null)
+        {
+            foreach (RectTransform child in requiredViewportChildren)
+            {
+                if (child == null) continue;
+                WarnIfNotChildOfViewport(child, viewport, "requiredViewportChildren");
+            }
+        }
+
+        if (requiredViewportChildNames == null)
+            return;
+
+        foreach (string childName in requiredViewportChildNames)
+        {
+            if (string.IsNullOrWhiteSpace(childName))
+                continue;
+
+            RectTransform child = FindRectTransformByName(childName);
+            if (child == null)
+                continue;
+
+            WarnIfNotChildOfViewport(child, viewport, childName);
+        }
+    }
+
+    private void ValidateWindowManagerViewportWiring(RectTransform viewport)
+    {
+        if (windowManager == null)
+            windowManager = FindObjectOfType<WindowManager>(true);
+
+        if (windowManager == null)
+            return;
+
+        if (windowManager.CanvasRect != viewport)
+        {
+            Debug.LogWarning($"[ResolutionDebugPanel] WindowManager.canvasRect should point to GameViewport16x9 for viewport-based window clamp. current={GetHierarchyPath(windowManager.CanvasRect)}, expected={GetHierarchyPath(viewport)}");
+        }
+
+        WarnIfNotChildOfViewport(windowManager.WindowsRoot, viewport, "WindowManager.windowsRoot");
+        WarnIfNotChildOfViewport(windowManager.IconsRoot, viewport, "WindowManager.iconsRoot");
+    }
+
+    private void ValidateContextMenuViewportWiring(RectTransform viewport)
+    {
+        DesktopContextMenuController[] controllers = FindObjectsOfType<DesktopContextMenuController>(true);
+        foreach (DesktopContextMenuController controller in controllers)
+        {
+            if (controller == null)
+                continue;
+
+            if (controller.CanvasRect != viewport)
+            {
+                Debug.LogWarning($"[ResolutionDebugPanel] DesktopContextMenuController.canvasRect should point to GameViewport16x9 so context menus clamp inside the 16:9 stage. controller={GetHierarchyPath(controller.transform)}, current={GetHierarchyPath(controller.CanvasRect)}, expected={GetHierarchyPath(viewport)}");
+            }
+        }
+    }
+
+    private void WarnIfNotChildOfViewport(RectTransform rect, RectTransform viewport, string label)
+    {
+        if (rect == null || viewport == null)
+            return;
+
+        if (rect == viewport || rect.IsChildOf(viewport))
+            return;
+
+        Debug.LogWarning($"[ResolutionDebugPanel] {label} should be under GameViewport16x9 for fixed 16:9 staging. object={GetHierarchyPath(rect)}, viewport={GetHierarchyPath(viewport)}");
+    }
+
+    private RectTransform FindRectTransformByName(string targetName)
+    {
+        RectTransform[] allRects = FindObjectsOfType<RectTransform>(true);
+        foreach (RectTransform rect in allRects)
+        {
+            if (rect != null && rect.name.Equals(targetName, System.StringComparison.OrdinalIgnoreCase))
+                return rect;
+        }
+
+        return null;
     }
 
     private void ValidateCanvasScalers()
@@ -440,6 +592,15 @@ public sealed class ResolutionDebugPanel : MonoBehaviour
         }
 
         return found.ToArray();
+    }
+
+    private static bool IsLetterboxedAspect(int width, int height)
+    {
+        if (width <= 0 || height <= 0)
+            return false;
+
+        float aspect = width / (float)height;
+        return aspect < (16f / 9f) - 0.001f;
     }
 
     private static bool Approximately(Vector2 a, Vector2 b)
