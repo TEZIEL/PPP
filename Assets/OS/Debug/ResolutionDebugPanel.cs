@@ -19,6 +19,10 @@ public sealed class ResolutionDebugPanel : MonoBehaviour
     [SerializeField] private CanvasScaler mainCanvasScaler;
     [SerializeField] private RectTransform mainCanvasRoot;
 
+    [Header("Fixed Aspect Viewport")]
+    [Tooltip("Optional 16:9 viewport controller. If assigned, resolution diagnostics refresh and log it after screen changes.")]
+    [SerializeField] private FixedAspectViewport fixedAspectViewport;
+
     [Header("Layout Refresh")]
     [Tooltip("Optional layout roots to rebuild after Screen.SetResolution. If empty, the main canvas root is used.")]
     [SerializeField] private RectTransform[] layoutRebuildRoots;
@@ -113,9 +117,31 @@ public sealed class ResolutionDebugPanel : MonoBehaviour
     public void LogCurrentResolutionDiagnostics()
     {
         ResolveReferences();
+        RefreshFixedAspectViewport("Manual Diagnostics");
         Debug.Log(BuildResolutionLog("Manual Diagnostics", Screen.width, Screen.height, Screen.fullScreenMode));
         LogAllTrackedRoots("Manual Diagnostics");
         ValidateCanvasScalers();
+    }
+
+    public void LogSupportedResolutions()
+    {
+        Resolution[] resolutions = Screen.resolutions;
+        if (resolutions == null || resolutions.Length == 0)
+        {
+            Debug.Log("[ResolutionDebugPanel] SupportedResolutions=<none reported by Screen.resolutions>");
+            return;
+        }
+
+        var sb = new StringBuilder(1024);
+        sb.Append("[ResolutionDebugPanel] SupportedResolutions count=").Append(resolutions.Length);
+        for (int i = 0; i < resolutions.Length; i++)
+        {
+            Resolution resolution = resolutions[i];
+            sb.Append("\n  [").Append(i).Append("] ")
+                .Append(resolution.width).Append('x').Append(resolution.height).Append('@').Append(resolution.refreshRateRatio).Append("Hz");
+        }
+
+        Debug.Log(sb.ToString());
     }
 
     private void RequestResolution(int width, int height, FullScreenMode mode, string label)
@@ -130,6 +156,7 @@ public sealed class ResolutionDebugPanel : MonoBehaviour
 
     private IEnumerator CoApplyResolution(int width, int height, FullScreenMode mode, string label)
     {
+        RefreshFixedAspectViewport($"Before Request: {label}");
         Debug.Log(BuildResolutionLog($"Before Request: {label}", width, height, mode));
         LogAllTrackedRoots($"Before Request: {label}");
         ValidateCanvasScalers();
@@ -146,6 +173,7 @@ public sealed class ResolutionDebugPanel : MonoBehaviour
         yield return null;
 
         Canvas.ForceUpdateCanvases();
+        RefreshFixedAspectViewport($"After Canvas Update: {label}");
         ForceRebuildConfiguredLayouts();
         Canvas.ForceUpdateCanvases();
 
@@ -154,6 +182,7 @@ public sealed class ResolutionDebugPanel : MonoBehaviour
         yield return null;
 
         Canvas.ForceUpdateCanvases();
+        RefreshFixedAspectViewport($"After Apply: {label}");
         Debug.Log(BuildResolutionLog($"After Apply: {label}", width, height, mode));
         LogAllTrackedRoots($"After Apply: {label}");
         ValidateCanvasScalers();
@@ -187,6 +216,24 @@ public sealed class ResolutionDebugPanel : MonoBehaviour
 
         if (windowManager == null)
             windowManager = FindObjectOfType<WindowManager>(true);
+
+        if (fixedAspectViewport == null)
+            fixedAspectViewport = FindObjectOfType<FixedAspectViewport>(true);
+    }
+
+    private void RefreshFixedAspectViewport(string phase)
+    {
+        if (fixedAspectViewport == null)
+            fixedAspectViewport = FindObjectOfType<FixedAspectViewport>(true);
+
+        if (fixedAspectViewport == null)
+        {
+            Debug.Log($"[ResolutionDebugPanel] {phase} FixedAspectViewport=<none>");
+            return;
+        }
+
+        fixedAspectViewport.RefreshNow();
+        Debug.Log(fixedAspectViewport.GetDiagnostics(phase));
     }
 
     private void ForceRebuildConfiguredLayouts()
