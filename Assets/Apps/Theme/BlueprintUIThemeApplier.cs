@@ -18,6 +18,21 @@ public class BlueprintUIThemeApplier : AppUIThemeApplierBase
     [SerializeField] private Button scrollUpButton;
     [SerializeField] private Button scrollDownButton;
 
+    [SerializeField] private Image extraImage1;
+    [SerializeField] private Image extraImage2;
+    [SerializeField] private Image extraImage3;
+    [SerializeField] private Image extraImage4;
+    [SerializeField] private Image extraImage5;
+    [SerializeField] private Image extraImage6;
+    [SerializeField] private Image extraImage7;
+    [SerializeField] private Image extraImage8;
+    [SerializeField] private Image extraImage9;
+    [SerializeField] private Image extraImage10;
+    [SerializeField] private Image extraImage11;
+    [SerializeField] private Image extraImage12;
+    [SerializeField] private Image extraImage13;
+    [SerializeField] private Image extraImage14;
+
     [Header("BluePrint / Recipe - Panels")]
     [SerializeField] private Image mainPanelBackground;
     [SerializeField] private Image detailPanelBackground;
@@ -80,6 +95,21 @@ public class BlueprintUIThemeApplier : AppUIThemeApplierBase
         ApplyScrollbarSprites(scrollbar, t.scrollbarBackgroundSprite, t.scrollbarHandleSprite);
         ApplyButtonSprite(scrollUpButton, t.scrollUpButtonSprite);
         ApplyButtonSprite(scrollDownButton, t.scrollDownButtonSprite);
+
+        ApplyImageSprite(extraImage1, t.extraSprite1);
+        ApplyImageSprite(extraImage2, t.extraSprite2);
+        ApplyImageSprite(extraImage3, t.extraSprite3);
+        ApplyImageSprite(extraImage4, t.extraSprite4);
+        ApplyImageSprite(extraImage5, t.extraSprite5);
+        ApplyImageSprite(extraImage6, t.extraSprite6);
+        ApplyImageSprite(extraImage7, t.extraSprite7);
+        ApplyImageSprite(extraImage8, t.extraSprite8);
+        ApplyImageSprite(extraImage9, t.extraSprite9);
+        ApplyImageSprite(extraImage10, t.extraSprite10);
+        ApplyImageSprite(extraImage11, t.extraSprite11);
+        ApplyImageSprite(extraImage12, t.extraSprite12);
+        ApplyImageSprite(extraImage13, t.extraSprite13);
+        ApplyImageSprite(extraImage14, t.extraSprite14);
 
         ApplyImageSprite(mainPanelBackground, t.mainPanelBackgroundSprite);
         ApplyImageSprite(detailPanelBackground, t.detailPanelBackgroundSprite);

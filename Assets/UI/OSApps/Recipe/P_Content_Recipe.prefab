@@ -950,7 +950,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 0, y: -96}
+  m_AnchoredPosition: {x: 0, y: -95}
   m_SizeDelta: {x: 30, y: 30}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &5424393849459539115
@@ -5632,7 +5632,6 @@ GameObject:
   - component: {fileID: 612249022112884176}
   - component: {fileID: 3627339063660894250}
   - component: {fileID: 18117712176126155}
-  - component: {fileID: 1411970888813869275}
   m_Layer: 0
   m_Name: 'AmbientDropdownList '
   m_TagString: Untagged
@@ -5750,46 +5749,30 @@ MonoBehaviour:
   m_Value: 0
   m_Options:
     m_Options:
-    - m_Text: Ocean
+    - m_Text: 1
       m_Image: {fileID: 0}
-    - m_Text: Storm
+    - m_Text: 2
       m_Image: {fileID: 0}
-    - m_Text: LightRain
+    - m_Text: 3
       m_Image: {fileID: 0}
-    - m_Text: MorningBirds
+    - m_Text: 4
       m_Image: {fileID: 0}
-    - m_Text: NightCrickets
+    - m_Text: 5
       m_Image: {fileID: 0}
-    - m_Text: Cafe
+    - m_Text: 6
       m_Image: {fileID: 0}
-    - m_Text: Subway
+    - m_Text: 7
       m_Image: {fileID: 0}
-    - m_Text: CityStreet
+    - m_Text: 8
       m_Image: {fileID: 0}
-    - m_Text: Dreamcore
+    - m_Text: 9
       m_Image: {fileID: 0}
-    - m_Text: Campfire
+    - m_Text: 10
       m_Image: {fileID: 0}
   m_OnValueChanged:
     m_PersistentCalls:
       m_Calls: []
   m_AlphaFadeSpeed: 0.15
---- !u!114 &1411970888813869275
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 5020130937374090687}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: e6ca7030708ea6842a9d7907f9d8dd1f, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  dropdown: {fileID: 18117712176126155}
-  playButtonImage: {fileID: 0}
-  playIcon: {fileID: 21300000, guid: ef38b9bb844a36a40ad770272e200a3c, type: 3}
-  stopIcon: {fileID: 21300000, guid: b5174dcd67099294f93f161c4df1cd59, type: 3}
 --- !u!1 &5141737905671355396
 GameObject:
   m_ObjectHideFlags: 0
@@ -7055,7 +7038,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 0, y: 96}
+  m_AnchoredPosition: {x: 0, y: 95}
   m_SizeDelta: {x: 30, y: 30}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &7730850597845139785
@@ -7633,7 +7616,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: Ocean
+  m_text: 1
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 35dedccab6a8e5948951f94ee33ffdf4, type: 2}
   m_sharedMaterial: {fileID: 7718814860977298816, guid: 35dedccab6a8e5948951f94ee33ffdf4, type: 2}
@@ -7885,7 +7868,7 @@ RectTransform:
   m_Father: {fileID: 2977993279712165463}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
-  m_AnchorMax: {x: 1, y: 1}
+  m_AnchorMax: {x: 0, y: 0}
   m_AnchoredPosition: {x: 0, y: 0}
   m_SizeDelta: {x: 20, y: 20}
   m_Pivot: {x: 0.5, y: 0.5}
@@ -9376,6 +9359,20 @@ MonoBehaviour:
   scrollbar: {fileID: 719645707186170264}
   scrollUpButton: {fileID: 4853299359961231164}
   scrollDownButton: {fileID: 8916132726625350822}
+  extraImage1: {fileID: 3627339063660894250}
+  extraImage2: {fileID: 386797247667458195}
+  extraImage3: {fileID: 6815567934193458870}
+  extraImage4: {fileID: 488755248127517170}
+  extraImage5: {fileID: 7437127121903894522}
+  extraImage6: {fileID: 8956798439009723254}
+  extraImage7: {fileID: 7426310361406984674}
+  extraImage8: {fileID: 7535529667944324523}
+  extraImage9: {fileID: 2488720551699682489}
+  extraImage10: {fileID: 0}
+  extraImage11: {fileID: 0}
+  extraImage12: {fileID: 0}
+  extraImage13: {fileID: 0}
+  extraImage14: {fileID: 0}
   mainPanelBackground: {fileID: 2427142204350200158}
   detailPanelBackground: {fileID: 3255295555137481512}
   mainPanel2BackgroundSprite: {fileID: 9143897457860721867}
@@ -10053,7 +10050,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!224 &3479998136770323596
 RectTransform:
   m_ObjectHideFlags: 0
@@ -10072,7 +10069,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 1, y: 0}
-  m_AnchoredPosition: {x: -1.5, y: 2}
+  m_AnchoredPosition: {x: -1.5, y: 3}
   m_SizeDelta: {x: -3, y: 220}
   m_Pivot: {x: 0.5, y: 1}
 --- !u!222 &8767998063618522628

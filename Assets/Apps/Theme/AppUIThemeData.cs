@@ -16,6 +16,22 @@ public class AppUIThemeData : ScriptableObject
         public Color ingredientSelectedTextColor;
         public Sprite ingredientStateIndicatorSprite;
 
+        public Sprite extraSprite1;
+        public Sprite extraSprite2;
+        public Sprite extraSprite3;
+        public Sprite extraSprite4;
+        public Sprite extraSprite5;
+        public Sprite extraSprite6;
+        public Sprite extraSprite7;
+        public Sprite extraSprite8;
+
+        public Sprite extraSprite9;
+        public Sprite extraSprite10;
+        public Sprite extraSprite11;
+        public Sprite extraSprite12;
+        public Sprite extraSprite13;
+        public Sprite extraSprite14;
+
         [Header("Scroll/List")]
         public Sprite scrollViewBackgroundSprite;
         public Sprite scrollUpButtonSprite;
