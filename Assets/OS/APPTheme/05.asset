@@ -65,9 +65,9 @@ MonoBehaviour:
     progressFillSprite: {fileID: 21300000, guid: 4993544a902ab86489da05462387ddbc, type: 3}
     progressHandleSprite: {fileID: 21300000, guid: 4993544a902ab86489da05462387ddbc, type: 3}
     progressHandleSprite2: {fileID: 21300000, guid: c97502782e16d3b4199aef1138cc3d6f, type: 3}
-    transportButtonSprite: {fileID: 0}
-    playPauseButtonSprite: {fileID: 0}
-    playbackToggleButtonSprite: {fileID: 0}
+    transportButtonSprite: {fileID: 21300000, guid: cdd2d759c3f36c04283bbc995d556eb7, type: 3}
+    playPauseButtonSprite: {fileID: 21300000, guid: cdd2d759c3f36c04283bbc995d556eb7, type: 3}
+    playbackToggleButtonSprite: {fileID: 21300000, guid: cdd2d759c3f36c04283bbc995d556eb7, type: 3}
     actionButtonSprite: {fileID: 0}
     utilityButtonSprite: {fileID: 0}
     listPanelSprite: {fileID: 21300000, guid: 60e2e33342c8bbc42a1c714fe490e105, type: 3}
@@ -209,13 +209,13 @@ MonoBehaviour:
       inactiveSprite: {fileID: 21300000, guid: 97c7cc8f79185014c8de63d5e9a1aded, type: 3}
     dialogueButtonVisual:
       interactableActiveSprite: {fileID: 21300000, guid: f97673665ab92864890cc450dfeb98fd, type: 3}
-      interactableInactiveSprite: {fileID: 21300000, guid: 915e534667d3b834a959357c59902fea, type: 3}
+      interactableInactiveSprite: {fileID: 21300000, guid: cdd2d759c3f36c04283bbc995d556eb7, type: 3}
       toggleAutoPlayActiveSprite: {fileID: 21300000, guid: f97673665ab92864890cc450dfeb98fd, type: 3}
-      toggleAutoPlayInactiveSprite: {fileID: 21300000, guid: 915e534667d3b834a959357c59902fea, type: 3}
+      toggleAutoPlayInactiveSprite: {fileID: 21300000, guid: cdd2d759c3f36c04283bbc995d556eb7, type: 3}
       holdSkipActiveSprite: {fileID: 21300000, guid: f97673665ab92864890cc450dfeb98fd, type: 3}
-      holdSkipInactiveSprite: {fileID: 21300000, guid: 915e534667d3b834a959357c59902fea, type: 3}
+      holdSkipInactiveSprite: {fileID: 21300000, guid: cdd2d759c3f36c04283bbc995d556eb7, type: 3}
       interactableEnabledActiveSprite: {fileID: 21300000, guid: f97673665ab92864890cc450dfeb98fd, type: 3}
-      interactableEnabledInactiveSprite: {fileID: 21300000, guid: 915e534667d3b834a959357c59902fea, type: 3}
+      interactableEnabledInactiveSprite: {fileID: 21300000, guid: cdd2d759c3f36c04283bbc995d556eb7, type: 3}
     pinActiveSprite: {fileID: 21300000, guid: 4795fb93ebc1cfe42aa4e6b9a7a5b018, type: 3}
     pinInactiveSprite: {fileID: 21300000, guid: 5cb9b97fabaeffb4880766589896c14f, type: 3}
     drinkSlotEmptySprite: {fileID: 21300000, guid: 4993544a902ab86489da05462387ddbc, type: 3}
@@ -261,10 +261,10 @@ MonoBehaviour:
     otherWindow38RootSprite: {fileID: 21300000, guid: 041cefeb7c288224486e6108c2ccdb8e, type: 3}
     otherWindow39RootSprite: {fileID: 21300000, guid: 041cefeb7c288224486e6108c2ccdb8e, type: 3}
     otherWindow40RootSprite: {fileID: 21300000, guid: 041cefeb7c288224486e6108c2ccdb8e, type: 3}
-    otherWindow41RootSprite: {fileID: 21300000, guid: 567bbc2efa5e2554bbe29190c2e38557, type: 3}
-    otherWindow42RootSprite: {fileID: 21300000, guid: 57ec3d77890519746a2cabcb8ee493da, type: 3}
-    otherWindow43RootSprite: {fileID: 21300000, guid: cd2287ed716e9d240877e793bc61796d, type: 3}
-    otherWindow44RootSprite: {fileID: 21300000, guid: 243fe732141a61945b1f032ab9c40e12, type: 3}
+    otherWindow41RootSprite: {fileID: 21300000, guid: cdd2d759c3f36c04283bbc995d556eb7, type: 3}
+    otherWindow42RootSprite: {fileID: 21300000, guid: edf4e539be0ce6e4e98602b7e0538e1d, type: 3}
+    otherWindow43RootSprite: {fileID: 21300000, guid: 58d51b2abbd4fc34f9e7bcafc493345c, type: 3}
+    otherWindow44RootSprite: {fileID: 21300000, guid: 041cefeb7c288224486e6108c2ccdb8e, type: 3}
     otherWindow45RootSprite: {fileID: 21300000, guid: af9c76f1d5a392d4e89ab8162ecc2814, type: 3}
     otherWindow46RootSprite: {fileID: 21300000, guid: eeb20eac69089ae4e8f50c0d164f2041, type: 3}
     otherWindow47RootSprite: {fileID: 21300000, guid: 7b6ea90183a8d7444bdc8cb668d1acdb, type: 3}
