@@ -77,6 +77,8 @@ namespace PPP.BLUE.VN
         private readonly Dictionary<string, VNCharacterState> pendingShows = new(System.StringComparer.OrdinalIgnoreCase);
         private readonly HashSet<string> fadingOutPositions = new(System.StringComparer.OrdinalIgnoreCase);
 
+        private static readonly Vector2 BottomCenterAnchor = new(0.5f, 0f);
+
         private Coroutine portraitBlinkCoroutine;
         private string portraitBlinkCharacterId;
         private string portraitBlinkExpressionId;
@@ -91,6 +93,8 @@ namespace PPP.BLUE.VN
         public sealed class VNLayeredCharacterSlot
         {
             public string position = CenterPosition;
+            public RectTransform visualRoot;
+            public RectTransform partsRoot;
             public Image baseImage;
             public Image eyebrowImage;
             public Image eyeImage;
@@ -735,6 +739,7 @@ namespace PPP.BLUE.VN
             bool restartLayeredCharacterMouth = ShouldRestartLayeredCharacterMouthAfterApply(state.characterId);
             StopLayeredCharacterMouth(normalizedPosition, applyClosed: false, clearRequest: false);
             StopLayeredCharacterBlink(normalizedPosition, restoreOpenFrame: false);
+            UpdateLayeredCharacterRootLayout(layeredSlot, mapping.baseSprite);
             ApplyLayeredCharacterSprites(layeredSlot, mapping);
             ApplyLayeredCharacterVisibility(
                 layeredSlot,
@@ -746,6 +751,34 @@ namespace PPP.BLUE.VN
             if (restartLayeredCharacterMouth)
                 StartMouthAnimation(state.characterId);
             return true;
+        }
+
+        private void UpdateLayeredCharacterRootLayout(VNLayeredCharacterSlot slot, Sprite baseSprite)
+        {
+            if (slot == null)
+                return;
+
+            ConfigureBottomCenterRoot(slot.visualRoot);
+            ConfigureBottomCenterRoot(slot.partsRoot);
+
+            if (slot.partsRoot == null || baseSprite == null)
+                return;
+
+            // Layered character parts are authored against a shared per-character canvas.
+            // Keep PartsRoot sized from the base sprite only so blink/mouth frame swaps do not jitter the RectTransform.
+            slot.partsRoot.sizeDelta = baseSprite.rect.size;
+        }
+
+        private static void ConfigureBottomCenterRoot(RectTransform rectTransform)
+        {
+            if (rectTransform == null)
+                return;
+
+            rectTransform.anchorMin = BottomCenterAnchor;
+            rectTransform.anchorMax = BottomCenterAnchor;
+            rectTransform.pivot = BottomCenterAnchor;
+            rectTransform.anchoredPosition = Vector2.zero;
+            rectTransform.localScale = Vector3.one;
         }
 
         private void ApplyLayeredCharacterSprites(VNLayeredCharacterSlot slot, VNLayeredExpressionMapping mapping)
