@@ -458,7 +458,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 0, y: 1}
-  m_AnchoredPosition: {x: 191, y: -21}
+  m_AnchoredPosition: {x: 191, y: -22}
   m_SizeDelta: {x: 44, y: 44}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &1637333388883150054
@@ -1104,7 +1104,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 0, y: 1}
-  m_AnchoredPosition: {x: 81, y: -21}
+  m_AnchoredPosition: {x: 81, y: -22}
   m_SizeDelta: {x: 44, y: 44}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &7958638310651991325
@@ -2644,7 +2644,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 0, y: 1}
-  m_AnchoredPosition: {x: 21, y: -21}
+  m_AnchoredPosition: {x: 21, y: -22}
   m_SizeDelta: {x: 44, y: 44}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &810161625869343451
@@ -4500,7 +4500,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 139.5, y: -13}
+  m_AnchoredPosition: {x: 139.5, y: -16.5}
   m_SizeDelta: {x: 159, y: 44}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &7583463018998931398
@@ -4788,7 +4788,7 @@ RectTransform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 6322070485032296333}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 3}
+  m_LocalPosition: {x: 0, y: 0, z: 33}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
@@ -4797,7 +4797,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 0, y: 1}
-  m_AnchoredPosition: {x: 245, y: -21}
+  m_AnchoredPosition: {x: 245, y: -22}
   m_SizeDelta: {x: 44, y: 44}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &6636808357704743600
@@ -5524,7 +5524,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 0, y: 1}
-  m_AnchoredPosition: {x: 131, y: -21}
+  m_AnchoredPosition: {x: 131, y: -22}
   m_SizeDelta: {x: 44, y: 44}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &8239149594822900003
@@ -6095,16 +6095,14 @@ MonoBehaviour:
   extraImage18: {fileID: 1603326804401185623}
   extraImage19: {fileID: 8135227059810547296}
   extraImage20: {fileID: 743407966986360969}
+  extraImage21: {fileID: 5787543923624243252}
   progressTrackImage: {fileID: 3768823154998258846}
   progressFillImage: {fileID: 1807422802698483870}
   progressHandleImage: {fileID: 3562699666491058175}
   progressHandleImage2: {fileID: 1897854820948091141}
-  transportButtons:
-  - {fileID: 3525746646866152306}
-  playPauseButtons:
-  - {fileID: 2672948411984310417}
-  playbackToggleButtons:
-  - {fileID: 522084361444575104}
+  transportButtons: []
+  playPauseButtons: []
+  playbackToggleButtons: []
   actionButtons:
   - {fileID: 403371340120674229}
   utilityButtons:

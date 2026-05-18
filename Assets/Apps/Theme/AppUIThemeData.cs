@@ -106,6 +106,7 @@ public class AppUIThemeData : ScriptableObject
         public Sprite extraSprite18;
         public Sprite extraSprite19;
         public Sprite extraSprite20;
+        public Sprite extraSprite21;
 
         public Sprite toggleOnBackground1;
         public Sprite toggleOffBackground1;

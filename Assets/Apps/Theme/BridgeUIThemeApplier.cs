@@ -34,6 +34,8 @@ public class BridgeUIThemeApplier : AppUIThemeApplierBase
     [SerializeField] private Image extraImage18;
     [SerializeField] private Image extraImage19;
     [SerializeField] private Image extraImage20;
+    [SerializeField] private Image extraImage21;
+   
 
     [Header("BRIDGE - Progress Images")]
     [SerializeField] private Image progressTrackImage;
@@ -184,6 +186,7 @@ public class BridgeUIThemeApplier : AppUIThemeApplierBase
         ApplyImageSprite(extraImage18, t.extraSprite18);
         ApplyImageSprite(extraImage19, t.extraSprite19);
         ApplyImageSprite(extraImage20, t.extraSprite20);
+        ApplyImageSprite(extraImage21, t.extraSprite21);
 
         ApplyToggleSprites(toggle1, t.toggleOnBackground1, t.toggleOffBackground1, t.toggleOnIcon1, t.toggleOffIcon1);
         ApplyToggleSprites(toggle2, t.toggleOnBackground2, t.toggleOffBackground2, t.toggleOnIcon2, t.toggleOffIcon2);

@@ -51,9 +51,9 @@ MonoBehaviour:
     progressFillSprite: {fileID: 21300000, guid: 6d276694909278a4fbbca6efd8de7992, type: 3}
     progressHandleSprite: {fileID: 21300000, guid: 6d276694909278a4fbbca6efd8de7992, type: 3}
     progressHandleSprite2: {fileID: 21300000, guid: f49d2f9f4a872254ba6537a1bdb72bb0, type: 3}
-    transportButtonSprite: {fileID: 0}
-    playPauseButtonSprite: {fileID: 0}
-    playbackToggleButtonSprite: {fileID: 0}
+    transportButtonSprite: {fileID: 21300000, guid: a1c712aa02693d248bb692bcf90e55d4, type: 3}
+    playPauseButtonSprite: {fileID: 21300000, guid: a1c712aa02693d248bb692bcf90e55d4, type: 3}
+    playbackToggleButtonSprite: {fileID: 21300000, guid: a1c712aa02693d248bb692bcf90e55d4, type: 3}
     actionButtonSprite: {fileID: 0}
     utilityButtonSprite: {fileID: 0}
     listPanelSprite: {fileID: 21300000, guid: 8a7bddb6cfbe3b9438bf83d58a0184a2, type: 3}
@@ -71,11 +71,11 @@ MonoBehaviour:
     extraSprite6: {fileID: 21300000, guid: dce781062a1a4824fa2ee389e03e9b4e, type: 3}
     extraSprite7: {fileID: 21300000, guid: 33677838c774e30429f710f22b823d52, type: 3}
     extraSprite8: {fileID: 21300000, guid: b2ec3f5b0a703c24697edf5a10c1e07a, type: 3}
-    extraSprite9: {fileID: 21300000, guid: 0616847a8986c9447b6ffa5370803a96, type: 3}
-    extraSprite10: {fileID: 21300000, guid: 0616847a8986c9447b6ffa5370803a96, type: 3}
-    extraSprite11: {fileID: 21300000, guid: 0616847a8986c9447b6ffa5370803a96, type: 3}
-    extraSprite12: {fileID: 21300000, guid: 0616847a8986c9447b6ffa5370803a96, type: 3}
-    extraSprite13: {fileID: 21300000, guid: 0616847a8986c9447b6ffa5370803a96, type: 3}
+    extraSprite9: {fileID: 21300000, guid: a1c712aa02693d248bb692bcf90e55d4, type: 3}
+    extraSprite10: {fileID: 21300000, guid: a1c712aa02693d248bb692bcf90e55d4, type: 3}
+    extraSprite11: {fileID: 21300000, guid: a1c712aa02693d248bb692bcf90e55d4, type: 3}
+    extraSprite12: {fileID: 21300000, guid: a1c712aa02693d248bb692bcf90e55d4, type: 3}
+    extraSprite13: {fileID: 21300000, guid: a1c712aa02693d248bb692bcf90e55d4, type: 3}
     extraSprite14: {fileID: 21300000, guid: 0616847a8986c9447b6ffa5370803a96, type: 3}
     extraSprite15: {fileID: 21300000, guid: 0616847a8986c9447b6ffa5370803a96, type: 3}
     extraSprite16: {fileID: 21300000, guid: 6d276694909278a4fbbca6efd8de7992, type: 3}
@@ -83,16 +83,17 @@ MonoBehaviour:
     extraSprite18: {fileID: 21300000, guid: 886af20ddd2544745be68d3914987338, type: 3}
     extraSprite19: {fileID: 21300000, guid: 4f75ab06dc775344fa2c4e88f02d178d, type: 3}
     extraSprite20: {fileID: 21300000, guid: 17c10005ec5d9ed439ce04182dd4de2e, type: 3}
+    extraSprite21: {fileID: 21300000, guid: a1c712aa02693d248bb692bcf90e55d4, type: 3}
     toggleOnBackground1: {fileID: 21300000, guid: 14bd87a1db2093649956dbc1dd3adfd2, type: 3}
-    toggleOffBackground1: {fileID: 21300000, guid: 0616847a8986c9447b6ffa5370803a96, type: 3}
+    toggleOffBackground1: {fileID: 21300000, guid: a1c712aa02693d248bb692bcf90e55d4, type: 3}
     toggleOnIcon1: {fileID: 21300000, guid: f4d62a4588e803547b6d0ba1a8702c13, type: 3}
     toggleOffIcon1: {fileID: 21300000, guid: 033d2ba38c05dae49b6799e4c8bf5eb5, type: 3}
     toggleOnBackground2: {fileID: 21300000, guid: 14bd87a1db2093649956dbc1dd3adfd2, type: 3}
-    toggleOffBackground2: {fileID: 21300000, guid: 0616847a8986c9447b6ffa5370803a96, type: 3}
+    toggleOffBackground2: {fileID: 21300000, guid: a1c712aa02693d248bb692bcf90e55d4, type: 3}
     toggleOnIcon2: {fileID: 21300000, guid: e9b2d9f1f71457246b61401d740ef8cd, type: 3}
     toggleOffIcon2: {fileID: 21300000, guid: e9b2d9f1f71457246b61401d740ef8cd, type: 3}
     toggleOnBackground3: {fileID: 21300000, guid: 14bd87a1db2093649956dbc1dd3adfd2, type: 3}
-    toggleOffBackground3: {fileID: 21300000, guid: 0616847a8986c9447b6ffa5370803a96, type: 3}
+    toggleOffBackground3: {fileID: 21300000, guid: a1c712aa02693d248bb692bcf90e55d4, type: 3}
     toggleOnIcon3: {fileID: 21300000, guid: 2de9f3d968ec075408ee26157b60a32a, type: 3}
     toggleOffIcon3: {fileID: 21300000, guid: 15435ddfba941e247ba6c9b97000f89c, type: 3}
     dropdownBackgroundSprite: {fileID: 0}
