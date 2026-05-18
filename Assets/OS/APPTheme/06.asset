@@ -13,8 +13,8 @@ MonoBehaviour:
   m_Name: 06
   m_EditorClassIdentifier: 
   blueprint:
-    filterButtonSprite: {fileID: 21300000, guid: 197ec2afa49946b4ab8a589aeae75500, type: 3}
-    filterButtonSelectedSprite: {fileID: 21300000, guid: 54da48b9abb47b44d9ae1e2dae03b153, type: 3}
+    filterButtonSprite: {fileID: 21300000, guid: edc425c2c9767ac47aba5ba2f49f3ee3, type: 3}
+    filterButtonSelectedSprite: {fileID: 21300000, guid: 85d30d3b755959843864e0811042763e, type: 3}
     ingredientSelectedColor: {r: 1, g: 1, b: 1, a: 1}
     ingredientPressedColor: {r: 0.78431374, g: 0.78431374, b: 0.78431374, a: 1}
     ingredientDefaultTextColor: {r: 0, g: 0, b: 0, a: 1}
