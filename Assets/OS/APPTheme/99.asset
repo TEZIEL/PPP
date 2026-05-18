@@ -21,6 +21,20 @@ MonoBehaviour:
     ingredientPressedTextColor: {r: 0, g: 0, b: 0, a: 1}
     ingredientSelectedTextColor: {r: 0, g: 0, b: 0, a: 1}
     ingredientStateIndicatorSprite: {fileID: 21300000, guid: 71578281c7e31ad4485136672e950c6d, type: 3}
+    extraSprite1: {fileID: 21300000, guid: cd8a0fba01d6d1f4eb2c0065a8acb9f4, type: 3}
+    extraSprite2: {fileID: 21300000, guid: 9799252fba1083143aeae3c14a337b29, type: 3}
+    extraSprite3: {fileID: 21300000, guid: 37c1fc107f2665642b494695f19ea6e6, type: 3}
+    extraSprite4: {fileID: 21300000, guid: a05a0c634dcea7d4d9b25059c856d96c, type: 3}
+    extraSprite5: {fileID: 21300000, guid: a294557d986618d488fb5ecbf6b0dc02, type: 3}
+    extraSprite6: {fileID: 21300000, guid: 8ba6d945f14d40948bc368accf77063e, type: 3}
+    extraSprite7: {fileID: 21300000, guid: c0a6ec75a1d7e7c4f809a6be166c4c96, type: 3}
+    extraSprite8: {fileID: 21300000, guid: 9799252fba1083143aeae3c14a337b29, type: 3}
+    extraSprite9: {fileID: 21300000, guid: efe3dbb2d65e9bc4faaf2fcca8d66d10, type: 3}
+    extraSprite10: {fileID: 0}
+    extraSprite11: {fileID: 0}
+    extraSprite12: {fileID: 0}
+    extraSprite13: {fileID: 0}
+    extraSprite14: {fileID: 0}
     scrollViewBackgroundSprite: {fileID: 21300000, guid: 87fcee4fc8a133c4f87bb50988d57de4, type: 3}
     scrollUpButtonSprite: {fileID: 21300000, guid: c0a6ec75a1d7e7c4f809a6be166c4c96, type: 3}
     scrollDownButtonSprite: {fileID: 21300000, guid: 9799252fba1083143aeae3c14a337b29, type: 3}
