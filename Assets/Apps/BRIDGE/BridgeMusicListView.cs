@@ -60,6 +60,9 @@ public class BridgeMusicListView : MonoBehaviour
 
         manager.OnLibraryChanged += Refresh;
         manager.OnTrackChanged += HandleTrackChanged;
+        var themeManager = AppUIThemeManager.Instance;
+        if (themeManager != null)
+            themeManager.OnThemeChanged += HandleThemeChanged;
 
         Refresh();
     }
@@ -72,6 +75,9 @@ public class BridgeMusicListView : MonoBehaviour
             manager.OnLibraryChanged -= Refresh;
             manager.OnTrackChanged -= HandleTrackChanged;
         }
+        var themeManager = AppUIThemeManager.Instance;
+        if (themeManager != null)
+            themeManager.OnThemeChanged -= HandleThemeChanged;
 
         UnbindScrollButtons();
 
@@ -230,6 +236,24 @@ public class BridgeMusicListView : MonoBehaviour
 
         selectedItem = clickedItem;
         selectedItem.SetSelected(true);
+    }
+
+    private void HandleThemeChanged()
+    {
+        RefreshTrackItemThemeVisuals();
+    }
+
+    private void RefreshTrackItemThemeVisuals()
+    {
+        for (int i = 0; i < spawnedItems.Count; i++)
+        {
+            var item = spawnedItems[i];
+            if (item == null)
+                continue;
+
+            item.ApplyCurrentTheme();
+            item.SetSelected(item == selectedItem);
+        }
     }
 
     private void HandleTrackChanged(BGMTrackData currentTrack)

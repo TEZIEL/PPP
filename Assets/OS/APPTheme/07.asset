@@ -54,6 +54,11 @@ MonoBehaviour:
     titleTextColor: {r: 0, g: 0, b: 0, a: 1}
     bodyTextColor: {r: 0, g: 0, b: 0, a: 1}
     metaTextColor: {r: 0, g: 0, b: 0, a: 1}
+    drinkListItemDefaultBackgroundColor: {r: 0.78431374, g: 0.78431374, b: 0.78431374, a: 1}
+    drinkListItemHoverBackgroundColor: {r: 0.2, g: 0.2, b: 0.2, a: 1}
+    drinkListItemSelectedBackgroundColor: {r: 0.2, g: 0.2, b: 0.2, a: 1}
+    drinkListItemDefaultTextColor: {r: 0, g: 0, b: 0, a: 1}
+    drinkListItemActiveTextColor: {r: 1, g: 1, b: 1, a: 1}
   bridge:
     playerMainPanelSprite: {fileID: 21300000, guid: c0b638e1d29e019418e974c867274026, type: 3}
     albumArtBackgroundSprite: {fileID: 21300000, guid: 26d3f41cdaaaad244a4cd9ea3f3d3be4, type: 3}

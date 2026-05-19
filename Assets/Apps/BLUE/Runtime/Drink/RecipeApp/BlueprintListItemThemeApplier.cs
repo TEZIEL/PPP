@@ -12,11 +12,15 @@ namespace PPP.BLUE.VN.RecipeApp
         [SerializeField] private Image iconFrame2;
         [SerializeField] private Image iconFrame3;
         [SerializeField] private Button actionButton;
+        [SerializeField] private DrinkListItemUI drinkListItemUI;
 
         [Header("Text Refs (Optional)")]
         [SerializeField] private TMP_Text titleText;
         [SerializeField] private TMP_Text bodyText;
         [SerializeField] private TMP_Text metaText;
+        [SerializeField] private TMP_Text metaText2;
+
+        private bool missingDrinkListItemUiWarningLogged;
 
         private void OnEnable()
         {
@@ -38,8 +42,6 @@ namespace PPP.BLUE.VN.RecipeApp
         {
             ApplyCurrentTheme();
         }
-        [SerializeField] private TMP_Text metaText2;
-
         public void ApplyCurrentTheme()
         {
             var manager = AppUIThemeManager.Instance;
@@ -82,6 +84,31 @@ namespace PPP.BLUE.VN.RecipeApp
 
             if (metaText2 != null)
                 metaText2.color = t.metaTextColor;
+
+            ApplyDrinkListItemThemeColors(t);
+        }
+
+        private void ApplyDrinkListItemThemeColors(AppUIThemeData.BlueprintListItemTheme t)
+        {
+            if (drinkListItemUI == null)
+                drinkListItemUI = GetComponent<DrinkListItemUI>();
+
+            if (drinkListItemUI == null)
+            {
+                if (!missingDrinkListItemUiWarningLogged)
+                {
+                    Debug.LogWarning($"[BlueprintListItemThemeApplier] DrinkListItemUI reference is missing on {name}. Theme state colors will not be forwarded.");
+                    missingDrinkListItemUiWarningLogged = true;
+                }
+                return;
+            }
+
+            drinkListItemUI.ApplyThemeColors(
+                t.drinkListItemDefaultBackgroundColor,
+                t.drinkListItemHoverBackgroundColor,
+                t.drinkListItemSelectedBackgroundColor,
+                t.drinkListItemDefaultTextColor,
+                t.drinkListItemActiveTextColor);
         }
     }
 }
