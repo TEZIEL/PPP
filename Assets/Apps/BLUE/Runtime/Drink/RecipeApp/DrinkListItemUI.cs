@@ -124,6 +124,21 @@ namespace PPP.BLUE.VN.RecipeApp
             ApplyVisualState();
         }
 
+        public void ApplyThemeColors(
+            Color defaultBackground,
+            Color hoverBackground,
+            Color selectedBackground,
+            Color defaultText,
+            Color activeText)
+        {
+            defaultBackgroundColor = defaultBackground;
+            hoverBackgroundColor = hoverBackground;
+            selectedBackgroundColor = selectedBackground;
+            defaultTextColor = defaultText;
+            activeTextColor = activeText;
+            ApplyVisualState();
+        }
+
         public void OnPointerEnter(UnityEngine.EventSystems.PointerEventData eventData)
         {
             isHovered = true;
