@@ -13,7 +13,7 @@ namespace PPP.BLUE.VN.RecipeApp
     /// - 로컬라이징 키-값 테이블(인스펙터) 기반으로 표시 텍스트 변환
     /// - 줄바꿈은 TMP 기본 동작 사용
     /// </summary>
-    public sealed class DrinkListItemUI : MonoBehaviour
+    public sealed class DrinkListItemUI : MonoBehaviour, UnityEngine.EventSystems.IPointerClickHandler
     {
         [Serializable]
         private struct LocalizedEntry
@@ -54,8 +54,6 @@ namespace PPP.BLUE.VN.RecipeApp
 
         private void Awake()
         {
-            if (actionButton != null)
-                actionButton.onClick.AddListener(HandleClick);
 
             if (ingredientsText != null)
                 ingredientsText.richText = true;
@@ -348,8 +346,11 @@ namespace PPP.BLUE.VN.RecipeApp
             text.text = value ?? string.Empty;
         }
 
-        private void HandleClick()
+        public void OnPointerClick(UnityEngine.EventSystems.PointerEventData eventData)
         {
+            if (eventData != null && eventData.button != UnityEngine.EventSystems.PointerEventData.InputButton.Left)
+                return;
+
             if (current == null)
                 return;
 
