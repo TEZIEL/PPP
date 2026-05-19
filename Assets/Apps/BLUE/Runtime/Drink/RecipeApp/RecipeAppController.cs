@@ -34,17 +34,7 @@
         private const int MaxSelectedIngredients = 3;
             private const string ArtheonIngredientId = "INGREDIENT_ARTHEON";
             private const string CategoryDairyKey = "CATEGORY_DAIRY";
-            private const string CategoryNoneKey = "CATEGORY_NONE";
             private const string TagMilkKey = "TAG_MILK";
-            private static readonly string[] SpecialTagOrder =
-            {
-                "TAG_SIMPLE",
-                "TAG_BALANCED",
-                "TAG_LIGHT",
-                "TAG_STRONG",
-                "TAG_STIMULATING",
-                "TAG_COMPLEX"
-            };
 
             [Header("Data")]
             [SerializeField] private RecipeDataLoader dataLoader;
@@ -681,15 +671,26 @@
                     Debug.LogWarning("[RecipeApp] classificationDropdown is not assigned.");
                     selectedClassificationKey = string.Empty;
                     return;
+
+                var go = detailModalBlockerImage.gameObject;
+                go.SetActive(visible);
+                if (visible)
+                    go.transform.SetAsLastSibling();
+            }
+
+            private void InitializeClassificationDropdown()
+            {
+                if (classificationDropdown == null)
+                {
+                    classificationDropdown = GetComponentsInChildren<TMP_Dropdown>(true)
+                        .FirstOrDefault(d => d != null && d.name.IndexOf("AmbientDropdownList", StringComparison.OrdinalIgnoreCase) >= 0);
                 }
 
                 classificationOptionKeys.Clear();
                 classificationOptionKeys.Add(string.Empty);
 
                 var categories = new SortedSet<string>(StringComparer.OrdinalIgnoreCase);
-                var normalTags = new SortedSet<string>(StringComparer.OrdinalIgnoreCase);
-                var ingredientPlusTags = new SortedSet<string>(StringComparer.OrdinalIgnoreCase);
-                var specialTags = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+                var tags = new SortedSet<string>(StringComparer.OrdinalIgnoreCase);
                 for (int i = 0; i < allDrinks.Count; i++)
                 {
                     var drink = allDrinks[i];
@@ -697,11 +698,7 @@
                         continue;
 
                     if (!string.IsNullOrWhiteSpace(drink.category))
-                    {
-                        string category = drink.category.Trim();
-                        if (!IsHiddenClassificationKey(category))
-                            categories.Add(category);
-                    }
+                        categories.Add(drink.category.Trim());
 
                     if (drink.tags == null)
                         continue;
@@ -712,37 +709,18 @@
                         if (!string.IsNullOrWhiteSpace(tag))
                         {
                             string normalized = tag.Trim();
-                            if (IsHiddenClassificationKey(normalized))
+                            if (string.Equals(normalized, TagMilkKey, StringComparison.Ordinal))
                                 continue;
 
-                            if (IsSpecialTagKey(normalized))
-                            {
-                                specialTags.Add(normalized);
-                                continue;
-                            }
-
-                            if (IsIngredientPlusTagKey(normalized))
-                            {
-                                ingredientPlusTags.Add(normalized);
-                                continue;
-                            }
-
-                            normalTags.Add(normalized);
+                            tags.Add(normalized);
                         }
                     }
                 }
 
                 foreach (var category in categories)
                     classificationOptionKeys.Add(category);
-                foreach (var tag in normalTags)
+                foreach (var tag in tags)
                     classificationOptionKeys.Add(tag);
-                foreach (var tag in ingredientPlusTags)
-                    classificationOptionKeys.Add(tag);
-                for (int i = 0; i < SpecialTagOrder.Length; i++)
-                {
-                    if (specialTags.Contains(SpecialTagOrder[i]))
-                        classificationOptionKeys.Add(SpecialTagOrder[i]);
-                }
 
                 var options = new List<TMP_Dropdown.OptionData> { new TMP_Dropdown.OptionData("전체") };
                 for (int i = 1; i < classificationOptionKeys.Count; i++)
@@ -755,38 +733,6 @@
                 classificationDropdown.onValueChanged.AddListener(OnClassificationDropdownChanged);
             }
         
-
-            private static bool IsHiddenClassificationKey(string rawKey)
-            {
-                if (string.IsNullOrWhiteSpace(rawKey))
-                    return true;
-
-                return string.Equals(rawKey, TagMilkKey, StringComparison.Ordinal)
-                       || string.Equals(rawKey, CategoryNoneKey, StringComparison.Ordinal);
-            }
-
-            private static bool IsSpecialTagKey(string rawKey)
-            {
-                if (string.IsNullOrWhiteSpace(rawKey))
-                    return false;
-
-                for (int i = 0; i < SpecialTagOrder.Length; i++)
-                {
-                    if (string.Equals(rawKey, SpecialTagOrder[i], StringComparison.Ordinal))
-                        return true;
-                }
-
-                return false;
-            }
-
-            private static bool IsIngredientPlusTagKey(string rawKey)
-            {
-                if (string.IsNullOrWhiteSpace(rawKey))
-                    return false;
-
-                return rawKey.StartsWith("TAG_", StringComparison.Ordinal)
-                       && rawKey.EndsWith("_PLUS", StringComparison.Ordinal);
-            }
 
             private void UnbindClassificationDropdown()
             {
