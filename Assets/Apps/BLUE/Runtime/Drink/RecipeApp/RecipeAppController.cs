@@ -46,6 +46,26 @@
                 "TAG_STIMULATING",
                 "TAG_COMPLEX",
             };
+            private static readonly string[] IngredientPlusTagDisplayOrder =
+            {
+                "TAG_VELTRINE_PLUS",
+                "TAG_ZYPHRATE_PLUS",
+                "TAG_KRATYLEN_PLUS",
+                "TAG_MORVION_PLUS",
+                "TAG_REDULINE_PLUS",
+                "TAG_CYMENTOL_PLUS",
+                "TAG_BRAXIUM_PLUS",
+            };
+            private static readonly string[] DetailIngredientDisplayOrder =
+            {
+                "INGREDIENT_VELTRINE",
+                "INGREDIENT_ZYPHRATE",
+                "INGREDIENT_KRATYLEN",
+                "INGREDIENT_MORVION",
+                "INGREDIENT_REDULINE",
+                "INGREDIENT_CYMENTOL",
+                "INGREDIENT_BRAXIUM",
+            };
 
             [Header("Data")]
             [SerializeField] private RecipeDataLoader dataLoader;
@@ -724,7 +744,7 @@
                     classificationOptionKeys.Add(category);
                 foreach (var tag in normalTags)
                     classificationOptionKeys.Add(tag);
-                foreach (var tag in ingredientPlusTags)
+                foreach (var tag in GetOrderedIngredientPlusTags(ingredientPlusTags))
                     classificationOptionKeys.Add(tag);
                 foreach (var tag in GetOrderedSpecialTags(specialTags))
                     classificationOptionKeys.Add(tag);
@@ -802,6 +822,21 @@
                     && key.EndsWith("_PLUS", StringComparison.OrdinalIgnoreCase);
             }
 
+            private static IEnumerable<string> GetOrderedIngredientPlusTags(SortedSet<string> ingredientPlusTags)
+            {
+                for (int i = 0; i < IngredientPlusTagDisplayOrder.Length; i++)
+                {
+                    if (ingredientPlusTags.Contains(IngredientPlusTagDisplayOrder[i]))
+                        yield return IngredientPlusTagDisplayOrder[i];
+                }
+
+                foreach (var key in ingredientPlusTags)
+                {
+                    if (!IngredientPlusTagDisplayOrder.Contains(key, StringComparer.OrdinalIgnoreCase))
+                        yield return key;
+                }
+            }
+
             private static IEnumerable<string> GetOrderedSpecialTags(SortedSet<string> specialTags)
             {
                 for (int i = 0; i < SpecialTagDisplayOrder.Length; i++)
@@ -815,6 +850,42 @@
                     if (!IsSpecialTagKey(key))
                         yield return key;
                 }
+            }
+
+            private static int GetClassificationSortGroup(string key)
+            {
+                if (string.IsNullOrWhiteSpace(key))
+                    return int.MaxValue;
+                if (key.StartsWith("CATEGORY_", StringComparison.OrdinalIgnoreCase))
+                    return 0;
+                if (IsIngredientPlusTagKey(key))
+                    return 2;
+                if (IsSpecialTagKey(key))
+                    return 3;
+                return 1;
+            }
+
+            private static int GetClassificationSortOrder(string key)
+            {
+                if (string.IsNullOrWhiteSpace(key))
+                    return int.MaxValue;
+
+                if (key.StartsWith("CATEGORY_", StringComparison.OrdinalIgnoreCase))
+                    return 0;
+
+                for (int i = 0; i < IngredientPlusTagDisplayOrder.Length; i++)
+                {
+                    if (string.Equals(key, IngredientPlusTagDisplayOrder[i], StringComparison.OrdinalIgnoreCase))
+                        return i;
+                }
+
+                for (int i = 0; i < SpecialTagDisplayOrder.Length; i++)
+                {
+                    if (string.Equals(key, SpecialTagDisplayOrder[i], StringComparison.Ordinal))
+                        return i;
+                }
+
+                return int.MaxValue;
             }
 
             private void BindResetButton()
@@ -886,51 +957,18 @@
                 if (detailIngredientsText != null)
                 {
                     detailIngredientsText.richText = true;
-                    detailIngredientsText.text = BuildIngredientSummaryText(drink);
-                }
-
-                if (detailCategoryText != null)
-                    detailCategoryText.text = drink.category ?? string.Empty;
-
-                string categoryRaw = drink.category ?? string.Empty;
-                string tagsRaw = string.Empty;
-                if (drink.tags != null && drink.tags.Count > 0)
-                {
-                    var visibleTags = new List<string>();
-                    for (int i = 0; i < drink.tags.Count; i++)
-                    {
-                        var rawTag = drink.tags[i];
-                        if (string.IsNullOrWhiteSpace(rawTag))
-                            continue;
-
-                        if (string.Equals(rawTag, TagMilkKey, StringComparison.Ordinal))
-                            continue;
-
-                        visibleTags.Add(rawTag);
-                    }
-
-                    tagsRaw = string.Join(", ", visibleTags);
+                    detailIngredientsText.alignment = TextAlignmentOptions.Center;
+                    detailIngredientsText.text = BuildIngredientAndArtheonDetailText(drink);
                 }
 
                 if (detailTagsText != null)
-                {
-                    detailTagsText.text = string.IsNullOrWhiteSpace(categoryRaw)
-                        ? tagsRaw
-                        : $"{categoryRaw}\n{tagsRaw}".Trim();
-                }
+                    detailTagsText.text = BuildTagAndCategoryDetailText(drink);
 
                 if (detailArtheonText != null)
-                {
-                    detailArtheonText.gameObject.SetActive(drink.artheon_addable);
-                    if (drink.artheon_addable)
-                        detailArtheonText.text = "아르테온 추가 가능";
-                }
-                else if (detailTagsText != null && drink.artheon_addable)
-                {
-                    detailTagsText.text = string.IsNullOrWhiteSpace(detailTagsText.text)
-                        ? "아르테온 추가 가능"
-                        : detailTagsText.text + "\n아르테온 추가 가능";
-                }
+                    detailArtheonText.gameObject.SetActive(false);
+
+                if (detailCategoryText != null)
+                    detailCategoryText.gameObject.SetActive(false);
 
                 if (detailImage != null)
                 {
@@ -1009,22 +1047,94 @@
                 return imageByKey.TryGetValue(imageKey, out var sprite) ? sprite : null;
             }
 
-            private string BuildIngredientSummaryText(DrinkEntry drink)
+            private string BuildIngredientAndArtheonDetailText(DrinkEntry drink)
             {
-                if (drink == null || drink.ingredientAmounts == null || drink.ingredientAmounts.Count == 0)
+                if (drink == null)
                     return string.Empty;
 
-                var ordered = drink.ingredientAmounts.OrderByDescending(x => x.Value).ThenBy(x => x.Key, StringComparer.OrdinalIgnoreCase);
-                var parts = new List<string>();
-                foreach (var pair in ordered)
+                var lines = new List<string>();
+                foreach (var pair in GetOrderedIngredientPairs(drink))
                 {
                     string name = GetIngredientDisplayName(pair.Key);
                     string colorHex = GetIngredientColorHex(pair.Key);
                     string coloredName = RecipeIngredientTextFormatter.FormatIngredientDisplayName(name, colorHex);
-                    parts.Add($"{coloredName} x{pair.Value}");
+                    lines.Add($"{coloredName} × {pair.Value}");
                 }
 
-                return string.Join(", ", parts);
+                if (drink.artheon_addable)
+                    lines.Add("아르테온 추가 가능");
+
+                return string.Join("\n", lines);
+            }
+
+            private IEnumerable<KeyValuePair<string, int>> GetOrderedIngredientPairs(DrinkEntry drink)
+            {
+                if (drink?.ingredientAmounts == null || drink.ingredientAmounts.Count == 0)
+                    yield break;
+
+                var seen = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+                for (int i = 0; i < DetailIngredientDisplayOrder.Length; i++)
+                {
+                    var ingredientId = DetailIngredientDisplayOrder[i];
+                    if (!drink.ingredientAmounts.TryGetValue(ingredientId, out int amount) || amount <= 0)
+                        continue;
+
+                    seen.Add(ingredientId);
+                    yield return new KeyValuePair<string, int>(ingredientId, amount);
+                }
+
+                var fallback = drink.ingredientAmounts
+                    .Where(x => x.Value > 0 && !seen.Contains(x.Key))
+                    .OrderBy(x => x.Key, StringComparer.OrdinalIgnoreCase);
+                foreach (var pair in fallback)
+                    yield return pair;
+            }
+
+            private string BuildTagAndCategoryDetailText(DrinkEntry drink)
+            {
+                if (drink == null)
+                    return "Tag : ";
+
+                var keys = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+                if (!string.IsNullOrWhiteSpace(drink.category))
+                {
+                    var category = drink.category.Trim();
+                    if (!IsHiddenClassificationDisplayKey(category))
+                        keys.Add(category);
+                }
+
+                if (drink.tags != null)
+                {
+                    for (int i = 0; i < drink.tags.Count; i++)
+                    {
+                        var raw = drink.tags[i];
+                        if (string.IsNullOrWhiteSpace(raw))
+                            continue;
+
+                        var tag = raw.Trim();
+                        if (string.Equals(tag, TagMilkKey, StringComparison.Ordinal))
+                        {
+                            keys.Add(CategoryDairyKey);
+                            continue;
+                        }
+
+                        if (IsHiddenClassificationDisplayKey(tag))
+                            continue;
+
+                        keys.Add(tag);
+                    }
+                }
+
+                var ordered = keys
+                    .OrderBy(GetClassificationSortGroup)
+                    .ThenBy(GetClassificationSortOrder)
+                    .ThenBy(x => x, StringComparer.OrdinalIgnoreCase)
+                    .Select(ToClassificationDisplayName)
+                    .ToArray();
+
+                return ordered.Length == 0
+                    ? "Tag : "
+                    : $"Tag : {string.Join(", ", ordered)}";
             }
 
             private string GetIngredientDisplayName(string ingredientId)
