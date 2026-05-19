@@ -31,10 +31,20 @@
             public Sprite sprite;
         }
 
-        private const int MaxSelectedIngredients = 3;
+            private const int MaxSelectedIngredients = 3;
             private const string ArtheonIngredientId = "INGREDIENT_ARTHEON";
             private const string CategoryDairyKey = "CATEGORY_DAIRY";
+            private const string CategoryNoneKey = "CATEGORY_NONE";
             private const string TagMilkKey = "TAG_MILK";
+            private static readonly string[] SpecialTagDisplayOrder =
+            {
+                "TAG_SIMPLE",
+                "TAG_BALANCED",
+                "TAG_LIGHT",
+                "TAG_STRONG",
+                "TAG_STIMULATING",
+                "TAG_COMPLEX",
+            };
 
             [Header("Data")]
             [SerializeField] private RecipeDataLoader dataLoader;
@@ -671,7 +681,9 @@
                 classificationOptionKeys.Add(string.Empty);
 
                 var categories = new SortedSet<string>(StringComparer.OrdinalIgnoreCase);
-                var tags = new SortedSet<string>(StringComparer.OrdinalIgnoreCase);
+                var normalTags = new SortedSet<string>(StringComparer.OrdinalIgnoreCase);
+                var ingredientPlusTags = new SortedSet<string>(StringComparer.OrdinalIgnoreCase);
+                var specialTags = new SortedSet<string>(StringComparer.OrdinalIgnoreCase);
                 for (int i = 0; i < allDrinks.Count; i++)
                 {
                     var drink = allDrinks[i];
@@ -679,7 +691,11 @@
                         continue;
 
                     if (!string.IsNullOrWhiteSpace(drink.category))
-                        categories.Add(drink.category.Trim());
+                    {
+                        var category = drink.category.Trim();
+                        if (!IsHiddenClassificationKey(category))
+                            categories.Add(category);
+                    }
 
                     if (drink.tags == null)
                         continue;
@@ -690,17 +706,26 @@
                         if (!string.IsNullOrWhiteSpace(tag))
                         {
                             string normalized = tag.Trim();
-                            if (string.Equals(normalized, TagMilkKey, StringComparison.Ordinal))
+                            if (IsHiddenClassificationKey(normalized))
                                 continue;
 
-                            tags.Add(normalized);
+                            if (IsSpecialTagKey(normalized))
+                                specialTags.Add(normalized);
+                            else if (IsIngredientPlusTagKey(normalized))
+                                ingredientPlusTags.Add(normalized);
+                            else
+                                normalTags.Add(normalized);
                         }
                     }
                 }
 
                 foreach (var category in categories)
                     classificationOptionKeys.Add(category);
-                foreach (var tag in tags)
+                foreach (var tag in normalTags)
+                    classificationOptionKeys.Add(tag);
+                foreach (var tag in ingredientPlusTags)
+                    classificationOptionKeys.Add(tag);
+                foreach (var tag in GetOrderedSpecialTags(specialTags))
                     classificationOptionKeys.Add(tag);
 
                 var options = new List<TMP_Dropdown.OptionData> { new TMP_Dropdown.OptionData("전체") };
@@ -741,6 +766,53 @@
                              .Replace("TAG_", string.Empty, StringComparison.OrdinalIgnoreCase)
                              .Replace('_', ' ')
                              .Trim();
+            }
+
+            private static bool IsHiddenClassificationKey(string key)
+            {
+                if (string.IsNullOrWhiteSpace(key))
+                    return true;
+
+                return string.Equals(key, TagMilkKey, StringComparison.Ordinal)
+                    || string.Equals(key, CategoryNoneKey, StringComparison.OrdinalIgnoreCase);
+            }
+
+            private static bool IsSpecialTagKey(string key)
+            {
+                if (string.IsNullOrWhiteSpace(key))
+                    return false;
+
+                for (int i = 0; i < SpecialTagDisplayOrder.Length; i++)
+                {
+                    if (string.Equals(key, SpecialTagDisplayOrder[i], StringComparison.Ordinal))
+                        return true;
+                }
+
+                return false;
+            }
+
+            private static bool IsIngredientPlusTagKey(string key)
+            {
+                if (string.IsNullOrWhiteSpace(key))
+                    return false;
+
+                return key.StartsWith("TAG_", StringComparison.OrdinalIgnoreCase)
+                    && key.EndsWith("_PLUS", StringComparison.OrdinalIgnoreCase);
+            }
+
+            private static IEnumerable<string> GetOrderedSpecialTags(SortedSet<string> specialTags)
+            {
+                for (int i = 0; i < SpecialTagDisplayOrder.Length; i++)
+                {
+                    if (specialTags.Contains(SpecialTagDisplayOrder[i]))
+                        yield return SpecialTagDisplayOrder[i];
+                }
+
+                foreach (var key in specialTags)
+                {
+                    if (!IsSpecialTagKey(key))
+                        yield return key;
+                }
             }
 
             private void BindResetButton()
