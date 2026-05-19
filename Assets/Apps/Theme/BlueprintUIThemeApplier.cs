@@ -32,6 +32,14 @@ public class BlueprintUIThemeApplier : AppUIThemeApplierBase
     [SerializeField] private Image extraImage12;
     [SerializeField] private Image extraImage13;
     [SerializeField] private Image extraImage14;
+    [SerializeField] private Image extraImage15;
+    [SerializeField] private Image extraImage16;
+    [SerializeField] private Image extraImage17;
+    [SerializeField] private Image extraImage18;
+    [SerializeField] private Image extraImage19;
+    [SerializeField] private Image extraImage20;
+    [SerializeField] private Image extraImage21;
+    [SerializeField] private Image extraImage22;
 
     [Header("BluePrint / Recipe - Panels")]
     [SerializeField] private Image mainPanelBackground;
@@ -110,6 +118,16 @@ public class BlueprintUIThemeApplier : AppUIThemeApplierBase
         ApplyImageSprite(extraImage12, t.extraSprite12);
         ApplyImageSprite(extraImage13, t.extraSprite13);
         ApplyImageSprite(extraImage14, t.extraSprite14);
+        ApplyImageSprite(extraImage15, t.extraSprite15);
+        ApplyImageSprite(extraImage16, t.extraSprite16);
+        ApplyImageSprite(extraImage17, t.extraSprite17);
+        ApplyImageSprite(extraImage18, t.extraSprite18);
+        ApplyImageSprite(extraImage19, t.extraSprite19);
+        ApplyImageSprite(extraImage20, t.extraSprite20);
+        ApplyImageSprite(extraImage21, t.extraSprite21);
+        ApplyImageSprite(extraImage22, t.extraSprite22);
+
+
 
         ApplyImageSprite(mainPanelBackground, t.mainPanelBackgroundSprite);
         ApplyImageSprite(detailPanelBackground, t.detailPanelBackgroundSprite);

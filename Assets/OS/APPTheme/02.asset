@@ -30,11 +30,19 @@ MonoBehaviour:
     extraSprite7: {fileID: 21300000, guid: 81a6f5783f839e34d9daa6421ef9cff9, type: 3}
     extraSprite8: {fileID: 21300000, guid: 7353afce39934194d949fb86bf886b6b, type: 3}
     extraSprite9: {fileID: 21300000, guid: b9b5d3ed4ec28e54883fbb010f0ebbde, type: 3}
-    extraSprite10: {fileID: 0}
-    extraSprite11: {fileID: 0}
-    extraSprite12: {fileID: 0}
-    extraSprite13: {fileID: 0}
-    extraSprite14: {fileID: 0}
+    extraSprite10: {fileID: 21300000, guid: b9b5d3ed4ec28e54883fbb010f0ebbde, type: 3}
+    extraSprite11: {fileID: 21300000, guid: 3af39947dcfc00848873df88d2364aaa, type: 3}
+    extraSprite12: {fileID: 21300000, guid: 80eaac1ceabe77e4ca933df1bebfab8f, type: 3}
+    extraSprite13: {fileID: 21300000, guid: b9b5d3ed4ec28e54883fbb010f0ebbde, type: 3}
+    extraSprite14: {fileID: 21300000, guid: 2d256b5bf0913aa47bf94de9e0712648, type: 3}
+    extraSprite15: {fileID: 21300000, guid: 3af39947dcfc00848873df88d2364aaa, type: 3}
+    extraSprite16: {fileID: 21300000, guid: f8ccbf6859f6d8542b75bc020192fb72, type: 3}
+    extraSprite17: {fileID: 0}
+    extraSprite18: {fileID: 0}
+    extraSprite19: {fileID: 0}
+    extraSprite20: {fileID: 0}
+    extraSprite21: {fileID: 0}
+    extraSprite22: {fileID: 0}
     scrollViewBackgroundSprite: {fileID: 21300000, guid: 95d8ba1913ab76c4e90203b34f853cc9, type: 3}
     scrollUpButtonSprite: {fileID: 21300000, guid: 81a6f5783f839e34d9daa6421ef9cff9, type: 3}
     scrollDownButtonSprite: {fileID: 21300000, guid: 7353afce39934194d949fb86bf886b6b, type: 3}

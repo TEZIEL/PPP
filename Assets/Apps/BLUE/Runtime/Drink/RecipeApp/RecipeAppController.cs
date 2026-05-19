@@ -35,6 +35,7 @@
             private const string ArtheonIngredientId = "INGREDIENT_ARTHEON";
             private const string CategoryDairyKey = "CATEGORY_DAIRY";
             private const string CategoryNoneKey = "CATEGORY_NONE";
+            private const string TagVeltrineNoneKey = "TAG_VELTRINE_NONE"; 
             private const string TagMilkKey = "TAG_MILK";
             private static readonly string[] SpecialTagDisplayOrder =
             {
