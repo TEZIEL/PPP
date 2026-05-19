@@ -490,7 +490,7 @@ MonoBehaviour:
   actionButton: {fileID: 0}
   themeApplier: {fileID: 4401322474131405646}
   backgroundImage: {fileID: 6786571200214020538}
-  defaultBackgroundColor: {r: 0.78431374, g: 0.78431374, b: 0.78431374, a: 1}
+  defaultBackgroundColor: {r: 0.5471698, g: 0.35101458, b: 0.35101458, a: 1}
   hoverBackgroundColor: {r: 0.2, g: 0.2, b: 0.2, a: 1}
   selectedBackgroundColor: {r: 0.2, g: 0.2, b: 0.2, a: 1}
   defaultTextColor: {r: 0, g: 0, b: 0, a: 1}
@@ -572,7 +572,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_Material: {fileID: 0}
-  m_Color: {r: 0.78431374, g: 0.78431374, b: 0.78431374, a: 1}
+  m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_RaycastTarget: 1
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
