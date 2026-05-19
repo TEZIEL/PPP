@@ -14,20 +14,12 @@ namespace PPP.BLUE.VN.RecipeApp
         [SerializeField] private Button actionButton;
         [SerializeField] private DrinkListItemUI drinkListItemUI;
 
-
-
         [Header("Text Refs (Optional)")]
         [SerializeField] private TMP_Text titleText;
         [SerializeField] private TMP_Text bodyText;
         [SerializeField] private TMP_Text metaText;
         [SerializeField] private TMP_Text metaText2;
 
-        [Header("Drink List Item State Colors")]
-        [SerializeField] private Color defaultBackgroundColor = new Color32(221, 234, 232, 255);
-        [SerializeField] private Color hoverBackgroundColor = new Color32(112, 140, 158, 255);
-        [SerializeField] private Color selectedBackgroundColor = new Color32(81, 108, 132, 255);
-        [SerializeField] private Color defaultTextColor = Color.black;
-        [SerializeField] private Color activeTextColor = Color.white;
         private bool missingDrinkListItemUiWarningLogged;
 
         private void OnEnable()
@@ -112,11 +104,11 @@ namespace PPP.BLUE.VN.RecipeApp
             }
 
             drinkListItemUI.ApplyThemeColors(
-                defaultBackgroundColor,
-                hoverBackgroundColor,
-                selectedBackgroundColor,
-                defaultTextColor,
-                activeTextColor);
+                t.drinkListItemDefaultBackgroundColor,
+                t.drinkListItemHoverBackgroundColor,
+                t.drinkListItemSelectedBackgroundColor,
+                t.drinkListItemDefaultTextColor,
+                t.drinkListItemActiveTextColor);
         }
     }
 }

@@ -73,6 +73,12 @@ public class AppUIThemeData : ScriptableObject
         public Color bodyTextColor;
         public Color metaTextColor;
 
+        [Header("Drink List Item State Colors")]
+        public Color drinkListItemDefaultBackgroundColor;
+        public Color drinkListItemHoverBackgroundColor;
+        public Color drinkListItemSelectedBackgroundColor;
+        public Color drinkListItemDefaultTextColor;
+        public Color drinkListItemActiveTextColor;
     }
 
     [System.Serializable]
