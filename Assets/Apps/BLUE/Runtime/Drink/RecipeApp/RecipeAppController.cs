@@ -795,8 +795,27 @@
                     return true;
 
                 return string.Equals(key, TagMilkKey, StringComparison.Ordinal)
-                    || string.Equals(key, CategoryNoneKey, StringComparison.OrdinalIgnoreCase)
-                    || string.Equals(key, TagVeltrineNoneKey, StringComparison.OrdinalIgnoreCase);
+                    || string.Equals(key, CategoryNoneKey, StringComparison.OrdinalIgnoreCase);
+            }
+
+            private static bool IsHiddenClassificationDisplayKey(string rawKey)
+            {
+                if (string.IsNullOrWhiteSpace(rawKey))
+                    return true;
+
+                string key = rawKey.Trim();
+
+                if (string.Equals(key, CategoryNoneKey, StringComparison.OrdinalIgnoreCase))
+                    return true;
+
+                if (string.Equals(key, TagMilkKey, StringComparison.OrdinalIgnoreCase))
+                    return true;
+
+                if (key.StartsWith("TAG_", StringComparison.OrdinalIgnoreCase)
+                    && key.EndsWith("_NONE", StringComparison.OrdinalIgnoreCase))
+                    return true;
+
+                return false;
             }
 
             private static bool IsSpecialTagKey(string key)
