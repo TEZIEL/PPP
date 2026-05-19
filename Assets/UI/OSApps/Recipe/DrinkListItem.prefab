@@ -377,7 +377,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 1, y: 0}
-  m_AnchoredPosition: {x: 0, y: 0}
+  m_AnchoredPosition: {x: 0, y: -6}
   m_SizeDelta: {x: -40, y: 4}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &5645705996634942363
@@ -548,11 +548,6 @@ MonoBehaviour:
   bodyText: {fileID: 2499176725191051624}
   metaText: {fileID: 8275678260682168253}
   metaText2: {fileID: 8404448552645226050}
-  defaultBackgroundColor: {r: 0.78431374, g: 0.78431374, b: 0.78431374, a: 1}
-  hoverBackgroundColor: {r: 0.2, g: 0.2, b: 0.2, a: 1}
-  selectedBackgroundColor: {r: 0.2, g: 0.2, b: 0.2, a: 1}
-  defaultTextColor: {r: 0, g: 0, b: 0, a: 1}
-  activeTextColor: {r: 1, g: 1, b: 1, a: 1}
 --- !u!222 &6686008727516436898
 CanvasRenderer:
   m_ObjectHideFlags: 0
