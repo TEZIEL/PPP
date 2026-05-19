@@ -35,6 +35,7 @@
             private const string ArtheonIngredientId = "INGREDIENT_ARTHEON";
             private const string CategoryDairyKey = "CATEGORY_DAIRY";
             private const string CategoryNoneKey = "CATEGORY_NONE";
+            private const string TagVeltrineNoneKey = "TAG_VELTRINE_NONE"; 
             private const string TagMilkKey = "TAG_MILK";
             private static readonly string[] SpecialTagDisplayOrder =
             {
@@ -794,15 +795,8 @@
                     return true;
 
                 return string.Equals(key, TagMilkKey, StringComparison.Ordinal)
-                    || string.Equals(key, CategoryNoneKey, StringComparison.OrdinalIgnoreCase);
-            }
-
-            private static bool IsHiddenClassificationDisplayKey(string key)
-            {
-                if (IsHiddenClassificationKey(key))
-                    return true;
-
-                return key.EndsWith("_NONE", StringComparison.OrdinalIgnoreCase);
+                    || string.Equals(key, CategoryNoneKey, StringComparison.OrdinalIgnoreCase)
+                    || string.Equals(key, TagVeltrineNoneKey, StringComparison.OrdinalIgnoreCase);
             }
 
             private static bool IsSpecialTagKey(string key)
