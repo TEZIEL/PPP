@@ -372,6 +372,7 @@ namespace PPP.BLUE.VN.RecipeApp
             AddDefault("TAG_YOGURT", "요거트");
             AddDefault("TAG_COLA", "콜라");
             AddDefault("TAG_ENERGY_DRINK", "에너지드링크");
+            AddDefault("TAG_MILK", "우유");
 
             AddDefault("INGREDIENT_VELTRINE", "벨트린");
             AddDefault("INGREDIENT_ZYPHRATE", "자이프레이트");

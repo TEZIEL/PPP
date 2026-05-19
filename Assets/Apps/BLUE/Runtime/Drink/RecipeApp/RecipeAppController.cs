@@ -665,13 +665,16 @@
                     go.transform.SetAsLastSibling();
             }
 
+
+
             private void InitializeClassificationDropdown()
+
             {
                 if (classificationDropdown == null)
                 {
                     classificationDropdown = GetComponentsInChildren<TMP_Dropdown>(true)
                         .FirstOrDefault(d => d != null && d.name.IndexOf("AmbientDropdownList", StringComparison.OrdinalIgnoreCase) >= 0);
-                }
+                }   
 
                 if (classificationDropdown == null)
                 {
@@ -751,6 +754,7 @@
                 selectedClassificationKey = string.Empty;
                 classificationDropdown.onValueChanged.AddListener(OnClassificationDropdownChanged);
             }
+        
 
             private static bool IsHiddenClassificationKey(string rawKey)
             {
