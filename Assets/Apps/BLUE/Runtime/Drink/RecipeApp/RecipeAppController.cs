@@ -668,6 +668,19 @@
                     Debug.LogWarning("[RecipeApp] classificationDropdown is not assigned.");
                     selectedClassificationKey = string.Empty;
                     return;
+
+                var go = detailModalBlockerImage.gameObject;
+                go.SetActive(visible);
+                if (visible)
+                    go.transform.SetAsLastSibling();
+            }
+
+            private void InitializeClassificationDropdown()
+            {
+                if (classificationDropdown == null)
+                {
+                    classificationDropdown = GetComponentsInChildren<TMP_Dropdown>(true)
+                        .FirstOrDefault(d => d != null && d.name.IndexOf("AmbientDropdownList", StringComparison.OrdinalIgnoreCase) >= 0);
                 }
 
                 classificationOptionKeys.Clear();
