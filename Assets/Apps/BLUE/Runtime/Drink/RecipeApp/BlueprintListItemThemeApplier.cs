@@ -16,9 +16,9 @@ namespace PPP.BLUE.VN.RecipeApp
 
 
         [Header("Text Refs (Optional)")]
-        [SerializeField] private TMP_Text titleText;
-        [SerializeField] private TMP_Text bodyText;
-        [SerializeField] private TMP_Text metaText;
+        [SerializeField] private Image titleText;
+        [SerializeField] private Image bodyText;
+        [SerializeField] private Image metaText;
 
         private void OnEnable()
         {

@@ -543,9 +543,9 @@ MonoBehaviour:
   iconFrame2: {fileID: 3830655986552342858}
   iconFrame3: {fileID: 6265462439603237144}
   actionButton: {fileID: 0}
-  titleText: {fileID: 2918304187297611632}
-  bodyText: {fileID: 2499176725191051624}
-  metaText: {fileID: 8275678260682168253}
+  titleText: {fileID: 6786571200214020538}
+  bodyText: {fileID: 6786571200214020538}
+  metaText: {fileID: 6786571200214020538}
   metaText2: {fileID: 8404448552645226050}
 --- !u!222 &6686008727516436898
 CanvasRenderer:
