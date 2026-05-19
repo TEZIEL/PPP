@@ -33,6 +33,18 @@
 
         private const int MaxSelectedIngredients = 3;
             private const string ArtheonIngredientId = "INGREDIENT_ARTHEON";
+            private const string CategoryDairyKey = "CATEGORY_DAIRY";
+            private const string CategoryNoneKey = "CATEGORY_NONE";
+            private const string TagMilkKey = "TAG_MILK";
+            private static readonly string[] SpecialTagOrder =
+            {
+                "TAG_SIMPLE",
+                "TAG_BALANCED",
+                "TAG_LIGHT",
+                "TAG_STRONG",
+                "TAG_STIMULATING",
+                "TAG_COMPLEX"
+            };
 
             [Header("Data")]
             [SerializeField] private RecipeDataLoader dataLoader;
@@ -52,6 +64,8 @@
             [SerializeField] private Button scrollUpButton;
             [SerializeField] private Button scrollDownButton;
             [SerializeField, Range(0.01f, 1f)] private float buttonScrollStep = 0.2f;
+            [SerializeField] private TMP_Dropdown classificationDropdown;
+            [SerializeField] private Button resetButton;
 
 
             [Header("Detail Panel")]
@@ -61,6 +75,10 @@
             [SerializeField] private TMP_Text detailIngredientsText;
             [SerializeField] private TMP_Text detailTagsText;
             [SerializeField] private TMP_Text detailDescriptionText;
+            [SerializeField] private TMP_Text detailCategoryText;
+            [SerializeField] private TMP_Text detailArtheonText;
+            [SerializeField] private Image detailModalBlockerImage;
+            [SerializeField] private Button detailCloseButton;
 
 
             [Header("Default Sprite Mapping")]
@@ -91,6 +109,9 @@
             private List<IngredientEntry> allIngredients = new List<IngredientEntry>();
             private List<DrinkEntry> allDrinks = new List<DrinkEntry>();
             private DrinkEntry openedDetailDrink;
+            private string selectedDrinkId;
+            private string selectedClassificationKey;
+            private readonly List<string> classificationOptionKeys = new List<string>();
             private readonly Dictionary<string, Sprite> defaultSpriteByKey
             = new Dictionary<string, Sprite>(StringComparer.OrdinalIgnoreCase);
 
@@ -104,7 +125,10 @@
                 BuildDefaultSpriteMap();    
                 LoadData();
                 BuildIngredientButtons();
+                InitializeClassificationDropdown();
+                BindResetButton();
                 ApplyFilterAndRebuildList();
+                InitializeDetailModal();
                 ShowDetail(null);
             }
 
@@ -114,6 +138,8 @@
                     instance = null;
 
                 UnbindScrollButtons();
+                UnbindResetButton();
+                UnbindClassificationDropdown();
             }
 
             private void InitializeUnlockState()
@@ -337,6 +363,7 @@
 
                 SyncIngredientButtonSelectionState();
                 UpdateIngredientButtonInteractableState();
+                CloseDetailModal();
                 ApplyFilterAndRebuildList();
             }
 
@@ -372,7 +399,7 @@
             {
                 ClearCreatedListItems();
 
-                List<DrinkEntry> filtered = FilterDrinksBySelectedIngredients();
+                List<DrinkEntry> filtered = FilterDrinksByCurrentFilters();
 
                 if (drinkListContent != null && drinkListItemPrefab != null)
                 {
@@ -389,6 +416,7 @@
 
                         item.Setup(drink, sprite, ingredientDisplayNameById, OnDrinkClicked);
                         drinkItems.Add(item);
+                        item.SetSelected(!string.IsNullOrWhiteSpace(selectedDrinkId) && string.Equals(selectedDrinkId, drink.id, StringComparison.OrdinalIgnoreCase));
                     }
                 }
 
@@ -405,7 +433,12 @@
 
                 // 현재 열린 상세가 필터 결과에 없으면 상세를 닫는다.
                 if (openedDetailDrink != null && !filtered.Contains(openedDetailDrink))
-                    ShowDetail(null);
+                    CloseDetailModal();
+
+                if (!string.IsNullOrWhiteSpace(selectedDrinkId) && !filtered.Any(x => x != null && string.Equals(x.id, selectedDrinkId, StringComparison.OrdinalIgnoreCase)))
+                    selectedDrinkId = null;
+
+                SyncDrinkItemSelectedState();
             }
 
             private void BindScrollButtons()
@@ -448,11 +481,8 @@
                 drinkListScrollRect.verticalNormalizedPosition = Mathf.Clamp01(next);
             }
 
-            private List<DrinkEntry> FilterDrinksBySelectedIngredients()
+            private List<DrinkEntry> FilterDrinksByCurrentFilters()
             {
-                if (selectedIngredientIds.Count == 0)
-                    return allDrinks.ToList();
-
                 var result = new List<DrinkEntry>();
 
                 foreach (var drink in allDrinks)
@@ -483,11 +513,51 @@
                         }
                     }
 
-                    if (matchAll)
-                        result.Add(drink);
+                    if (!matchAll)
+                        continue;
+
+                    if (!PassesClassificationFilter(drink))
+                        continue;
+
+                    result.Add(drink);
                 }
 
                 return result;
+            }
+
+            private bool PassesClassificationFilter(DrinkEntry drink)
+            {
+                if (drink == null)
+                    return false;
+
+                if (string.IsNullOrWhiteSpace(selectedClassificationKey))
+                    return true;
+
+                if (string.Equals(drink.category, selectedClassificationKey, StringComparison.OrdinalIgnoreCase))
+                    return true;
+
+                if (string.Equals(selectedClassificationKey, CategoryDairyKey, StringComparison.Ordinal))
+                {
+                    if (drink.tags != null)
+                    {
+                        for (int i = 0; i < drink.tags.Count; i++)
+                        {
+                            if (string.Equals(drink.tags[i], TagMilkKey, StringComparison.Ordinal))
+                                return true;
+                        }
+                    }
+                }
+
+                if (drink.tags == null)
+                    return false;
+
+                for (int i = 0; i < drink.tags.Count; i++)
+                {
+                    if (string.Equals(drink.tags[i], selectedClassificationKey, StringComparison.OrdinalIgnoreCase))
+                        return true;
+                }
+
+                return false;
             }
 
             private void OnDrinkClicked(DrinkEntry clicked)
@@ -495,23 +565,309 @@
                 if (clicked == null)
                     return;
 
-                // 같은 아이템 재클릭 시 토글 닫기
-                if (openedDetailDrink != null && string.Equals(openedDetailDrink.id, clicked.id, StringComparison.OrdinalIgnoreCase))
+                ShowDetail(clicked);
+            }
+
+
+            private void InitializeDetailModal()
+            {
+                if (detailModalBlockerImage == null)
+                    detailModalBlockerImage = EnsureModalBlocker();
+
+                if (detailCloseButton == null && detailRoot != null)
+                    detailCloseButton = detailRoot.GetComponentInChildren<Button>(true);
+
+                if (detailCloseButton == null && detailRoot != null)
+                    detailCloseButton = CreateRuntimeCloseButton(detailRoot.transform);
+
+                if (detailCloseButton != null)
                 {
-                    ShowDetail(null);
+                    detailCloseButton.onClick.RemoveListener(CloseDetailModal);
+                    detailCloseButton.onClick.AddListener(CloseDetailModal);
+                }
+
+                SetModalBlockerVisible(false);
+            }
+
+            private Button CreateRuntimeCloseButton(Transform parent)
+            {
+                var go = new GameObject("DetailCloseButton", typeof(RectTransform), typeof(Image), typeof(Button));
+                go.transform.SetParent(parent, false);
+                var rect = go.GetComponent<RectTransform>();
+                rect.anchorMin = new Vector2(1f, 1f);
+                rect.anchorMax = new Vector2(1f, 1f);
+                rect.pivot = new Vector2(1f, 1f);
+                rect.anchoredPosition = new Vector2(-12f, -12f);
+                rect.sizeDelta = new Vector2(84f, 34f);
+
+                var image = go.GetComponent<Image>();
+                image.color = new Color(1f, 1f, 1f, 0.9f);
+
+                var label = new GameObject("Label", typeof(RectTransform), typeof(TMP_Text));
+                label.transform.SetParent(go.transform, false);
+                var labelRect = label.GetComponent<RectTransform>();
+                labelRect.anchorMin = Vector2.zero;
+                labelRect.anchorMax = Vector2.one;
+                labelRect.offsetMin = Vector2.zero;
+                labelRect.offsetMax = Vector2.zero;
+                var text = label.GetComponent<TMP_Text>();
+                text.text = "Close";
+                text.alignment = TextAlignmentOptions.Center;
+                text.fontSize = 18;
+                text.color = Color.black;
+
+                return go.GetComponent<Button>();
+            }
+
+            public void CloseDetailModal()
+            {
+                openedDetailDrink = null;
+                if (detailRoot != null)
+                    detailRoot.SetActive(false);
+                SetModalBlockerVisible(false);
+                selectedDrinkId = null;
+                SyncDrinkItemSelectedState();
+            }
+
+
+            private Image EnsureModalBlocker()
+            {
+                if (detailRoot == null)
+                    return null;
+
+                var rootRect = GetComponent<RectTransform>();
+                if (rootRect == null)
+                    return null;
+
+                var blockerGo = new GameObject("DetailModalBlocker", typeof(RectTransform), typeof(CanvasRenderer), typeof(Image));
+                blockerGo.transform.SetParent(transform, false);
+                var rect = blockerGo.GetComponent<RectTransform>();
+                rect.anchorMin = Vector2.zero;
+                rect.anchorMax = Vector2.one;
+                rect.offsetMin = Vector2.zero;
+                rect.offsetMax = Vector2.zero;
+
+                var image = blockerGo.GetComponent<Image>();
+                image.color = new Color(0f, 0f, 0f, 0.08f);
+                image.raycastTarget = true;
+                blockerGo.SetActive(false);
+                return image;
+            }
+
+            private void SetModalBlockerVisible(bool visible)
+            {
+                if (detailModalBlockerImage == null)
+                    return;
+
+                var go = detailModalBlockerImage.gameObject;
+                go.SetActive(visible);
+                if (visible)
+                    go.transform.SetAsLastSibling();
+            }
+
+            private void InitializeClassificationDropdown()
+            {
+                if (classificationDropdown == null)
+                {
+                    classificationDropdown = GetComponentsInChildren<TMP_Dropdown>(true)
+                        .FirstOrDefault(d => d != null && d.name.IndexOf("AmbientDropdownList", StringComparison.OrdinalIgnoreCase) >= 0);
+                }
+
+                if (classificationDropdown == null)
+                {
+                    Debug.LogWarning("[RecipeApp] classificationDropdown is not assigned.");
+                    selectedClassificationKey = string.Empty;
                     return;
                 }
 
-                ShowDetail(clicked);
+                classificationOptionKeys.Clear();
+                classificationOptionKeys.Add(string.Empty);
+
+                var categories = new SortedSet<string>(StringComparer.OrdinalIgnoreCase);
+                var normalTags = new SortedSet<string>(StringComparer.OrdinalIgnoreCase);
+                var ingredientPlusTags = new SortedSet<string>(StringComparer.OrdinalIgnoreCase);
+                var specialTags = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+                for (int i = 0; i < allDrinks.Count; i++)
+                {
+                    var drink = allDrinks[i];
+                    if (drink == null)
+                        continue;
+
+                    if (!string.IsNullOrWhiteSpace(drink.category))
+                    {
+                        string category = drink.category.Trim();
+                        if (!IsHiddenClassificationKey(category))
+                            categories.Add(category);
+                    }
+
+                    if (drink.tags == null)
+                        continue;
+
+                    for (int t = 0; t < drink.tags.Count; t++)
+                    {
+                        var tag = drink.tags[t];
+                        if (!string.IsNullOrWhiteSpace(tag))
+                        {
+                            string normalized = tag.Trim();
+                            if (IsHiddenClassificationKey(normalized))
+                                continue;
+
+                            if (IsSpecialTagKey(normalized))
+                            {
+                                specialTags.Add(normalized);
+                                continue;
+                            }
+
+                            if (IsIngredientPlusTagKey(normalized))
+                            {
+                                ingredientPlusTags.Add(normalized);
+                                continue;
+                            }
+
+                            normalTags.Add(normalized);
+                        }
+                    }
+                }
+
+                foreach (var category in categories)
+                    classificationOptionKeys.Add(category);
+                foreach (var tag in normalTags)
+                    classificationOptionKeys.Add(tag);
+                foreach (var tag in ingredientPlusTags)
+                    classificationOptionKeys.Add(tag);
+                for (int i = 0; i < SpecialTagOrder.Length; i++)
+                {
+                    if (specialTags.Contains(SpecialTagOrder[i]))
+                        classificationOptionKeys.Add(SpecialTagOrder[i]);
+                }
+
+                var options = new List<TMP_Dropdown.OptionData> { new TMP_Dropdown.OptionData("전체") };
+                for (int i = 1; i < classificationOptionKeys.Count; i++)
+                    options.Add(new TMP_Dropdown.OptionData(ToClassificationDisplayName(classificationOptionKeys[i])));
+
+                classificationDropdown.ClearOptions();
+                classificationDropdown.AddOptions(options);
+                classificationDropdown.SetValueWithoutNotify(0);
+                selectedClassificationKey = string.Empty;
+                classificationDropdown.onValueChanged.AddListener(OnClassificationDropdownChanged);
+            }
+
+            private static bool IsHiddenClassificationKey(string rawKey)
+            {
+                if (string.IsNullOrWhiteSpace(rawKey))
+                    return true;
+
+                return string.Equals(rawKey, TagMilkKey, StringComparison.Ordinal)
+                       || string.Equals(rawKey, CategoryNoneKey, StringComparison.Ordinal);
+            }
+
+            private static bool IsSpecialTagKey(string rawKey)
+            {
+                if (string.IsNullOrWhiteSpace(rawKey))
+                    return false;
+
+                for (int i = 0; i < SpecialTagOrder.Length; i++)
+                {
+                    if (string.Equals(rawKey, SpecialTagOrder[i], StringComparison.Ordinal))
+                        return true;
+                }
+
+                return false;
+            }
+
+            private static bool IsIngredientPlusTagKey(string rawKey)
+            {
+                if (string.IsNullOrWhiteSpace(rawKey))
+                    return false;
+
+                return rawKey.StartsWith("TAG_", StringComparison.Ordinal)
+                       && rawKey.EndsWith("_PLUS", StringComparison.Ordinal);
+            }
+
+            private void UnbindClassificationDropdown()
+            {
+                if (classificationDropdown != null)
+                    classificationDropdown.onValueChanged.RemoveListener(OnClassificationDropdownChanged);
+            }
+
+            private void OnClassificationDropdownChanged(int index)
+            {
+                if (classificationOptionKeys.Count == 0)
+                    return;
+
+                int clamped = Mathf.Clamp(index, 0, classificationOptionKeys.Count - 1);
+                selectedClassificationKey = classificationOptionKeys[clamped];
+                CloseDetailModal();
+                ApplyFilterAndRebuildList();
+            }
+
+            private static string ToClassificationDisplayName(string rawKey)
+            {
+                if (string.IsNullOrWhiteSpace(rawKey))
+                    return "전체";
+
+                return rawKey.Replace("CATEGORY_", string.Empty, StringComparison.OrdinalIgnoreCase)
+                             .Replace("TAG_", string.Empty, StringComparison.OrdinalIgnoreCase)
+                             .Replace('_', ' ')
+                             .Trim();
+            }
+
+            private void BindResetButton()
+            {
+                if (resetButton == null)
+                {
+                    resetButton = GetComponentsInChildren<Button>(true)
+                        .FirstOrDefault(b => b != null && b.name.IndexOf("RecipeReset", StringComparison.OrdinalIgnoreCase) >= 0);
+                }
+
+                if (resetButton == null)
+                {
+                    Debug.LogWarning("[RecipeApp] resetButton is not assigned.");
+                    return;
+                }
+
+                resetButton.onClick.AddListener(HandleResetFilters);
+            }
+
+            private void UnbindResetButton()
+            {
+                if (resetButton != null)
+                    resetButton.onClick.RemoveListener(HandleResetFilters);
+            }
+
+            private void HandleResetFilters()
+            {
+                selectedIngredientIds.Clear();
+                selectedClassificationKey = string.Empty;
+                selectedDrinkId = null;
+
+                if (classificationDropdown != null)
+                    classificationDropdown.SetValueWithoutNotify(0);
+
+                SyncIngredientButtonSelectionState();
+                UpdateIngredientButtonInteractableState();
+                CloseDetailModal();
+                ApplyFilterAndRebuildList();
             }
 
             private void ShowDetail(DrinkEntry drink)
             {
                 openedDetailDrink = drink;
+                selectedDrinkId = drink?.id;
+                SyncDrinkItemSelectedState();
 
                 bool show = drink != null;
                 if (detailRoot != null)
+                {
                     detailRoot.SetActive(show);
+                    if (show)
+                        detailRoot.transform.SetAsLastSibling();
+                }
+
+                SetModalBlockerVisible(show);
+
+                if (detailRoot != null && show)
+                    detailRoot.transform.SetAsLastSibling();
 
                 if (!show)
                     return;
@@ -528,8 +884,48 @@
                     detailIngredientsText.text = BuildIngredientSummaryText(drink);
                 }
 
+                if (detailCategoryText != null)
+                    detailCategoryText.text = drink.category ?? string.Empty;
+
+                string categoryRaw = drink.category ?? string.Empty;
+                string tagsRaw = string.Empty;
+                if (drink.tags != null && drink.tags.Count > 0)
+                {
+                    var visibleTags = new List<string>();
+                    for (int i = 0; i < drink.tags.Count; i++)
+                    {
+                        var rawTag = drink.tags[i];
+                        if (string.IsNullOrWhiteSpace(rawTag))
+                            continue;
+
+                        if (string.Equals(rawTag, TagMilkKey, StringComparison.Ordinal))
+                            continue;
+
+                        visibleTags.Add(rawTag);
+                    }
+
+                    tagsRaw = string.Join(", ", visibleTags);
+                }
+
                 if (detailTagsText != null)
-                    detailTagsText.text = drink.tags != null ? string.Join(", ", drink.tags) : string.Empty;
+                {
+                    detailTagsText.text = string.IsNullOrWhiteSpace(categoryRaw)
+                        ? tagsRaw
+                        : $"{categoryRaw}\n{tagsRaw}".Trim();
+                }
+
+                if (detailArtheonText != null)
+                {
+                    detailArtheonText.gameObject.SetActive(drink.artheon_addable);
+                    if (drink.artheon_addable)
+                        detailArtheonText.text = "아르테온 추가 가능";
+                }
+                else if (detailTagsText != null && drink.artheon_addable)
+                {
+                    detailTagsText.text = string.IsNullOrWhiteSpace(detailTagsText.text)
+                        ? "아르테온 추가 가능"
+                        : detailTagsText.text + "\n아르테온 추가 가능";
+                }
 
                 if (detailImage != null)
                 {
@@ -577,11 +973,27 @@
                         ? FindDrinkSprite(drink?.imageKey)
                         : GetDefaultSprite(drink?.imageKey);
                     item.Setup(drink, sprite, ingredientDisplayNameById, OnDrinkClicked);
+                    item.SetSelected(!string.IsNullOrWhiteSpace(selectedDrinkId) && string.Equals(selectedDrinkId, item.DrinkId, StringComparison.OrdinalIgnoreCase));
                     Debug.Log($"[RECIPE_APP] ApplyImage drinkId={item.DrinkId} served={unlocked}");
                 }
 
                 if (openedDetailDrink != null)
                     ShowDetail(openedDetailDrink);
+            }
+
+
+            private void SyncDrinkItemSelectedState()
+            {
+                for (int i = 0; i < drinkItems.Count; i++)
+                {
+                    var item = drinkItems[i];
+                    if (item == null)
+                        continue;
+
+                    bool selected = !string.IsNullOrWhiteSpace(selectedDrinkId)
+                        && string.Equals(item.DrinkId, selectedDrinkId, StringComparison.OrdinalIgnoreCase);
+                    item.SetSelected(selected);
+                }
             }
 
             private Sprite FindDrinkSprite(string imageKey)
