@@ -12,11 +12,21 @@ namespace PPP.BLUE.VN.RecipeApp
         [SerializeField] private Image iconFrame2;
         [SerializeField] private Image iconFrame3;
         [SerializeField] private Button actionButton;
+        [SerializeField] private DrinkListItemUI drinkListItemUI;
 
         [Header("Text Refs (Optional)")]
         [SerializeField] private TMP_Text titleText;
         [SerializeField] private TMP_Text bodyText;
         [SerializeField] private TMP_Text metaText;
+        [SerializeField] private TMP_Text metaText2;
+
+        [Header("Drink List Item State Colors")]
+        [SerializeField] private Color defaultBackgroundColor = new Color32(221, 234, 232, 255);
+        [SerializeField] private Color hoverBackgroundColor = new Color32(112, 140, 158, 255);
+        [SerializeField] private Color selectedBackgroundColor = new Color32(81, 108, 132, 255);
+        [SerializeField] private Color defaultTextColor = Color.black;
+        [SerializeField] private Color activeTextColor = Color.white;
+        private bool missingDrinkListItemUiWarningLogged;
 
         private void OnEnable()
         {
@@ -38,8 +48,6 @@ namespace PPP.BLUE.VN.RecipeApp
         {
             ApplyCurrentTheme();
         }
-        [SerializeField] private TMP_Text metaText2;
-
         public void ApplyCurrentTheme()
         {
             var manager = AppUIThemeManager.Instance;
@@ -82,6 +90,31 @@ namespace PPP.BLUE.VN.RecipeApp
 
             if (metaText2 != null)
                 metaText2.color = t.metaTextColor;
+
+            ApplyDrinkListItemThemeColors(t);
+        }
+
+        private void ApplyDrinkListItemThemeColors(AppUIThemeData.BlueprintListItemTheme t)
+        {
+            if (drinkListItemUI == null)
+                drinkListItemUI = GetComponent<DrinkListItemUI>();
+
+            if (drinkListItemUI == null)
+            {
+                if (!missingDrinkListItemUiWarningLogged)
+                {
+                    Debug.LogWarning($"[BlueprintListItemThemeApplier] DrinkListItemUI reference is missing on {name}. Theme state colors will not be forwarded.");
+                    missingDrinkListItemUiWarningLogged = true;
+                }
+                return;
+            }
+
+            drinkListItemUI.ApplyThemeColors(
+                defaultBackgroundColor,
+                hoverBackgroundColor,
+                selectedBackgroundColor,
+                defaultTextColor,
+                activeTextColor);
         }
     }
 }
