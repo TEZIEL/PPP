@@ -33,6 +33,7 @@ namespace PPP.BLUE.VN.RecipeApp
         [SerializeField] private Image backgroundImage;
 
         [Header("Visual State Colors")]
+        [Tooltip("BlueprintListItemThemeApplier가 있으면 런타임에 덮어써질 수 있는 fallback 값입니다.")]
         [SerializeField] private Color defaultBackgroundColor = new Color32(221, 234, 232, 255);
         [SerializeField] private Color hoverBackgroundColor = new Color32(112, 140, 158, 255);
         [SerializeField] private Color selectedBackgroundColor = new Color32(81, 108, 132, 255);
@@ -121,6 +122,21 @@ namespace PPP.BLUE.VN.RecipeApp
         public void SetSelected(bool selected)
         {
             isSelected = selected;
+            ApplyVisualState();
+        }
+
+        public void ApplyThemeColors(
+            Color defaultBackground,
+            Color hoverBackground,
+            Color selectedBackground,
+            Color defaultText,
+            Color activeText)
+        {
+            defaultBackgroundColor = defaultBackground;
+            hoverBackgroundColor = hoverBackground;
+            selectedBackgroundColor = selectedBackground;
+            defaultTextColor = defaultText;
+            activeTextColor = activeText;
             ApplyVisualState();
         }
 
