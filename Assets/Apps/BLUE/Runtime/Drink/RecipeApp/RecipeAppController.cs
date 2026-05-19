@@ -33,6 +33,8 @@
 
         private const int MaxSelectedIngredients = 3;
             private const string ArtheonIngredientId = "INGREDIENT_ARTHEON";
+            private const string CategoryDairyKey = "CATEGORY_DAIRY";
+            private const string TagMilkKey = "TAG_MILK";
 
             [Header("Data")]
             [SerializeField] private RecipeDataLoader dataLoader;
@@ -524,6 +526,18 @@
                 if (string.Equals(drink.category, selectedClassificationKey, StringComparison.OrdinalIgnoreCase))
                     return true;
 
+                if (string.Equals(selectedClassificationKey, CategoryDairyKey, StringComparison.Ordinal))
+                {
+                    if (drink.tags != null)
+                    {
+                        for (int i = 0; i < drink.tags.Count; i++)
+                        {
+                            if (string.Equals(drink.tags[i], TagMilkKey, StringComparison.Ordinal))
+                                return true;
+                        }
+                    }
+                }
+
                 if (drink.tags == null)
                     return false;
 
@@ -654,6 +668,19 @@
                     Debug.LogWarning("[RecipeApp] classificationDropdown is not assigned.");
                     selectedClassificationKey = string.Empty;
                     return;
+
+                var go = detailModalBlockerImage.gameObject;
+                go.SetActive(visible);
+                if (visible)
+                    go.transform.SetAsLastSibling();
+            }
+
+            private void InitializeClassificationDropdown()
+            {
+                if (classificationDropdown == null)
+                {
+                    classificationDropdown = GetComponentsInChildren<TMP_Dropdown>(true)
+                        .FirstOrDefault(d => d != null && d.name.IndexOf("AmbientDropdownList", StringComparison.OrdinalIgnoreCase) >= 0);
                 }
 
                 classificationOptionKeys.Clear();
@@ -677,7 +704,13 @@
                     {
                         var tag = drink.tags[t];
                         if (!string.IsNullOrWhiteSpace(tag))
-                            tags.Add(tag.Trim());
+                        {
+                            string normalized = tag.Trim();
+                            if (string.Equals(normalized, TagMilkKey, StringComparison.Ordinal))
+                                continue;
+
+                            tags.Add(normalized);
+                        }
                     }
                 }
 
@@ -801,7 +834,24 @@
                     detailCategoryText.text = drink.category ?? string.Empty;
 
                 string categoryRaw = drink.category ?? string.Empty;
-                string tagsRaw = drink.tags != null ? string.Join(", ", drink.tags) : string.Empty;
+                string tagsRaw = string.Empty;
+                if (drink.tags != null && drink.tags.Count > 0)
+                {
+                    var visibleTags = new List<string>();
+                    for (int i = 0; i < drink.tags.Count; i++)
+                    {
+                        var rawTag = drink.tags[i];
+                        if (string.IsNullOrWhiteSpace(rawTag))
+                            continue;
+
+                        if (string.Equals(rawTag, TagMilkKey, StringComparison.Ordinal))
+                            continue;
+
+                        visibleTags.Add(rawTag);
+                    }
+
+                    tagsRaw = string.Join(", ", visibleTags);
+                }
 
                 if (detailTagsText != null)
                 {
