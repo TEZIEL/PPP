@@ -13,7 +13,7 @@ namespace PPP.BLUE.VN.RecipeApp
     /// - 로컬라이징 키-값 테이블(인스펙터) 기반으로 표시 텍스트 변환
     /// - 줄바꿈은 TMP 기본 동작 사용
     /// </summary>
-    public sealed class DrinkListItemUI : MonoBehaviour, UnityEngine.EventSystems.IPointerClickHandler
+    public sealed class DrinkListItemUI : MonoBehaviour, UnityEngine.EventSystems.IPointerClickHandler, UnityEngine.EventSystems.IPointerEnterHandler, UnityEngine.EventSystems.IPointerExitHandler
     {
         [Serializable]
         private struct LocalizedEntry
@@ -30,6 +30,14 @@ namespace PPP.BLUE.VN.RecipeApp
         [SerializeField] private TMP_Text tagsText;         // 호환용(현재는 미사용)
         [SerializeField] private Button actionButton;
         [SerializeField] private BlueprintListItemThemeApplier themeApplier;
+        [SerializeField] private Image backgroundImage;
+
+        [Header("Visual State Colors")]
+        [SerializeField] private Color defaultBackgroundColor = new Color32(221, 234, 232, 255);
+        [SerializeField] private Color hoverBackgroundColor = new Color32(112, 140, 158, 255);
+        [SerializeField] private Color selectedBackgroundColor = new Color32(81, 108, 132, 255);
+        [SerializeField] private Color defaultTextColor = Color.black;
+        [SerializeField] private Color activeTextColor = Color.white;
 
         [Header("Localization (Inspector)")]
         [SerializeField] private LocalizedEntry[] localizedEntries = Array.Empty<LocalizedEntry>();
@@ -49,6 +57,8 @@ namespace PPP.BLUE.VN.RecipeApp
         private DrinkEntry current;
         private Action<DrinkEntry> onClicked;
         private Sprite currentSprite;
+        private bool isHovered;
+        private bool isSelected;
 
         public string DrinkId => current != null ? current.id : string.Empty;
 
@@ -61,7 +71,14 @@ namespace PPP.BLUE.VN.RecipeApp
             if (themeApplier == null)
                 themeApplier = GetComponent<BlueprintListItemThemeApplier>();
 
+            if (backgroundImage == null)
+                backgroundImage = GetComponent<Image>();
+
+            if (backgroundImage == null)
+                Debug.LogWarning($"[DrinkListItemUI] backgroundImage is not assigned on {name}. Hover/selected background color will be skipped.");
+
             RebuildLocalizationTable();
+            ApplyVisualState();
         }
 
 #if UNITY_EDITOR
@@ -94,7 +111,50 @@ namespace PPP.BLUE.VN.RecipeApp
                 ApplyUnlockVisual(image != null);
             }
 
+            isHovered = false;
+
             themeApplier?.ApplyCurrentTheme();
+            ApplyVisualState();
+        }
+
+
+        public void SetSelected(bool selected)
+        {
+            isSelected = selected;
+            ApplyVisualState();
+        }
+
+        public void OnPointerEnter(UnityEngine.EventSystems.PointerEventData eventData)
+        {
+            isHovered = true;
+            ApplyVisualState();
+        }
+
+        public void OnPointerExit(UnityEngine.EventSystems.PointerEventData eventData)
+        {
+            isHovered = false;
+            ApplyVisualState();
+        }
+
+        private void ApplyVisualState()
+        {
+            bool active = isSelected || isHovered;
+
+            if (backgroundImage != null)
+            {
+                if (isSelected)
+                    backgroundImage.color = selectedBackgroundColor;
+                else if (isHovered)
+                    backgroundImage.color = hoverBackgroundColor;
+                else
+                    backgroundImage.color = defaultBackgroundColor;
+            }
+
+            var textColor = active ? activeTextColor : defaultTextColor;
+            if (nameText != null)
+                nameText.color = textColor;
+            if (descriptionText != null)
+                descriptionText.color = textColor;
         }
 
         public void ApplyUnlockVisual(bool unlocked)

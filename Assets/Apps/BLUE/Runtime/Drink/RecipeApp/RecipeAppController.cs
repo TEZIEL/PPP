@@ -95,6 +95,7 @@
             private List<IngredientEntry> allIngredients = new List<IngredientEntry>();
             private List<DrinkEntry> allDrinks = new List<DrinkEntry>();
             private DrinkEntry openedDetailDrink;
+            private string selectedDrinkId;
             private readonly Dictionary<string, Sprite> defaultSpriteByKey
             = new Dictionary<string, Sprite>(StringComparer.OrdinalIgnoreCase);
 
@@ -394,6 +395,7 @@
 
                         item.Setup(drink, sprite, ingredientDisplayNameById, OnDrinkClicked);
                         drinkItems.Add(item);
+                        item.SetSelected(!string.IsNullOrWhiteSpace(selectedDrinkId) && string.Equals(selectedDrinkId, drink.id, StringComparison.OrdinalIgnoreCase));
                     }
                 }
 
@@ -410,7 +412,12 @@
 
                 // 현재 열린 상세가 필터 결과에 없으면 상세를 닫는다.
                 if (openedDetailDrink != null && !filtered.Contains(openedDetailDrink))
-                    ShowDetail(null);
+                    CloseDetailModal();
+
+                if (!string.IsNullOrWhiteSpace(selectedDrinkId) && !filtered.Any(x => x != null && string.Equals(x.id, selectedDrinkId, StringComparison.OrdinalIgnoreCase)))
+                    selectedDrinkId = null;
+
+                SyncDrinkItemSelectedState();
             }
 
             private void BindScrollButtons()
@@ -560,6 +567,8 @@
                 if (detailRoot != null)
                     detailRoot.SetActive(false);
                 SetModalBlockerVisible(false);
+                selectedDrinkId = null;
+                SyncDrinkItemSelectedState();
             }
 
 
@@ -601,6 +610,8 @@
             private void ShowDetail(DrinkEntry drink)
             {
                 openedDetailDrink = drink;
+                selectedDrinkId = drink?.id;
+                SyncDrinkItemSelectedState();
 
                 bool show = drink != null;
                 if (detailRoot != null)
@@ -702,11 +713,27 @@
                         ? FindDrinkSprite(drink?.imageKey)
                         : GetDefaultSprite(drink?.imageKey);
                     item.Setup(drink, sprite, ingredientDisplayNameById, OnDrinkClicked);
+                    item.SetSelected(!string.IsNullOrWhiteSpace(selectedDrinkId) && string.Equals(selectedDrinkId, item.DrinkId, StringComparison.OrdinalIgnoreCase));
                     Debug.Log($"[RECIPE_APP] ApplyImage drinkId={item.DrinkId} served={unlocked}");
                 }
 
                 if (openedDetailDrink != null)
                     ShowDetail(openedDetailDrink);
+            }
+
+
+            private void SyncDrinkItemSelectedState()
+            {
+                for (int i = 0; i < drinkItems.Count; i++)
+                {
+                    var item = drinkItems[i];
+                    if (item == null)
+                        continue;
+
+                    bool selected = !string.IsNullOrWhiteSpace(selectedDrinkId)
+                        && string.Equals(item.DrinkId, selectedDrinkId, StringComparison.OrdinalIgnoreCase);
+                    item.SetSelected(selected);
+                }
             }
 
             private Sprite FindDrinkSprite(string imageKey)
