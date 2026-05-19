@@ -52,6 +52,8 @@
             [SerializeField] private Button scrollUpButton;
             [SerializeField] private Button scrollDownButton;
             [SerializeField, Range(0.01f, 1f)] private float buttonScrollStep = 0.2f;
+            [SerializeField] private TMP_Dropdown classificationDropdown;
+            [SerializeField] private Button resetButton;
 
 
             [Header("Detail Panel")]
@@ -96,6 +98,8 @@
             private List<DrinkEntry> allDrinks = new List<DrinkEntry>();
             private DrinkEntry openedDetailDrink;
             private string selectedDrinkId;
+            private string selectedClassificationKey;
+            private readonly List<string> classificationOptionKeys = new List<string>();
             private readonly Dictionary<string, Sprite> defaultSpriteByKey
             = new Dictionary<string, Sprite>(StringComparer.OrdinalIgnoreCase);
 
@@ -109,6 +113,8 @@
                 BuildDefaultSpriteMap();    
                 LoadData();
                 BuildIngredientButtons();
+                InitializeClassificationDropdown();
+                BindResetButton();
                 ApplyFilterAndRebuildList();
                 InitializeDetailModal();
                 ShowDetail(null);
@@ -120,6 +126,8 @@
                     instance = null;
 
                 UnbindScrollButtons();
+                UnbindResetButton();
+                UnbindClassificationDropdown();
             }
 
             private void InitializeUnlockState()
@@ -343,6 +351,7 @@
 
                 SyncIngredientButtonSelectionState();
                 UpdateIngredientButtonInteractableState();
+                CloseDetailModal();
                 ApplyFilterAndRebuildList();
             }
 
@@ -378,7 +387,7 @@
             {
                 ClearCreatedListItems();
 
-                List<DrinkEntry> filtered = FilterDrinksBySelectedIngredients();
+                List<DrinkEntry> filtered = FilterDrinksByCurrentFilters();
 
                 if (drinkListContent != null && drinkListItemPrefab != null)
                 {
@@ -460,11 +469,8 @@
                 drinkListScrollRect.verticalNormalizedPosition = Mathf.Clamp01(next);
             }
 
-            private List<DrinkEntry> FilterDrinksBySelectedIngredients()
+            private List<DrinkEntry> FilterDrinksByCurrentFilters()
             {
-                if (selectedIngredientIds.Count == 0)
-                    return allDrinks.ToList();
-
                 var result = new List<DrinkEntry>();
 
                 foreach (var drink in allDrinks)
@@ -495,11 +501,39 @@
                         }
                     }
 
-                    if (matchAll)
-                        result.Add(drink);
+                    if (!matchAll)
+                        continue;
+
+                    if (!PassesClassificationFilter(drink))
+                        continue;
+
+                    result.Add(drink);
                 }
 
                 return result;
+            }
+
+            private bool PassesClassificationFilter(DrinkEntry drink)
+            {
+                if (drink == null)
+                    return false;
+
+                if (string.IsNullOrWhiteSpace(selectedClassificationKey))
+                    return true;
+
+                if (string.Equals(drink.category, selectedClassificationKey, StringComparison.OrdinalIgnoreCase))
+                    return true;
+
+                if (drink.tags == null)
+                    return false;
+
+                for (int i = 0; i < drink.tags.Count; i++)
+                {
+                    if (string.Equals(drink.tags[i], selectedClassificationKey, StringComparison.OrdinalIgnoreCase))
+                        return true;
+                }
+
+                return false;
             }
 
             private void OnDrinkClicked(DrinkEntry clicked)
@@ -605,6 +639,128 @@
                 go.SetActive(visible);
                 if (visible)
                     go.transform.SetAsLastSibling();
+            }
+
+            private void InitializeClassificationDropdown()
+            {
+                if (classificationDropdown == null)
+                {
+                    classificationDropdown = GetComponentsInChildren<TMP_Dropdown>(true)
+                        .FirstOrDefault(d => d != null && d.name.IndexOf("AmbientDropdownList", StringComparison.OrdinalIgnoreCase) >= 0);
+                }
+
+                if (classificationDropdown == null)
+                {
+                    Debug.LogWarning("[RecipeApp] classificationDropdown is not assigned.");
+                    selectedClassificationKey = string.Empty;
+                    return;
+                }
+
+                classificationOptionKeys.Clear();
+                classificationOptionKeys.Add(string.Empty);
+
+                var categories = new SortedSet<string>(StringComparer.OrdinalIgnoreCase);
+                var tags = new SortedSet<string>(StringComparer.OrdinalIgnoreCase);
+                for (int i = 0; i < allDrinks.Count; i++)
+                {
+                    var drink = allDrinks[i];
+                    if (drink == null)
+                        continue;
+
+                    if (!string.IsNullOrWhiteSpace(drink.category))
+                        categories.Add(drink.category.Trim());
+
+                    if (drink.tags == null)
+                        continue;
+
+                    for (int t = 0; t < drink.tags.Count; t++)
+                    {
+                        var tag = drink.tags[t];
+                        if (!string.IsNullOrWhiteSpace(tag))
+                            tags.Add(tag.Trim());
+                    }
+                }
+
+                foreach (var category in categories)
+                    classificationOptionKeys.Add(category);
+                foreach (var tag in tags)
+                    classificationOptionKeys.Add(tag);
+
+                var options = new List<TMP_Dropdown.OptionData> { new TMP_Dropdown.OptionData("전체") };
+                for (int i = 1; i < classificationOptionKeys.Count; i++)
+                    options.Add(new TMP_Dropdown.OptionData(ToClassificationDisplayName(classificationOptionKeys[i])));
+
+                classificationDropdown.ClearOptions();
+                classificationDropdown.AddOptions(options);
+                classificationDropdown.SetValueWithoutNotify(0);
+                selectedClassificationKey = string.Empty;
+                classificationDropdown.onValueChanged.AddListener(OnClassificationDropdownChanged);
+            }
+
+            private void UnbindClassificationDropdown()
+            {
+                if (classificationDropdown != null)
+                    classificationDropdown.onValueChanged.RemoveListener(OnClassificationDropdownChanged);
+            }
+
+            private void OnClassificationDropdownChanged(int index)
+            {
+                if (classificationOptionKeys.Count == 0)
+                    return;
+
+                int clamped = Mathf.Clamp(index, 0, classificationOptionKeys.Count - 1);
+                selectedClassificationKey = classificationOptionKeys[clamped];
+                CloseDetailModal();
+                ApplyFilterAndRebuildList();
+            }
+
+            private static string ToClassificationDisplayName(string rawKey)
+            {
+                if (string.IsNullOrWhiteSpace(rawKey))
+                    return "전체";
+
+                return rawKey.Replace("CATEGORY_", string.Empty, StringComparison.OrdinalIgnoreCase)
+                             .Replace("TAG_", string.Empty, StringComparison.OrdinalIgnoreCase)
+                             .Replace('_', ' ')
+                             .Trim();
+            }
+
+            private void BindResetButton()
+            {
+                if (resetButton == null)
+                {
+                    resetButton = GetComponentsInChildren<Button>(true)
+                        .FirstOrDefault(b => b != null && b.name.IndexOf("RecipeReset", StringComparison.OrdinalIgnoreCase) >= 0);
+                }
+
+                if (resetButton == null)
+                {
+                    Debug.LogWarning("[RecipeApp] resetButton is not assigned.");
+                    return;
+                }
+
+                resetButton.onClick.AddListener(HandleResetFilters);
+            }
+
+            private void UnbindResetButton()
+            {
+                if (resetButton != null)
+                    resetButton.onClick.RemoveListener(HandleResetFilters);
+            }
+
+            private void HandleResetFilters()
+            {
+                selectedIngredientIds.Clear();
+                selectedClassificationKey = string.Empty;
+                selectedDrinkId = null;
+
+                if (classificationDropdown != null)
+                    classificationDropdown.SetValueWithoutNotify(0);
+
+                SyncIngredientButtonSelectionState();
+                UpdateIngredientButtonInteractableState();
+                CloseDetailModal();
+                ApplyFilterAndRebuildList();
             }
 
             private void ShowDetail(DrinkEntry drink)
