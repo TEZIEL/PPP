@@ -61,6 +61,10 @@
             [SerializeField] private TMP_Text detailIngredientsText;
             [SerializeField] private TMP_Text detailTagsText;
             [SerializeField] private TMP_Text detailDescriptionText;
+            [SerializeField] private TMP_Text detailCategoryText;
+            [SerializeField] private TMP_Text detailArtheonText;
+            [SerializeField] private Image detailModalBlockerImage;
+            [SerializeField] private Button detailCloseButton;
 
 
             [Header("Default Sprite Mapping")]
@@ -91,6 +95,7 @@
             private List<IngredientEntry> allIngredients = new List<IngredientEntry>();
             private List<DrinkEntry> allDrinks = new List<DrinkEntry>();
             private DrinkEntry openedDetailDrink;
+            private string selectedDrinkId;
             private readonly Dictionary<string, Sprite> defaultSpriteByKey
             = new Dictionary<string, Sprite>(StringComparer.OrdinalIgnoreCase);
 
@@ -105,6 +110,7 @@
                 LoadData();
                 BuildIngredientButtons();
                 ApplyFilterAndRebuildList();
+                InitializeDetailModal();
                 ShowDetail(null);
             }
 
@@ -389,6 +395,7 @@
 
                         item.Setup(drink, sprite, ingredientDisplayNameById, OnDrinkClicked);
                         drinkItems.Add(item);
+                        item.SetSelected(!string.IsNullOrWhiteSpace(selectedDrinkId) && string.Equals(selectedDrinkId, drink.id, StringComparison.OrdinalIgnoreCase));
                     }
                 }
 
@@ -405,7 +412,12 @@
 
                 // 현재 열린 상세가 필터 결과에 없으면 상세를 닫는다.
                 if (openedDetailDrink != null && !filtered.Contains(openedDetailDrink))
-                    ShowDetail(null);
+                    CloseDetailModal();
+
+                if (!string.IsNullOrWhiteSpace(selectedDrinkId) && !filtered.Any(x => x != null && string.Equals(x.id, selectedDrinkId, StringComparison.OrdinalIgnoreCase)))
+                    selectedDrinkId = null;
+
+                SyncDrinkItemSelectedState();
             }
 
             private void BindScrollButtons()
@@ -495,23 +507,124 @@
                 if (clicked == null)
                     return;
 
-                // 같은 아이템 재클릭 시 토글 닫기
-                if (openedDetailDrink != null && string.Equals(openedDetailDrink.id, clicked.id, StringComparison.OrdinalIgnoreCase))
+                ShowDetail(clicked);
+            }
+
+
+            private void InitializeDetailModal()
+            {
+                if (detailModalBlockerImage == null)
+                    detailModalBlockerImage = EnsureModalBlocker();
+
+                if (detailCloseButton == null && detailRoot != null)
+                    detailCloseButton = detailRoot.GetComponentInChildren<Button>(true);
+
+                if (detailCloseButton == null && detailRoot != null)
+                    detailCloseButton = CreateRuntimeCloseButton(detailRoot.transform);
+
+                if (detailCloseButton != null)
                 {
-                    ShowDetail(null);
-                    return;
+                    detailCloseButton.onClick.RemoveListener(CloseDetailModal);
+                    detailCloseButton.onClick.AddListener(CloseDetailModal);
                 }
 
-                ShowDetail(clicked);
+                SetModalBlockerVisible(false);
+            }
+
+            private Button CreateRuntimeCloseButton(Transform parent)
+            {
+                var go = new GameObject("DetailCloseButton", typeof(RectTransform), typeof(Image), typeof(Button));
+                go.transform.SetParent(parent, false);
+                var rect = go.GetComponent<RectTransform>();
+                rect.anchorMin = new Vector2(1f, 1f);
+                rect.anchorMax = new Vector2(1f, 1f);
+                rect.pivot = new Vector2(1f, 1f);
+                rect.anchoredPosition = new Vector2(-12f, -12f);
+                rect.sizeDelta = new Vector2(84f, 34f);
+
+                var image = go.GetComponent<Image>();
+                image.color = new Color(1f, 1f, 1f, 0.9f);
+
+                var label = new GameObject("Label", typeof(RectTransform), typeof(TMP_Text));
+                label.transform.SetParent(go.transform, false);
+                var labelRect = label.GetComponent<RectTransform>();
+                labelRect.anchorMin = Vector2.zero;
+                labelRect.anchorMax = Vector2.one;
+                labelRect.offsetMin = Vector2.zero;
+                labelRect.offsetMax = Vector2.zero;
+                var text = label.GetComponent<TMP_Text>();
+                text.text = "Close";
+                text.alignment = TextAlignmentOptions.Center;
+                text.fontSize = 18;
+                text.color = Color.black;
+
+                return go.GetComponent<Button>();
+            }
+
+            public void CloseDetailModal()
+            {
+                openedDetailDrink = null;
+                if (detailRoot != null)
+                    detailRoot.SetActive(false);
+                SetModalBlockerVisible(false);
+                selectedDrinkId = null;
+                SyncDrinkItemSelectedState();
+            }
+
+
+            private Image EnsureModalBlocker()
+            {
+                if (detailRoot == null)
+                    return null;
+
+                var rootRect = GetComponent<RectTransform>();
+                if (rootRect == null)
+                    return null;
+
+                var blockerGo = new GameObject("DetailModalBlocker", typeof(RectTransform), typeof(CanvasRenderer), typeof(Image));
+                blockerGo.transform.SetParent(transform, false);
+                var rect = blockerGo.GetComponent<RectTransform>();
+                rect.anchorMin = Vector2.zero;
+                rect.anchorMax = Vector2.one;
+                rect.offsetMin = Vector2.zero;
+                rect.offsetMax = Vector2.zero;
+
+                var image = blockerGo.GetComponent<Image>();
+                image.color = new Color(0f, 0f, 0f, 0.08f);
+                image.raycastTarget = true;
+                blockerGo.SetActive(false);
+                return image;
+            }
+
+            private void SetModalBlockerVisible(bool visible)
+            {
+                if (detailModalBlockerImage == null)
+                    return;
+
+                var go = detailModalBlockerImage.gameObject;
+                go.SetActive(visible);
+                if (visible)
+                    go.transform.SetAsLastSibling();
             }
 
             private void ShowDetail(DrinkEntry drink)
             {
                 openedDetailDrink = drink;
+                selectedDrinkId = drink?.id;
+                SyncDrinkItemSelectedState();
 
                 bool show = drink != null;
                 if (detailRoot != null)
+                {
                     detailRoot.SetActive(show);
+                    if (show)
+                        detailRoot.transform.SetAsLastSibling();
+                }
+
+                SetModalBlockerVisible(show);
+
+                if (detailRoot != null && show)
+                    detailRoot.transform.SetAsLastSibling();
 
                 if (!show)
                     return;
@@ -528,8 +641,31 @@
                     detailIngredientsText.text = BuildIngredientSummaryText(drink);
                 }
 
+                if (detailCategoryText != null)
+                    detailCategoryText.text = drink.category ?? string.Empty;
+
+                string categoryRaw = drink.category ?? string.Empty;
+                string tagsRaw = drink.tags != null ? string.Join(", ", drink.tags) : string.Empty;
+
                 if (detailTagsText != null)
-                    detailTagsText.text = drink.tags != null ? string.Join(", ", drink.tags) : string.Empty;
+                {
+                    detailTagsText.text = string.IsNullOrWhiteSpace(categoryRaw)
+                        ? tagsRaw
+                        : $"{categoryRaw}\n{tagsRaw}".Trim();
+                }
+
+                if (detailArtheonText != null)
+                {
+                    detailArtheonText.gameObject.SetActive(drink.artheon_addable);
+                    if (drink.artheon_addable)
+                        detailArtheonText.text = "아르테온 추가 가능";
+                }
+                else if (detailTagsText != null && drink.artheon_addable)
+                {
+                    detailTagsText.text = string.IsNullOrWhiteSpace(detailTagsText.text)
+                        ? "아르테온 추가 가능"
+                        : detailTagsText.text + "\n아르테온 추가 가능";
+                }
 
                 if (detailImage != null)
                 {
@@ -577,11 +713,27 @@
                         ? FindDrinkSprite(drink?.imageKey)
                         : GetDefaultSprite(drink?.imageKey);
                     item.Setup(drink, sprite, ingredientDisplayNameById, OnDrinkClicked);
+                    item.SetSelected(!string.IsNullOrWhiteSpace(selectedDrinkId) && string.Equals(selectedDrinkId, item.DrinkId, StringComparison.OrdinalIgnoreCase));
                     Debug.Log($"[RECIPE_APP] ApplyImage drinkId={item.DrinkId} served={unlocked}");
                 }
 
                 if (openedDetailDrink != null)
                     ShowDetail(openedDetailDrink);
+            }
+
+
+            private void SyncDrinkItemSelectedState()
+            {
+                for (int i = 0; i < drinkItems.Count; i++)
+                {
+                    var item = drinkItems[i];
+                    if (item == null)
+                        continue;
+
+                    bool selected = !string.IsNullOrWhiteSpace(selectedDrinkId)
+                        && string.Equals(item.DrinkId, selectedDrinkId, StringComparison.OrdinalIgnoreCase);
+                    item.SetSelected(selected);
+                }
             }
 
             private Sprite FindDrinkSprite(string imageKey)
