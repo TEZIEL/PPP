@@ -30,11 +30,19 @@ MonoBehaviour:
     extraSprite7: {fileID: 21300000, guid: d486629a3740f634fbae381f7380feae, type: 3}
     extraSprite8: {fileID: 21300000, guid: c71281f820e96cd44a0784a029dc511d, type: 3}
     extraSprite9: {fileID: 21300000, guid: 54cb5efa0df0c404094510846b2ad7df, type: 3}
-    extraSprite10: {fileID: 0}
-    extraSprite11: {fileID: 0}
-    extraSprite12: {fileID: 0}
-    extraSprite13: {fileID: 0}
-    extraSprite14: {fileID: 0}
+    extraSprite10: {fileID: 21300000, guid: 54cb5efa0df0c404094510846b2ad7df, type: 3}
+    extraSprite11: {fileID: 21300000, guid: d3e8ded3c8fddbe45a31b84428e0f029, type: 3}
+    extraSprite12: {fileID: 21300000, guid: b6232b6282e34054aaa2746c0bd2d71f, type: 3}
+    extraSprite13: {fileID: 21300000, guid: 54cb5efa0df0c404094510846b2ad7df, type: 3}
+    extraSprite14: {fileID: 21300000, guid: 88501cd0e99f6c747b64ad4a5b0b8679, type: 3}
+    extraSprite15: {fileID: 21300000, guid: d3e8ded3c8fddbe45a31b84428e0f029, type: 3}
+    extraSprite16: {fileID: 21300000, guid: 3cf22a8af68a1e34d932c842ce81db75, type: 3}
+    extraSprite17: {fileID: 0}
+    extraSprite18: {fileID: 0}
+    extraSprite19: {fileID: 0}
+    extraSprite20: {fileID: 0}
+    extraSprite21: {fileID: 0}
+    extraSprite22: {fileID: 0}
     scrollViewBackgroundSprite: {fileID: 21300000, guid: 80e093c2270d4bd4c824183ee5b44632, type: 3}
     scrollUpButtonSprite: {fileID: 21300000, guid: d486629a3740f634fbae381f7380feae, type: 3}
     scrollDownButtonSprite: {fileID: 21300000, guid: c71281f820e96cd44a0784a029dc511d, type: 3}
@@ -54,9 +62,9 @@ MonoBehaviour:
     titleTextColor: {r: 0, g: 0, b: 0, a: 1}
     bodyTextColor: {r: 0, g: 0, b: 0, a: 1}
     metaTextColor: {r: 0, g: 0, b: 0, a: 1}
-    drinkListItemDefaultBackgroundColor: {r: 0.78431374, g: 0.78431374, b: 0.78431374, a: 1}
-    drinkListItemHoverBackgroundColor: {r: 0.2, g: 0.2, b: 0.2, a: 1}
-    drinkListItemSelectedBackgroundColor: {r: 0.2, g: 0.2, b: 0.2, a: 1}
+    drinkListItemDefaultBackgroundColor: {r: 0.8235294, g: 0.8392157, b: 0.972549, a: 1}
+    drinkListItemHoverBackgroundColor: {r: 0.5294118, g: 0.5647059, b: 0.9019608, a: 1}
+    drinkListItemSelectedBackgroundColor: {r: 0.5294118, g: 0.5647059, b: 0.9019608, a: 1}
     drinkListItemDefaultTextColor: {r: 0, g: 0, b: 0, a: 1}
     drinkListItemActiveTextColor: {r: 1, g: 1, b: 1, a: 1}
   bridge:

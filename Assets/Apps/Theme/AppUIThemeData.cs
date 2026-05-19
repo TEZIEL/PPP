@@ -32,6 +32,15 @@ public class AppUIThemeData : ScriptableObject
         public Sprite extraSprite13;
         public Sprite extraSprite14;
 
+        public Sprite extraSprite15;
+        public Sprite extraSprite16;
+        public Sprite extraSprite17;
+        public Sprite extraSprite18;
+        public Sprite extraSprite19;
+        public Sprite extraSprite20;
+        public Sprite extraSprite21;
+        public Sprite extraSprite22;
+
         [Header("Scroll/List")]
         public Sprite scrollViewBackgroundSprite;
         public Sprite scrollUpButtonSprite;
