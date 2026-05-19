@@ -575,7 +575,7 @@
       "description": "부드러운 우유의 고소함과 탄산의 상쾌함이 조화를 이루는 음료.",
       "artheon_addable": false,
       "category": "CATEGORY_SODA",
-      "tags": ["TAG_BALANCED","TAG_LIGHT"],
+      "tags": ["TAG_BALANCED","TAG_LIGHT","TAG_MILK"],
       "imageKey": "DRINK_MILK_SODA",
       "total": 11
     },
